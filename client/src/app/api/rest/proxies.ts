@@ -5,8 +5,8 @@ import { hub } from "../rest";
 
 const PROXIES = hub`/proxies`;
 
-export const getProxies = (): Promise<Proxy[]> =>
-  axios.get(PROXIES).then((response) => response.data);
+export const getProxies = () =>
+  axios.get<Proxy[]>(PROXIES).then((response) => response.data);
 
-export const updateProxy = (obj: Proxy): Promise<Proxy> =>
-  axios.put(`${PROXIES}/${obj.id}`, obj);
+export const updateProxy = (obj: Proxy) =>
+  axios.put<void>(`${PROXIES}/${obj.id}`, obj).then(() => {});
