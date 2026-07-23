@@ -23,21 +23,40 @@ if [[ $AUTH_REQUIRED != "false" ]]; then
   fi
 fi
 
-# Copy the Kube API and service CA bundle to /opt/app-root/src/ca.crt if they exist
+# Nodejs does not use the system trust store by default. We build a combined CA
+# bundle from known sources and set NODE_EXTRA_CA_CERTS to point at it. This adds
+# CAs on top of Node's compiled-in Mozilla root CAs.
+ca_bundle="/tmp/node-ca-bundle.pem"
 
-# Add Kube API CA
-if [ -f "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt" ]; then
-   cp /var/run/secrets/kubernetes.io/serviceaccount/ca.crt ${NODE_EXTRA_CA_CERTS}
-fi
+ca_sources=(
+  # Kubernetes API server CA (standard SA volume mount)
+  /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  # OpenShift service-serving CA (requires operator-managed ConfigMap mount)
+  /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+  # Cluster-injected custom/proxy CAs via RHEL trust store
+  /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+)
 
-# Add service serving CA
-if [ -f "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt" ]; then
-    cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt >> ${NODE_EXTRA_CA_CERTS}
-fi
+# Mount a ConfigMap or Secret to /opt/app-root/ca-certs.d/ with *.crt or *.pem
+# files and they will be included automatically without rebuilding the image.
+for f in /opt/app-root/ca-certs.d/*.crt /opt/app-root/ca-certs.d/*.pem; do
+  [ -f "$f" ] && ca_sources+=("$f")
+done
 
-# Add custom ingress CA if it exists
-if [ -f "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem" ]; then
-    cat /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem >> ${NODE_EXTRA_CA_CERTS}
+found=false
+: > "${ca_bundle}"
+for src in "${ca_sources[@]}"; do
+  if [ -f "$src" ]; then
+    cat "$src" >> "${ca_bundle}"
+    found=true
+  fi
+done
+
+if [ "$found" = true ]; then
+  export NODE_EXTRA_CA_CERTS="${ca_bundle}"
+else
+  rm -f "${ca_bundle}"
+  unset NODE_EXTRA_CA_CERTS
 fi
 
 exec node --enable-source-maps server/dist/index.js
