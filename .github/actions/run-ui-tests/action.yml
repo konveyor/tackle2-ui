@@ -132,6 +132,7 @@ runs:
         cd ui-tests/cypress
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+
     - name: Sanitize and generate report artifact name if missing
       if: always()
       env:
