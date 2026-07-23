@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { Fact } from "@app/api/models";
@@ -13,11 +12,19 @@ export const useFetchFacts = (
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [FactsQueryKey, applicationID],
-    queryFn: () => getFacts(applicationID),
+    queryFn: () =>
+      applicationID === undefined
+        ? Promise.resolve(undefined)
+        : getFacts(applicationID),
     enabled: !!applicationID,
-    onError: (error: AxiosError) => console.log("error, ", error),
+    onError: (error) => console.log("error, ", error),
     select: (facts): Fact[] =>
-      Object.keys(facts).map((fact) => ({ name: fact, data: facts[fact] })),
+      facts === undefined
+        ? []
+        : Object.keys(facts).map((fact) => ({
+            name: fact,
+            data: facts[fact],
+          })),
     refetchInterval,
   });
 
