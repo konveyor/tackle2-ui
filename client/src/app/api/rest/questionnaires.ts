@@ -5,20 +5,21 @@ import { hub } from "../rest";
 
 export const QUESTIONNAIRES = hub`/questionnaires`;
 
-export const getQuestionnaires = (): Promise<Questionnaire[]> =>
-  axios.get(QUESTIONNAIRES).then((response) => response.data);
+export const getQuestionnaires = () =>
+  axios.get<Questionnaire[]>(QUESTIONNAIRES).then((response) => response.data);
 
-export const getQuestionnaireById = <T>(id: number | string): Promise<T> =>
-  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
+export const getQuestionnaireById = (id: number | string) =>
+  axios
+    .get<Questionnaire>(`${QUESTIONNAIRES}/${id}`)
+    .then((response) => response.data);
 
-export const createQuestionnaire = (
-  obj: Questionnaire
-): Promise<Questionnaire> =>
-  axios.post(`${QUESTIONNAIRES}`, obj).then((response) => response.data);
+export const createQuestionnaire = (obj: Questionnaire) =>
+  axios
+    .post<Questionnaire>(QUESTIONNAIRES, obj)
+    .then((response) => response.data);
 
-export const updateQuestionnaire = (
-  obj: Questionnaire
-): Promise<Questionnaire> => axios.put(`${QUESTIONNAIRES}/${obj.id}`, obj);
+export const updateQuestionnaire = (obj: Questionnaire) =>
+  axios.put<void>(`${QUESTIONNAIRES}/${obj.id}`, obj).then(() => {});
 
-export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
-  axios.delete(`${QUESTIONNAIRES}/${id}`);
+export const deleteQuestionnaire = (id: number) =>
+  axios.delete<void>(`${QUESTIONNAIRES}/${id}`).then(() => {});
