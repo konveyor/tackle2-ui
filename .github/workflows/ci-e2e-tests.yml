@@ -44,11 +44,18 @@ jobs:
       - id: container
         name: build the tackle2-ui container
         env:
+          REF: ${{ inputs.checkout_ref }}
           IMG_NAME: ttl.sh/tackle2-ui-${{ github.sha }}:2h
         run: |
           echo "IMG_NAME=${IMG_NAME}" >> "$GITHUB_OUTPUT"
           docker build . -t ${IMG_NAME}
           docker push ${IMG_NAME}
+
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Test UI Image
+            - checkout ref: \`${REF:-(default branch)}\`
+            - UI image: \`$IMG_NAME\`
+          EOF
 
   determine-branch-params:
     runs-on: ubuntu-latest
@@ -60,12 +67,16 @@ jobs:
     steps:
       - name: Determine branch-specific parameters
         id: params
+        env:
+          CHECKOUT_REF: ${{ inputs.checkout_ref }}
+          BASE_REF: ${{ github.base_ref }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           # Resolve the effective branch from available context
           # Priority: explicit workflow_call input > PR target branch > push branch / schedule default
-          REF="${{ inputs.checkout_ref }}"
-          REF="${REF:-${{ github.base_ref }}}"
-          REF="${REF:-${{ github.ref_name }}}"
+          REF="${CHECKOUT_REF}"
+          REF="${REF:-${BASE_REF}}"
+          REF="${REF:-${REF_NAME}}"
 
           # Normalize: strip any refs/heads/ prefix
           BRANCH="${REF#refs/heads/}"
@@ -87,8 +98,8 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Branch Parameters
             - effective_branch: \`$BRANCH\`
-            - bundle_image: \`$BUNDLE\`
             - install_konveyor_version: \`$BRANCH\`
+            - bundle_image: \`$BUNDLE\`
             - test_ref: \`$REF\`
           EOF
 
