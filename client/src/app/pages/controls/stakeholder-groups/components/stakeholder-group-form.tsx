@@ -91,7 +91,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     mode: "all",
   });
 
-  const onCreateStakeholderGroupSuccess = () =>
+  const onCreateStakeholderGroupSuccess = (_group: StakeholderGroup) =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.stakeholderGroup"),
@@ -113,10 +113,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     onCreateStakeholderGroupError
   );
 
-  const onUpdateStakeholderGroupSuccess = (
-    _response: unknown,
-    group: StakeholderGroup
-  ) =>
+  const onUpdateStakeholderGroupSuccess = (group: StakeholderGroup) =>
     pushNotification({
       title: t("toastr.success.saveWhat", {
         what: group.name,

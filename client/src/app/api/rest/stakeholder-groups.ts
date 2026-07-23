@@ -5,18 +5,18 @@ import { hub } from "../rest";
 
 const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
 
-export const getStakeholderGroups = (): Promise<StakeholderGroup[]> =>
-  axios.get(STAKEHOLDER_GROUPS).then((response) => response.data);
+export const getStakeholderGroups = () =>
+  axios
+    .get<StakeholderGroup[]>(STAKEHOLDER_GROUPS)
+    .then((response) => response.data);
 
-export const deleteStakeholderGroup = (id: number): Promise<StakeholderGroup> =>
-  axios.delete(`${STAKEHOLDER_GROUPS}/${id}`);
+export const createStakeholderGroup = (obj: New<StakeholderGroup>) =>
+  axios
+    .post<StakeholderGroup>(STAKEHOLDER_GROUPS, obj)
+    .then((response) => response.data);
 
-export const createStakeholderGroup = (
-  obj: New<StakeholderGroup>
-): Promise<StakeholderGroup> =>
-  axios.post(STAKEHOLDER_GROUPS, obj).then((res) => res.data);
+export const updateStakeholderGroup = (obj: StakeholderGroup) =>
+  axios.put<void>(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj).then(() => {});
 
-export const updateStakeholderGroup = (
-  obj: StakeholderGroup
-): Promise<StakeholderGroup> =>
-  axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
+export const deleteStakeholderGroup = (id: number) =>
+  axios.delete<void>(`${STAKEHOLDER_GROUPS}/${id}`).then(() => {});
