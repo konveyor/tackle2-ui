@@ -94,6 +94,14 @@ const AssetGenerators = lazy(
   () => import("./pages/asset-generators/asset-generators")
 );
 
+const AgentRuns = lazy(() => import("./pages/agent-runs"));
+const AgentRunDetail = lazy(
+  () => import("./pages/agent-runs/agent-run-detail-page")
+);
+const Agents = lazy(() => import("./pages/agents"));
+const Skills = lazy(() => import("./pages/skills"));
+const Playbooks = lazy(() => import("./pages/playbooks"));
+
 export interface IRoute<T> {
   path: T;
   comp: ComponentType;
@@ -256,6 +264,31 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     path: Paths.analysisProfiles,
     comp: AnalysisProfiles,
     exact: false,
+  },
+  {
+    path: Paths.agentRunDetail,
+    comp: AgentRunDetail,
+    exact: true,
+  },
+  {
+    path: Paths.agentRuns,
+    comp: AgentRuns,
+    exact: true,
+  },
+  {
+    path: Paths.agents,
+    comp: Agents,
+    exact: true,
+  },
+  {
+    path: Paths.skills,
+    comp: Skills,
+    exact: true,
+  },
+  {
+    path: Paths.playbooks,
+    comp: Playbooks,
+    exact: true,
   },
 ];
 

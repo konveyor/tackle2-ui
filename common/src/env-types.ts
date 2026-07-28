@@ -46,6 +46,9 @@ export type ServerConfig = {
   /** Target URL for the UI server's `/llm-proxy` proxy */
   KAI_LLM_PROXY_URL?: string;
 
+  /** Target URL for the UI server's `/agentic` proxy (hub-shim gateway) */
+  AGENTIC_SHIM_URL?: string;
+
   /**
    * Target URL for the legacy Keycloak instance in an upgraded operator, used for `/auth` proxy
    * @deprecated This is only used for upgrading an operator to allow access to the existing legacy Keycloak instance.

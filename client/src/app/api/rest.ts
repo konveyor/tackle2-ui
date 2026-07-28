@@ -70,6 +70,7 @@ export * from "./rest/tasks";
 export * from "./rest/tickets";
 export * from "./rest/tokens";
 export * from "./rest/trackers";
+export * from "./rest/agent-runs";
 export * from "./rest/users";
 
 /**
