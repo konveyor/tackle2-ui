@@ -170,6 +170,20 @@ export default {
     },
   },
 
+  agentic: {
+    pathFilter: "/agentic",
+    target: serverConfig.AGENTIC_SHIM_URL || "http://localhost:7080",
+    logger,
+
+    ws: true,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/agentic": "/api",
+    },
+
+    on: {},
+  },
+
   kaiLLMProxy: {
     pathFilter: "/llm-proxy",
     target: serverConfig.KAI_LLM_PROXY_URL || "http://localhost:9003",

@@ -52,6 +52,11 @@ export const DevPaths = {
 
   dependencies: "/dependencies",
   migrationTargets: "/migration-targets",
+  agentRuns: "/agent-runs",
+  agentRunDetail: "/agent-runs/:runName",
+  agents: "/agents",
+  skills: "/skills",
+  playbooks: "/playbooks",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
@@ -139,4 +144,8 @@ export interface TaskDetailsAttachmentRoute {
 
 export interface ArchetypeTargetProfilesRoute {
   archetypeId: string;
+}
+
+export interface AgentRunDetailRoute {
+  runName: string;
 }
