@@ -9,8 +9,10 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  ExpandableSection,
   Flex,
   FlexItem,
+  Label,
   PageSection,
   Spinner,
 } from "@patternfly/react-core";
@@ -18,8 +20,13 @@ import { ArrowLeftIcon } from "@patternfly/react-icons";
 
 import type { AgentRunDetailRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
-import { useFetchAgentRun } from "@app/queries/agent-runs";
+import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
+import {
+  useFetchAgentRun,
+  useFetchAgenticApplications,
+} from "@app/queries/agent-runs";
 
+import { BranchPanel } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { PhaseLabel } from "./components/PhaseLabel";
 
@@ -50,6 +57,8 @@ const AgentRunDetailPage: React.FC = () => {
   const history = useHistory();
   const { runName } = useParams<AgentRunDetailRoute>();
   const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName, 2000);
+  // Inventory failures leave `application` undefined — BranchPanel copes.
+  const { applications } = useFetchAgenticApplications();
 
   const goBack = () => history.push(DevPaths.agentRuns);
 
@@ -81,6 +90,12 @@ const AgentRunDetailPage: React.FC = () => {
       </PageSection>
     );
   }
+
+  const coordinates = runHubCoordinates(agentRun.spec.env);
+  const application = applications.find((a) => a.id === coordinates.appId);
+  const instructions = agentRun.spec.instructions;
+  const params = agentRun.spec.params ?? [];
+  const models = agentRun.spec.models ?? [];
 
   return (
     <>
@@ -147,6 +162,99 @@ const AgentRunDetailPage: React.FC = () => {
             </DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
+
+        <Content>
+          <Content component="h3" style={{ marginTop: "1rem" }}>
+            Run spec
+          </Content>
+        </Content>
+        <DescriptionList isHorizontal isCompact style={{ marginTop: "0.5rem" }}>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Instructions</DescriptionListTerm>
+            <DescriptionListDescription>
+              {!instructions ? (
+                "-"
+              ) : instructions.length > 120 ? (
+                <ExpandableSection toggleText="Instructions">
+                  {instructions}
+                </ExpandableSection>
+              ) : (
+                instructions
+              )}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Params</DescriptionListTerm>
+            <DescriptionListDescription>
+              {params.length === 0
+                ? "-"
+                : params.map((p) => (
+                    <Label
+                      key={p.name}
+                      isCompact
+                      variant="outline"
+                      style={{ marginRight: "0.5rem" }}
+                    >
+                      <code>
+                        {p.name}={p.value}
+                      </code>
+                    </Label>
+                  ))}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Models</DescriptionListTerm>
+            <DescriptionListDescription>
+              {models.length === 0
+                ? "-"
+                : models.map((m) => (
+                    <div key={m.role}>
+                      {m.role}: {m.provider} / {m.model}
+                    </div>
+                  ))}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Application id</DescriptionListTerm>
+            <DescriptionListDescription>
+              {coordinates.appId ?? "-"}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Hub base URL</DescriptionListTerm>
+            <DescriptionListDescription>
+              {coordinates.hubBaseUrl ? (
+                <code>{coordinates.hubBaseUrl}</code>
+              ) : (
+                "-"
+              )}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Hub token</DescriptionListTerm>
+            <DescriptionListDescription>
+              {coordinates.hasToken ? "(set)" : "-"}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Target branch</DescriptionListTerm>
+            <DescriptionListDescription>
+              {coordinates.targetBranch ? (
+                <code>{coordinates.targetBranch}</code>
+              ) : (
+                "-"
+              )}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </DescriptionList>
+
+        {coordinates.targetBranch && (
+          <BranchPanel
+            application={application}
+            targetBranch={coordinates.targetBranch}
+            isTerminal={isTerminalPhase(agentRun.status?.phase)}
+          />
+        )}
       </PageSection>
       <PageSection
         isFilled

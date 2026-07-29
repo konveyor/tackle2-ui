@@ -381,6 +381,31 @@ export function runEnvValue(run: AgentRun, key: string): string | undefined {
   return run.spec.env?.find((e) => e.name === key)?.value;
 }
 
+/** The Hub coordinates + branch a run was created with, from its spec.env. */
+export interface RunHubCoordinates {
+  appId?: string;
+  targetBranch?: string;
+  hubBaseUrl?: string;
+  hasToken: boolean;
+}
+
+/**
+ * Extract the Hub coordinates from a run's (or playbook run's) spec.env.
+ * The shim injects HUB_TOKEN via valueFrom.secretKeyRef (no plain value),
+ * so presence of the env entry — not a .value — is what counts.
+ */
+export function runHubCoordinates(
+  env: EnvVar[] | undefined
+): RunHubCoordinates {
+  const value = (name: string) => env?.find((e) => e.name === name)?.value;
+  return {
+    appId: value(RUN_ENV.APP_ID),
+    targetBranch: value(RUN_ENV.TARGET_BRANCH),
+    hubBaseUrl: value(RUN_ENV.HUB_BASE_URL),
+    hasToken: env?.some((e) => e.name === RUN_ENV.HUB_TOKEN) ?? false,
+  };
+}
+
 // --------------------------------------------------------- seeded defaults
 
 /** Outcome for one resource of a RunApi.loadDefaults seeding pass. */
