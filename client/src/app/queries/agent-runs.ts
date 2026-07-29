@@ -30,6 +30,7 @@ import {
   getAgentRun,
   getAgentRuns,
   getAgents,
+  getApplicationsWithSource,
   getImagesWithSource,
   getPlaybookRun,
   getPlaybookRuns,
@@ -54,6 +55,7 @@ export const PLAYBOOKS_QUERY_KEY = "playbooks";
 export const PLAYBOOK_RUNS_QUERY_KEY = "playbookRuns";
 export const PLAYBOOK_RUN_QUERY_KEY = "playbookRun";
 export const IMAGES_QUERY_KEY = "agentImages";
+export const AGENTIC_APPLICATIONS_QUERY_KEY = "agenticApplications";
 
 export const useFetchAgentRuns = (refetchInterval: number | false = 2000) => {
   const { isLoading, error, data, refetch } = useQuery({
@@ -471,6 +473,29 @@ export const useLoadDefaultsMutation = (
     },
     onError,
   });
+};
+
+// ------------------------------------------- Applications inventory
+
+/**
+ * The shim's application inventory (Konveyor Hub or offline stub). Load
+ * failures must not block pages that render without an application, so
+ * callers get [] on error.
+ */
+export const useFetchAgenticApplications = () => {
+  const { isLoading, error, data, refetch } = useQuery({
+    queryKey: [AGENTIC_APPLICATIONS_QUERY_KEY],
+    queryFn: getApplicationsWithSource,
+    onError: (error: AxiosError) => console.log(error),
+  });
+  return {
+    applications: data?.applications || [],
+    source: data?.source ?? null,
+    endpoint: data?.endpoint ?? "",
+    isLoading,
+    fetchError: error,
+    refetch,
+  };
 };
 
 // ----------------------------------------------------------- Images

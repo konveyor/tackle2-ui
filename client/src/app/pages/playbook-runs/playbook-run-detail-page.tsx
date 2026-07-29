@@ -21,8 +21,13 @@ import { ArrowLeftIcon } from "@patternfly/react-icons";
 import type { PlaybookRunDetailRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type { AgentRunPhase } from "@app/api/agentic/contract";
+import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
+import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
-import { useFetchPlaybookRun } from "@app/queries/agent-runs";
+import {
+  useFetchAgenticApplications,
+  useFetchPlaybookRun,
+} from "@app/queries/agent-runs";
 
 import { playbookRunDuration } from "./playbook-runs-page";
 
@@ -72,6 +77,8 @@ const PlaybookRunDetailPage: React.FC = () => {
     runName,
     2000
   );
+  // Inventory failures leave `application` undefined — BranchPanel copes.
+  const { applications } = useFetchAgenticApplications();
 
   const goBack = () => history.push(DevPaths.playbookRuns);
   const openAgentRun = (name: string) => {
@@ -109,6 +116,8 @@ const PlaybookRunDetailPage: React.FC = () => {
 
   const stages = playbookRun.status?.stages ?? [];
   const currentStage = playbookRun.status?.currentStage;
+  const coordinates = runHubCoordinates(playbookRun.spec.env);
+  const application = applications.find((a) => a.id === coordinates.appId);
 
   return (
     <>
@@ -216,6 +225,14 @@ const PlaybookRunDetailPage: React.FC = () => {
               </ProgressStep>
             ))}
           </ProgressStepper>
+        )}
+
+        {coordinates.targetBranch && (
+          <BranchPanel
+            application={application}
+            targetBranch={coordinates.targetBranch}
+            isTerminal={isTerminalPhase(playbookRun.status?.phase)}
+          />
         )}
       </PageSection>
     </>
