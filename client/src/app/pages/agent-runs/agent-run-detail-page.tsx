@@ -26,7 +26,7 @@ import {
   useFetchAgenticApplications,
 } from "@app/queries/agent-runs";
 
-import { BranchPanel } from "./components/BranchPanel";
+import { BranchPanel, repoBranchUrl } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { PhaseLabel } from "./components/PhaseLabel";
 
@@ -96,6 +96,14 @@ const AgentRunDetailPage: React.FC = () => {
   const instructions = agentRun.spec.instructions;
   const params = agentRun.spec.params ?? [];
   const models = agentRun.spec.models ?? [];
+  // The run's own repository param is the repo it actually cloned; the
+  // application record can be repointed after the fact.
+  const runRepoUrl =
+    params.find((p) => p.name === "repository")?.value ??
+    application?.repository?.url;
+  const targetBranchUrl = coordinates.targetBranch
+    ? repoBranchUrl(runRepoUrl, coordinates.targetBranch)
+    : undefined;
 
   return (
     <>
@@ -239,10 +247,14 @@ const AgentRunDetailPage: React.FC = () => {
           <DescriptionListGroup>
             <DescriptionListTerm>Target branch</DescriptionListTerm>
             <DescriptionListDescription>
-              {coordinates.targetBranch ? (
-                <code>{coordinates.targetBranch}</code>
-              ) : (
+              {!coordinates.targetBranch ? (
                 "-"
+              ) : targetBranchUrl ? (
+                <a href={targetBranchUrl} target="_blank" rel="noreferrer">
+                  <code>{coordinates.targetBranch}</code>
+                </a>
+              ) : (
+                <code>{coordinates.targetBranch}</code>
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -251,6 +263,7 @@ const AgentRunDetailPage: React.FC = () => {
         {coordinates.targetBranch && (
           <BranchPanel
             application={application}
+            repoUrl={runRepoUrl}
             targetBranch={coordinates.targetBranch}
             isTerminal={isTerminalPhase(agentRun.status?.phase)}
           />
