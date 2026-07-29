@@ -3,11 +3,13 @@ import axios from "axios";
 import type {
   AgentImage,
   AgentPlaybook,
+  AgentPlaybookRun,
   AgentPlaybookSpec,
   AgentResource,
   AgentResourceSpec,
   AgentRun,
   Application,
+  CreatePlaybookRunInput,
   CreateRunInput,
   LLMProvider,
   SkillCard,
@@ -34,6 +36,7 @@ const SKILL_CARDS = agentic`/skillcards`;
 const SKILL_COLLECTIONS = agentic`/skillcollections`;
 const LLM_PROVIDERS = agentic`/llmproviders`;
 const PLAYBOOKS = agentic`/agentplaybooks`;
+const PLAYBOOK_RUNS = agentic`/agentplaybookruns`;
 const IMAGES = agentic`/images`;
 
 export const getAgentRuns = (): Promise<AgentRun[]> =>
@@ -193,6 +196,26 @@ export const updatePlaybook = (
 export const deletePlaybook = (name: string): Promise<void> =>
   axios
     .delete(`${PLAYBOOKS}/${encodeURIComponent(name)}`)
+    .then(() => undefined);
+
+// ----------------------------------------------------- Playbook Runs (CRUD)
+
+export const getPlaybookRuns = (): Promise<AgentPlaybookRun[]> =>
+  axios.get<AgentPlaybookRun[]>(PLAYBOOK_RUNS).then(({ data }) => data);
+
+export const getPlaybookRun = (name: string): Promise<AgentPlaybookRun> =>
+  axios
+    .get<AgentPlaybookRun>(`${PLAYBOOK_RUNS}/${encodeURIComponent(name)}`)
+    .then(({ data }) => data);
+
+export const createPlaybookRun = (
+  input: CreatePlaybookRunInput
+): Promise<AgentPlaybookRun> =>
+  axios.post<AgentPlaybookRun>(PLAYBOOK_RUNS, input).then(({ data }) => data);
+
+export const deletePlaybookRun = (name: string): Promise<void> =>
+  axios
+    .delete(`${PLAYBOOK_RUNS}/${encodeURIComponent(name)}`)
     .then(() => undefined);
 
 // ----------------------------------------------------------- Images (read)

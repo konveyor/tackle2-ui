@@ -226,6 +226,11 @@ const MigrationSidebar = ({
               Playbooks
             </NavLink>
           </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.playbookRuns} activeClassName="pf-m-current">
+              Playbook runs
+            </NavLink>
+          </NavItem>
         </NavExpandable>
         <NavExpandable
           title={t("sidebar.group.configuration")}

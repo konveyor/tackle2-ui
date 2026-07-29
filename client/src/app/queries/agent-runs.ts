@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 
 import type {
   AgentPlaybook,
+  AgentPlaybookRun,
   AgentPlaybookSpec,
   AgentResource,
   AgentResourceSpec,
@@ -16,17 +17,21 @@ import {
   createAgent,
   createAgentRun,
   createPlaybook,
+  createPlaybookRun,
   createSkillCard,
   createSkillCollection,
   deleteAgent,
   deleteAgentRun,
   deletePlaybook,
+  deletePlaybookRun,
   deleteSkillCard,
   deleteSkillCollection,
   getAgentRun,
   getAgentRuns,
   getAgents,
   getImagesWithSource,
+  getPlaybookRun,
+  getPlaybookRuns,
   getPlaybooks,
   getProviders,
   getSkillCards,
@@ -44,6 +49,8 @@ export const SKILL_CARDS_QUERY_KEY = "skillCards";
 export const SKILL_COLLECTIONS_QUERY_KEY = "skillCollections";
 export const PROVIDERS_QUERY_KEY = "llmProviders";
 export const PLAYBOOKS_QUERY_KEY = "playbooks";
+export const PLAYBOOK_RUNS_QUERY_KEY = "playbookRuns";
+export const PLAYBOOK_RUN_QUERY_KEY = "playbookRun";
 export const IMAGES_QUERY_KEY = "agentImages";
 
 export const useFetchAgentRuns = (refetchInterval: number | false = 2000) => {
@@ -318,6 +325,77 @@ export const useDeletePlaybookMutation = (
     onSuccess: (_, name) => {
       onSuccess(name);
       qc.invalidateQueries({ queryKey: [PLAYBOOKS_QUERY_KEY] });
+    },
+    onError,
+  });
+};
+
+// ----------------------------------------------------- Playbook Runs
+
+export const useFetchPlaybookRuns = (
+  refetchInterval: number | false = 2000
+) => {
+  const { isLoading, error, data, refetch } = useQuery({
+    queryKey: [PLAYBOOK_RUNS_QUERY_KEY],
+    queryFn: getPlaybookRuns,
+    onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
+  });
+
+  return {
+    playbookRuns: data || [],
+    isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchPlaybookRun = (
+  name: string,
+  refetchInterval: number | false = 2000
+) => {
+  const { isLoading, error, data } = useQuery({
+    queryKey: [PLAYBOOK_RUN_QUERY_KEY, name],
+    queryFn: () => getPlaybookRun(name),
+    onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
+    enabled: !!name,
+  });
+
+  return {
+    playbookRun: data,
+    isLoading,
+    fetchError: error,
+  };
+};
+
+export const useCreatePlaybookRunMutation = (
+  onSuccess: (run: AgentPlaybookRun) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createPlaybookRun,
+    onSuccess: (data) => {
+      onSuccess(data);
+      queryClient.invalidateQueries({ queryKey: [PLAYBOOK_RUNS_QUERY_KEY] });
+    },
+    onError,
+  });
+};
+
+export const useDeletePlaybookRunMutation = (
+  onSuccess: (name: string) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name: string) => deletePlaybookRun(name),
+    onSuccess: (_, name) => {
+      onSuccess(name);
+      queryClient.invalidateQueries({ queryKey: [PLAYBOOK_RUNS_QUERY_KEY] });
     },
     onError,
   });
