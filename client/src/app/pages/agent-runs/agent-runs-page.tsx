@@ -63,7 +63,7 @@ function formatDuration(seconds?: number): string {
 
 const AgentRunsPage: React.FC = () => {
   const history = useHistory();
-  const { agentRuns, isLoading, fetchError } = useFetchAgentRuns(2000);
+  const { agentRuns, isLoading, fetchError } = useFetchAgentRuns();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
