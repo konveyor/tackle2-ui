@@ -101,6 +101,10 @@ const AgentRunDetail = lazy(
 const Agents = lazy(() => import("./pages/agents"));
 const Skills = lazy(() => import("./pages/skills"));
 const Playbooks = lazy(() => import("./pages/playbooks"));
+const PlaybookRuns = lazy(() => import("./pages/playbook-runs"));
+const PlaybookRunDetail = lazy(
+  () => import("./pages/playbook-runs/playbook-run-detail-page")
+);
 
 export interface IRoute<T> {
   path: T;
@@ -288,6 +292,16 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.playbooks,
     comp: Playbooks,
+    exact: true,
+  },
+  {
+    path: Paths.playbookRunDetail,
+    comp: PlaybookRunDetail,
+    exact: true,
+  },
+  {
+    path: Paths.playbookRuns,
+    comp: PlaybookRuns,
     exact: true,
   },
 ];

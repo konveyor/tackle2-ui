@@ -16,7 +16,6 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-  Truncate,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import {
@@ -30,15 +29,14 @@ import {
 } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
-import type { AgentPlaybook } from "@app/api/agentic/contract";
-import { ReadyLabel } from "@app/pages/agent-runs/components/sources";
-import { CreatePlaybookRunModal } from "@app/pages/playbook-runs/components/CreatePlaybookRunModal";
+import type { AgentPlaybookRun } from "@app/api/agentic/contract";
+import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import {
-  useDeletePlaybookMutation,
-  useFetchPlaybooks,
+  useDeletePlaybookRunMutation,
+  useFetchPlaybookRuns,
 } from "@app/queries/agent-runs";
 
-import { PlaybookComposerModal } from "./components/PlaybookComposerModal";
+import { CreatePlaybookRunModal } from "./components/CreatePlaybookRunModal";
 
 function formatAge(creationTimestamp?: string): string {
   if (!creationTimestamp) return "-";
@@ -53,24 +51,39 @@ function formatAge(creationTimestamp?: string): string {
   return `${Math.floor(h / 24)}d`;
 }
 
-function stagesSummary(playbook: AgentPlaybook): string {
-  const stages = playbook.spec.stages ?? [];
-  if (stages.length === 0) return "0 stages";
-  const names = stages.map((s) => s.name);
-  return `${stages.length}: ${names.join(" → ")}`;
+function formatDuration(seconds?: number): string {
+  if (seconds == null) return "-";
+  if (seconds < 60) return `${seconds}s`;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return s > 0 ? `${m}m ${s}s` : `${m}m`;
 }
 
-const PlaybooksPage: React.FC = () => {
+/** Playbook-run status has no duration field — derive it from timestamps. */
+export function playbookRunDuration(run: AgentPlaybookRun): number | undefined {
+  const start = run.status?.startTime;
+  if (!start) return undefined;
+  const end = run.status?.completionTime;
+  const ms = (end ? Date.parse(end) : Date.now()) - Date.parse(start);
+  return ms >= 0 ? Math.round(ms / 1000) : undefined;
+}
+
+function stagesSummary(run: AgentPlaybookRun): string {
+  const stages = run.status?.stages ?? [];
+  if (stages.length === 0) return "-";
+  const done = stages.filter((s) => s.phase === "Succeeded").length;
+  const current = run.status?.currentStage;
+  return `${done}/${stages.length}${current ? ` · ${current}` : ""}`;
+}
+
+const PlaybookRunsPage: React.FC = () => {
   const history = useHistory();
-  const { playbooks, isLoading, fetchError } = useFetchPlaybooks();
-  const [composerTarget, setComposerTarget] = useState<
-    AgentPlaybook | "create" | null
-  >(null);
-  const [runTarget, setRunTarget] = useState<string | null>(null);
+  const { playbookRuns, isLoading, fetchError } = useFetchPlaybookRuns(2000);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const deleteMutation = useDeletePlaybookMutation(
+  const deleteMutation = useDeletePlaybookRunMutation(
     () => {
       setDeleteTarget(null);
       setDeleteError(null);
@@ -78,17 +91,21 @@ const PlaybooksPage: React.FC = () => {
     (err) => setDeleteError(err.message)
   );
 
-  const sortedPlaybooks = [...playbooks].sort((a, b) => {
+  const sortedRuns = [...playbookRuns].sort((a, b) => {
     const ta = a.metadata.creationTimestamp ?? "";
     const tb = b.metadata.creationTimestamp ?? "";
     return tb.localeCompare(ta);
   });
 
+  const openRun = (name: string) => {
+    history.push(DevPaths.playbookRunDetail.replace(":runName", name));
+  };
+
   return (
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">Playbooks</Content>
+          <Content component="h1">Playbook Runs</Content>
         </Content>
       </PageSection>
       <PageSection>
@@ -96,7 +113,7 @@ const PlaybooksPage: React.FC = () => {
           <Alert
             variant="danger"
             isInline
-            title="Failed to load playbooks"
+            title="Failed to load playbook runs"
             style={{ marginBottom: "1rem" }}
           >
             {fetchError instanceof Error
@@ -108,80 +125,72 @@ const PlaybooksPage: React.FC = () => {
         <Toolbar>
           <ToolbarContent>
             <ToolbarItem>
-              <Button
-                variant="primary"
-                onClick={() => setComposerTarget("create")}
-              >
-                Create playbook
+              <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
+                Create playbook run
               </Button>
             </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
 
-        {isLoading && playbooks.length === 0 ? (
+        {isLoading && playbookRuns.length === 0 ? (
           <Bullseye>
-            <Spinner aria-label="Loading playbooks" />
+            <Spinner aria-label="Loading playbook runs" />
           </Bullseye>
-        ) : sortedPlaybooks.length === 0 ? (
+        ) : sortedRuns.length === 0 ? (
           <EmptyState
             headingLevel="h2"
             icon={CubesIcon}
-            titleText="No playbooks"
+            titleText="No playbook runs"
           >
             <EmptyStateBody>
-              No AgentPlaybook resources found. Create one to orchestrate
-              multi-stage agent workflows.
+              No AgentPlaybookRun resources found. Create one against an
+              AgentPlaybook; each stage runs as its own AgentRun, in order.
             </EmptyStateBody>
-            <Button
-              variant="primary"
-              onClick={() => setComposerTarget("create")}
-            >
-              Create playbook
+            <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
+              Create playbook run
             </Button>
           </EmptyState>
         ) : (
-          <Table aria-label="Playbooks" variant="compact">
+          <Table aria-label="Playbook runs" variant="compact">
             <Thead>
               <Tr>
                 <Th>Name</Th>
+                <Th>Playbook</Th>
+                <Th>Phase</Th>
                 <Th>Stages</Th>
-                <Th>Guide</Th>
-                <Th>Ready</Th>
                 <Th>Age</Th>
+                <Th>Duration</Th>
                 <Th screenReaderText="Actions" />
               </Tr>
             </Thead>
             <Tbody>
-              {sortedPlaybooks.map((pb: AgentPlaybook) => {
-                const name = pb.metadata.name ?? "";
+              {sortedRuns.map((run: AgentPlaybookRun) => {
+                const name = run.metadata.name ?? "";
                 return (
-                  <Tr key={name}>
-                    <Td dataLabel="Name">{name}</Td>
-                    <Td dataLabel="Stages">{stagesSummary(pb)}</Td>
-                    <Td dataLabel="Guide">
-                      {pb.spec.guide ? (
-                        <Truncate content={pb.spec.guide} />
-                      ) : (
-                        "-"
-                      )}
+                  <Tr key={run.metadata.uid ?? name}>
+                    <Td dataLabel="Name">
+                      <Button
+                        variant="link"
+                        isInline
+                        onClick={() => openRun(name)}
+                      >
+                        {name}
+                      </Button>
                     </Td>
-                    <Td dataLabel="Ready">
-                      <ReadyLabel conditions={pb.status?.conditions} />
+                    <Td dataLabel="Playbook">{run.spec.playbookRef}</Td>
+                    <Td dataLabel="Phase">
+                      <PhaseLabel phase={run.status?.phase} />
                     </Td>
+                    <Td dataLabel="Stages">{stagesSummary(run)}</Td>
                     <Td dataLabel="Age">
-                      {formatAge(pb.metadata.creationTimestamp)}
+                      {formatAge(run.metadata.creationTimestamp)}
+                    </Td>
+                    <Td dataLabel="Duration">
+                      {formatDuration(playbookRunDuration(run))}
                     </Td>
                     <Td isActionCell>
                       <ActionsColumn
                         items={[
-                          {
-                            title: "Run",
-                            onClick: () => setRunTarget(name),
-                          },
-                          {
-                            title: "Edit",
-                            onClick: () => setComposerTarget(pb),
-                          },
                           {
                             title: "Delete",
                             onClick: () => setDeleteTarget(name),
@@ -197,23 +206,12 @@ const PlaybooksPage: React.FC = () => {
         )}
       </PageSection>
 
-      {composerTarget !== null && (
-        <PlaybookComposerModal
-          existing={composerTarget === "create" ? undefined : composerTarget}
-          onClose={() => setComposerTarget(null)}
-          onSaved={() => setComposerTarget(null)}
-        />
-      )}
-
-      {runTarget !== null && (
+      {isCreateOpen && (
         <CreatePlaybookRunModal
-          initialPlaybook={runTarget}
-          onClose={() => setRunTarget(null)}
-          onCreated={(runName) => {
-            setRunTarget(null);
-            history.push(
-              DevPaths.playbookRunDetail.replace(":runName", runName)
-            );
+          onClose={() => setIsCreateOpen(false)}
+          onCreated={(name) => {
+            setIsCreateOpen(false);
+            openRun(name);
           }}
         />
       )}
@@ -226,10 +224,10 @@ const PlaybooksPage: React.FC = () => {
           setDeleteError(null);
         }}
       >
-        <ModalHeader title="Delete playbook" />
+        <ModalHeader title="Delete playbook run" />
         <ModalBody>
-          Are you sure you want to delete <strong>{deleteTarget}</strong>? This
-          action cannot be undone.
+          Are you sure you want to delete <strong>{deleteTarget}</strong>? Its
+          stage AgentRuns are owner-referenced and are deleted with it.
           {deleteError && (
             <Alert
               variant="danger"
@@ -267,4 +265,4 @@ const PlaybooksPage: React.FC = () => {
   );
 };
 
-export default PlaybooksPage;
+export default PlaybookRunsPage;

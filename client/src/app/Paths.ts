@@ -57,6 +57,8 @@ export const DevPaths = {
   agents: "/agents",
   skills: "/skills",
   playbooks: "/playbooks",
+  playbookRuns: "/playbook-runs",
+  playbookRunDetail: "/playbook-runs/:runName",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
@@ -147,5 +149,9 @@ export interface ArchetypeTargetProfilesRoute {
 }
 
 export interface AgentRunDetailRoute {
+  runName: string;
+}
+
+export interface PlaybookRunDetailRoute {
   runName: string;
 }

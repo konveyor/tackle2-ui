@@ -114,31 +114,51 @@ export function ModelPicker({
   );
 }
 
+export function paramValueInvalidReason(
+  p: AgentParam,
+  value: string
+): string | undefined {
+  const v = value.trim();
+  if (!v) return undefined; // emptiness is handled by the required check
+  if (p.type === "number" && !Number.isFinite(Number(v)))
+    return "must be a number";
+  return undefined;
+}
+
 export function ParamValueField({
   param,
   value,
   onChange,
+  id,
+  isDisabled,
 }: {
   param: AgentParam;
   value: string;
   onChange: (v: string) => void;
+  id?: string;
+  isDisabled?: boolean;
 }) {
+  const fieldId = id ?? `param-${param.name}`;
   if (param.type === "boolean") {
     return (
       <Checkbox
-        id={`param-${param.name}`}
+        id={fieldId}
         label={param.name}
         isChecked={value === "true"}
+        isDisabled={isDisabled}
         onChange={(_e, checked) => onChange(checked ? "true" : "false")}
       />
     );
   }
+  const invalid = paramValueInvalidReason(param, value);
   return (
     <TextInput
-      id={`param-${param.name}`}
+      id={fieldId}
       type={param.type === "number" ? "number" : "text"}
       isRequired={param.required}
       value={value}
+      isDisabled={isDisabled}
+      validated={invalid ? "error" : "default"}
       onChange={(_e, v) => onChange(v)}
     />
   );
