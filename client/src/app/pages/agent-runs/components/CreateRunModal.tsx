@@ -220,6 +220,16 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
         const v = (paramValues[p.name] ?? "").trim();
         if (v) params[p.name] = v;
       }
+      // Nothing downstream resolves annotated params anymore: the shim's
+      // application path injects Hub coordinates as env (ADR 0005 create-time
+      // resolution is retired), while the controller still rejects runs
+      // missing required params. This client is therefore the create-time
+      // resolver — it sends the values it previews from the application.
+      for (const p of platformParams) {
+        // `||`, not `??`: the Hub reports unset fields as empty strings.
+        const v = previewValue(paramSources[p.name], application) || p.default;
+        if (v) params[p.name] = v;
+      }
       const created = await createAgentRun({
         agentRef: selected.metadata.name ?? agentName,
         params: Object.keys(params).length > 0 ? params : undefined,
@@ -379,6 +389,27 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               >
                 No value for {unresolvable.map((p) => p.name).join(", ")}.
               </Alert>
+            )}
+
+            {application && platformParams.length > 0 && (
+              <HelperText>
+                {platformParams.map((p) => {
+                  const fromApp = previewValue(
+                    paramSources[p.name],
+                    application
+                  );
+                  const v = fromApp || p.default;
+                  return v ? (
+                    <HelperTextItem key={p.name}>
+                      {p.name} — from{" "}
+                      {fromApp
+                        ? PARAM_SOURCE_LABELS[paramSources[p.name]]
+                        : "agent default"}
+                      : <code>{v}</code>
+                    </HelperTextItem>
+                  ) : null;
+                })}
+              </HelperText>
             )}
 
             {userParams.map((p) => {
