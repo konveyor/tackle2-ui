@@ -246,6 +246,9 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
   // offline stub — stub applications have no Hub behind them to pull from.
   const stubInventory = inventorySource === "stub";
   const application = applications.find((a) => a.id === applicationId);
+  // The harness clones from the Hub record — an application without a
+  // repository URL dooms every stage, so block create up front.
+  const repoMissing = !!application && !application.repository?.url;
 
   const missingRequired = universalParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
@@ -267,6 +270,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
     missingRequired.length === 0 &&
     !paramsInvalid &&
     !branchInvalid &&
+    !repoMissing &&
     !submitting;
 
   const submit = () => {
@@ -479,6 +483,18 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                   Refresh
                 </Button>
               </div>
+            )}
+
+            {repoMissing && (
+              <Alert
+                variant="danger"
+                isInline
+                title="Application has no repository"
+              >
+                {application?.name} has no repository URL in the Hub — the
+                harness clones from the Hub record, so these stages cannot
+                start. Set the application&apos;s source repository first.
+              </Alert>
             )}
 
             {application && (
