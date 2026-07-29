@@ -31,6 +31,7 @@ import {
 
 import { DevPaths } from "@app/Paths";
 import type { AgentPlaybook } from "@app/api/agentic/contract";
+import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import { ReadyLabel } from "@app/pages/agent-runs/components/sources";
 import { CreatePlaybookRunModal } from "@app/pages/playbook-runs/components/CreatePlaybookRunModal";
 import {
@@ -115,6 +116,9 @@ const PlaybooksPage: React.FC = () => {
                 Create playbook
               </Button>
             </ToolbarItem>
+            <ToolbarItem>
+              <LoadDefaultsButton />
+            </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
 
@@ -137,7 +141,8 @@ const PlaybooksPage: React.FC = () => {
               onClick={() => setComposerTarget("create")}
             >
               Create playbook
-            </Button>
+            </Button>{" "}
+            <LoadDefaultsButton />
           </EmptyState>
         ) : (
           <Table aria-label="Playbooks" variant="compact">

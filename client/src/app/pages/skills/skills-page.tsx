@@ -29,6 +29,7 @@ import {
 } from "@patternfly/react-table";
 
 import type { SkillCard, SkillCollection } from "@app/api/agentic/contract";
+import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import { ReadyLabel } from "@app/pages/agent-runs/components/sources";
 import {
   useDeleteSkillCardMutation,
@@ -152,6 +153,9 @@ const SkillsPage: React.FC = () => {
                 Create skill card
               </Button>
             </ToolbarItem>
+            <ToolbarItem>
+              <LoadDefaultsButton />
+            </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
 
@@ -173,7 +177,8 @@ const SkillsPage: React.FC = () => {
               onClick={() => setCardModalTarget("create")}
             >
               Create skill card
-            </Button>
+            </Button>{" "}
+            <LoadDefaultsButton />
           </EmptyState>
         ) : (
           <Table aria-label="Skill cards" variant="compact">
@@ -287,7 +292,8 @@ const SkillsPage: React.FC = () => {
               onClick={() => setCollectionModalTarget("create")}
             >
               Create skill collection
-            </Button>
+            </Button>{" "}
+            <LoadDefaultsButton />
           </EmptyState>
         ) : (
           <Table aria-label="Skill collections" variant="compact">
