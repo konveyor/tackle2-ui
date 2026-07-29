@@ -12,6 +12,7 @@ import type {
   CreatePlaybookRunInput,
   CreateRunInput,
   LLMProvider,
+  SeedResult,
   SkillCard,
   SkillCardSpec,
   SkillCollection,
@@ -38,6 +39,7 @@ const LLM_PROVIDERS = agentic`/llmproviders`;
 const PLAYBOOKS = agentic`/agentplaybooks`;
 const PLAYBOOK_RUNS = agentic`/agentplaybookruns`;
 const IMAGES = agentic`/images`;
+const DEFAULTS = agentic`/defaults`;
 
 export const getAgentRuns = (): Promise<AgentRun[]> =>
   axios.get<AgentRun[]>(AGENT_RUNS).then(({ data }) => data);
@@ -231,3 +233,12 @@ export const getImagesWithSource = (): Promise<ImagesWithSource> =>
       (headers["x-catalog-source"] as "configmap" | "builtin") ?? "builtin",
     images: data,
   }));
+
+// -------------------------------------------------------- Seeded defaults
+
+/**
+ * Seed the managed default resource set. Idempotent create-only: existing
+ * resources are reported as "exists", never updated.
+ */
+export const loadDefaults = (): Promise<SeedResult[]> =>
+  axios.post<SeedResult[]>(DEFAULTS).then(({ data }) => data);

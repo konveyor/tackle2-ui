@@ -8,6 +8,7 @@ import type {
   AgentResource,
   AgentResourceSpec,
   AgentRun,
+  SeedResult,
   SkillCard,
   SkillCardSpec,
   SkillCollection,
@@ -36,6 +37,7 @@ import {
   getProviders,
   getSkillCards,
   getSkillCollections,
+  loadDefaults,
   updateAgent,
   updatePlaybook,
   updateSkillCard,
@@ -445,6 +447,27 @@ export const useDeleteAgentMutation = (
     onSuccess: (_, name) => {
       onSuccess(name);
       qc.invalidateQueries({ queryKey: [AGENTS_QUERY_KEY] });
+    },
+    onError,
+  });
+};
+
+// -------------------------------------------------- Seeded defaults
+
+export const useLoadDefaultsMutation = (
+  onSuccess: (results: SeedResult[]) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: loadDefaults,
+    onSuccess: (data) => {
+      onSuccess(data);
+      qc.invalidateQueries({ queryKey: [AGENTS_QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: [SKILL_CARDS_QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: [SKILL_COLLECTIONS_QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: [PLAYBOOKS_QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: [IMAGES_QUERY_KEY] });
     },
     onError,
   });

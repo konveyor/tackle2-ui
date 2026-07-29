@@ -30,6 +30,7 @@ import {
 } from "@patternfly/react-table";
 
 import type { AgentResource } from "@app/api/agentic/contract";
+import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import {
   ReadyLabel,
   skillCount,
@@ -107,6 +108,9 @@ const AgentsPage: React.FC = () => {
                 Create agent
               </Button>
             </ToolbarItem>
+            <ToolbarItem>
+              <LoadDefaultsButton />
+            </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
 
@@ -124,7 +128,8 @@ const AgentsPage: React.FC = () => {
               onClick={() => setDesignerTarget("create")}
             >
               Create agent
-            </Button>
+            </Button>{" "}
+            <LoadDefaultsButton />
           </EmptyState>
         ) : (
           <Table aria-label="Agents" variant="compact">

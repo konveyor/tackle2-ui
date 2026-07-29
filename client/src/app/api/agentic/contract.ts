@@ -381,6 +381,16 @@ export function runEnvValue(run: AgentRun, key: string): string | undefined {
   return run.spec.env?.find((e) => e.name === key)?.value;
 }
 
+// --------------------------------------------------------- seeded defaults
+
+/** Outcome for one resource of a RunApi.loadDefaults seeding pass. */
+export interface SeedResult {
+  kind: string;
+  name: string;
+  /** "exists" means the resource was already there — seeding never updates. */
+  status: "created" | "exists";
+}
+
 // ----------------------------------------------------------------- RunApi
 
 export interface CreateRunInput {
@@ -415,6 +425,12 @@ export interface RunApi {
   getPlaybookRun(name: string): Promise<AgentPlaybookRun>;
   createPlaybookRun(input: CreatePlaybookRunInput): Promise<AgentPlaybookRun>;
   deletePlaybookRun(name: string): Promise<void>;
+  /**
+   * Seeds the default managed resource set (provider, stage agents, skill
+   * cards, playbooks, image catalog). Idempotent: existing resources are
+   * left untouched and reported as "exists".
+   */
+  loadDefaults(): Promise<SeedResult[]>;
 }
 
 // ---------------------------------------------------------------- CatalogApi
