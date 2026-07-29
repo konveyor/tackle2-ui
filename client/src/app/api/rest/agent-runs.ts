@@ -8,7 +8,7 @@ import type {
   AgentResource,
   AgentResourceSpec,
   AgentRun,
-  Application,
+  AgenticApplication,
   CreatePlaybookRunInput,
   CreateRunInput,
   LLMProvider,
@@ -18,17 +18,9 @@ import type {
   SkillCollection,
   SkillCollectionSpec,
 } from "../agentic/contract";
+import { prefixedUrlTag } from "../rest";
 
-function agentic(tsa: TemplateStringsArray, ...vals: unknown[]): string {
-  let path = "";
-  tsa.forEach((str) => {
-    path += str;
-    if (vals.length > 0) {
-      path += String(vals.shift());
-    }
-  });
-  return `/agentic${path}`;
-}
+const agentic = prefixedUrlTag("/agentic");
 
 const AGENT_RUNS = agentic`/agentruns`;
 const AGENTS = agentic`/agents`;
@@ -45,13 +37,17 @@ export const getAgentRuns = (): Promise<AgentRun[]> =>
   axios.get<AgentRun[]>(AGENT_RUNS).then(({ data }) => data);
 
 export const getAgentRun = (name: string): Promise<AgentRun> =>
-  axios.get<AgentRun>(`${AGENT_RUNS}/${name}`).then(({ data }) => data);
+  axios
+    .get<AgentRun>(`${AGENT_RUNS}/${encodeURIComponent(name)}`)
+    .then(({ data }) => data);
 
 export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
   axios.post<AgentRun>(AGENT_RUNS, input).then(({ data }) => data);
 
 export const deleteAgentRun = (name: string): Promise<void> =>
-  axios.delete(`${AGENT_RUNS}/${name}`).then(() => undefined);
+  axios
+    .delete(`${AGENT_RUNS}/${encodeURIComponent(name)}`)
+    .then(() => undefined);
 
 export const getAgents = (): Promise<AgentResource[]> =>
   axios.get<AgentResource[]>(AGENTS).then(({ data }) => data);
@@ -59,11 +55,11 @@ export const getAgents = (): Promise<AgentResource[]> =>
 export interface ApplicationsWithSource {
   source: "hub" | "stub" | "unknown";
   endpoint: string;
-  applications: Application[];
+  applications: AgenticApplication[];
 }
 
 export const getApplicationsWithSource = (): Promise<ApplicationsWithSource> =>
-  axios.get<Application[]>(APPLICATIONS).then(({ data, headers }) => ({
+  axios.get<AgenticApplication[]>(APPLICATIONS).then(({ data, headers }) => ({
     source: (headers["x-inventory-source"] as "hub" | "stub") ?? "unknown",
     endpoint: (headers["x-inventory-endpoint"] as string) ?? "",
     applications: data,

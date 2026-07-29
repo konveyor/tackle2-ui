@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertActionLink,
   Button,
   ExpandableSection,
+  Icon,
   Label,
   Spinner,
   TextArea,
@@ -21,7 +23,6 @@ import type {
   ToolCallDiff,
 } from "@app/api/agentic/acp";
 import { isTerminalPhase, waitForRunning } from "@app/api/agentic/contract";
-import type { RunApi } from "@app/api/agentic/contract";
 import { getAgentRun, getAgenticAcpUrl } from "@app/api/rest";
 
 import "../agent-runs.css";
@@ -82,7 +83,7 @@ type ChatItem =
   | ErrorItem;
 
 type ConnState =
-  | { kind: "waiting"; message: string }
+  | { kind: "waiting"; phase?: string; seconds?: number }
   | { kind: "connecting" }
   | { kind: "connected"; sessionId: string }
   | { kind: "disconnected" }
@@ -152,7 +153,7 @@ function reduceUpdate(
           kind: "tool",
           id: nextId(),
           toolCallId: str(u.toolCallId),
-          title: str(u.title) || "Tool call",
+          title: str(u.title),
           status: str(u.status) || "pending",
           detail: toolUpdateText(u.content),
         },
@@ -201,10 +202,8 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ runName }: ChatPanelProps) {
-  const [conn, setConn] = useState<ConnState>({
-    kind: "waiting",
-    message: "checking run status…",
-  });
+  const { t } = useTranslation();
+  const [conn, setConn] = useState<ConnState>({ kind: "waiting" });
   const [items, setItems] = useState<ChatItem[]>([]);
   const [session, setSession] = useState<AcpSession | null>(null);
   const [input, setInput] = useState("");
@@ -267,10 +266,6 @@ export function ChatPanel({ runName }: ChatPanelProps) {
     );
   };
 
-  // RunApi adapter: waitForRunning expects a RunApi with getRun; we supply
-  // the standalone REST function wrapped in a minimal compatible object.
-  const runApi = { getRun: (name: string) => getAgentRun(name) } as RunApi;
-
   // Connect flow: wait for Running (status line), open the ACP WebSocket,
   // then new-session (or load-session to replay history after a reconnect).
   useEffect(() => {
@@ -279,20 +274,21 @@ export function ChatPanel({ runName }: ChatPanelProps) {
     let localSession: AcpSession | null = null;
 
     const connect = async () => {
-      setConn({ kind: "waiting", message: "checking run status…" });
+      setConn({ kind: "waiting" });
       const current = await getAgentRun(runName);
       const phase = current.status?.phase ?? "Pending";
       if (isTerminalPhase(phase)) {
         setConn({ kind: "finished", phase });
         return;
       }
-      await waitForRunning(runApi, runName, {
+      await waitForRunning({ getRun: getAgentRun }, runName, {
         signal: abort.signal,
         onPhase: (p, elapsedMs) => {
           if (!disposed) {
             setConn({
               kind: "waiting",
-              message: `waiting for sandbox (${p}, ${Math.round(elapsedMs / 1000)}s)…`,
+              phase: p,
+              seconds: Math.round(elapsedMs / 1000),
             });
           }
         },
@@ -352,7 +348,6 @@ export function ChatPanel({ runName }: ChatPanelProps) {
       setSession(null);
       setTurnActive(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runName, attempt, handleUpdate, handlePermission]);
 
   // Keep the transcript pinned to the bottom as updates stream in.
@@ -378,27 +373,38 @@ export function ChatPanel({ runName }: ChatPanelProps) {
     }
   };
 
-  const reconnectLabel = lastSessionIdRef.current ? "Reconnect" : "Retry";
+  const reconnectLabel = lastSessionIdRef.current
+    ? t("agentic.chat.reconnect")
+    : t("agentic.chat.retry");
 
   return (
     <div className="chat-panel">
       <div className="chat-status">
         {conn.kind === "waiting" && (
           <>
-            <Spinner size="sm" aria-label="Waiting" />{" "}
-            <span>{conn.message}</span>
+            <Spinner size="sm" aria-label={t("agentic.chat.waiting")} />{" "}
+            <span>
+              {conn.phase
+                ? t("agentic.chat.waitingForSandbox", {
+                    phase: conn.phase,
+                    seconds: conn.seconds,
+                  })
+                : t("agentic.chat.checkingRunStatus")}
+            </span>
           </>
         )}
         {conn.kind === "connecting" && (
           <>
-            <Spinner size="sm" aria-label="Connecting" />{" "}
-            <span>connecting to ACP&hellip;</span>
+            <Spinner size="sm" aria-label={t("agentic.chat.connecting")} />{" "}
+            <span>{t("agentic.chat.connectingToAcp")}</span>
           </>
         )}
         {conn.kind === "connected" && (
           <>
-            <Label color="green">connected</Label>
-            <span className="chat-status-detail">session {conn.sessionId}</span>
+            <Label color="green">{t("terms.connected")}</Label>
+            <span className="chat-status-detail">
+              {t("agentic.chat.session", { sessionId: conn.sessionId })}
+            </span>
           </>
         )}
         {conn.kind === "finished" && (
@@ -406,7 +412,7 @@ export function ChatPanel({ runName }: ChatPanelProps) {
             variant="info"
             isInline
             isPlain
-            title={`Run already finished (${conn.phase}) -- chat unavailable.`}
+            title={t("agentic.chat.runAlreadyFinished", { phase: conn.phase })}
           />
         )}
         {conn.kind === "disconnected" && (
@@ -414,7 +420,7 @@ export function ChatPanel({ runName }: ChatPanelProps) {
             variant="warning"
             isInline
             isPlain
-            title="Disconnected from the agent"
+            title={t("agentic.chat.disconnectedFromAgent")}
             actionLinks={
               <AlertActionLink onClick={() => setAttempt((a) => a + 1)}>
                 {reconnectLabel}
@@ -427,7 +433,9 @@ export function ChatPanel({ runName }: ChatPanelProps) {
             variant="danger"
             isInline
             isPlain
-            title={`Connection failed: ${conn.message}`}
+            title={t("agentic.chat.connectionFailed", {
+              message: conn.message,
+            })}
             actionLinks={
               <AlertActionLink onClick={() => setAttempt((a) => a + 1)}>
                 {reconnectLabel}
@@ -439,9 +447,7 @@ export function ChatPanel({ runName }: ChatPanelProps) {
 
       <div className="chat-log" ref={logRef}>
         {items.length === 0 && conn.kind === "connected" && (
-          <div className="chat-meta">
-            Connected -- send a message to start the turn.
-          </div>
+          <div className="chat-meta">{t("agentic.chat.connectedHint")}</div>
         )}
         {items.map((item) => (
           <ChatItemView
@@ -455,7 +461,7 @@ export function ChatPanel({ runName }: ChatPanelProps) {
       <div className="chat-input-row">
         <div className="chat-input-text">
           <TextArea
-            aria-label="Message to the agent"
+            aria-label={t("agentic.chat.messageToAgent")}
             value={input}
             onChange={(_e, v) => setInput(v)}
             onKeyDown={(e) => {
@@ -467,7 +473,7 @@ export function ChatPanel({ runName }: ChatPanelProps) {
             rows={2}
             resizeOrientation="vertical"
             isDisabled={!session || turnActive}
-            placeholder="Message the agent..."
+            placeholder={t("agentic.chat.messagePlaceholder")}
           />
         </div>
         <div className="chat-input-actions">
@@ -477,14 +483,14 @@ export function ChatPanel({ runName }: ChatPanelProps) {
             isDisabled={!session || turnActive || !input.trim()}
             isLoading={turnActive}
           >
-            Send
+            {t("agentic.chat.send")}
           </Button>
           {turnActive && (
             <Button
               variant="secondary"
               onClick={() => void sessionRef.current?.cancel()}
             >
-              Cancel turn
+              {t("agentic.chat.cancelTurn")}
             </Button>
           )}
         </div>
@@ -534,6 +540,7 @@ function diffLines(oldText: string, newText: string): DiffLine[] {
 }
 
 function DiffPreview({ diff }: { diff: ToolCallDiff }) {
+  const { t } = useTranslation();
   const isNewFile = diff.oldText == null;
   const lines: DiffLine[] = isNewFile
     ? diff.newText.split("\n").map((text) => ({ op: "add" as const, text }))
@@ -542,7 +549,9 @@ function DiffPreview({ diff }: { diff: ToolCallDiff }) {
     <div className="chat-diff">
       <div className="chat-diff-path">
         <code>{diff.path}</code>
-        {isNewFile ? <Label color="green">new file</Label> : null}
+        {isNewFile ? (
+          <Label color="green">{t("agentic.chat.newFile")}</Label>
+        ) : null}
       </div>
       <pre className="chat-diff-body">
         {lines.map((l, idx) => (
@@ -559,14 +568,19 @@ function DiffPreview({ diff }: { diff: ToolCallDiff }) {
 }
 
 function ToolStatusIcon({ status }: { status: string }) {
+  const { t } = useTranslation();
   if (status === "completed") {
     return (
-      <CheckCircleIcon style={{ color: "#3e8635" }} aria-label="completed" />
+      <Icon status="success">
+        <CheckCircleIcon aria-label={t("terms.completed")} />
+      </Icon>
     );
   }
   if (status === "failed" || status === "error") {
     return (
-      <ExclamationCircleIcon style={{ color: "#c9190b" }} aria-label="failed" />
+      <Icon status="danger">
+        <ExclamationCircleIcon aria-label={t("terms.failed")} />
+      </Icon>
     );
   }
   return <Spinner size="sm" aria-label={status} />;
@@ -585,6 +599,7 @@ function ChatItemView({
   item: ChatItem;
   onPermission: (id: number, optionId: string | null) => void;
 }) {
+  const { t } = useTranslation();
   switch (item.kind) {
     case "user":
       return <div className="chat-bubble chat-user">{item.text}</div>;
@@ -593,10 +608,14 @@ function ChatItemView({
     case "thought":
       return <div className="chat-bubble chat-thought">{item.text}</div>;
     case "stop":
-      return <div className="chat-meta">turn ended -- {item.stopReason}</div>;
+      return (
+        <div className="chat-meta">
+          {t("agentic.chat.turnEnded", { stopReason: item.stopReason })}
+        </div>
+      );
     case "error":
       return (
-        <Alert variant="danger" isInline title="Chat error">
+        <Alert variant="danger" isInline title={t("agentic.chat.chatError")}>
           {item.message}
         </Alert>
       );
@@ -606,7 +625,8 @@ function ChatItemView({
           <ExpandableSection
             toggleContent={
               <span className="chat-tool-toggle">
-                <ToolStatusIcon status={item.status} /> {item.title}{" "}
+                <ToolStatusIcon status={item.status} />{" "}
+                {item.title || t("agentic.chat.toolCall")}{" "}
                 <Label color={toolStatusColor(item.status)} variant="outline">
                   {item.status}
                 </Label>
@@ -614,7 +634,7 @@ function ChatItemView({
             }
           >
             <pre className="chat-tool-detail">
-              {item.detail || "(no output yet)"}
+              {item.detail || t("agentic.chat.noOutputYet")}
             </pre>
           </ExpandableSection>
         </div>
@@ -627,13 +647,17 @@ function ChatItemView({
       return (
         <div className="chat-permission">
           <div className="chat-permission-title">
-            Permission requested{item.title ? `: ${item.title}` : ""}
+            {item.title
+              ? t("agentic.chat.permissionRequestedFor", { title: item.title })
+              : t("agentic.chat.permissionRequested")}
           </div>
           {item.diffs?.map((d) => (
             <DiffPreview key={d.path} diff={d} />
           ))}
           {chosenName ? (
-            <Label color="blue">answered: {chosenName}</Label>
+            <Label color="blue">
+              {t("agentic.chat.answered", { choice: chosenName })}
+            </Label>
           ) : (
             <div className="chat-permission-actions">
               {item.options.map((o) => (

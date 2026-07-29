@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -20,9 +21,8 @@ import {
 } from "@patternfly/react-core";
 
 import type {
-  AgentParam,
   AgentResource,
-  Application,
+  AgenticApplication,
 } from "@app/api/agentic/contract";
 import {
   CREDENTIAL_SOURCES_ANNOTATION,
@@ -31,15 +31,18 @@ import {
   SOURCE_APPLICATION_REPOSITORY_URL,
   parseSourcesAnnotation,
 } from "@app/api/agentic/contract";
-import {
-  createAgentRun,
-  getAgents,
-  getApplicationsWithSource,
-} from "@app/api/rest";
+import { paramHelperText } from "@app/pages/agent-runs/components/ParamFields";
+import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
+import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
+import { useFetchAgents } from "@app/queries/agents";
+import { truncate } from "@app/utils/agentic";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
-const PARAM_SOURCE_LABELS: Record<string, string> = {
-  [SOURCE_APPLICATION_REPOSITORY_URL]: "application repository URL",
-  [SOURCE_APPLICATION_REPOSITORY_BRANCH]: "application repository branch",
+const PARAM_SOURCE_LABEL_KEYS: Record<string, string> = {
+  [SOURCE_APPLICATION_REPOSITORY_URL]:
+    "agentic.createRun.sourceApplicationRepositoryUrl",
+  [SOURCE_APPLICATION_REPOSITORY_BRANCH]:
+    "agentic.createRun.sourceApplicationRepositoryBranch",
 };
 
 const CREDENTIAL_SOURCE_LABELS: Record<string, string> = {
@@ -48,14 +51,14 @@ const CREDENTIAL_SOURCE_LABELS: Record<string, string> = {
 
 const isRecognizedParamSource = (source: string | undefined): boolean =>
   source !== undefined &&
-  Object.prototype.hasOwnProperty.call(PARAM_SOURCE_LABELS, source);
+  Object.prototype.hasOwnProperty.call(PARAM_SOURCE_LABEL_KEYS, source);
 
 const isRecognizedCredentialSource = (source: string): boolean =>
   Object.prototype.hasOwnProperty.call(CREDENTIAL_SOURCE_LABELS, source);
 
 function previewValue(
   source: string,
-  app: Application | undefined
+  app: AgenticApplication | undefined
 ): string | undefined {
   if (!app) return undefined;
   if (source === SOURCE_APPLICATION_REPOSITORY_URL) return app.repository?.url;
@@ -64,29 +67,12 @@ function previewValue(
   return undefined;
 }
 
-function errorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return String(err);
-}
-
-function truncate(text: string, max: number): string {
-  return text.length <= max ? text : text.slice(0, max - 1) + "…";
-}
-
 function defaultsFor(agent: AgentResource | undefined): Record<string, string> {
   const values: Record<string, string> = {};
   for (const p of agent?.spec.params ?? []) {
     values[p.name] = p.default ?? "";
   }
   return values;
-}
-
-function paramHelperText(p: AgentParam): string {
-  const parts: string[] = [];
-  if (p.description) parts.push(p.description);
-  if (p.type && p.type !== "string") parts.push(`type: ${p.type}`);
-  if (p.default) parts.push(`default: ${p.default}`);
-  return parts.join(" — ");
 }
 
 interface CreateRunModalProps {
@@ -98,78 +84,72 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   onClose,
   onCreated,
 }) => {
-  const [agents, setAgents] = useState<AgentResource[] | null>(null);
-  const [agentsError, setAgentsError] = useState<string | null>(null);
+  const { t } = useTranslation();
   const [agentName, setAgentName] = useState("");
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [applicationsError, setApplicationsError] = useState<string | null>(
-    null
-  );
-  const [inventorySource, setInventorySource] = useState<
-    "hub" | "stub" | "unknown" | null
-  >(null);
-  const [inventoryEndpoint, setInventoryEndpoint] = useState("");
   const [reloadingApps, setReloadingApps] = useState(false);
   const [applicationId, setApplicationId] = useState("");
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [instructions, setInstructions] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const {
+    agents,
+    isLoading: agentsLoading,
+    fetchError: agentsFetchError,
+  } = useFetchAgents();
+  const agentsError = agentsFetchError
+    ? getAxiosErrorMessage(agentsFetchError)
+    : null;
+
+  const {
+    applications,
+    source: inventorySource,
+    endpoint: inventoryEndpoint,
+    fetchError: applicationsFetchError,
+    refetch: refetchApplications,
+  } = useFetchAgenticApplications();
+  const applicationsError = applicationsFetchError
+    ? getAxiosErrorMessage(applicationsFetchError)
+    : null;
+
+  // Seed the agent select + param defaults once the agent list arrives.
   useEffect(() => {
-    let disposed = false;
-    getAgents()
-      .then((list) => {
-        if (disposed) return;
-        setAgents(list);
-        const first = list.length > 0 ? list[0] : undefined;
-        if (first?.metadata.name) {
-          setAgentName(first.metadata.name);
-          setParamValues(defaultsFor(first));
-        }
-      })
-      .catch((err) => {
-        if (!disposed) setAgentsError(errorMessage(err));
-      });
-    getApplicationsWithSource()
-      .then(({ source, endpoint, applications: list }) => {
-        if (disposed) return;
-        setApplications(list);
-        setInventorySource(source);
-        setInventoryEndpoint(endpoint);
-      })
-      .catch((err) => {
-        if (!disposed) setApplicationsError(errorMessage(err));
-      });
-    return () => {
-      disposed = true;
-    };
-  }, []);
+    if (!agentName && agents.length > 0) {
+      const first = agents[0];
+      if (first.metadata.name) {
+        setAgentName(first.metadata.name);
+        setParamValues(defaultsFor(first));
+      }
+    }
+  }, [agents, agentName]);
 
   const reloadApplications = async () => {
     setReloadingApps(true);
-    setApplicationsError(null);
     try {
-      const {
-        source,
-        endpoint,
-        applications: list,
-      } = await getApplicationsWithSource();
-      setApplications(list);
-      setInventorySource(source);
-      setInventoryEndpoint(endpoint);
-    } catch (err) {
-      setApplicationsError(errorMessage(err));
+      await refetchApplications();
     } finally {
       setReloadingApps(false);
     }
   };
 
-  const selected = agents?.find((a) => a.metadata.name === agentName);
+  const createRunMutation = useCreateAgentRunMutation(
+    (created) => {
+      const name = created.metadata.name;
+      if (!name) {
+        setSubmitError(t("agentic.createRun.createdRunMissingName"));
+        return;
+      }
+      onCreated(name);
+    },
+    (err) => setSubmitError(getAxiosErrorMessage(err))
+  );
+  const submitting = createRunMutation.isLoading;
+
+  const selected = agents.find((a) => a.metadata.name === agentName);
 
   const selectAgent = (name: string) => {
     setAgentName(name);
-    setParamValues(defaultsFor(agents?.find((a) => a.metadata.name === name)));
+    setParamValues(defaultsFor(agents.find((a) => a.metadata.name === name)));
   };
 
   const paramSources = parseSourcesAnnotation(selected);
@@ -210,40 +190,30 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     unresolvable.length === 0 &&
     !submitting;
 
-  const submit = async () => {
+  const submit = () => {
     if (!selected || !canCreate) return;
-    setSubmitting(true);
     setSubmitError(null);
-    try {
-      const params: Record<string, string> = {};
-      for (const p of userParams) {
-        const v = (paramValues[p.name] ?? "").trim();
-        if (v) params[p.name] = v;
-      }
-      // Nothing downstream resolves annotated params anymore: the shim's
-      // application path injects Hub coordinates as env (ADR 0005 create-time
-      // resolution is retired), while the controller still rejects runs
-      // missing required params. This client is therefore the create-time
-      // resolver — it sends the values it previews from the application.
-      for (const p of platformParams) {
-        // `||`, not `??`: the Hub reports unset fields as empty strings.
-        const v = previewValue(paramSources[p.name], application) || p.default;
-        if (v) params[p.name] = v;
-      }
-      const created = await createAgentRun({
-        agentRef: selected.metadata.name ?? agentName,
-        params: Object.keys(params).length > 0 ? params : undefined,
-        instructions: instructions.trim() || undefined,
-        applicationRef: needsApplication ? application?.id : undefined,
-      });
-      const name = created.metadata.name;
-      if (!name)
-        throw new Error("Shim returned a created run without metadata.name");
-      onCreated(name);
-    } catch (err) {
-      setSubmitError(errorMessage(err));
-      setSubmitting(false);
+    const params: Record<string, string> = {};
+    for (const p of userParams) {
+      const v = (paramValues[p.name] ?? "").trim();
+      if (v) params[p.name] = v;
     }
+    // Nothing downstream resolves annotated params anymore: the shim's
+    // application path injects Hub coordinates as env (ADR 0005 create-time
+    // resolution is retired), while the controller still rejects runs
+    // missing required params. This client is therefore the create-time
+    // resolver — it sends the values it previews from the application.
+    for (const p of platformParams) {
+      // `||`, not `??`: the Hub reports unset fields as empty strings.
+      const v = previewValue(paramSources[p.name], application) || p.default;
+      if (v) params[p.name] = v;
+    }
+    createRunMutation.mutate({
+      agentRef: selected.metadata.name ?? agentName,
+      params: Object.keys(params).length > 0 ? params : undefined,
+      instructions: instructions.trim() || undefined,
+      applicationRef: needsApplication ? application?.id : undefined,
+    });
   };
 
   return (
@@ -254,13 +224,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
         if (!submitting) onClose();
       }}
     >
-      <ModalHeader title="Create run" />
+      <ModalHeader title={t("agentic.createRun.title")} />
       <ModalBody>
         {agentsError && (
           <Alert
             variant="danger"
             isInline
-            title="Failed to load agents"
+            title={t("agentic.createRun.failedToLoadAgents")}
             style={{ marginBottom: "1rem" }}
           >
             {agentsError}
@@ -270,28 +240,35 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
           <Alert
             variant="danger"
             isInline
-            title="Create failed"
+            title={t("agentic.createRun.createFailed")}
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
           </Alert>
         )}
-        {agents === null && !agentsError ? (
-          <Spinner aria-label="Loading agents" />
-        ) : agents !== null && agents.length === 0 ? (
-          <Alert variant="warning" isInline title="No Agent resources found">
-            The cluster has no Agent CRs in the shim&apos;s namespace, so there
-            is nothing to run.
+        {agentsLoading ? (
+          <Spinner aria-label={t("agentic.createRun.loadingAgents")} />
+        ) : !agentsError && agents.length === 0 ? (
+          <Alert
+            variant="warning"
+            isInline
+            title={t("agentic.createRun.noAgentsTitle")}
+          >
+            {t("agentic.createRun.noAgentsBody")}
           </Alert>
         ) : (
           <Form
             id="create-run-form"
             onSubmit={(e) => {
               e.preventDefault();
-              void submit();
+              submit();
             }}
           >
-            <FormGroup label="Agent" isRequired fieldId="create-agent">
+            <FormGroup
+              label={t("terms.agent")}
+              isRequired
+              fieldId="create-agent"
+            >
               <FormSelect
                 id="create-agent"
                 value={agentName}
@@ -301,7 +278,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   <FormSelectOption
                     key={a.metadata.name}
                     value={a.metadata.name}
-                    label={a.metadata.name ?? "(unnamed)"}
+                    label={a.metadata.name ?? t("agentic.createRun.unnamed")}
                   />
                 ))}
               </FormSelect>
@@ -320,17 +297,16 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title="Failed to load applications"
+                title={t("agentic.createRun.failedToLoadApplications")}
               >
-                {applicationsError} — this agent resolves its inputs from an
-                application, so a run cannot be created until the inventory
-                loads.
+                {applicationsError} —{" "}
+                {t("agentic.createRun.inventoryRequiredBody")}
               </Alert>
             )}
 
             {needsApplication && (
               <FormGroup
-                label="Application"
+                label={t("terms.application")}
                 isRequired
                 fieldId="create-application"
               >
@@ -341,14 +317,17 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 >
                   <FormSelectOption
                     value=""
-                    label="Select an application…"
+                    label={t("agentic.createRun.selectApplicationPlaceholder")}
                     isDisabled
                   />
                   {applications.map((a) => (
                     <FormSelectOption
                       key={a.id}
                       value={a.id}
-                      label={`${a.name}  ·  Hub #${a.id}`}
+                      label={t("agentic.createRun.applicationOption", {
+                        name: a.name,
+                        id: a.id,
+                      })}
                     />
                   ))}
                 </FormSelect>
@@ -361,10 +340,12 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               >
                 <span className="inventory-source-label">
                   {inventorySource === "hub"
-                    ? `${applications.length} application${applications.length === 1 ? "" : "s"} from Konveyor Hub`
+                    ? t("agentic.createRun.applicationsFromHub", {
+                        count: applications.length,
+                      })
                     : inventorySource === "stub"
-                      ? "Hub unavailable — showing offline stub"
-                      : "Application inventory"}
+                      ? t("agentic.createRun.hubUnavailable")
+                      : t("agentic.createRun.applicationInventory")}
                 </span>
                 <code className="inventory-source-endpoint">
                   {inventoryEndpoint}
@@ -376,7 +357,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   isDisabled={reloadingApps}
                   onClick={() => void reloadApplications()}
                 >
-                  Refresh
+                  {t("terms.refresh")}
                 </Button>
               </div>
             )}
@@ -385,9 +366,14 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               <Alert
                 variant="warning"
                 isInline
-                title={`${application?.name ?? "This application"} cannot supply every required input`}
+                title={t("agentic.createRun.cannotSupplyInputs", {
+                  name:
+                    application?.name ?? t("agentic.createRun.thisApplication"),
+                })}
               >
-                No value for {unresolvable.map((p) => p.name).join(", ")}.
+                {t("agentic.createRun.noValueFor", {
+                  params: unresolvable.map((p) => p.name).join(", "),
+                })}
               </Alert>
             )}
 
@@ -401,11 +387,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   const v = fromApp || p.default;
                   return v ? (
                     <HelperTextItem key={p.name}>
-                      {p.name} — from{" "}
-                      {fromApp
-                        ? PARAM_SOURCE_LABELS[paramSources[p.name]]
-                        : "agent default"}
-                      : <code>{v}</code>
+                      {t("agentic.createRun.paramFromSource", {
+                        name: p.name,
+                        source: fromApp
+                          ? t(PARAM_SOURCE_LABEL_KEYS[paramSources[p.name]])
+                          : t("agentic.createRun.agentDefault"),
+                      })}{" "}
+                      <code>{v}</code>
                     </HelperTextItem>
                   ) : null;
                 })}
@@ -440,14 +428,17 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               );
             })}
 
-            <FormGroup label="Instructions" fieldId="create-instructions">
+            <FormGroup
+              label={t("terms.instructions")}
+              fieldId="create-instructions"
+            >
               <TextArea
                 id="create-instructions"
                 value={instructions}
                 onChange={(_e, v) => setInstructions(v)}
                 rows={4}
                 resizeOrientation="vertical"
-                placeholder="Task-specific instructions, composed with the agent's standing prompt"
+                placeholder={t("agentic.createRun.instructionsPlaceholder")}
               />
             </FormGroup>
           </Form>
@@ -455,15 +446,21 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       </ModalBody>
       <ModalFooter>
         <Button
+          id="create-run-submit"
           variant="primary"
           isDisabled={!canCreate}
           isLoading={submitting}
-          onClick={() => void submit()}
+          onClick={submit}
         >
-          Create
+          {t("actions.create")}
         </Button>
-        <Button variant="link" isDisabled={submitting} onClick={onClose}>
-          Cancel
+        <Button
+          id="create-run-cancel"
+          variant="link"
+          isDisabled={submitting}
+          onClick={onClose}
+        >
+          {t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

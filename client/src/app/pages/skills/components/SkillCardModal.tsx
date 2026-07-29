@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -26,7 +27,8 @@ import { RESOURCE_NAME_PATTERN } from "@app/api/agentic/contract";
 import {
   useCreateSkillCardMutation,
   useUpdateSkillCardMutation,
-} from "@app/queries/agent-runs";
+} from "@app/queries/skills";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface SkillCardModalProps {
   existing?: SkillCard;
@@ -37,6 +39,7 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
   existing,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const isEdit = !!existing;
 
   const [name, setName] = useState(existing?.metadata.name ?? "");
@@ -81,12 +84,12 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
 
   const createMutation = useCreateSkillCardMutation(
     () => onClose(),
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
 
   const updateMutation = useUpdateSkillCardMutation(
     () => onClose(),
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
 
   const isSubmitting = createMutation.isLoading || updateMutation.isLoading;
@@ -109,13 +112,23 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
         if (!isSubmitting) onClose();
       }}
     >
-      <ModalHeader title={isEdit ? "Edit skill card" : "Create skill card"} />
+      <ModalHeader
+        title={
+          isEdit
+            ? t("agentic.skills.editSkillCard")
+            : t("agentic.skills.createSkillCard")
+        }
+      />
       <ModalBody>
         {submitError && (
           <Alert
             variant="danger"
             isInline
-            title={isEdit ? "Update failed" : "Create failed"}
+            title={
+              isEdit
+                ? t("agentic.skills.updateFailed")
+                : t("agentic.skills.createFailed")
+            }
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
@@ -126,13 +139,14 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
           <Alert
             variant="warning"
             isInline
-            title="Source conversion"
+            title={t("agentic.skills.sourceConversionTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            This skill card currently uses an{" "}
-            {existing?.spec.inline ? "inline" : "git source"} definition. Saving
-            will convert it to an image reference, replacing the original
-            source.
+            {t("agentic.skills.sourceConversionBody", {
+              source: existing?.spec.inline
+                ? t("agentic.skills.sourceInline")
+                : t("agentic.skills.sourceGitDefinition"),
+            })}
           </Alert>
         )}
 
@@ -142,7 +156,7 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
             if (canSubmit) submit();
           }}
         >
-          <FormGroup label="Name" isRequired fieldId="sc-name">
+          <FormGroup label={t("terms.name")} isRequired fieldId="sc-name">
             <TextInput
               id="sc-name"
               isRequired
@@ -157,15 +171,14 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
               <FormHelperText>
                 <HelperText>
                   <HelperTextItem variant="error">
-                    Must match Kubernetes naming rules (lowercase alphanumeric,
-                    hyphens, dots).
+                    {t("agentic.skills.nameValidationHelper")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
             )}
           </FormGroup>
 
-          <FormGroup label="Display name" fieldId="sc-display-name">
+          <FormGroup label={t("terms.displayName")} fieldId="sc-display-name">
             <TextInput
               id="sc-display-name"
               value={displayName}
@@ -173,7 +186,7 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
             />
           </FormGroup>
 
-          <FormGroup label="Description" fieldId="sc-description">
+          <FormGroup label={t("terms.description")} fieldId="sc-description">
             <TextInput
               id="sc-description"
               value={description}
@@ -181,46 +194,54 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
             />
           </FormGroup>
 
-          <FormGroup label="Type" isRequired fieldId="sc-type">
+          <FormGroup label={t("terms.type")} isRequired fieldId="sc-type">
             <FormSelect
               id="sc-type"
               value={type}
               onChange={(_e, v) => setType(v as SkillCardType)}
             >
-              <FormSelectOption value="skill" label="Skill" />
-              <FormSelectOption value="rule" label="Rule" />
+              <FormSelectOption
+                value="skill"
+                label={t("agentic.skills.typeSkill")}
+              />
+              <FormSelectOption
+                value="rule"
+                label={t("agentic.skills.typeRule")}
+              />
             </FormSelect>
           </FormGroup>
 
-          <FormGroup label="Image" isRequired fieldId="sc-image">
+          <FormGroup label={t("terms.image")} isRequired fieldId="sc-image">
             <TextInput
               id="sc-image"
               isRequired
               value={image}
               onChange={(_e, v) => setImage(v)}
-              placeholder="quay.io/org/skill-image:latest"
+              placeholder={t("agentic.skills.imagePlaceholder")}
             />
           </FormGroup>
 
-          <FormGroup label="Version" fieldId="sc-version">
+          <FormGroup label={t("terms.version")} fieldId="sc-version">
             <TextInput
               id="sc-version"
               value={version}
               onChange={(_e, v) => setVersion(v)}
-              placeholder="1.0.0"
+              placeholder={t("agentic.skills.versionPlaceholder")}
             />
           </FormGroup>
 
-          <FormGroup label="Tags" fieldId="sc-tags">
+          <FormGroup label={t("terms.tags")} fieldId="sc-tags">
             <TextInput
               id="sc-tags"
               value={tagsText}
               onChange={(_e, v) => setTagsText(v)}
-              placeholder="java, migration, eap"
+              placeholder={t("agentic.skills.tagsPlaceholder")}
             />
             <FormHelperText>
               <HelperText>
-                <HelperTextItem>Comma-separated list of tags.</HelperTextItem>
+                <HelperTextItem>
+                  {t("agentic.skills.tagsHelper")}
+                </HelperTextItem>
               </HelperText>
             </FormHelperText>
           </FormGroup>
@@ -233,10 +254,10 @@ export const SkillCardModal: React.FC<SkillCardModalProps> = ({
           isLoading={isSubmitting}
           onClick={submit}
         >
-          {isEdit ? "Save" : "Create"}
+          {isEdit ? t("actions.save") : t("actions.create")}
         </Button>
         <Button variant="link" isDisabled={isSubmitting} onClick={onClose}>
-          Cancel
+          {t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

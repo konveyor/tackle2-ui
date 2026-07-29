@@ -95,14 +95,14 @@ const AssetGenerators = lazy(
 );
 
 const AgentRuns = lazy(() => import("./pages/agent-runs"));
-const AgentRunDetail = lazy(
+const AgentRunDetails = lazy(
   () => import("./pages/agent-runs/agent-run-detail-page")
 );
 const Agents = lazy(() => import("./pages/agents"));
 const Skills = lazy(() => import("./pages/skills"));
 const Playbooks = lazy(() => import("./pages/playbooks"));
 const PlaybookRuns = lazy(() => import("./pages/playbook-runs"));
-const PlaybookRunDetail = lazy(
+const PlaybookRunDetails = lazy(
   () => import("./pages/playbook-runs/playbook-run-detail-page")
 );
 
@@ -270,8 +270,8 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     exact: false,
   },
   {
-    path: Paths.agentRunDetail,
-    comp: AgentRunDetail,
+    path: Paths.agentRunDetails,
+    comp: AgentRunDetails,
     exact: true,
   },
   {
@@ -295,8 +295,8 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     exact: true,
   },
   {
-    path: Paths.playbookRunDetail,
-    comp: PlaybookRunDetail,
+    path: Paths.playbookRunDetails,
+    comp: PlaybookRunDetails,
     exact: true,
   },
   {

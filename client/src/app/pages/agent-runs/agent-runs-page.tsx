@@ -1,18 +1,13 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Link, useHistory } from "react-router-dom";
 import {
-  Alert,
-  Bullseye,
   Button,
+  ButtonVariant,
   Content,
   EmptyState,
   EmptyStateBody,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   PageSection,
-  Spinner,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -30,50 +25,46 @@ import {
 
 import { DevPaths } from "@app/Paths";
 import type { AgentRun } from "@app/api/agentic/contract";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useNotifications } from "@app/components/NotificationsContext";
+import { StateError } from "@app/components/StateError";
 import {
   useDeleteAgentRunMutation,
   useFetchAgentRuns,
 } from "@app/queries/agent-runs";
+import { formatAge, formatDuration } from "@app/utils/agentic";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { CreateRunModal } from "./components/CreateRunModal";
 import { PhaseLabel } from "./components/PhaseLabel";
 
 import "./agent-runs.css";
 
-function formatAge(creationTimestamp?: string): string {
-  if (!creationTimestamp) return "-";
-  const ms = Date.now() - new Date(creationTimestamp).getTime();
-  if (ms < 0) return "0s";
-  const s = Math.floor(ms / 1000);
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
-
-function formatDuration(seconds?: number): string {
-  if (seconds == null) return "-";
-  if (seconds < 60) return `${seconds}s`;
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return s > 0 ? `${m}m ${s}s` : `${m}m`;
-}
-
 const AgentRunsPage: React.FC = () => {
+  const { t } = useTranslation();
   const history = useHistory();
+  const { pushNotification } = useNotifications();
   const { agentRuns, isLoading, fetchError } = useFetchAgentRuns();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const deleteRunMutation = useDeleteAgentRunMutation(
-    () => {
+    (name) => {
       setDeleteTarget(null);
-      setDeleteError(null);
+      pushNotification({
+        title: t("toastr.success.deletedWhat", {
+          what: name,
+          type: t("terms.agentRun"),
+        }),
+        variant: "success",
+      });
     },
-    (err) => setDeleteError(err.message)
+    (err) => {
+      setDeleteTarget(null);
+      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
+    }
   );
 
   const sortedRuns = [...agentRuns].sort((a, b) => {
@@ -83,109 +74,99 @@ const AgentRunsPage: React.FC = () => {
   });
 
   const openRun = (name: string) => {
-    history.push(DevPaths.agentRunDetail.replace(":runName", name));
+    history.push(formatPath(DevPaths.agentRunDetails, { runName: name }));
   };
 
   return (
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">Agent Runs</Content>
+          <Content component="h1">{t("terms.agentRuns")}</Content>
         </Content>
       </PageSection>
       <PageSection>
-        {fetchError && (
-          <Alert
-            variant="danger"
-            isInline
-            title="Failed to load agent runs"
-            style={{ marginBottom: "1rem" }}
-          >
-            {fetchError instanceof Error
-              ? fetchError.message
-              : String(fetchError)}
-          </Alert>
-        )}
+        <ConditionalRender
+          when={isLoading && agentRuns.length === 0 && !fetchError}
+          then={<AppPlaceholder />}
+        >
+          <Toolbar>
+            <ToolbarContent>
+              <ToolbarItem>
+                <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
+                  {t("agentic.agentRuns.createRun")}
+                </Button>
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
 
-        <Toolbar>
-          <ToolbarContent>
-            <ToolbarItem>
+          {fetchError ? (
+            <StateError />
+          ) : sortedRuns.length === 0 ? (
+            <EmptyState
+              headingLevel="h2"
+              icon={CubesIcon}
+              titleText={t("agentic.agentRuns.emptyTitle")}
+            >
+              <EmptyStateBody>
+                {t("agentic.agentRuns.emptyBody")}
+              </EmptyStateBody>
               <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-                Create run
+                {t("agentic.agentRuns.createRun")}
               </Button>
-            </ToolbarItem>
-          </ToolbarContent>
-        </Toolbar>
-
-        {isLoading && agentRuns.length === 0 ? (
-          <Bullseye>
-            <Spinner aria-label="Loading agent runs" />
-          </Bullseye>
-        ) : sortedRuns.length === 0 ? (
-          <EmptyState
-            headingLevel="h2"
-            icon={CubesIcon}
-            titleText="No agent runs"
-          >
-            <EmptyStateBody>
-              No AgentRun resources found. Create one to get started.
-            </EmptyStateBody>
-            <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-              Create run
-            </Button>
-          </EmptyState>
-        ) : (
-          <Table aria-label="Agent runs" variant="compact">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Agent</Th>
-                <Th>Phase</Th>
-                <Th>Age</Th>
-                <Th>Duration</Th>
-                <Th screenReaderText="Actions" />
-              </Tr>
-            </Thead>
-            <Tbody>
-              {sortedRuns.map((run: AgentRun) => {
-                const name = run.metadata.name ?? "";
-                return (
-                  <Tr key={name}>
-                    <Td dataLabel="Name">
-                      <Button
-                        variant="link"
-                        isInline
-                        onClick={() => openRun(name)}
-                      >
-                        {name}
-                      </Button>
-                    </Td>
-                    <Td dataLabel="Agent">{run.spec.agentRef}</Td>
-                    <Td dataLabel="Phase">
-                      <PhaseLabel phase={run.status?.phase} />
-                    </Td>
-                    <Td dataLabel="Age">
-                      {formatAge(run.metadata.creationTimestamp)}
-                    </Td>
-                    <Td dataLabel="Duration">
-                      {formatDuration(run.status?.duration)}
-                    </Td>
-                    <Td isActionCell>
-                      <ActionsColumn
-                        items={[
-                          {
-                            title: "Delete",
-                            onClick: () => setDeleteTarget(name),
-                          },
-                        ]}
-                      />
-                    </Td>
-                  </Tr>
-                );
-              })}
-            </Tbody>
-          </Table>
-        )}
+            </EmptyState>
+          ) : (
+            <Table aria-label={t("terms.agentRuns")} variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>{t("terms.name")}</Th>
+                  <Th>{t("terms.agent")}</Th>
+                  <Th>{t("terms.phase")}</Th>
+                  <Th>{t("terms.age")}</Th>
+                  <Th>{t("terms.duration")}</Th>
+                  <Th screenReaderText={t("actions.rowActions")} />
+                </Tr>
+              </Thead>
+              <Tbody>
+                {sortedRuns.map((run: AgentRun) => {
+                  const name = run.metadata.name ?? "";
+                  return (
+                    <Tr key={name}>
+                      <Td dataLabel={t("terms.name")}>
+                        <Link
+                          to={formatPath(DevPaths.agentRunDetails, {
+                            runName: name,
+                          })}
+                        >
+                          {name}
+                        </Link>
+                      </Td>
+                      <Td dataLabel={t("terms.agent")}>{run.spec.agentRef}</Td>
+                      <Td dataLabel={t("terms.phase")}>
+                        <PhaseLabel phase={run.status?.phase} />
+                      </Td>
+                      <Td dataLabel={t("terms.age")}>
+                        {formatAge(run.metadata.creationTimestamp)}
+                      </Td>
+                      <Td dataLabel={t("terms.duration")}>
+                        {formatDuration(run.status?.duration)}
+                      </Td>
+                      <Td isActionCell>
+                        <ActionsColumn
+                          items={[
+                            {
+                              title: t("actions.delete"),
+                              onClick: () => setDeleteTarget(name),
+                            },
+                          ]}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          )}
+        </ConditionalRender>
       </PageSection>
 
       {isCreateOpen && (
@@ -198,51 +179,24 @@ const AgentRunsPage: React.FC = () => {
         />
       )}
 
-      <Modal
-        variant="small"
+      <ConfirmDialog
+        title={t("dialog.title.deleteWithName", {
+          what: t("terms.agentRun").toLowerCase(),
+          name: deleteTarget,
+        })}
+        titleIconVariant="warning"
         isOpen={!!deleteTarget}
-        onClose={() => {
-          setDeleteTarget(null);
-          setDeleteError(null);
+        message={t("agentic.agentRuns.deleteMessage")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        inProgress={deleteRunMutation.isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) deleteRunMutation.mutate(deleteTarget);
         }}
-      >
-        <ModalHeader title="Delete agent run" />
-        <ModalBody>
-          Are you sure you want to delete <strong>{deleteTarget}</strong>? This
-          will terminate the sandbox and cannot be undone.
-          {deleteError && (
-            <Alert
-              variant="danger"
-              isInline
-              title="Delete failed"
-              style={{ marginTop: "0.5rem" }}
-            >
-              {deleteError}
-            </Alert>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            variant="danger"
-            isLoading={deleteRunMutation.isLoading}
-            isDisabled={deleteRunMutation.isLoading}
-            onClick={() => {
-              if (deleteTarget) deleteRunMutation.mutate(deleteTarget);
-            }}
-          >
-            Delete
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => {
-              setDeleteTarget(null);
-              setDeleteError(null);
-            }}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+      />
     </>
   );
 };

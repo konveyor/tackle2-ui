@@ -6,13 +6,15 @@
  */
 import React, { useState } from "react";
 import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import { Alert, Button } from "@patternfly/react-core";
 
 import type { SeedResult } from "@app/api/agentic/contract";
-import { useLoadDefaultsMutation } from "@app/queries/agent-runs";
+import { useLoadDefaultsMutation } from "@app/queries/agentic-catalog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const LoadDefaultsButton: React.FC = () => {
+  const { t } = useTranslation();
   const [results, setResults] = useState<SeedResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,10 +40,15 @@ export const LoadDefaultsButton: React.FC = () => {
         isDisabled={loadDefaultsMutation.isLoading}
         onClick={() => loadDefaultsMutation.mutate()}
       >
-        Load defaults
+        {t("agentic.agentRuns.loadDefaults")}
       </Button>
       {error && (
-        <Alert variant="danger" isInline isPlain title="Load defaults failed">
+        <Alert
+          variant="danger"
+          isInline
+          isPlain
+          title={t("agentic.agentRuns.loadDefaultsFailed")}
+        >
           {error}
         </Alert>
       )}
@@ -52,10 +59,13 @@ export const LoadDefaultsButton: React.FC = () => {
           isPlain
           title={
             created.length > 0
-              ? `Seeded ${created.length} resource${
-                  created.length === 1 ? "" : "s"
-                }` + (existing > 0 ? ` (${existing} already existed)` : "")
-              : "All default resources already exist"
+              ? t("agentic.agentRuns.seededCount", { count: created.length }) +
+                (existing > 0
+                  ? ` ${t("agentic.agentRuns.alreadyExisted", {
+                      count: existing,
+                    })}`
+                  : "")
+              : t("agentic.agentRuns.allDefaultsExist")
           }
         >
           {created.length > 0 &&

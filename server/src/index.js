@@ -26,7 +26,8 @@ if (developmentMode || serverConfig.KEYCLOAK_SERVER_URL) {
   app.use(createProxyMiddleware(proxies.auth));
 }
 app.use(createProxyMiddleware(proxies.oidc));
-app.use(createProxyMiddleware(proxies.agentic));
+const agenticProxy = createProxyMiddleware(proxies.agentic);
+app.use(agenticProxy);
 app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));
 app.use(createProxyMiddleware(proxies.kaiLLMProxy));
@@ -57,6 +58,11 @@ const server = app.listen(port, (error) => {
   }
   console.log(`Server listening on port::${port}`);
 });
+
+// ws:true only upgrades sockets after the middleware has seen a plain HTTP
+// request; subscribe explicitly so a direct ACP WebSocket connect works even
+// as the first request through the proxy.
+server.on("upgrade", agenticProxy.upgrade);
 
 // Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)
 const httpTerminator = createHttpTerminator({ server });

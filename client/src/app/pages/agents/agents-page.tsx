@@ -1,19 +1,13 @@
 import React, { useState } from "react";
-import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import {
-  Alert,
-  Bullseye,
   Button,
+  ButtonVariant,
   Content,
   EmptyState,
   EmptyStateBody,
   Label,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   PageSection,
-  Spinner,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -30,45 +24,46 @@ import {
 } from "@patternfly/react-table";
 
 import type { AgentResource } from "@app/api/agentic/contract";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useNotifications } from "@app/components/NotificationsContext";
+import { StateError } from "@app/components/StateError";
 import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import {
   ReadyLabel,
   skillCount,
-} from "@app/pages/agent-runs/components/sources";
-import {
-  useDeleteAgentMutation,
-  useFetchAgents,
-} from "@app/queries/agent-runs";
+} from "@app/pages/agent-runs/components/ReadyLabel";
+import { useDeleteAgentMutation, useFetchAgents } from "@app/queries/agents";
+import { formatAge } from "@app/utils/agentic";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { AgentDesignerModal } from "./components/AgentDesignerModal";
 
-function formatAge(creationTimestamp?: string): string {
-  if (!creationTimestamp) return "-";
-  const ms = Date.now() - new Date(creationTimestamp).getTime();
-  if (ms < 0) return "0s";
-  const s = Math.floor(ms / 1000);
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
-
 const AgentsPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { pushNotification } = useNotifications();
   const { agents, isLoading, fetchError, refetch } = useFetchAgents();
   const [designerTarget, setDesignerTarget] = useState<
     AgentResource | "create" | null
   >(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const deleteAgentMutation = useDeleteAgentMutation(
-    () => {
+    (name) => {
       setDeleteTarget(null);
-      setDeleteError(null);
+      pushNotification({
+        title: t("toastr.success.deletedWhat", {
+          what: name,
+          type: t("terms.agent"),
+        }),
+        variant: "success",
+      });
     },
-    (err: AxiosError) => setDeleteError(err.message)
+    (err) => {
+      setDeleteTarget(null);
+      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
+    }
   );
 
   const sortedAgents = [...agents].sort((a, b) => {
@@ -81,112 +76,108 @@ const AgentsPage: React.FC = () => {
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">Agents</Content>
+          <Content component="h1">{t("terms.agents")}</Content>
         </Content>
       </PageSection>
       <PageSection>
-        {fetchError && (
-          <Alert
-            variant="danger"
-            isInline
-            title="Failed to load agents"
-            style={{ marginBottom: "1rem" }}
-          >
-            {fetchError instanceof Error
-              ? fetchError.message
-              : String(fetchError)}
-          </Alert>
-        )}
+        <ConditionalRender
+          when={isLoading && agents.length === 0 && !fetchError}
+          then={<AppPlaceholder />}
+        >
+          <Toolbar>
+            <ToolbarContent>
+              <ToolbarItem>
+                <Button
+                  variant="primary"
+                  onClick={() => setDesignerTarget("create")}
+                >
+                  {t("agentic.agents.createAgent")}
+                </Button>
+              </ToolbarItem>
+              <ToolbarItem>
+                <LoadDefaultsButton />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
 
-        <Toolbar>
-          <ToolbarContent>
-            <ToolbarItem>
+          {fetchError ? (
+            <StateError />
+          ) : sortedAgents.length === 0 ? (
+            <EmptyState
+              headingLevel="h2"
+              icon={CubesIcon}
+              titleText={t("agentic.agents.noAgentsTitle")}
+            >
+              <EmptyStateBody>
+                {t("agentic.agents.noAgentsBody")}
+              </EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setDesignerTarget("create")}
               >
-                Create agent
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
+                {t("agentic.agents.createAgent")}
+              </Button>{" "}
               <LoadDefaultsButton />
-            </ToolbarItem>
-          </ToolbarContent>
-        </Toolbar>
-
-        {isLoading && agents.length === 0 ? (
-          <Bullseye>
-            <Spinner aria-label="Loading agents" />
-          </Bullseye>
-        ) : sortedAgents.length === 0 ? (
-          <EmptyState headingLevel="h2" icon={CubesIcon} titleText="No agents">
-            <EmptyStateBody>
-              No Agent resources found. Create one to get started.
-            </EmptyStateBody>
-            <Button
-              variant="primary"
-              onClick={() => setDesignerTarget("create")}
-            >
-              Create agent
-            </Button>{" "}
-            <LoadDefaultsButton />
-          </EmptyState>
-        ) : (
-          <Table aria-label="Agents" variant="compact">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Image</Th>
-                <Th>Providers</Th>
-                <Th>Skills</Th>
-                <Th>Params</Th>
-                <Th>Ready</Th>
-                <Th>Age</Th>
-                <Th screenReaderText="Actions" />
-              </Tr>
-            </Thead>
-            <Tbody>
-              {sortedAgents.map((agent: AgentResource) => {
-                const name = agent.metadata.name ?? "";
-                const skills = skillCount(agent.spec);
-                return (
-                  <Tr key={name}>
-                    <Td dataLabel="Name">{name}</Td>
-                    <Td dataLabel="Image">{agent.spec.image}</Td>
-                    <Td dataLabel="Providers">
-                      {agent.spec.providers?.map((p) => p.ref).join(", ") ||
-                        "-"}
-                    </Td>
-                    <Td dataLabel="Skills">
-                      {skills === 0 ? <Label color="red">0</Label> : skills}
-                    </Td>
-                    <Td dataLabel="Params">{agent.spec.params?.length ?? 0}</Td>
-                    <Td dataLabel="Ready">
-                      <ReadyLabel conditions={agent.status?.conditions} />
-                    </Td>
-                    <Td dataLabel="Age">
-                      {formatAge(agent.metadata.creationTimestamp)}
-                    </Td>
-                    <Td isActionCell>
-                      <ActionsColumn
-                        items={[
-                          {
-                            title: "Edit",
-                            onClick: () => setDesignerTarget(agent),
-                          },
-                          {
-                            title: "Delete",
-                            onClick: () => setDeleteTarget(name),
-                          },
-                        ]}
-                      />
-                    </Td>
-                  </Tr>
-                );
-              })}
-            </Tbody>
-          </Table>
-        )}
+            </EmptyState>
+          ) : (
+            <Table aria-label={t("terms.agents")} variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>{t("terms.name")}</Th>
+                  <Th>{t("terms.image")}</Th>
+                  <Th>{t("agentic.agents.providers")}</Th>
+                  <Th>{t("terms.skills")}</Th>
+                  <Th>{t("agentic.agents.params")}</Th>
+                  <Th>{t("agentic.agents.ready")}</Th>
+                  <Th>{t("terms.age")}</Th>
+                  <Th screenReaderText={t("actions.rowActions")} />
+                </Tr>
+              </Thead>
+              <Tbody>
+                {sortedAgents.map((agent: AgentResource) => {
+                  const name = agent.metadata.name ?? "";
+                  const skills = skillCount(agent.spec);
+                  return (
+                    <Tr key={name}>
+                      <Td dataLabel={t("terms.name")}>{name}</Td>
+                      <Td dataLabel={t("terms.image")}>{agent.spec.image}</Td>
+                      <Td dataLabel={t("agentic.agents.providers")}>
+                        {agent.spec.providers?.map((p) => p.ref).join(", ") ||
+                          "-"}
+                      </Td>
+                      <Td dataLabel={t("terms.skills")}>
+                        {skills === 0 ? <Label color="red">0</Label> : skills}
+                      </Td>
+                      <Td dataLabel={t("agentic.agents.params")}>
+                        {agent.spec.params?.length ?? 0}
+                      </Td>
+                      <Td dataLabel={t("agentic.agents.ready")}>
+                        <ReadyLabel conditions={agent.status?.conditions} />
+                      </Td>
+                      <Td dataLabel={t("terms.age")}>
+                        {formatAge(agent.metadata.creationTimestamp)}
+                      </Td>
+                      <Td isActionCell>
+                        <ActionsColumn
+                          items={[
+                            {
+                              title: t("actions.edit"),
+                              onClick: () => setDesignerTarget(agent),
+                            },
+                            {
+                              title: t("actions.delete"),
+                              onClick: () => setDeleteTarget(name),
+                            },
+                          ]}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          )}
+        </ConditionalRender>
       </PageSection>
 
       {designerTarget && (
@@ -200,51 +191,24 @@ const AgentsPage: React.FC = () => {
         />
       )}
 
-      <Modal
-        variant="small"
+      <ConfirmDialog
+        title={t("dialog.title.deleteWithName", {
+          what: t("terms.agent").toLowerCase(),
+          name: deleteTarget,
+        })}
+        titleIconVariant="warning"
         isOpen={!!deleteTarget}
-        onClose={() => {
-          setDeleteTarget(null);
-          setDeleteError(null);
+        message={t("dialog.message.delete")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        inProgress={deleteAgentMutation.isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) deleteAgentMutation.mutate(deleteTarget);
         }}
-      >
-        <ModalHeader title="Delete agent" />
-        <ModalBody>
-          Are you sure you want to delete <strong>{deleteTarget}</strong>? This
-          cannot be undone.
-          {deleteError && (
-            <Alert
-              variant="danger"
-              isInline
-              title="Delete failed"
-              style={{ marginTop: "0.5rem" }}
-            >
-              {deleteError}
-            </Alert>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            variant="danger"
-            isLoading={deleteAgentMutation.isLoading}
-            isDisabled={deleteAgentMutation.isLoading}
-            onClick={() => {
-              if (deleteTarget) deleteAgentMutation.mutate(deleteTarget);
-            }}
-          >
-            Delete
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => {
-              setDeleteTarget(null);
-              setDeleteError(null);
-            }}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+      />
     </>
   );
 };
