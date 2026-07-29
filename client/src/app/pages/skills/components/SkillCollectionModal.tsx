@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -32,7 +33,8 @@ import { RESOURCE_NAME_PATTERN } from "@app/api/agentic/contract";
 import {
   useCreateSkillCollectionMutation,
   useUpdateSkillCollectionMutation,
-} from "@app/queries/agent-runs";
+} from "@app/queries/skills";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 type MemberKind = "skillCardRef" | "image";
 
@@ -66,6 +68,7 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
   existing,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const isEdit = !!existing;
 
   const [name, setName] = useState(existing?.metadata.name ?? "");
@@ -104,12 +107,12 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
 
   const createMutation = useCreateSkillCollectionMutation(
     () => onClose(),
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
 
   const updateMutation = useUpdateSkillCollectionMutation(
     () => onClose(),
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
 
   const isSubmitting = createMutation.isLoading || updateMutation.isLoading;
@@ -166,14 +169,22 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
       }}
     >
       <ModalHeader
-        title={isEdit ? "Edit skill collection" : "Create skill collection"}
+        title={
+          isEdit
+            ? t("agentic.skills.editSkillCollection")
+            : t("agentic.skills.createSkillCollection")
+        }
       />
       <ModalBody>
         {submitError && (
           <Alert
             variant="danger"
             isInline
-            title={isEdit ? "Update failed" : "Create failed"}
+            title={
+              isEdit
+                ? t("agentic.skills.updateFailed")
+                : t("agentic.skills.createFailed")
+            }
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
@@ -186,7 +197,7 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
             if (canSubmit) submit();
           }}
         >
-          <FormGroup label="Name" isRequired fieldId="scol-name">
+          <FormGroup label={t("terms.name")} isRequired fieldId="scol-name">
             <TextInput
               id="scol-name"
               isRequired
@@ -201,15 +212,18 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
               <FormHelperText>
                 <HelperText>
                   <HelperTextItem variant="error">
-                    Must match Kubernetes naming rules (lowercase alphanumeric,
-                    hyphens, dots).
+                    {t("agentic.skills.nameValidationHelper")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
             )}
           </FormGroup>
 
-          <FormGroup label="Members" isRequired fieldId="scol-members">
+          <FormGroup
+            label={t("agentic.skills.members")}
+            isRequired
+            fieldId="scol-members"
+          >
             {members.map((row, index) => (
               <div
                 key={row.id}
@@ -221,15 +235,19 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
                 }}
               >
                 <TextInput
-                  aria-label={`Member ${index + 1} name`}
-                  placeholder="Name"
+                  aria-label={t("agentic.skills.memberNameAriaLabel", {
+                    index: index + 1,
+                  })}
+                  placeholder={t("terms.name")}
                   value={row.name}
                   onChange={(_e, v) => updateMember(row.id, { name: v })}
                   style={{ flex: "1" }}
                 />
 
                 <FormSelect
-                  aria-label={`Member ${index + 1} kind`}
+                  aria-label={t("agentic.skills.memberKindAriaLabel", {
+                    index: index + 1,
+                  })}
                   value={row.kind}
                   onChange={(_e, v) =>
                     updateMember(row.id, {
@@ -239,16 +257,24 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
                   }
                   style={{ flex: "0 0 160px" }}
                 >
-                  <FormSelectOption value="skillCardRef" label="Skill card" />
-                  <FormSelectOption value="image" label="Direct image" />
+                  <FormSelectOption
+                    value="skillCardRef"
+                    label={t("terms.skillCard")}
+                  />
+                  <FormSelectOption
+                    value="image"
+                    label={t("agentic.skills.directImage")}
+                  />
                 </FormSelect>
 
                 <TextInput
-                  aria-label={`Member ${index + 1} value`}
+                  aria-label={t("agentic.skills.memberValueAriaLabel", {
+                    index: index + 1,
+                  })}
                   placeholder={
                     row.kind === "skillCardRef"
-                      ? "SkillCard name"
-                      : "quay.io/org/image:tag"
+                      ? t("agentic.skills.skillCardNamePlaceholder")
+                      : t("agentic.skills.imageRefPlaceholder")
                   }
                   value={row.value}
                   onChange={(_e, v) => updateMember(row.id, { value: v })}
@@ -257,7 +283,7 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
 
                 <Button
                   variant="plain"
-                  aria-label="Move up"
+                  aria-label={t("agentic.skills.moveUp")}
                   isDisabled={index === 0}
                   onClick={() => moveMember(index, -1)}
                 >
@@ -265,7 +291,7 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
                 </Button>
                 <Button
                   variant="plain"
-                  aria-label="Move down"
+                  aria-label={t("agentic.skills.moveDown")}
                   isDisabled={index === members.length - 1}
                   onClick={() => moveMember(index, 1)}
                 >
@@ -273,7 +299,7 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
                 </Button>
                 <Button
                   variant="plain"
-                  aria-label="Remove member"
+                  aria-label={t("agentic.skills.removeMember")}
                   onClick={() => removeMember(row.id)}
                 >
                   <MinusCircleIcon />
@@ -286,14 +312,14 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
               icon={<PlusCircleIcon />}
               onClick={addMember}
             >
-              Add member
+              {t("agentic.skills.addMember")}
             </Button>
 
             {hasDuplicateNames && (
               <FormHelperText>
                 <HelperText>
                   <HelperTextItem variant="error">
-                    Member names must be unique within a collection.
+                    {t("agentic.skills.memberNamesUnique")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -303,7 +329,7 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
               <FormHelperText>
                 <HelperText>
                   <HelperTextItem variant="error">
-                    At least one member with a name and reference is required.
+                    {t("agentic.skills.memberRequired")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -318,10 +344,10 @@ export const SkillCollectionModal: React.FC<SkillCollectionModalProps> = ({
           isLoading={isSubmitting}
           onClick={submit}
         >
-          {isEdit ? "Save" : "Create"}
+          {isEdit ? t("actions.save") : t("actions.create")}
         </Button>
         <Button variant="link" isDisabled={isSubmitting} onClick={onClose}>
-          Cancel
+          {t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

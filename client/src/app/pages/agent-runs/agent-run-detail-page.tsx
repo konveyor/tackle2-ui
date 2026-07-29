@@ -1,30 +1,29 @@
 import React from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { AxiosError } from "axios";
+import { Trans, useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
-  Button,
   Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
   ExpandableSection,
-  Flex,
-  FlexItem,
   Label,
   PageSection,
   Spinner,
 } from "@patternfly/react-core";
-import { ArrowLeftIcon } from "@patternfly/react-icons";
 
-import type { AgentRunDetailRoute } from "@app/Paths";
+import type { AgentRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
-import {
-  useFetchAgentRun,
-  useFetchAgenticApplications,
-} from "@app/queries/agent-runs";
+import { PageHeader } from "@app/components/PageHeader";
+import { StateError } from "@app/components/StateError";
+import { useFetchAgentRun } from "@app/queries/agent-runs";
+import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
+import { formatAge, formatDuration } from "@app/utils/agentic";
 
 import { BranchPanel, repoBranchUrl } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
@@ -32,62 +31,54 @@ import { PhaseLabel } from "./components/PhaseLabel";
 
 import "./agent-runs.css";
 
-function formatAge(creationTimestamp?: string): string {
-  if (!creationTimestamp) return "-";
-  const ms = Date.now() - new Date(creationTimestamp).getTime();
-  if (ms < 0) return "0s";
-  const s = Math.floor(ms / 1000);
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
-
-function formatDuration(seconds?: number): string {
-  if (seconds == null) return "-";
-  if (seconds < 60) return `${seconds}s`;
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return s > 0 ? `${m}m ${s}s` : `${m}m`;
-}
-
 const AgentRunDetailPage: React.FC = () => {
-  const history = useHistory();
-  const { runName } = useParams<AgentRunDetailRoute>();
+  const { t } = useTranslation();
+  const { runName } = useParams<AgentRunDetailsRoute>();
   const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { applications } = useFetchAgenticApplications();
 
-  const goBack = () => history.push(DevPaths.agentRuns);
+  const breadcrumbs = [
+    { title: t("terms.agentRuns"), path: DevPaths.agentRuns },
+    { title: runName },
+  ];
 
   if (isLoading && !agentRun) {
     return (
       <PageSection>
         <Bullseye>
-          <Spinner aria-label="Loading agent run" />
+          <Spinner aria-label={t("agentic.runDetail.loadingAriaLabel")} />
         </Bullseye>
       </PageSection>
     );
   }
 
   if (!agentRun) {
+    const isNotFound =
+      !fetchError ||
+      (fetchError instanceof AxiosError && fetchError.response?.status === 404);
     return (
-      <PageSection>
-        <Alert variant="warning" isInline title="Agent run not found">
-          The run <strong>{runName}</strong> was not found. It may have been
-          deleted.
-        </Alert>
-        <Button
-          variant="link"
-          icon={<ArrowLeftIcon />}
-          onClick={goBack}
-          style={{ marginTop: "1rem" }}
-        >
-          Back to agent runs
-        </Button>
-      </PageSection>
+      <>
+        <PageSection hasBodyWrapper={false}>
+          <PageHeader title={runName} breadcrumbs={breadcrumbs} />
+        </PageSection>
+        <PageSection>
+          {isNotFound ? (
+            <Alert
+              variant="warning"
+              isInline
+              title={t("agentic.runDetail.notFoundTitle")}
+            >
+              <Trans
+                i18nKey="agentic.runDetail.notFoundMessage"
+                values={{ runName }}
+              />
+            </Alert>
+          ) : (
+            <StateError />
+          )}
+        </PageSection>
+      </>
     );
   }
 
@@ -108,30 +99,16 @@ const AgentRunDetailPage: React.FC = () => {
   return (
     <>
       <PageSection hasBodyWrapper={false}>
-        <Button
-          variant="link"
-          isInline
-          icon={<ArrowLeftIcon />}
-          onClick={goBack}
-          style={{ marginBottom: "0.5rem" }}
-        >
-          Back to agent runs
-        </Button>
-        <Flex alignItems={{ default: "alignItemsCenter" }}>
-          <FlexItem>
-            <Content>
-              <Content component="h1">{runName}</Content>
-            </Content>
-          </FlexItem>
-          <FlexItem>
-            <PhaseLabel phase={agentRun.status?.phase} />
-          </FlexItem>
-        </Flex>
+        <PageHeader
+          title={runName}
+          breadcrumbs={breadcrumbs}
+          description={<PhaseLabel phase={agentRun.status?.phase} />}
+        />
         {fetchError && (
           <Alert
             variant="warning"
             isInline
-            title="Refresh error"
+            title={t("agentic.runDetail.refreshError")}
             style={{ marginTop: "0.5rem" }}
           >
             {fetchError instanceof Error
@@ -146,25 +123,25 @@ const AgentRunDetailPage: React.FC = () => {
           style={{ marginTop: "1rem" }}
         >
           <DescriptionListGroup>
-            <DescriptionListTerm>Agent</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.agent")}</DescriptionListTerm>
             <DescriptionListDescription>
               {agentRun.spec.agentRef}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Sandbox</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.sandbox")}</DescriptionListTerm>
             <DescriptionListDescription>
               {agentRun.status?.sandboxName ?? "-"}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Age</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.age")}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatAge(agentRun.metadata.creationTimestamp)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Duration</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.duration")}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatDuration(agentRun.status?.duration)}
             </DescriptionListDescription>
@@ -173,17 +150,17 @@ const AgentRunDetailPage: React.FC = () => {
 
         <Content>
           <Content component="h3" style={{ marginTop: "1rem" }}>
-            Run spec
+            {t("agentic.runDetail.runSpec")}
           </Content>
         </Content>
         <DescriptionList isHorizontal isCompact style={{ marginTop: "0.5rem" }}>
           <DescriptionListGroup>
-            <DescriptionListTerm>Instructions</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.instructions")}</DescriptionListTerm>
             <DescriptionListDescription>
               {!instructions ? (
                 "-"
               ) : instructions.length > 120 ? (
-                <ExpandableSection toggleText="Instructions">
+                <ExpandableSection toggleText={t("terms.instructions")}>
                   {instructions}
                 </ExpandableSection>
               ) : (
@@ -192,7 +169,7 @@ const AgentRunDetailPage: React.FC = () => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Params</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.parameters")}</DescriptionListTerm>
             <DescriptionListDescription>
               {params.length === 0
                 ? "-"
@@ -211,7 +188,9 @@ const AgentRunDetailPage: React.FC = () => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Models</DescriptionListTerm>
+            <DescriptionListTerm>
+              {t("agentic.runDetail.models")}
+            </DescriptionListTerm>
             <DescriptionListDescription>
               {models.length === 0
                 ? "-"
@@ -223,13 +202,17 @@ const AgentRunDetailPage: React.FC = () => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Application id</DescriptionListTerm>
+            <DescriptionListTerm>
+              {t("agentic.runDetail.applicationId")}
+            </DescriptionListTerm>
             <DescriptionListDescription>
               {coordinates.appId ?? "-"}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Hub base URL</DescriptionListTerm>
+            <DescriptionListTerm>
+              {t("agentic.runDetail.hubBaseUrl")}
+            </DescriptionListTerm>
             <DescriptionListDescription>
               {coordinates.hubBaseUrl ? (
                 <code>{coordinates.hubBaseUrl}</code>
@@ -239,13 +222,15 @@ const AgentRunDetailPage: React.FC = () => {
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Hub token</DescriptionListTerm>
+            <DescriptionListTerm>
+              {t("agentic.runDetail.hubToken")}
+            </DescriptionListTerm>
             <DescriptionListDescription>
-              {coordinates.hasToken ? "(set)" : "-"}
+              {coordinates.hasToken ? t("agentic.runDetail.tokenSet") : "-"}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Target branch</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.targetBranch")}</DescriptionListTerm>
             <DescriptionListDescription>
               {!coordinates.targetBranch ? (
                 "-"

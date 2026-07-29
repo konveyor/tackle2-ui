@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -39,11 +40,12 @@ import {
   RESOURCE_NAME_PATTERN,
   STAGE_NAME_PATTERN,
 } from "@app/api/agentic/contract";
+import { useFetchAgents } from "@app/queries/agents";
 import {
   useCreatePlaybookMutation,
-  useFetchAgents,
   useUpdatePlaybookMutation,
-} from "@app/queries/agent-runs";
+} from "@app/queries/playbooks";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface StageFormData {
   key: number;
@@ -80,6 +82,8 @@ function firstProviderRef(
   return agent?.spec.providers?.[0]?.ref;
 }
 
+// Returns the comma-joined provider names when stages span more than one
+// LLM provider, otherwise null. The caller renders the warning copy.
 function detectProviderOverlap(
   stages: StageFormData[],
   agents: AgentResource[]
@@ -89,11 +93,7 @@ function detectProviderOverlap(
     const ref = firstProviderRef(stage.agentRef, agents);
     if (ref) seen.add(ref);
   }
-  if (seen.size > 1) {
-    const names = Array.from(seen).join(", ");
-    return `Stages reference different LLM providers (${names}). Verify each provider is configured and accessible.`;
-  }
-  return null;
+  return seen.size > 1 ? Array.from(seen).join(", ") : null;
 }
 
 interface PlaybookComposerModalProps {
@@ -107,6 +107,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
   onClose,
   onSaved,
 }) => {
+  const { t } = useTranslation();
   const isEdit = !!existing;
   const { agents } = useFetchAgents();
 
@@ -119,13 +120,20 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // A stage row built before the agent list arrived holds agentRef: "", while
+  // the FormSelect below displays the first agent. Resolve the same fallback
+  // everywhere it matters — display, validity, and submit — so what the user
+  // sees selected is what gets sent.
+  const resolveAgentRef = (ref: string) =>
+    ref || (agents[0]?.metadata.name ?? "");
+
   const createMutation = useCreatePlaybookMutation(
     () => onSaved(),
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
   const updateMutation = useUpdatePlaybookMutation(
     () => onSaved(),
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
 
   const submitting = createMutation.isLoading || updateMutation.isLoading;
@@ -137,12 +145,11 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
   const seenStageNames = new Set<string>();
   for (const s of stages) {
     if (!s.name.trim()) {
-      stageNameErrors[s.key] = "Stage name is required";
+      stageNameErrors[s.key] = t("agentic.playbooks.stageNameRequired");
     } else if (!STAGE_NAME_PATTERN.test(s.name)) {
-      stageNameErrors[s.key] =
-        "Lowercase letters, digits, and hyphens only (must start with a letter)";
+      stageNameErrors[s.key] = t("agentic.playbooks.stageNamePattern");
     } else if (seenStageNames.has(s.name)) {
-      stageNameErrors[s.key] = "Duplicate stage name";
+      stageNameErrors[s.key] = t("agentic.playbooks.stageNameDuplicate");
     } else {
       stageNameErrors[s.key] = null;
     }
@@ -155,10 +162,13 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
     name.trim().length > 0 &&
     stages.length > 0 &&
     !hasStageErrors &&
-    stages.every((s) => s.agentRef) &&
+    stages.every((s) => resolveAgentRef(s.agentRef)) &&
     !submitting;
 
-  const providerWarning = detectProviderOverlap(stages, agents);
+  const overlappingProviders = detectProviderOverlap(
+    stages.map((s) => ({ ...s, agentRef: resolveAgentRef(s.agentRef) })),
+    agents
+  );
 
   // --- Stage manipulation ---
 
@@ -195,7 +205,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
       stages: stages.map(
         (s): AgentPlaybookStage => ({
           name: s.name,
-          agentRef: s.agentRef,
+          agentRef: resolveAgentRef(s.agentRef),
           instructions: s.instructions.trim() || undefined,
         })
       ),
@@ -216,14 +226,22 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
       }}
     >
       <ModalHeader
-        title={isEdit ? `Edit playbook: ${name}` : "Create playbook"}
+        title={
+          isEdit
+            ? t("agentic.playbooks.editPlaybookTitle", { name })
+            : t("agentic.playbooks.createPlaybook")
+        }
       />
       <ModalBody>
         {submitError && (
           <Alert
             variant="danger"
             isInline
-            title={isEdit ? "Update failed" : "Create failed"}
+            title={
+              isEdit
+                ? t("agentic.playbooks.updateFailed")
+                : t("agentic.playbooks.createFailed")
+            }
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
@@ -237,7 +255,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
             if (canSubmit) submit();
           }}
         >
-          <FormGroup label="Name" isRequired fieldId="pb-name">
+          <FormGroup label={t("terms.name")} isRequired fieldId="pb-name">
             <TextInput
               id="pb-name"
               isRequired
@@ -253,21 +271,20 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                 <HelperTextItem
                   variant={name.length > 0 && !nameValid ? "error" : "default"}
                 >
-                  Lowercase alphanumeric, dots, and hyphens (e.g.
-                  my-migration-playbook)
+                  {t("agentic.playbooks.nameHelper")}
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
           </FormGroup>
 
-          <FormGroup label="Guide" fieldId="pb-guide">
+          <FormGroup label={t("agentic.playbooks.guide")} fieldId="pb-guide">
             <TextArea
               id="pb-guide"
               value={guide}
               onChange={(_e, v) => setGuide(v)}
               rows={3}
               resizeOrientation="vertical"
-              placeholder="High-level guidance shared with every stage (optional)"
+              placeholder={t("agentic.playbooks.guidePlaceholder")}
             />
           </FormGroup>
 
@@ -275,26 +292,27 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
             variant="info"
             isInline
             isPlain
-            title="Artifact chaining"
+            title={t("agentic.playbooks.artifactChainingTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            Each stage commits its output to TARGET_BRANCH. The next
-            stage&apos;s skill reads from the same branch.
+            {t("agentic.playbooks.artifactChainingBody")}
           </Alert>
 
-          {providerWarning && (
+          {overlappingProviders && (
             <Alert
               variant="warning"
               isInline
-              title="Provider overlap"
+              title={t("agentic.playbooks.providerOverlapTitle")}
               style={{ marginBottom: "1rem" }}
             >
-              {providerWarning}
+              {t("agentic.playbooks.providerOverlapWarning", {
+                providers: overlappingProviders,
+              })}
             </Alert>
           )}
 
           <Content component="h3" style={{ marginBottom: "0.5rem" }}>
-            Stages
+            {t("terms.stages")}
           </Content>
 
           {stages.map((stage, index) => (
@@ -312,7 +330,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                     <>
                       <Button
                         variant="plain"
-                        aria-label="Move stage up"
+                        aria-label={t("agentic.playbooks.moveStageUp")}
                         isDisabled={index === 0}
                         onClick={() => moveStage(index, -1)}
                         size="sm"
@@ -321,7 +339,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                       </Button>
                       <Button
                         variant="plain"
-                        aria-label="Move stage down"
+                        aria-label={t("agentic.playbooks.moveStageDown")}
                         isDisabled={index === stages.length - 1}
                         onClick={() => moveStage(index, 1)}
                         size="sm"
@@ -330,7 +348,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                       </Button>
                       <Button
                         variant="plain"
-                        aria-label="Remove stage"
+                        aria-label={t("agentic.playbooks.removeStage")}
                         isDanger
                         onClick={() => removeStage(stage.key)}
                         size="sm"
@@ -342,11 +360,11 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                   hasNoOffset: true,
                 }}
               >
-                <CardTitle>Stage {index + 1}</CardTitle>
+                <CardTitle>{`${t("terms.stage")} ${index + 1}`}</CardTitle>
               </CardHeader>
               <CardBody>
                 <FormGroup
-                  label="Stage name"
+                  label={t("agentic.playbooks.stageName")}
                   isRequired
                   fieldId={`stage-name-${stage.key}`}
                 >
@@ -375,13 +393,13 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                 </FormGroup>
 
                 <FormGroup
-                  label="Agent"
+                  label={t("terms.agent")}
                   isRequired
                   fieldId={`stage-agent-${stage.key}`}
                 >
                   <FormSelect
                     id={`stage-agent-${stage.key}`}
-                    value={stage.agentRef}
+                    value={resolveAgentRef(stage.agentRef)}
                     onChange={(_e, v) =>
                       updateStage(stage.key, { agentRef: v })
                     }
@@ -389,7 +407,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                     {agents.length === 0 && (
                       <FormSelectOption
                         value=""
-                        label="No agents available"
+                        label={t("agentic.playbooks.noAgentsAvailable")}
                         isDisabled
                       />
                     )}
@@ -397,14 +415,16 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                       <FormSelectOption
                         key={a.metadata.name}
                         value={a.metadata.name}
-                        label={a.metadata.name ?? "(unnamed)"}
+                        label={
+                          a.metadata.name ?? t("agentic.playbooks.unnamed")
+                        }
                       />
                     ))}
                   </FormSelect>
                 </FormGroup>
 
                 <FormGroup
-                  label="Instructions"
+                  label={t("terms.instructions")}
                   fieldId={`stage-instructions-${stage.key}`}
                 >
                   <TextArea
@@ -415,7 +435,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                     }
                     rows={3}
                     resizeOrientation="vertical"
-                    placeholder="Stage-specific instructions (optional)"
+                    placeholder={t("agentic.playbooks.instructionsPlaceholder")}
                   />
                 </FormGroup>
               </CardBody>
@@ -423,7 +443,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
           ))}
 
           <Button variant="link" icon={<PlusCircleIcon />} onClick={addStage}>
-            Add stage
+            {t("agentic.playbooks.addStage")}
           </Button>
         </Form>
       </ModalBody>
@@ -434,10 +454,10 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
           isLoading={submitting}
           onClick={submit}
         >
-          {isEdit ? "Save" : "Create"}
+          {isEdit ? t("actions.save") : t("actions.create")}
         </Button>
         <Button variant="link" isDisabled={submitting} onClick={onClose}>
-          Cancel
+          {t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

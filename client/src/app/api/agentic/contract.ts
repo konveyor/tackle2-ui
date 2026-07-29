@@ -113,53 +113,8 @@ export interface AgentResource {
   status?: { observedGeneration?: number; conditions?: Condition[] };
 }
 
-// ------------------------------------------------------------ ACP endpoint
-
-export const SECRET_DATA_KEYS = ["secret-key", "ACP_SECRET_KEY"] as const;
-export const ACP_PORT = 4000;
-export const ACP_PATH = "/acp";
-
-export function resolveSecretKeyFromData(data: Record<string, string>): string {
-  const present = Object.keys(data);
-  for (const key of SECRET_DATA_KEYS) {
-    const value = data[key];
-    if (value !== undefined) {
-      return decodeBase64Utf8(value, key);
-    }
-  }
-  if (present.length === 1) {
-    const sole = present[0] as string;
-    return decodeBase64Utf8(data[sole] as string, sole);
-  }
-  throw new Error(
-    `No ACP secret key found in secret data: looked for ${SECRET_DATA_KEYS.join(", ")}, ` +
-      (present.length === 0
-        ? "but the secret has no data entries."
-        : `and the secret has ${present.length} entries (${present.join(", ")}) so the ` +
-          "sole-entry fallback does not apply.") +
-      " Expected the AgentRun's <sandboxName>-acp-key secret."
-  );
-}
-
-function decodeBase64Utf8(b64: string, keyName: string): string {
-  let binary: string;
-  try {
-    binary = atob(b64.replace(/\s+/g, ""));
-  } catch (err) {
-    throw new Error(
-      `Secret data key "${keyName}" is not valid base64: ${err instanceof Error ? err.message : String(err)}`
-    );
-  }
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
-
 // ------------------------------------------------- platform-resolved params
 
-export const MANAGED_LABEL = "konveyor.io/managed";
 export const PARAM_SOURCES_ANNOTATION = "konveyor.io/param-sources";
 export const CREDENTIAL_SOURCES_ANNOTATION = "konveyor.io/credential-sources";
 export const SOURCE_APPLICATION_REPOSITORY_URL =
@@ -191,7 +146,12 @@ export function parseSourcesAnnotation(
 
 // ------------------------------------------------------------ Application
 
-export interface Application {
+/**
+ * A Hub application as surfaced by the shim's inventory endpoint. Named
+ * distinctly from api/models.ts Application (numeric id, full Hub shape)
+ * to keep the two API families from cross-importing by accident.
+ */
+export interface AgenticApplication {
   id: string;
   name: string;
   repository?: { url: string; branch?: string };
@@ -348,7 +308,6 @@ export interface AgentPlaybookRun {
 // -------------------------------------------------------- naming / helpers
 
 export const RESOURCE_NAME_PATTERN = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/;
-export const RESOURCE_NAME_MAX = 253;
 
 export const TARGET_BRANCH_PREFIX = "konveyor/migration-";
 
@@ -376,10 +335,6 @@ export const RUN_ENV = {
   APP_ID: "APP_ID",
   TARGET_BRANCH: "TARGET_BRANCH",
 } as const;
-
-export function runEnvValue(run: AgentRun, key: string): string | undefined {
-  return run.spec.env?.find((e) => e.name === key)?.value;
-}
 
 /** The Hub coordinates + branch a run was created with, from its spec.env. */
 export interface RunHubCoordinates {
@@ -439,7 +394,7 @@ export interface CreatePlaybookRunInput {
 export interface RunApi {
   listAgents(): Promise<AgentResource[]>;
   getAgent(name: string): Promise<AgentResource>;
-  listApplications(): Promise<Application[]>;
+  listApplications(): Promise<AgenticApplication[]>;
   listImages(): Promise<AgentImage[]>;
   listRuns(): Promise<AgentRun[]>;
   createRun(input: CreateRunInput): Promise<AgentRun>;
@@ -458,36 +413,6 @@ export interface RunApi {
   loadDefaults(): Promise<SeedResult[]>;
 }
 
-// ---------------------------------------------------------------- CatalogApi
-
-export interface CatalogApi {
-  listProviders(): Promise<LLMProvider[]>;
-  getProvider(name: string): Promise<LLMProvider>;
-  listSkillCards(): Promise<SkillCard[]>;
-  getSkillCard(name: string): Promise<SkillCard>;
-  createSkillCard(name: string, spec: SkillCardSpec): Promise<SkillCard>;
-  updateSkillCard(name: string, spec: SkillCardSpec): Promise<SkillCard>;
-  deleteSkillCard(name: string): Promise<void>;
-  listSkillCollections(): Promise<SkillCollection[]>;
-  getSkillCollection(name: string): Promise<SkillCollection>;
-  createSkillCollection(
-    name: string,
-    spec: SkillCollectionSpec
-  ): Promise<SkillCollection>;
-  updateSkillCollection(
-    name: string,
-    spec: SkillCollectionSpec
-  ): Promise<SkillCollection>;
-  deleteSkillCollection(name: string): Promise<void>;
-  createAgent(name: string, spec: AgentResourceSpec): Promise<AgentResource>;
-  updateAgent(name: string, spec: AgentResourceSpec): Promise<AgentResource>;
-  deleteAgent(name: string): Promise<void>;
-  getPlaybook(name: string): Promise<AgentPlaybook>;
-  createPlaybook(name: string, spec: AgentPlaybookSpec): Promise<AgentPlaybook>;
-  updatePlaybook(name: string, spec: AgentPlaybookSpec): Promise<AgentPlaybook>;
-  deletePlaybook(name: string): Promise<void>;
-}
-
 // ---------------------------------------------------------------- waiting
 
 export function isTerminalPhase(p?: string): boolean {
@@ -502,7 +427,7 @@ export interface WaitForRunningOptions {
 }
 
 export async function waitForRunning(
-  api: RunApi,
+  api: Pick<RunApi, "getRun">,
   name: string,
   opts?: WaitForRunningOptions
 ): Promise<AgentRun> {

@@ -1,5 +1,5 @@
 /**
- * ACP (Agent Client Protocol) session over WebSocket — browser-safe.
+ * ACP (Agent Client Protocol) session over WebSocket — browser-only.
  *
  * Ported from editor-extensions-cluster-agent's ClusterAcpSession, minus
  * vscode/winston/node deps. Instead of @agentclientprotocol/sdk (whose core
@@ -13,19 +13,13 @@
  *   agent -> client (notification): session/update
  *   agent -> client (request): session/request_permission
  *
- * Browser constraints honored:
- * - Default socket is `new globalThis.WebSocket(url)` with NO custom headers
- *   (browsers cannot set them; the hub-shim injects X-Secret-Key upstream).
- * - Ping/pong liveness runs ONLY when the socket exposes `.ping` (node ws);
- *   browser sockets skip it.
- * - A caller may inject a WebSocketFactory (e.g. node ws preconfigured with
- *   an X-Secret-Key header) — the factory owns header injection.
+ * The socket is always `new WebSocket(url)` with no custom headers —
+ * browsers cannot set them; the hub-shim injects X-Secret-Key upstream.
  */
 
 /** ACP protocol version this client speaks (mirrors the SDK's PROTOCOL_VERSION). */
 export const PROTOCOL_VERSION = 1;
 
-const HEARTBEAT_INTERVAL_MS = 10_000;
 const DEFAULT_CWD = "/workspace";
 
 // ------------------------------------------------------------------ types
@@ -67,55 +61,12 @@ export interface AcpSessionCallbacks {
   ): Promise<PermissionOutcome> | PermissionOutcome;
 }
 
-/**
- * Returns a browser-compatible WebSocket instance for the url: native
- * WebSocket in browsers; in node, callers may return a 'ws' instance
- * preconfigured with headers (e.g. X-Secret-Key). The returned object only
- * needs send/close plus addEventListener or on.
- */
-export type WebSocketFactory = (url: string) => unknown;
-
 export type AcpLogger = Pick<Console, "info" | "warn" | "error" | "debug">;
 
 export interface AcpConnectOptions {
   url: string;
-  /**
-   * Informational only on the default (browser) path — browsers cannot set
-   * WebSocket headers, so the transport shim injects X-Secret-Key
-   * server-side. If you pass a webSocketFactory, the factory owns header
-   * injection (close over the key when building it).
-   */
-  secretKey?: string;
-  webSocketFactory?: WebSocketFactory;
   callbacks?: AcpSessionCallbacks;
   logger?: AcpLogger;
-}
-
-// ------------------------------------------------- WebSocket normalization
-
-/** Structural view over browser WebSocket and node 'ws'. */
-interface WsLike {
-  readyState?: number;
-  send(data: string): void;
-  close(code?: number, reason?: string): void;
-  addEventListener?(type: string, listener: (...args: never[]) => void): void;
-  on?(event: string, listener: (...args: never[]) => void): void;
-  ping?(): void;
-  terminate?(): void;
-}
-
-const WS_OPEN = 1;
-
-type AnyListener = (...args: unknown[]) => void;
-
-function subscribe(socket: WsLike, event: string, listener: AnyListener): void {
-  // Both browser WebSocket and node 'ws' implement addEventListener for
-  // open/message/close/error; 'pong' exists only on node ws via .on().
-  if (event !== "pong" && typeof socket.addEventListener === "function") {
-    socket.addEventListener(event, listener as never);
-  } else if (typeof socket.on === "function") {
-    socket.on(event, listener as never);
-  }
 }
 
 // ---------------------------------------------------------------- JSON-RPC
@@ -162,7 +113,7 @@ const NOOP_LOGGER: AcpLogger = { info() {}, warn() {}, error() {}, debug() {} };
  * newSession() or loadSession() before prompt().
  */
 export class AcpSession {
-  private readonly socket: WsLike;
+  private readonly socket: WebSocket;
   private readonly callbacks: AcpSessionCallbacks;
   private readonly logger: AcpLogger;
 
@@ -175,15 +126,13 @@ export class AcpSession {
   private closed = false;
   private explicitlyClosed = false;
 
-  private pingTimer: ReturnType<typeof setInterval> | null = null;
-
   private openPromise: Promise<void>;
   private resolveOpen: (() => void) | null = null;
   private rejectOpen: ((err: Error) => void) | null = null;
   private lastSocketError: Error | null = null;
 
   private constructor(
-    socket: WsLike,
+    socket: WebSocket,
     callbacks: AcpSessionCallbacks,
     logger: AcpLogger
   ) {
@@ -197,16 +146,16 @@ export class AcpSession {
     });
     this.openPromise.catch(() => undefined); // avoid unhandled rejection
 
-    subscribe(socket, "open", () => {
+    socket.addEventListener("open", () => {
       this.resolveOpen?.();
       this.resolveOpen = null;
       this.rejectOpen = null;
     });
-    subscribe(socket, "message", (...args: unknown[]) => {
-      void this.handleMessageEvent(args);
+    socket.addEventListener("message", (event) => {
+      void this.handleMessageEvent(event);
     });
-    subscribe(socket, "error", (...args: unknown[]) => {
-      const err = extractError(args);
+    socket.addEventListener("error", (event) => {
+      const err = extractError(event);
       this.lastSocketError = err;
       this.logger.warn(`AcpSession: socket error: ${err.message}`);
       // Don't tear down here: a close event always follows an error.
@@ -214,9 +163,8 @@ export class AcpSession {
       this.rejectOpen = null;
       this.resolveOpen = null;
     });
-    subscribe(socket, "close", (...args: unknown[]) => {
-      const { code, reason } = extractClose(args);
-      const detail = `code ${code ?? "?"}${reason ? `: ${reason}` : ""}`;
+    socket.addEventListener("close", (event) => {
+      const detail = `code ${event.code || "?"}${event.reason ? `: ${event.reason}` : ""}`;
       const err =
         this.lastSocketError ?? new Error(`ACP connection closed (${detail})`);
       this.rejectOpen?.(err);
@@ -227,29 +175,16 @@ export class AcpSession {
   }
 
   /**
-   * Opens the socket (default: `new globalThis.WebSocket(url)`, no custom
-   * headers) and performs ACP initialize; loadSessionSupported is read from
-   * the agent's advertised capabilities.
+   * Opens the socket and performs ACP initialize; loadSessionSupported is
+   * read from the agent's advertised capabilities.
    */
   static async connect(opts: AcpConnectOptions): Promise<AcpSession> {
     const logger = opts.logger ?? NOOP_LOGGER;
-    const raw: unknown = opts.webSocketFactory
-      ? opts.webSocketFactory(opts.url)
-      : new globalThis.WebSocket(opts.url);
-    if (
-      !isRecord(raw) ||
-      typeof (raw as unknown as WsLike).send !== "function"
-    ) {
-      throw new Error(
-        "AcpSession.connect: webSocketFactory must return a WebSocket-like object"
-      );
-    }
-    const socket = raw as unknown as WsLike;
+    const socket = new WebSocket(opts.url);
     const session = new AcpSession(socket, opts.callbacks ?? {}, logger);
-    if (socket.readyState !== WS_OPEN) {
+    if (socket.readyState !== WebSocket.OPEN) {
       await session.openPromise;
     }
-    session.startHeartbeat();
     logger.info(`AcpSession: connected ${opts.url}, initializing`);
     const initialized = await session.request<InitializeResult>("initialize", {
       protocolVersion: PROTOCOL_VERSION,
@@ -382,16 +317,9 @@ export class AcpSession {
     this.socket.send(JSON.stringify(message));
   }
 
-  private async handleMessageEvent(args: unknown[]): Promise<void> {
+  private async handleMessageEvent(event: MessageEvent): Promise<void> {
     if (this.closed) return;
-    const first = args[0];
-    // Browser/ws addEventListener hand a MessageEvent ({data}); node ws .on
-    // hands (data, isBinary).
-    const raw =
-      isRecord(first) && "data" in first
-        ? (first as { data: unknown }).data
-        : first;
-    const text = await toText(raw);
+    const text = await toText(event.data);
     if (text === undefined) {
       this.logger.warn("AcpSession: ignoring non-text WebSocket frame");
       return;
@@ -540,55 +468,9 @@ export class AcpSession {
     }
   }
 
-  /**
-   * Ping/pong liveness — node 'ws' only (browser sockets have no .ping;
-   * half-open detection is left to the browser/network stack). A missed
-   * pong across one interval means the far side is gone: terminate so
-   * 'close' fires and reconnect logic can take over.
-   */
-  private startHeartbeat(): void {
-    if (
-      typeof this.socket.ping !== "function" ||
-      typeof this.socket.on !== "function"
-    ) {
-      return;
-    }
-    let alive = true;
-    subscribe(this.socket, "pong", () => {
-      alive = true;
-    });
-    this.pingTimer = setInterval(() => {
-      if (this.closed) {
-        this.stopHeartbeat();
-        return;
-      }
-      if (!alive) {
-        this.logger.warn(
-          "AcpSession: missed pong, terminating dead connection"
-        );
-        if (typeof this.socket.terminate === "function") {
-          this.socket.terminate();
-        } else {
-          this.socket.close();
-        }
-        return;
-      }
-      alive = false;
-      this.socket.ping?.();
-    }, HEARTBEAT_INTERVAL_MS);
-  }
-
-  private stopHeartbeat(): void {
-    if (this.pingTimer !== null) {
-      clearInterval(this.pingTimer);
-      this.pingTimer = null;
-    }
-  }
-
   private teardown(err: Error): void {
     if (this.closed) return;
     this.closed = true;
-    this.stopHeartbeat();
     for (const [, entry] of this.pending) {
       entry.reject(
         new Error(`ACP ${entry.method} did not complete: ${err.message}`)
@@ -617,54 +499,15 @@ async function toText(raw: unknown): Promise<string | undefined> {
   if (raw instanceof ArrayBuffer) return new TextDecoder().decode(raw);
   if (ArrayBuffer.isView(raw)) return new TextDecoder().decode(raw);
   if (typeof Blob !== "undefined" && raw instanceof Blob) return raw.text();
-  // node ws can deliver fragmented messages as an array of buffers
-  if (
-    Array.isArray(raw) &&
-    raw.length > 0 &&
-    raw.every((c) => ArrayBuffer.isView(c))
-  ) {
-    const decoder = new TextDecoder();
-    return (
-      raw
-        .map((c) => decoder.decode(c as ArrayBufferView, { stream: true }))
-        .join("") + decoder.decode()
-    );
-  }
   return undefined;
 }
 
-function extractError(args: unknown[]): Error {
-  const first = args[0];
-  if (first instanceof Error) return first;
-  if (isRecord(first)) {
-    // browser ErrorEvent / ws ErrorEvent both may carry .message or .error
-    const inner = first.error;
-    if (inner instanceof Error) return inner;
-    if (typeof first.message === "string" && first.message)
-      return new Error(first.message);
+function extractError(event: Event): Error {
+  // Browser error events are typically bare Events; ErrorEvent may carry
+  // .message or .error when the failure has detail.
+  if (event instanceof ErrorEvent) {
+    if (event.error instanceof Error) return event.error;
+    if (event.message) return new Error(event.message);
   }
   return new Error("WebSocket error");
-}
-
-function extractClose(args: unknown[]): { code?: number; reason?: string } {
-  const first = args[0];
-  if (typeof first === "number") {
-    // node ws .on("close", (code, reason: Buffer) => ...)
-    const second = args[1];
-    const reason =
-      typeof second === "string"
-        ? second
-        : ArrayBuffer.isView(second)
-          ? new TextDecoder().decode(second)
-          : undefined;
-    return { code: first, reason };
-  }
-  if (isRecord(first)) {
-    // CloseEvent (browser + ws addEventListener)
-    return {
-      code: typeof first.code === "number" ? first.code : undefined,
-      reason: typeof first.reason === "string" ? first.reason : undefined,
-    };
-  }
-  return {};
 }

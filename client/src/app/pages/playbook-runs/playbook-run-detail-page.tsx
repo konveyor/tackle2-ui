@@ -1,56 +1,37 @@
 import React from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { AxiosError } from "axios";
+import { Trans, useTranslation } from "react-i18next";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
-  Button,
   Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Flex,
-  FlexItem,
   PageSection,
   ProgressStep,
   ProgressStepper,
   Spinner,
 } from "@patternfly/react-core";
-import { ArrowLeftIcon } from "@patternfly/react-icons";
 
-import type { PlaybookRunDetailRoute } from "@app/Paths";
+import type { PlaybookRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type { AgentRunPhase } from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
+import { PageHeader } from "@app/components/PageHeader";
+import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
+import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
+import { useFetchPlaybookRun } from "@app/queries/playbook-runs";
 import {
-  useFetchAgenticApplications,
-  useFetchPlaybookRun,
-} from "@app/queries/agent-runs";
-
-import { playbookRunDuration } from "./playbook-runs-page";
-
-function formatAge(creationTimestamp?: string): string {
-  if (!creationTimestamp) return "-";
-  const ms = Date.now() - new Date(creationTimestamp).getTime();
-  if (ms < 0) return "0s";
-  const s = Math.floor(ms / 1000);
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
-
-function formatDuration(seconds?: number): string {
-  if (seconds == null) return "-";
-  if (seconds < 60) return `${seconds}s`;
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return s > 0 ? `${m}m ${s}s` : `${m}m`;
-}
+  formatAge,
+  formatDuration,
+  playbookRunDuration,
+} from "@app/utils/agentic";
+import { formatPath } from "@app/utils/utils";
 
 /**
  * Map a stage phase to a ProgressStepper variant. Ready=False on the run
@@ -71,43 +52,53 @@ function stepVariant(phase?: AgentRunPhase) {
 }
 
 const PlaybookRunDetailPage: React.FC = () => {
-  const history = useHistory();
-  const { runName } = useParams<PlaybookRunDetailRoute>();
+  const { t } = useTranslation();
+  const { runName } = useParams<PlaybookRunDetailsRoute>();
   const { playbookRun, isLoading, fetchError } = useFetchPlaybookRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { applications } = useFetchAgenticApplications();
 
-  const goBack = () => history.push(DevPaths.playbookRuns);
-  const openAgentRun = (name: string) => {
-    history.push(DevPaths.agentRunDetail.replace(":runName", name));
-  };
+  const breadcrumbs = [
+    { title: t("terms.playbookRuns"), path: DevPaths.playbookRuns },
+    { title: runName },
+  ];
 
   if (isLoading && !playbookRun) {
     return (
       <PageSection>
         <Bullseye>
-          <Spinner aria-label="Loading playbook run" />
+          <Spinner aria-label={t("agentic.playbookRuns.loadingRun")} />
         </Bullseye>
       </PageSection>
     );
   }
 
   if (!playbookRun) {
+    const isNotFound =
+      !fetchError ||
+      (fetchError instanceof AxiosError && fetchError.response?.status === 404);
     return (
-      <PageSection>
-        <Alert variant="warning" isInline title="Playbook run not found">
-          The playbook run <strong>{runName}</strong> was not found. It may have
-          been deleted.
-        </Alert>
-        <Button
-          variant="link"
-          icon={<ArrowLeftIcon />}
-          onClick={goBack}
-          style={{ marginTop: "1rem" }}
-        >
-          Back to playbook runs
-        </Button>
-      </PageSection>
+      <>
+        <PageSection hasBodyWrapper={false}>
+          <PageHeader title={runName} breadcrumbs={breadcrumbs} />
+        </PageSection>
+        <PageSection>
+          {isNotFound ? (
+            <Alert
+              variant="warning"
+              isInline
+              title={t("agentic.playbookRuns.notFoundTitle")}
+            >
+              <Trans
+                i18nKey="agentic.playbookRuns.notFoundBody"
+                values={{ name: runName }}
+              />
+            </Alert>
+          ) : (
+            <StateError />
+          )}
+        </PageSection>
+      </>
     );
   }
 
@@ -119,30 +110,16 @@ const PlaybookRunDetailPage: React.FC = () => {
   return (
     <>
       <PageSection hasBodyWrapper={false}>
-        <Button
-          variant="link"
-          isInline
-          icon={<ArrowLeftIcon />}
-          onClick={goBack}
-          style={{ marginBottom: "0.5rem" }}
-        >
-          Back to playbook runs
-        </Button>
-        <Flex alignItems={{ default: "alignItemsCenter" }}>
-          <FlexItem>
-            <Content>
-              <Content component="h1">{runName}</Content>
-            </Content>
-          </FlexItem>
-          <FlexItem>
-            <PhaseLabel phase={playbookRun.status?.phase} />
-          </FlexItem>
-        </Flex>
+        <PageHeader
+          title={runName}
+          breadcrumbs={breadcrumbs}
+          description={<PhaseLabel phase={playbookRun.status?.phase} />}
+        />
         {fetchError && (
           <Alert
             variant="warning"
             isInline
-            title="Refresh error"
+            title={t("agentic.playbookRuns.refreshErrorTitle")}
             style={{ marginTop: "0.5rem" }}
           >
             {fetchError instanceof Error
@@ -157,25 +134,27 @@ const PlaybookRunDetailPage: React.FC = () => {
           style={{ marginTop: "1rem" }}
         >
           <DescriptionListGroup>
-            <DescriptionListTerm>Playbook</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.playbook")}</DescriptionListTerm>
             <DescriptionListDescription>
               {playbookRun.spec.playbookRef}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Current stage</DescriptionListTerm>
+            <DescriptionListTerm>
+              {t("agentic.playbookRuns.currentStage")}
+            </DescriptionListTerm>
             <DescriptionListDescription>
               {currentStage ?? "-"}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Age</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.age")}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatAge(playbookRun.metadata.creationTimestamp)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
-            <DescriptionListTerm>Duration</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.duration")}</DescriptionListTerm>
             <DescriptionListDescription>
               {formatDuration(playbookRunDuration(playbookRun))}
             </DescriptionListDescription>
@@ -184,15 +163,20 @@ const PlaybookRunDetailPage: React.FC = () => {
       </PageSection>
       <PageSection>
         <Content>
-          <Content component="h2">Stages</Content>
+          <Content component="h2">{t("terms.stages")}</Content>
         </Content>
         {stages.length === 0 ? (
-          <Alert variant="info" isInline title="No stage status yet">
-            The controller has not populated stage status — the playbook may not
-            be Ready.
+          <Alert
+            variant="info"
+            isInline
+            title={t("agentic.playbookRuns.noStageStatusTitle")}
+          >
+            {t("agentic.playbookRuns.noStageStatusBody")}
           </Alert>
         ) : (
-          <ProgressStepper aria-label="Playbook stages">
+          <ProgressStepper
+            aria-label={t("agentic.playbookRuns.stagesAriaLabel")}
+          >
             {stages.map((stage) => (
               <ProgressStep
                 key={stage.name}
@@ -200,21 +184,23 @@ const PlaybookRunDetailPage: React.FC = () => {
                 isCurrent={stage.name === currentStage}
                 id={`stage-${stage.name}`}
                 titleId={`stage-${stage.name}-title`}
-                aria-label={`stage ${stage.name}: ${stage.phase ?? "Pending"}`}
+                aria-label={t("agentic.playbookRuns.stageAriaLabel", {
+                  name: stage.name,
+                  phase: stage.phase ?? t("taskState.Pending"),
+                })}
                 description={
                   stage.agentRunName ? (
-                    <Button
-                      variant="link"
-                      isInline
-                      onClick={() => {
-                        if (stage.agentRunName)
-                          openAgentRun(stage.agentRunName);
-                      }}
+                    <Link
+                      to={formatPath(DevPaths.agentRunDetails, {
+                        runName: stage.agentRunName,
+                      })}
                     >
-                      {stage.phase === "Running" ? "Open live run" : "Open run"}
-                    </Button>
+                      {stage.phase === "Running"
+                        ? t("agentic.playbookRuns.openLiveRun")
+                        : t("agentic.playbookRuns.openRun")}
+                    </Link>
                   ) : (
-                    (stage.phase ?? "Pending")
+                    (stage.phase ?? t("taskState.Pending"))
                   )
                 }
               >

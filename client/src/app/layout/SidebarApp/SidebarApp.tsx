@@ -201,34 +201,34 @@ const MigrationSidebar = ({
           </NavItem>
         </NavExpandable>
         <NavExpandable
-          title="Agentic"
-          srText="Agentic"
+          title={t("sidebar.agentic")}
+          srText={t("sidebar.agentic")}
           groupId="migration-agentic"
           isExpanded
         >
           <NavItem>
             <NavLink to={DevPaths.agentRuns} activeClassName="pf-m-current">
-              Agent Runs
+              {t("sidebar.agentRuns")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink to={DevPaths.agents} activeClassName="pf-m-current">
-              Agents
+              {t("sidebar.agents")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink to={DevPaths.skills} activeClassName="pf-m-current">
-              Skills
+              {t("sidebar.skills")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink to={DevPaths.playbooks} activeClassName="pf-m-current">
-              Playbooks
+              {t("sidebar.playbooks")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink to={DevPaths.playbookRuns} activeClassName="pf-m-current">
-              Playbook runs
+              {t("sidebar.playbookRuns")}
             </NavLink>
           </NavItem>
         </NavExpandable>

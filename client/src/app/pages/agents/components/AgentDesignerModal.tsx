@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -27,15 +28,20 @@ import type {
   AgentResourceSpec,
 } from "@app/api/agentic/contract";
 import { RESOURCE_NAME_PATTERN } from "@app/api/agentic/contract";
-import { ReadyLabel } from "@app/pages/agent-runs/components/sources";
+import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import {
-  useCreateAgentMutation,
   useFetchImagesWithSource,
   useFetchProviders,
+} from "@app/queries/agentic-catalog";
+import {
+  useCreateAgentMutation,
+  useUpdateAgentMutation,
+} from "@app/queries/agents";
+import {
   useFetchSkillCards,
   useFetchSkillCollections,
-  useUpdateAgentMutation,
-} from "@app/queries/agent-runs";
+} from "@app/queries/skills";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const PARAM_TYPES: AgentParamType[] = ["string", "number", "boolean"];
 
@@ -68,6 +74,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
   onClose,
   onSaved,
 }) => {
+  const { t } = useTranslation();
   const isEdit = !!existing;
 
   // ---- catalog data
@@ -117,17 +124,11 @@ export const AgentDesignerModal: React.FC<Props> = ({
   // ---- mutations
   const createMutation = useCreateAgentMutation(
     () => onSaved(),
-    (err: AxiosError) =>
-      setSubmitError(
-        err.response?.data ? String(err.response.data) : err.message
-      )
+    (err: AxiosError) => setSubmitError(getAxiosErrorMessage(err))
   );
   const updateMutation = useUpdateAgentMutation(
     () => onSaved(),
-    (err: AxiosError) =>
-      setSubmitError(
-        err.response?.data ? String(err.response.data) : err.message
-      )
+    (err: AxiosError) => setSubmitError(getAxiosErrorMessage(err))
   );
 
   // ---- validation
@@ -215,11 +216,17 @@ export const AgentDesignerModal: React.FC<Props> = ({
 
   return (
     <Modal variant="large" isOpen onClose={onClose}>
-      <ModalHeader title={isEdit ? `Edit agent: ${name}` : "Create agent"} />
+      <ModalHeader
+        title={
+          isEdit
+            ? t("agentic.agents.editAgentTitle", { name })
+            : t("agentic.agents.createAgent")
+        }
+      />
       <ModalBody>
         <Form>
           {/* ---------- Name ---------- */}
-          <FormGroup label="Name" isRequired fieldId="agent-name">
+          <FormGroup label={t("terms.name")} isRequired fieldId="agent-name">
             <TextInput
               id="agent-name"
               isRequired
@@ -235,14 +242,14 @@ export const AgentDesignerModal: React.FC<Props> = ({
                 <HelperTextItem
                   variant={name.length > 0 && !nameValid ? "error" : "default"}
                 >
-                  DNS-1123 subdomain: lowercase alphanumeric, hyphens, dots
+                  {t("agentic.agents.nameHelper")}
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
           </FormGroup>
 
           {/* ---------- Image ---------- */}
-          <FormGroup label="Image" isRequired fieldId="agent-image">
+          <FormGroup label={t("terms.image")} isRequired fieldId="agent-image">
             {!customImage ? (
               <>
                 <FormSelect
@@ -257,7 +264,10 @@ export const AgentDesignerModal: React.FC<Props> = ({
                     }
                   }}
                 >
-                  <FormSelectOption value="" label="Select an image..." />
+                  <FormSelectOption
+                    value=""
+                    label={t("agentic.agents.selectImagePlaceholder")}
+                  />
                   {images.map((img) => (
                     <FormSelectOption
                       key={img.image}
@@ -267,7 +277,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   ))}
                   <FormSelectOption
                     value="__custom__"
-                    label="-- Custom image --"
+                    label={t("agentic.agents.customImageOption")}
                   />
                 </FormSelect>
               </>
@@ -277,7 +287,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   id="agent-image-custom"
                   value={imageRef}
                   onChange={(_e, v) => setImageRef(v)}
-                  placeholder="quay.io/org/image:tag"
+                  placeholder={t("agentic.agents.customImagePlaceholder")}
                 />
                 <Button
                   variant="link"
@@ -288,14 +298,14 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   }}
                   style={{ paddingLeft: 0, marginTop: 4 }}
                 >
-                  Back to catalog
+                  {t("agentic.agents.backToCatalog")}
                 </Button>
               </>
             )}
           </FormGroup>
 
           {/* ---------- Prompt ---------- */}
-          <FormGroup label="Prompt" fieldId="agent-prompt">
+          <FormGroup label={t("agentic.agents.prompt")} fieldId="agent-prompt">
             <TextArea
               id="agent-prompt"
               value={prompt}
@@ -306,10 +316,17 @@ export const AgentDesignerModal: React.FC<Props> = ({
           </FormGroup>
 
           {/* ---------- Providers ---------- */}
-          <FormGroup label="Providers" fieldId="agent-providers">
+          <FormGroup
+            label={t("agentic.agents.providers")}
+            fieldId="agent-providers"
+          >
             {providers.length === 0 ? (
               <HelperText>
-                <HelperTextItem>No providers available</HelperTextItem>
+                <HelperTextItem>
+                  {t("composed.noDataStateTitle", {
+                    what: t("agentic.agents.providers").toLowerCase(),
+                  })}
+                </HelperTextItem>
               </HelperText>
             ) : (
               providers.map((prov) => {
@@ -329,7 +346,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                               isCompact
                               style={{ marginLeft: 8 }}
                             >
-                              1st
+                              {t("agentic.agents.firstProviderBadge")}
                             </Label>
                           )}
                         </>
@@ -344,10 +361,14 @@ export const AgentDesignerModal: React.FC<Props> = ({
           </FormGroup>
 
           {/* ---------- Skill Cards ---------- */}
-          <FormGroup label="Skill cards" fieldId="agent-skill-cards">
+          <FormGroup label={t("terms.skillCards")} fieldId="agent-skill-cards">
             {skillCards.length === 0 ? (
               <HelperText>
-                <HelperTextItem>No skill cards available</HelperTextItem>
+                <HelperTextItem>
+                  {t("composed.noDataStateTitle", {
+                    what: t("terms.skillCards").toLowerCase(),
+                  })}
+                </HelperTextItem>
               </HelperText>
             ) : (
               skillCards.map((sc) => {
@@ -384,12 +405,16 @@ export const AgentDesignerModal: React.FC<Props> = ({
 
           {/* ---------- Skill Collections ---------- */}
           <FormGroup
-            label="Skill collections"
+            label={t("terms.skillCollections")}
             fieldId="agent-skill-collections"
           >
             {skillCollections.length === 0 ? (
               <HelperText>
-                <HelperTextItem>No skill collections available</HelperTextItem>
+                <HelperTextItem>
+                  {t("composed.noDataStateTitle", {
+                    what: t("terms.skillCollections").toLowerCase(),
+                  })}
+                </HelperTextItem>
               </HelperText>
             ) : (
               skillCollections.map((col) => {
@@ -409,13 +434,17 @@ export const AgentDesignerModal: React.FC<Props> = ({
           </FormGroup>
 
           {totalSkills === 0 && (
-            <Alert variant="danger" isInline title="No skills selected">
-              An agent without skills has no tools to work with.
+            <Alert
+              variant="danger"
+              isInline
+              title={t("agentic.agents.noSkillsSelectedTitle")}
+            >
+              {t("agentic.agents.noSkillsSelectedBody")}
             </Alert>
           )}
 
           {/* ---------- Parameters ---------- */}
-          <FormGroup label="Parameters" fieldId="agent-params">
+          <FormGroup label={t("terms.parameters")} fieldId="agent-params">
             {params.map((p, idx) => (
               <div
                 key={idx}
@@ -427,14 +456,14 @@ export const AgentDesignerModal: React.FC<Props> = ({
                 }}
               >
                 <TextInput
-                  aria-label="Param name"
-                  placeholder="name"
+                  aria-label={t("agentic.agents.paramName")}
+                  placeholder={t("terms.name").toLowerCase()}
                   value={p.name}
                   onChange={(_e, v) => updateParam(idx, { name: v })}
                   style={{ flex: "1 1 120px" }}
                 />
                 <FormSelect
-                  aria-label="Param type"
+                  aria-label={t("agentic.agents.paramType")}
                   value={p.type}
                   onChange={(_e, v) =>
                     updateParam(idx, { type: v as AgentParamType })
@@ -446,22 +475,22 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   ))}
                 </FormSelect>
                 <TextInput
-                  aria-label="Description"
-                  placeholder="description"
+                  aria-label={t("terms.description")}
+                  placeholder={t("terms.description").toLowerCase()}
                   value={p.description}
                   onChange={(_e, v) => updateParam(idx, { description: v })}
                   style={{ flex: "2 1 160px" }}
                 />
                 <TextInput
-                  aria-label="Default"
-                  placeholder="default"
+                  aria-label={t("agentic.agents.default")}
+                  placeholder={t("agentic.agents.default").toLowerCase()}
                   value={p.defaultValue}
                   onChange={(_e, v) => updateParam(idx, { defaultValue: v })}
                   style={{ flex: "1 1 100px" }}
                 />
                 <Checkbox
                   id={`param-req-${idx}`}
-                  label="Required"
+                  label={t("agentic.agents.required")}
                   isChecked={p.required}
                   isDisabled={p.defaultValue !== ""}
                   onChange={(_e, checked) =>
@@ -471,7 +500,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                 />
                 <Button
                   variant="plain"
-                  aria-label="Remove parameter"
+                  aria-label={t("agentic.agents.removeParameter")}
                   onClick={() => removeParam(idx)}
                   style={{ flex: "0 0 auto" }}
                 >
@@ -485,7 +514,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
               onClick={() => setParams((prev) => [...prev, emptyParamRow()])}
               style={{ paddingLeft: 0 }}
             >
-              + Add parameter
+              + {t("agentic.agents.addParameter")}
             </Button>
           </FormGroup>
 
@@ -493,7 +522,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
             <Alert
               variant="danger"
               isInline
-              title="Save failed"
+              title={t("agentic.agents.saveFailed")}
               style={{ marginTop: "0.5rem" }}
             >
               {submitError}
@@ -508,10 +537,10 @@ export const AgentDesignerModal: React.FC<Props> = ({
           isDisabled={!canSubmit}
           onClick={handleSubmit}
         >
-          {isEdit ? "Save" : "Create"}
+          {isEdit ? t("actions.save") : t("actions.create")}
         </Button>
         <Button variant="link" onClick={onClose}>
-          Cancel
+          {t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

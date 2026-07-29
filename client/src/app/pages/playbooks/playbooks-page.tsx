@@ -1,18 +1,13 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
-  Alert,
-  Bullseye,
   Button,
+  ButtonVariant,
   Content,
   EmptyState,
   EmptyStateBody,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   PageSection,
-  Spinner,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -31,52 +26,56 @@ import {
 
 import { DevPaths } from "@app/Paths";
 import type { AgentPlaybook } from "@app/api/agentic/contract";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useNotifications } from "@app/components/NotificationsContext";
+import { StateError } from "@app/components/StateError";
 import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
-import { ReadyLabel } from "@app/pages/agent-runs/components/sources";
+import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import { CreatePlaybookRunModal } from "@app/pages/playbook-runs/components/CreatePlaybookRunModal";
 import {
   useDeletePlaybookMutation,
   useFetchPlaybooks,
-} from "@app/queries/agent-runs";
+} from "@app/queries/playbooks";
+import { formatAge } from "@app/utils/agentic";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { PlaybookComposerModal } from "./components/PlaybookComposerModal";
 
-function formatAge(creationTimestamp?: string): string {
-  if (!creationTimestamp) return "-";
-  const ms = Date.now() - new Date(creationTimestamp).getTime();
-  if (ms < 0) return "0s";
-  const s = Math.floor(ms / 1000);
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
-
-function stagesSummary(playbook: AgentPlaybook): string {
+function stagesSummary(playbook: AgentPlaybook): string | null {
   const stages = playbook.spec.stages ?? [];
-  if (stages.length === 0) return "0 stages";
+  if (stages.length === 0) return null;
   const names = stages.map((s) => s.name);
   return `${stages.length}: ${names.join(" → ")}`;
 }
 
 const PlaybooksPage: React.FC = () => {
+  const { t } = useTranslation();
   const history = useHistory();
+  const { pushNotification } = useNotifications();
   const { playbooks, isLoading, fetchError } = useFetchPlaybooks();
   const [composerTarget, setComposerTarget] = useState<
     AgentPlaybook | "create" | null
   >(null);
   const [runTarget, setRunTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const deleteMutation = useDeletePlaybookMutation(
-    () => {
+    (name) => {
       setDeleteTarget(null);
-      setDeleteError(null);
+      pushNotification({
+        title: t("toastr.success.deletedWhat", {
+          what: name,
+          type: t("terms.playbook"),
+        }),
+        variant: "success",
+      });
     },
-    (err) => setDeleteError(err.message)
+    (err) => {
+      setDeleteTarget(null);
+      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
+    }
   );
 
   const sortedPlaybooks = [...playbooks].sort((a, b) => {
@@ -89,117 +88,108 @@ const PlaybooksPage: React.FC = () => {
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">Playbooks</Content>
+          <Content component="h1">{t("terms.playbooks")}</Content>
         </Content>
       </PageSection>
       <PageSection>
-        {fetchError && (
-          <Alert
-            variant="danger"
-            isInline
-            title="Failed to load playbooks"
-            style={{ marginBottom: "1rem" }}
-          >
-            {fetchError instanceof Error
-              ? fetchError.message
-              : String(fetchError)}
-          </Alert>
-        )}
+        <ConditionalRender
+          when={isLoading && playbooks.length === 0 && !fetchError}
+          then={<AppPlaceholder />}
+        >
+          <Toolbar>
+            <ToolbarContent>
+              <ToolbarItem>
+                <Button
+                  variant="primary"
+                  onClick={() => setComposerTarget("create")}
+                >
+                  {t("agentic.playbooks.createPlaybook")}
+                </Button>
+              </ToolbarItem>
+              <ToolbarItem>
+                <LoadDefaultsButton />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
 
-        <Toolbar>
-          <ToolbarContent>
-            <ToolbarItem>
+          {fetchError ? (
+            <StateError />
+          ) : sortedPlaybooks.length === 0 ? (
+            <EmptyState
+              headingLevel="h2"
+              icon={CubesIcon}
+              titleText={t("agentic.playbooks.emptyTitle")}
+            >
+              <EmptyStateBody>
+                {t("agentic.playbooks.emptyBody")}
+              </EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setComposerTarget("create")}
               >
-                Create playbook
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
+                {t("agentic.playbooks.createPlaybook")}
+              </Button>{" "}
               <LoadDefaultsButton />
-            </ToolbarItem>
-          </ToolbarContent>
-        </Toolbar>
-
-        {isLoading && playbooks.length === 0 ? (
-          <Bullseye>
-            <Spinner aria-label="Loading playbooks" />
-          </Bullseye>
-        ) : sortedPlaybooks.length === 0 ? (
-          <EmptyState
-            headingLevel="h2"
-            icon={CubesIcon}
-            titleText="No playbooks"
-          >
-            <EmptyStateBody>
-              No AgentPlaybook resources found. Create one to orchestrate
-              multi-stage agent workflows.
-            </EmptyStateBody>
-            <Button
-              variant="primary"
-              onClick={() => setComposerTarget("create")}
-            >
-              Create playbook
-            </Button>{" "}
-            <LoadDefaultsButton />
-          </EmptyState>
-        ) : (
-          <Table aria-label="Playbooks" variant="compact">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Stages</Th>
-                <Th>Guide</Th>
-                <Th>Ready</Th>
-                <Th>Age</Th>
-                <Th screenReaderText="Actions" />
-              </Tr>
-            </Thead>
-            <Tbody>
-              {sortedPlaybooks.map((pb: AgentPlaybook) => {
-                const name = pb.metadata.name ?? "";
-                return (
-                  <Tr key={name}>
-                    <Td dataLabel="Name">{name}</Td>
-                    <Td dataLabel="Stages">{stagesSummary(pb)}</Td>
-                    <Td dataLabel="Guide">
-                      {pb.spec.guide ? (
-                        <Truncate content={pb.spec.guide} />
-                      ) : (
-                        "-"
-                      )}
-                    </Td>
-                    <Td dataLabel="Ready">
-                      <ReadyLabel conditions={pb.status?.conditions} />
-                    </Td>
-                    <Td dataLabel="Age">
-                      {formatAge(pb.metadata.creationTimestamp)}
-                    </Td>
-                    <Td isActionCell>
-                      <ActionsColumn
-                        items={[
-                          {
-                            title: "Run",
-                            onClick: () => setRunTarget(name),
-                          },
-                          {
-                            title: "Edit",
-                            onClick: () => setComposerTarget(pb),
-                          },
-                          {
-                            title: "Delete",
-                            onClick: () => setDeleteTarget(name),
-                          },
-                        ]}
-                      />
-                    </Td>
-                  </Tr>
-                );
-              })}
-            </Tbody>
-          </Table>
-        )}
+            </EmptyState>
+          ) : (
+            <Table aria-label={t("terms.playbooks")} variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>{t("terms.name")}</Th>
+                  <Th>{t("terms.stages")}</Th>
+                  <Th>{t("agentic.playbooks.guide")}</Th>
+                  <Th>{t("agentic.playbooks.ready")}</Th>
+                  <Th>{t("terms.age")}</Th>
+                  <Th screenReaderText={t("actions.rowActions")} />
+                </Tr>
+              </Thead>
+              <Tbody>
+                {sortedPlaybooks.map((pb: AgentPlaybook) => {
+                  const name = pb.metadata.name ?? "";
+                  return (
+                    <Tr key={name}>
+                      <Td dataLabel={t("terms.name")}>{name}</Td>
+                      <Td dataLabel={t("terms.stages")}>
+                        {stagesSummary(pb) ?? t("agentic.playbooks.zeroStages")}
+                      </Td>
+                      <Td dataLabel={t("agentic.playbooks.guide")}>
+                        {pb.spec.guide ? (
+                          <Truncate content={pb.spec.guide} />
+                        ) : (
+                          "-"
+                        )}
+                      </Td>
+                      <Td dataLabel={t("agentic.playbooks.ready")}>
+                        <ReadyLabel conditions={pb.status?.conditions} />
+                      </Td>
+                      <Td dataLabel={t("terms.age")}>
+                        {formatAge(pb.metadata.creationTimestamp)}
+                      </Td>
+                      <Td isActionCell>
+                        <ActionsColumn
+                          items={[
+                            {
+                              title: t("actions.run"),
+                              onClick: () => setRunTarget(name),
+                            },
+                            {
+                              title: t("actions.edit"),
+                              onClick: () => setComposerTarget(pb),
+                            },
+                            {
+                              title: t("actions.delete"),
+                              onClick: () => setDeleteTarget(name),
+                            },
+                          ]}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          )}
+        </ConditionalRender>
       </PageSection>
 
       {composerTarget !== null && (
@@ -216,58 +206,29 @@ const PlaybooksPage: React.FC = () => {
           onClose={() => setRunTarget(null)}
           onCreated={(runName) => {
             setRunTarget(null);
-            history.push(
-              DevPaths.playbookRunDetail.replace(":runName", runName)
-            );
+            history.push(formatPath(DevPaths.playbookRunDetails, { runName }));
           }}
         />
       )}
 
-      <Modal
-        variant="small"
+      <ConfirmDialog
+        title={t("dialog.title.deleteWithName", {
+          what: t("terms.playbook").toLowerCase(),
+          name: deleteTarget,
+        })}
+        titleIconVariant="warning"
         isOpen={!!deleteTarget}
-        onClose={() => {
-          setDeleteTarget(null);
-          setDeleteError(null);
+        message={t("dialog.message.delete")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        inProgress={deleteMutation.isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) deleteMutation.mutate(deleteTarget);
         }}
-      >
-        <ModalHeader title="Delete playbook" />
-        <ModalBody>
-          Are you sure you want to delete <strong>{deleteTarget}</strong>? This
-          action cannot be undone.
-          {deleteError && (
-            <Alert
-              variant="danger"
-              isInline
-              title="Delete failed"
-              style={{ marginTop: "0.5rem" }}
-            >
-              {deleteError}
-            </Alert>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            variant="danger"
-            isLoading={deleteMutation.isLoading}
-            isDisabled={deleteMutation.isLoading}
-            onClick={() => {
-              if (deleteTarget) deleteMutation.mutate(deleteTarget);
-            }}
-          >
-            Delete
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => {
-              setDeleteTarget(null);
-              setDeleteError(null);
-            }}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+      />
     </>
   );
 };

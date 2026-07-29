@@ -8,9 +8,10 @@
  */
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, Button, Content, Label } from "@patternfly/react-core";
 
-import type { Application } from "@app/api/agentic/contract";
+import type { AgenticApplication } from "@app/api/agentic/contract";
 
 /** Frugal against the unauthenticated GitHub API rate limit (60/hr/IP). */
 const FEED_POLL_MS = 60_000;
@@ -139,7 +140,7 @@ export function BranchPanel({
   targetBranch,
   isTerminal,
 }: {
-  application?: Application;
+  application?: AgenticApplication;
   /**
    * Repo the run actually used (its `repository` param), which wins over the
    * application record — the app's URL can be repointed after the run.
@@ -148,6 +149,7 @@ export function BranchPanel({
   targetBranch: string;
   isTerminal: boolean;
 }) {
+  const { t } = useTranslation();
   const repoUrl = repoUrlOverride ?? application?.repository?.url;
   const gh = parseGitHubRepo(repoUrl);
   const owner = gh?.owner;
@@ -265,9 +267,14 @@ export function BranchPanel({
           <a href={url} target="_blank" rel="noreferrer">
             <code>{path}</code>
           </a>
-          {withPresence && filePresence[path] === true && <span> present</span>}
+          {withPresence && filePresence[path] === true && (
+            <span> {t("agentic.runDetail.filePresent")}</span>
+          )}
           {withPresence && filePresence[path] === false && (
-            <span style={muted}> not present yet</span>
+            <span style={muted}>
+              {" "}
+              {t("agentic.runDetail.fileNotPresentYet")}
+            </span>
           )}
         </span>
       );
@@ -275,7 +282,7 @@ export function BranchPanel({
     if (links.length === 0) return null;
     return (
       <div style={{ marginTop: "0.75rem" }}>
-        <span style={muted}>Stage outputs (by convention): </span>
+        <span style={muted}>{t("agentic.runDetail.stageOutputs")} </span>
         {links}
       </div>
     );
@@ -284,7 +291,7 @@ export function BranchPanel({
   return (
     <div style={{ marginTop: "1rem" }}>
       <Content>
-        <Content component="h3">Target branch</Content>
+        <Content component="h3">{t("terms.targetBranch")}</Content>
       </Content>
       <div style={{ marginTop: "0.5rem" }}>
         {branchUrl ? (
@@ -298,23 +305,21 @@ export function BranchPanel({
 
       {repoUrl && !gh && (
         <div style={{ ...muted, marginTop: "0.5rem" }}>
-          commit feed is available for github.com repositories only
+          {t("agentic.runDetail.feedGitHubOnly")}
         </div>
       )}
 
       {gh && (
         <div style={{ marginTop: "0.75rem" }}>
           {feed === "not-pushed" && (
-            <div style={muted}>
-              branch not pushed yet — the harness pushes after its first commit
-            </div>
+            <div style={muted}>{t("agentic.runDetail.feedNotPushed")}</div>
           )}
           {feed === "rate-limited" && (
             <Alert
               variant="info"
               isInline
               isPlain
-              title="GitHub API rate limit reached — commit feed paused"
+              title={t("agentic.runDetail.feedRateLimited")}
             />
           )}
           {feed === "network-error" &&
@@ -323,22 +328,22 @@ export function BranchPanel({
             // "retrying" claim that would never come true.
             (isTerminal ? (
               <div style={muted}>
-                commit feed unavailable (network error){" "}
+                {t("agentic.runDetail.feedNetworkError")}{" "}
                 <Button
                   variant="link"
                   isInline
                   onClick={() => setRetryNonce((n) => n + 1)}
                 >
-                  Retry
+                  {t("agentic.runDetail.retry")}
                 </Button>
               </div>
             ) : (
               <div style={muted}>
-                commit feed unavailable (network error) — retrying
+                {t("agentic.runDetail.feedNetworkErrorRetrying")}
               </div>
             ))}
           {feed === "ok" && commits !== null && commits.length === 0 && (
-            <div style={muted}>no commits on this branch yet</div>
+            <div style={muted}>{t("agentic.runDetail.noCommitsYet")}</div>
           )}
           {commits !== null &&
             commits.length > 0 &&

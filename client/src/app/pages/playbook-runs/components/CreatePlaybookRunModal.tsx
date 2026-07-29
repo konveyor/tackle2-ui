@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -22,32 +23,28 @@ import type {
   AgentParam,
   AgentPlaybook,
   AgentResource,
-  Application,
   Condition,
 } from "@app/api/agentic/contract";
 import {
   defaultTargetBranch,
   invalidTargetBranchReason,
 } from "@app/api/agentic/contract";
-import { getAgent, getApplicationsWithSource } from "@app/api/rest";
+import { getAgent } from "@app/api/rest";
 import {
   ParamValueField,
   paramHelperText,
   paramValueInvalidReason,
-  readyCondition,
-} from "@app/pages/agent-runs/components/sources";
-import {
-  useCreatePlaybookRunMutation,
-  useFetchPlaybooks,
-} from "@app/queries/agent-runs";
+} from "@app/pages/agent-runs/components/ParamFields";
+import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
+import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
+import { useCreatePlaybookRunMutation } from "@app/queries/playbook-runs";
+import { useFetchPlaybooks } from "@app/queries/playbooks";
+import { truncate } from "@app/utils/agentic";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   return String(err);
-}
-
-function truncate(text: string, max: number): string {
-  return text.length <= max ? text : text.slice(0, max - 1) + "…";
 }
 
 function playbookReadyCondition(pb: AgentPlaybook): Condition | undefined {
@@ -90,10 +87,14 @@ function mergeParams(agents: AgentResource[]): AgentParam[] {
 }
 
 /** Names of the stage agents that do NOT declare the given param. */
-function stagesMissingParam(agents: AgentResource[], name: string): string[] {
+function stagesMissingParam(
+  agents: AgentResource[],
+  name: string,
+  unnamedLabel: string
+): string[] {
   return agents
     .filter((a) => !(a.spec.params ?? []).some((q) => q.name === name))
-    .map((a) => a.metadata.name ?? "(unnamed)");
+    .map((a) => a.metadata.name ?? unnamedLabel);
 }
 
 function defaultsFor(params: AgentParam[]): Record<string, string> {
@@ -116,6 +117,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
   onClose,
   onCreated,
 }) => {
+  const { t } = useTranslation();
   const {
     playbooks,
     isLoading: playbooksLoading,
@@ -127,14 +129,6 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
   // unfiltered, so stage agents without the managed label still resolve).
   const [stageAgents, setStageAgents] = useState<AgentResource[] | null>(null);
   const [agentsError, setAgentsError] = useState<string | null>(null);
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [applicationsError, setApplicationsError] = useState<string | null>(
-    null
-  );
-  const [inventorySource, setInventorySource] = useState<
-    "hub" | "stub" | "unknown" | null
-  >(null);
-  const [inventoryEndpoint, setInventoryEndpoint] = useState("");
   const [reloadingApps, setReloadingApps] = useState(false);
   const [applicationId, setApplicationId] = useState("");
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
@@ -147,12 +141,23 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
       if (name) {
         onCreated(name);
       } else {
-        setSubmitError("Shim returned a created run without metadata.name");
+        setSubmitError(t("agentic.playbookRuns.createdWithoutName"));
       }
     },
-    (err) => setSubmitError(err.message)
+    (err) => setSubmitError(getAxiosErrorMessage(err))
   );
   const submitting = createMutation.isLoading;
+
+  const {
+    applications,
+    source: inventorySource,
+    endpoint: inventoryEndpoint,
+    fetchError: applicationsFetchError,
+    refetch: refetchApplications,
+  } = useFetchAgenticApplications();
+  const applicationsError = applicationsFetchError
+    ? getAxiosErrorMessage(applicationsFetchError)
+    : null;
 
   // Pick the initial playbook once the list first arrives: the pre-selected
   // one when given, else the first selectable one, else the first.
@@ -167,37 +172,10 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
     if (preferred) setPlaybookName(preferred);
   }, [playbooks, initialPlaybook]);
 
-  useEffect(() => {
-    let disposed = false;
-    getApplicationsWithSource()
-      .then(({ source, endpoint, applications: list }) => {
-        if (disposed) return;
-        setApplications(list);
-        setInventorySource(source);
-        setInventoryEndpoint(endpoint);
-      })
-      .catch((err) => {
-        if (!disposed) setApplicationsError(errorMessage(err));
-      });
-    return () => {
-      disposed = true;
-    };
-  }, []);
-
   const reloadApplications = async () => {
     setReloadingApps(true);
-    setApplicationsError(null);
     try {
-      const {
-        source,
-        endpoint,
-        applications: list,
-      } = await getApplicationsWithSource();
-      setApplications(list);
-      setInventorySource(source);
-      setInventoryEndpoint(endpoint);
-    } catch (err) {
-      setApplicationsError(errorMessage(err));
+      await refetchApplications();
     } finally {
       setReloadingApps(false);
     }
@@ -239,8 +217,10 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
   const mergedParams = mergeParams(stageAgents ?? []);
   // Only params declared by EVERY stage agent can be sent (params forward
   // wholesale to each stage); the rest render disabled below.
+  const unnamedLabel = t("agentic.playbookRuns.unnamed");
   const universalParams = mergedParams.filter(
-    (p) => stagesMissingParam(stageAgents ?? [], p.name).length === 0
+    (p) =>
+      stagesMissingParam(stageAgents ?? [], p.name, unnamedLabel).length === 0
   );
   // The shim refuses application-scoped creates when the inventory is the
   // offline stub — stub applications have no Hub behind them to pull from.
@@ -312,38 +292,39 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
       }}
     >
       <ModalHeader
-        title="Create playbook run"
-        description="Creates an AgentPlaybookRun; the controller executes each stage as its own AgentRun, in order, on a shared target branch."
+        title={t("agentic.playbookRuns.create")}
+        description={t("agentic.playbookRuns.createDescription")}
       />
       <ModalBody>
         {playbooksError && (
           <Alert
             variant="danger"
             isInline
-            title="Failed to load playbooks"
+            title={t("agentic.playbookRuns.failedLoadPlaybooksTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            {playbooksError instanceof Error
-              ? playbooksError.message
-              : String(playbooksError)}
+            {getAxiosErrorMessage(playbooksError)}
           </Alert>
         )}
         {submitError && (
           <Alert
             variant="danger"
             isInline
-            title="Create failed"
+            title={t("agentic.playbookRuns.createFailedTitle")}
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
           </Alert>
         )}
         {playbooksLoading && playbooks.length === 0 && !playbooksError ? (
-          <Spinner aria-label="Loading playbooks" />
+          <Spinner aria-label={t("agentic.playbookRuns.loadingPlaybooks")} />
         ) : playbooks.length === 0 ? (
-          <Alert variant="warning" isInline title="No AgentPlaybook resources">
-            The cluster has no AgentPlaybook CRs in the shim&apos;s namespace,
-            so there is nothing to run.
+          <Alert
+            variant="warning"
+            isInline
+            title={t("agentic.playbookRuns.noPlaybooksTitle")}
+          >
+            {t("agentic.playbookRuns.noPlaybooksBody")}
           </Alert>
         ) : (
           <Form
@@ -353,7 +334,11 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               submit();
             }}
           >
-            <FormGroup label="Playbook" isRequired fieldId="create-playbook">
+            <FormGroup
+              label={t("terms.playbook")}
+              isRequired
+              fieldId="create-playbook"
+            >
               <FormSelect
                 id="create-playbook"
                 value={playbookName}
@@ -364,8 +349,10 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                     key={pb.metadata.name}
                     value={pb.metadata.name}
                     label={
-                      (pb.metadata.name ?? "(unnamed)") +
-                      (isSelectable(pb) ? "" : " (not ready)")
+                      (pb.metadata.name ?? unnamedLabel) +
+                      (isSelectable(pb)
+                        ? ""
+                        : ` ${t("agentic.playbookRuns.notReadySuffix")}`)
                     }
                     isDisabled={!isSelectable(pb)}
                   />
@@ -375,9 +362,12 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                 <FormHelperText>
                   <HelperText>
                     <HelperTextItem>
-                      {selected.spec.stages.length} stage
-                      {selected.spec.stages.length === 1 ? "" : "s"}:{" "}
-                      {selected.spec.stages.map((s) => s.name).join(" → ")}
+                      {t("agentic.playbookRuns.stageCount", {
+                        count: selected.spec.stages.length,
+                        stages: selected.spec.stages
+                          .map((s) => s.name)
+                          .join(" → "),
+                      })}
                     </HelperTextItem>
                     {selected.spec.guide && (
                       <HelperTextItem>
@@ -390,7 +380,11 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
             </FormGroup>
 
             {notReady && (
-              <Alert variant="warning" isInline title="Playbook is not ready">
+              <Alert
+                variant="warning"
+                isInline
+                title={t("agentic.playbookRuns.playbookNotReadyTitle")}
+              >
                 {notReady.reason ?? "NotReady"}
                 {notReady.message ? ` — ${notReady.message}` : ""}
               </Alert>
@@ -400,29 +394,36 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title="Failed to load the playbook's stage agents"
+                title={t("agentic.playbookRuns.failedLoadStageAgentsTitle")}
               >
-                {agentsError} — the run form is built from the stage
-                Agents&apos; declared params, so a run cannot be created until
-                they load.
+                {t("agentic.playbookRuns.failedLoadStageAgentsBody", {
+                  error: agentsError,
+                })}
               </Alert>
             )}
             {selected && stageAgents === null && !agentsError && (
-              <Spinner size="md" aria-label="Loading stage agents" />
+              <Spinner
+                size="md"
+                aria-label={t("agentic.playbookRuns.loadingStageAgents")}
+              />
             )}
 
             {applicationsError && (
               <Alert
                 variant="warning"
                 isInline
-                title="Failed to load applications"
+                title={t("agentic.playbookRuns.failedLoadApplicationsTitle")}
               >
-                {applicationsError} — playbook runs that work on a Hub
-                application cannot be created until the inventory loads.
+                {t("agentic.playbookRuns.failedLoadApplicationsBody", {
+                  error: applicationsError,
+                })}
               </Alert>
             )}
 
-            <FormGroup label="Application" fieldId="create-pb-application">
+            <FormGroup
+              label={t("terms.application")}
+              fieldId="create-pb-application"
+            >
               <FormSelect
                 id="create-pb-application"
                 value={applicationId}
@@ -430,13 +431,16 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               >
                 <FormSelectOption
                   value=""
-                  label="None — run without an application"
+                  label={t("agentic.playbookRuns.noApplicationOption")}
                 />
                 {applications.map((a) => (
                   <FormSelectOption
                     key={a.id}
                     value={a.id}
-                    label={`${a.name}  ·  Hub #${a.id}`}
+                    label={t("agentic.playbookRuns.applicationOption", {
+                      name: a.name,
+                      id: a.id,
+                    })}
                     isDisabled={stubInventory}
                   />
                 ))}
@@ -445,15 +449,11 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                 <HelperText>
                   {stubInventory && (
                     <HelperTextItem variant="warning">
-                      Stub applications cannot back a run — the sandbox needs a
-                      reachable Hub. Only &quot;None&quot; is usable until the
-                      Hub connects.
+                      {t("agentic.playbookRuns.stubInventoryHelper")}
                     </HelperTextItem>
                   )}
                   <HelperTextItem>
-                    Every stage&apos;s harness pulls this application&apos;s
-                    repository, credentials, and analysis from the Hub.
-                    Migration playbooks fail without one.
+                    {t("agentic.playbookRuns.applicationHelper")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -465,10 +465,12 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               >
                 <span className="inventory-source-label">
                   {inventorySource === "hub"
-                    ? `${applications.length} application${applications.length === 1 ? "" : "s"} from Konveyor Hub`
+                    ? t("agentic.playbookRuns.hubApplicationCount", {
+                        count: applications.length,
+                      })
                     : inventorySource === "stub"
-                      ? "Hub unavailable — showing offline stub"
-                      : "Application inventory"}
+                      ? t("agentic.playbookRuns.stubInventoryLabel")
+                      : t("composed.applicationInventory")}
                 </span>
                 <code className="inventory-source-endpoint">
                   {inventoryEndpoint}
@@ -480,7 +482,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                   isDisabled={reloadingApps}
                   onClick={() => void reloadApplications()}
                 >
-                  Refresh
+                  {t("terms.refresh")}
                 </Button>
               </div>
             )}
@@ -489,17 +491,17 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title="Application has no repository"
+                title={t("agentic.playbookRuns.noRepositoryTitle")}
               >
-                {application?.name} has no repository URL in the Hub — the
-                harness clones from the Hub record, so these stages cannot
-                start. Set the application&apos;s source repository first.
+                {t("agentic.playbookRuns.noRepositoryBody", {
+                  name: application?.name,
+                })}
               </Alert>
             )}
 
             {application && (
               <FormGroup
-                label="Target branch"
+                label={t("terms.targetBranch")}
                 isRequired
                 fieldId="create-pb-target-branch"
               >
@@ -516,8 +518,8 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                       variant={branchInvalid ? "error" : "default"}
                     >
                       {branchInvalid
-                        ? "Must be a valid git branch name and differ from the application's source branch."
-                        : "One branch, all stages: each stage continues the previous stage's work on it (plan commits PLAN.md, execute reads it)."}
+                        ? t("agentic.playbookRuns.targetBranchInvalid")
+                        : t("agentic.playbookRuns.targetBranchHelper")}
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>
@@ -527,7 +529,8 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
             {mergedParams.map((p) => {
               const missingStages = stagesMissingParam(
                 stageAgents ?? [],
-                p.name
+                p.name,
+                unnamedLabel
               );
               const partial = missingStages.length > 0;
               const helper = paramHelperText(p);
@@ -555,10 +558,10 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                       <HelperText>
                         {partial && (
                           <HelperTextItem variant="warning">
-                            not declared by stage
-                            {missingStages.length === 1 ? "" : "s"}{" "}
-                            {missingStages.join(", ")} — cannot be set on a
-                            playbook run (params forward to every stage)
+                            {t("agentic.playbookRuns.paramNotDeclared", {
+                              count: missingStages.length,
+                              stages: missingStages.join(", "),
+                            })}
                           </HelperTextItem>
                         )}
                         {invalidReason && (
@@ -578,15 +581,21 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
       </ModalBody>
       <ModalFooter>
         <Button
+          id="create-playbook-run-submit"
           variant="primary"
           isDisabled={!canCreate}
           isLoading={submitting}
           onClick={submit}
         >
-          Create
+          {t("actions.create")}
         </Button>
-        <Button variant="link" isDisabled={submitting} onClick={onClose}>
-          Cancel
+        <Button
+          id="create-playbook-run-cancel"
+          variant="link"
+          isDisabled={submitting}
+          onClick={onClose}
+        >
+          {t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>
