@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AxiosError } from "axios";
 import {
   Alert,
@@ -36,7 +36,6 @@ import {
   useFetchSkillCollections,
   useUpdateAgentMutation,
 } from "@app/queries/agent-runs";
-
 
 const PARAM_TYPES: AgentParamType[] = ["string", "number", "boolean"];
 
@@ -80,7 +79,11 @@ export const AgentDesignerModal: React.FC<Props> = ({
   // ---- form state
   const [name, setName] = useState(existing?.metadata.name ?? "");
   const [imageRef, setImageRef] = useState(existing?.spec.image ?? "");
-  const [customImage, setCustomImage] = useState(false);
+  // Explicit dropdown/custom choice; null = auto-detect (custom when
+  // editing an agent whose image is not in the loaded catalog).
+  const [customImageOverride, setCustomImageOverride] = useState<
+    boolean | null
+  >(null);
   const [prompt, setPrompt] = useState(existing?.spec.prompt ?? "");
   const [selectedProviders, setSelectedProviders] = useState<string[]>(
     existing?.spec.providers?.map((p) => p.ref) ?? []
@@ -102,17 +105,14 @@ export const AgentDesignerModal: React.FC<Props> = ({
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Detect custom image on edit: if existing image is not in the catalog list
-  useEffect(() => {
-    if (
-      isEdit &&
-      existing?.spec.image &&
+  // Derived, not effect-set: custom mode is the user's explicit choice,
+  // else auto-detected on edit when the image is not in the catalog list.
+  const customImage =
+    customImageOverride ??
+    (isEdit &&
+      !!existing?.spec.image &&
       images.length > 0 &&
-      !images.some((i) => i.image === existing.spec.image)
-    ) {
-      setCustomImage(true);
-    }
-  }, [isEdit, existing, images]);
+      !images.some((i) => i.image === existing.spec.image));
 
   // ---- mutations
   const createMutation = useCreateAgentMutation(
@@ -250,7 +250,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   value={imageRef}
                   onChange={(_e, v) => {
                     if (v === "__custom__") {
-                      setCustomImage(true);
+                      setCustomImageOverride(true);
                       setImageRef("");
                     } else {
                       setImageRef(v);
@@ -283,7 +283,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   variant="link"
                   size="sm"
                   onClick={() => {
-                    setCustomImage(false);
+                    setCustomImageOverride(false);
                     setImageRef(images[0]?.image ?? "");
                   }}
                   style={{ paddingLeft: 0, marginTop: 4 }}

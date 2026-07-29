@@ -8,8 +8,10 @@ import {
   Spinner,
   TextArea,
 } from "@patternfly/react-core";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@patternfly/react-icons";
 
 import { AcpSession } from "@app/api/agentic/acp";
 import type {
