@@ -56,7 +56,7 @@ function formatDuration(seconds?: number): string {
 const AgentRunDetailPage: React.FC = () => {
   const history = useHistory();
   const { runName } = useParams<AgentRunDetailRoute>();
-  const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName, 2000);
+  const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { applications } = useFetchAgenticApplications();
 

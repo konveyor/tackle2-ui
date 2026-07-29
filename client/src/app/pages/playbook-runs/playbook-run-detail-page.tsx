@@ -73,10 +73,7 @@ function stepVariant(phase?: AgentRunPhase) {
 const PlaybookRunDetailPage: React.FC = () => {
   const history = useHistory();
   const { runName } = useParams<PlaybookRunDetailRoute>();
-  const { playbookRun, isLoading, fetchError } = useFetchPlaybookRun(
-    runName,
-    2000
-  );
+  const { playbookRun, isLoading, fetchError } = useFetchPlaybookRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { applications } = useFetchAgenticApplications();
 

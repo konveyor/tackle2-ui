@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type {
   AgentPlaybook,
   AgentPlaybookRun,
@@ -57,7 +58,9 @@ export const PLAYBOOK_RUN_QUERY_KEY = "playbookRun";
 export const IMAGES_QUERY_KEY = "agentImages";
 export const AGENTIC_APPLICATIONS_QUERY_KEY = "agenticApplications";
 
-export const useFetchAgentRuns = (refetchInterval: number | false = 2000) => {
+export const useFetchAgentRuns = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [AGENT_RUNS_QUERY_KEY],
     queryFn: getAgentRuns,
@@ -75,7 +78,7 @@ export const useFetchAgentRuns = (refetchInterval: number | false = 2000) => {
 
 export const useFetchAgentRun = (
   name: string,
-  refetchInterval: number | false = 2000
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { isLoading, error, data } = useQuery({
     queryKey: [AGENT_RUN_QUERY_KEY, name],
@@ -92,11 +95,14 @@ export const useFetchAgentRun = (
   };
 };
 
-export const useFetchAgents = () => {
+export const useFetchAgents = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [AGENTS_QUERY_KEY],
     queryFn: getAgents,
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
 
   return {
@@ -141,7 +147,9 @@ export const useDeleteAgentRunMutation = (
 
 // -------------------------------------------------------- Skill Cards
 
-export const useFetchSkillCards = (refetchInterval: number | false = 2000) => {
+export const useFetchSkillCards = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [SKILL_CARDS_QUERY_KEY],
     queryFn: getSkillCards,
@@ -201,7 +209,7 @@ export const useDeleteSkillCardMutation = (
 // ------------------------------------------------- Skill Collections
 
 export const useFetchSkillCollections = (
-  refetchInterval: number | false = 2000
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [SKILL_COLLECTIONS_QUERY_KEY],
@@ -277,7 +285,9 @@ export const useFetchProviders = () => {
 
 // --------------------------------------------------------- Playbooks
 
-export const useFetchPlaybooks = (refetchInterval: number | false = 2000) => {
+export const useFetchPlaybooks = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [PLAYBOOKS_QUERY_KEY],
     queryFn: getPlaybooks,
@@ -337,7 +347,7 @@ export const useDeletePlaybookMutation = (
 // ----------------------------------------------------- Playbook Runs
 
 export const useFetchPlaybookRuns = (
-  refetchInterval: number | false = 2000
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [PLAYBOOK_RUNS_QUERY_KEY],
@@ -356,7 +366,7 @@ export const useFetchPlaybookRuns = (
 
 export const useFetchPlaybookRun = (
   name: string,
-  refetchInterval: number | false = 2000
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { isLoading, error, data } = useQuery({
     queryKey: [PLAYBOOK_RUN_QUERY_KEY, name],

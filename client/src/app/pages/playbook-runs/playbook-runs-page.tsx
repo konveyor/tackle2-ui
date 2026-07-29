@@ -78,7 +78,7 @@ function stagesSummary(run: AgentPlaybookRun): string {
 
 const PlaybookRunsPage: React.FC = () => {
   const history = useHistory();
-  const { playbookRuns, isLoading, fetchError } = useFetchPlaybookRuns(2000);
+  const { playbookRuns, isLoading, fetchError } = useFetchPlaybookRuns();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
