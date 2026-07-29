@@ -66,6 +66,9 @@ export const useFetchAgentRuns = (
     queryFn: getAgentRuns,
     onError: (error: AxiosError) => console.log(error),
     refetchInterval,
+    // Runs mutate server-side while the user is elsewhere — keep polling
+    // even when the tab is hidden so the page is current on return.
+    refetchIntervalInBackground: true,
   });
 
   return {
@@ -85,6 +88,7 @@ export const useFetchAgentRun = (
     queryFn: () => getAgentRun(name),
     onError: (error: AxiosError) => console.log(error),
     refetchInterval,
+    refetchIntervalInBackground: true,
     enabled: !!name,
   });
 
@@ -354,6 +358,7 @@ export const useFetchPlaybookRuns = (
     queryFn: getPlaybookRuns,
     onError: (error: AxiosError) => console.log(error),
     refetchInterval,
+    refetchIntervalInBackground: true,
   });
 
   return {
@@ -373,6 +378,7 @@ export const useFetchPlaybookRun = (
     queryFn: () => getPlaybookRun(name),
     onError: (error: AxiosError) => console.log(error),
     refetchInterval,
+    refetchIntervalInBackground: true,
     enabled: !!name,
   });
 
