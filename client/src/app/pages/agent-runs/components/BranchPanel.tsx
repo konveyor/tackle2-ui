@@ -135,14 +135,20 @@ type FeedState =
 
 export function BranchPanel({
   application,
+  repoUrl: repoUrlOverride,
   targetBranch,
   isTerminal,
 }: {
   application?: Application;
+  /**
+   * Repo the run actually used (its `repository` param), which wins over the
+   * application record — the app's URL can be repointed after the run.
+   */
+  repoUrl?: string;
   targetBranch: string;
   isTerminal: boolean;
 }) {
-  const repoUrl = application?.repository?.url;
+  const repoUrl = repoUrlOverride ?? application?.repository?.url;
   const gh = parseGitHubRepo(repoUrl);
   const owner = gh?.owner;
   const repo = gh?.repo;
