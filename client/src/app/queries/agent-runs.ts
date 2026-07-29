@@ -468,6 +468,7 @@ export const useLoadDefaultsMutation = (
       qc.invalidateQueries({ queryKey: [AGENTS_QUERY_KEY] });
       qc.invalidateQueries({ queryKey: [SKILL_CARDS_QUERY_KEY] });
       qc.invalidateQueries({ queryKey: [SKILL_COLLECTIONS_QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: [PROVIDERS_QUERY_KEY] });
       qc.invalidateQueries({ queryKey: [PLAYBOOKS_QUERY_KEY] });
       qc.invalidateQueries({ queryKey: [IMAGES_QUERY_KEY] });
     },
