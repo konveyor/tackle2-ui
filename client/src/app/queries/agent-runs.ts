@@ -7,11 +7,10 @@ import type {
   AgentResource,
   AgentResourceSpec,
   AgentRun,
-  LLMProvider,
   SkillCard,
   SkillCardSpec,
   SkillCollection,
-  SkillCollectionSpec
+  SkillCollectionSpec,
 } from "@app/api/agentic/contract";
 import {
   createAgent,
