@@ -100,10 +100,10 @@ const AgentRunDetails = lazy(
 );
 const Agents = lazy(() => import("./pages/agents"));
 const Skills = lazy(() => import("./pages/skills"));
-const Playbooks = lazy(() => import("./pages/playbooks"));
-const PlaybookRuns = lazy(() => import("./pages/playbook-runs"));
-const PlaybookRunDetails = lazy(
-  () => import("./pages/playbook-runs/playbook-run-detail-page")
+const Workloads = lazy(() => import("./pages/workloads"));
+const WorkloadRuns = lazy(() => import("./pages/workload-runs"));
+const WorkloadRunDetails = lazy(
+  () => import("./pages/workload-runs/workload-run-detail-page")
 );
 
 export interface IRoute<T> {
@@ -290,18 +290,18 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     exact: true,
   },
   {
-    path: Paths.playbooks,
-    comp: Playbooks,
+    path: Paths.workloads,
+    comp: Workloads,
     exact: true,
   },
   {
-    path: Paths.playbookRunDetails,
-    comp: PlaybookRunDetails,
+    path: Paths.workloadRunDetails,
+    comp: WorkloadRunDetails,
     exact: true,
   },
   {
-    path: Paths.playbookRuns,
-    comp: PlaybookRuns,
+    path: Paths.workloadRuns,
+    comp: WorkloadRuns,
     exact: true,
   },
 ];

@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@patternfly/react-core";
 
-import type { PlaybookRunDetailsRoute } from "@app/Paths";
+import type { WorkloadRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type { AgentRunPhase } from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
@@ -25,11 +25,11 @@ import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
-import { useFetchPlaybookRun } from "@app/queries/playbook-runs";
+import { useFetchWorkloadRun } from "@app/queries/workload-runs";
 import {
   formatAge,
   formatDuration,
-  playbookRunDuration,
+  workloadRunDuration,
 } from "@app/utils/agentic";
 import { formatPath } from "@app/utils/utils";
 
@@ -51,29 +51,29 @@ function stepVariant(phase?: AgentRunPhase) {
   }
 }
 
-const PlaybookRunDetailPage: React.FC = () => {
+const WorkloadRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
-  const { runName } = useParams<PlaybookRunDetailsRoute>();
-  const { playbookRun, isLoading, fetchError } = useFetchPlaybookRun(runName);
+  const { runName } = useParams<WorkloadRunDetailsRoute>();
+  const { workloadRun, isLoading, fetchError } = useFetchWorkloadRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { applications } = useFetchAgenticApplications();
 
   const breadcrumbs = [
-    { title: t("terms.playbookRuns"), path: DevPaths.playbookRuns },
+    { title: t("terms.workloadRuns"), path: DevPaths.workloadRuns },
     { title: runName },
   ];
 
-  if (isLoading && !playbookRun) {
+  if (isLoading && !workloadRun) {
     return (
       <PageSection>
         <Bullseye>
-          <Spinner aria-label={t("agentic.playbookRuns.loadingRun")} />
+          <Spinner aria-label={t("agentic.workloadRuns.loadingRun")} />
         </Bullseye>
       </PageSection>
     );
   }
 
-  if (!playbookRun) {
+  if (!workloadRun) {
     const isNotFound =
       !fetchError ||
       (fetchError instanceof AxiosError && fetchError.response?.status === 404);
@@ -87,10 +87,10 @@ const PlaybookRunDetailPage: React.FC = () => {
             <Alert
               variant="warning"
               isInline
-              title={t("agentic.playbookRuns.notFoundTitle")}
+              title={t("agentic.workloadRuns.notFoundTitle")}
             >
               <Trans
-                i18nKey="agentic.playbookRuns.notFoundBody"
+                i18nKey="agentic.workloadRuns.notFoundBody"
                 values={{ name: runName }}
               />
             </Alert>
@@ -102,9 +102,9 @@ const PlaybookRunDetailPage: React.FC = () => {
     );
   }
 
-  const stages = playbookRun.status?.stages ?? [];
-  const currentStage = playbookRun.status?.currentStage;
-  const coordinates = runHubCoordinates(playbookRun.spec.env);
+  const stages = workloadRun.status?.stages ?? [];
+  const currentStage = workloadRun.status?.currentStage;
+  const coordinates = runHubCoordinates(workloadRun.spec.env);
   const application = applications.find((a) => a.id === coordinates.appId);
 
   return (
@@ -113,13 +113,13 @@ const PlaybookRunDetailPage: React.FC = () => {
         <PageHeader
           title={runName}
           breadcrumbs={breadcrumbs}
-          description={<PhaseLabel phase={playbookRun.status?.phase} />}
+          description={<PhaseLabel phase={workloadRun.status?.phase} />}
         />
         {fetchError && (
           <Alert
             variant="warning"
             isInline
-            title={t("agentic.playbookRuns.refreshErrorTitle")}
+            title={t("agentic.workloadRuns.refreshErrorTitle")}
             style={{ marginTop: "0.5rem" }}
           >
             {fetchError instanceof Error
@@ -134,14 +134,14 @@ const PlaybookRunDetailPage: React.FC = () => {
           style={{ marginTop: "1rem" }}
         >
           <DescriptionListGroup>
-            <DescriptionListTerm>{t("terms.playbook")}</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.workload")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {playbookRun.spec.playbookRef}
+              {workloadRun.spec.workloadRef}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>
-              {t("agentic.playbookRuns.currentStage")}
+              {t("agentic.workloadRuns.currentStage")}
             </DescriptionListTerm>
             <DescriptionListDescription>
               {currentStage ?? "-"}
@@ -150,13 +150,13 @@ const PlaybookRunDetailPage: React.FC = () => {
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.age")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatAge(playbookRun.metadata.creationTimestamp)}
+              {formatAge(workloadRun.metadata.creationTimestamp)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.duration")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatDuration(playbookRunDuration(playbookRun))}
+              {formatDuration(workloadRunDuration(workloadRun))}
             </DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -169,13 +169,13 @@ const PlaybookRunDetailPage: React.FC = () => {
           <Alert
             variant="info"
             isInline
-            title={t("agentic.playbookRuns.noStageStatusTitle")}
+            title={t("agentic.workloadRuns.noStageStatusTitle")}
           >
-            {t("agentic.playbookRuns.noStageStatusBody")}
+            {t("agentic.workloadRuns.noStageStatusBody")}
           </Alert>
         ) : (
           <ProgressStepper
-            aria-label={t("agentic.playbookRuns.stagesAriaLabel")}
+            aria-label={t("agentic.workloadRuns.stagesAriaLabel")}
           >
             {stages.map((stage) => (
               <ProgressStep
@@ -184,7 +184,7 @@ const PlaybookRunDetailPage: React.FC = () => {
                 isCurrent={stage.name === currentStage}
                 id={`stage-${stage.name}`}
                 titleId={`stage-${stage.name}-title`}
-                aria-label={t("agentic.playbookRuns.stageAriaLabel", {
+                aria-label={t("agentic.workloadRuns.stageAriaLabel", {
                   name: stage.name,
                   phase: stage.phase ?? t("taskState.Pending"),
                 })}
@@ -196,8 +196,8 @@ const PlaybookRunDetailPage: React.FC = () => {
                       })}
                     >
                       {stage.phase === "Running"
-                        ? t("agentic.playbookRuns.openLiveRun")
-                        : t("agentic.playbookRuns.openRun")}
+                        ? t("agentic.workloadRuns.openLiveRun")
+                        : t("agentic.workloadRuns.openRun")}
                     </Link>
                   ) : (
                     (stage.phase ?? t("taskState.Pending"))
@@ -214,7 +214,7 @@ const PlaybookRunDetailPage: React.FC = () => {
           <BranchPanel
             application={application}
             targetBranch={coordinates.targetBranch}
-            isTerminal={isTerminalPhase(playbookRun.status?.phase)}
+            isTerminal={isTerminalPhase(workloadRun.status?.phase)}
           />
         )}
       </PageSection>
@@ -222,4 +222,4 @@ const PlaybookRunDetailPage: React.FC = () => {
   );
 };
 
-export default PlaybookRunDetailPage;
+export default WorkloadRunDetailPage;

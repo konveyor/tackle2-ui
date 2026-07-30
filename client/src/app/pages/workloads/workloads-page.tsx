@@ -25,7 +25,7 @@ import {
 } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
-import type { AgentPlaybook } from "@app/api/agentic/contract";
+import type { AgentWorkload } from "@app/api/agentic/contract";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -33,41 +33,41 @@ import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
 import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
-import { CreatePlaybookRunModal } from "@app/pages/playbook-runs/components/CreatePlaybookRunModal";
+import { CreateWorkloadRunModal } from "@app/pages/workload-runs/components/CreateWorkloadRunModal";
 import {
-  useDeletePlaybookMutation,
-  useFetchPlaybooks,
-} from "@app/queries/playbooks";
+  useDeleteWorkloadMutation,
+  useFetchWorkloads,
+} from "@app/queries/workloads";
 import { formatAge } from "@app/utils/agentic";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
-import { PlaybookComposerModal } from "./components/PlaybookComposerModal";
+import { WorkloadComposerModal } from "./components/WorkloadComposerModal";
 
-function stagesSummary(playbook: AgentPlaybook): string | null {
-  const stages = playbook.spec.stages ?? [];
+function stagesSummary(workload: AgentWorkload): string | null {
+  const stages = workload.spec.stages ?? [];
   if (stages.length === 0) return null;
   const names = stages.map((s) => s.name);
   return `${stages.length}: ${names.join(" → ")}`;
 }
 
-const PlaybooksPage: React.FC = () => {
+const WorkloadsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = useNotifications();
-  const { playbooks, isLoading, fetchError } = useFetchPlaybooks();
+  const { workloads, isLoading, fetchError } = useFetchWorkloads();
   const [composerTarget, setComposerTarget] = useState<
-    AgentPlaybook | "create" | null
+    AgentWorkload | "create" | null
   >(null);
   const [runTarget, setRunTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const deleteMutation = useDeletePlaybookMutation(
+  const deleteMutation = useDeleteWorkloadMutation(
     (name) => {
       setDeleteTarget(null);
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: name,
-          type: t("terms.playbook"),
+          type: t("terms.workload"),
         }),
         variant: "success",
       });
@@ -78,7 +78,7 @@ const PlaybooksPage: React.FC = () => {
     }
   );
 
-  const sortedPlaybooks = [...playbooks].sort((a, b) => {
+  const sortedWorkloads = [...workloads].sort((a, b) => {
     const ta = a.metadata.creationTimestamp ?? "";
     const tb = b.metadata.creationTimestamp ?? "";
     return tb.localeCompare(ta);
@@ -88,12 +88,12 @@ const PlaybooksPage: React.FC = () => {
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">{t("terms.playbooks")}</Content>
+          <Content component="h1">{t("terms.workloads")}</Content>
         </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isLoading && playbooks.length === 0 && !fetchError}
+          when={isLoading && workloads.length === 0 && !fetchError}
           then={<AppPlaceholder />}
         >
           <Toolbar>
@@ -103,7 +103,7 @@ const PlaybooksPage: React.FC = () => {
                   variant="primary"
                   onClick={() => setComposerTarget("create")}
                 >
-                  {t("agentic.playbooks.createPlaybook")}
+                  {t("agentic.workloads.createWorkload")}
                 </Button>
               </ToolbarItem>
               <ToolbarItem>
@@ -114,52 +114,52 @@ const PlaybooksPage: React.FC = () => {
 
           {fetchError ? (
             <StateError />
-          ) : sortedPlaybooks.length === 0 ? (
+          ) : sortedWorkloads.length === 0 ? (
             <EmptyState
               headingLevel="h2"
               icon={CubesIcon}
-              titleText={t("agentic.playbooks.emptyTitle")}
+              titleText={t("agentic.workloads.emptyTitle")}
             >
               <EmptyStateBody>
-                {t("agentic.playbooks.emptyBody")}
+                {t("agentic.workloads.emptyBody")}
               </EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setComposerTarget("create")}
               >
-                {t("agentic.playbooks.createPlaybook")}
+                {t("agentic.workloads.createWorkload")}
               </Button>{" "}
               <LoadDefaultsButton />
             </EmptyState>
           ) : (
-            <Table aria-label={t("terms.playbooks")} variant="compact">
+            <Table aria-label={t("terms.workloads")} variant="compact">
               <Thead>
                 <Tr>
                   <Th>{t("terms.name")}</Th>
                   <Th>{t("terms.stages")}</Th>
-                  <Th>{t("agentic.playbooks.guide")}</Th>
-                  <Th>{t("agentic.playbooks.ready")}</Th>
+                  <Th>{t("agentic.workloads.guide")}</Th>
+                  <Th>{t("agentic.workloads.ready")}</Th>
                   <Th>{t("terms.age")}</Th>
                   <Th screenReaderText={t("actions.rowActions")} />
                 </Tr>
               </Thead>
               <Tbody>
-                {sortedPlaybooks.map((pb: AgentPlaybook) => {
+                {sortedWorkloads.map((pb: AgentWorkload) => {
                   const name = pb.metadata.name ?? "";
                   return (
                     <Tr key={name}>
                       <Td dataLabel={t("terms.name")}>{name}</Td>
                       <Td dataLabel={t("terms.stages")}>
-                        {stagesSummary(pb) ?? t("agentic.playbooks.zeroStages")}
+                        {stagesSummary(pb) ?? t("agentic.workloads.zeroStages")}
                       </Td>
-                      <Td dataLabel={t("agentic.playbooks.guide")}>
+                      <Td dataLabel={t("agentic.workloads.guide")}>
                         {pb.spec.guide ? (
                           <Truncate content={pb.spec.guide} />
                         ) : (
                           "-"
                         )}
                       </Td>
-                      <Td dataLabel={t("agentic.playbooks.ready")}>
+                      <Td dataLabel={t("agentic.workloads.ready")}>
                         <ReadyLabel conditions={pb.status?.conditions} />
                       </Td>
                       <Td dataLabel={t("terms.age")}>
@@ -193,7 +193,7 @@ const PlaybooksPage: React.FC = () => {
       </PageSection>
 
       {composerTarget !== null && (
-        <PlaybookComposerModal
+        <WorkloadComposerModal
           existing={composerTarget === "create" ? undefined : composerTarget}
           onClose={() => setComposerTarget(null)}
           onSaved={() => setComposerTarget(null)}
@@ -201,19 +201,19 @@ const PlaybooksPage: React.FC = () => {
       )}
 
       {runTarget !== null && (
-        <CreatePlaybookRunModal
-          initialPlaybook={runTarget}
+        <CreateWorkloadRunModal
+          initialWorkload={runTarget}
           onClose={() => setRunTarget(null)}
           onCreated={(runName) => {
             setRunTarget(null);
-            history.push(formatPath(DevPaths.playbookRunDetails, { runName }));
+            history.push(formatPath(DevPaths.workloadRunDetails, { runName }));
           }}
         />
       )}
 
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
-          what: t("terms.playbook").toLowerCase(),
+          what: t("terms.workload").toLowerCase(),
           name: deleteTarget,
         })}
         titleIconVariant="warning"
@@ -233,4 +233,4 @@ const PlaybooksPage: React.FC = () => {
   );
 };
 
-export default PlaybooksPage;
+export default WorkloadsPage;

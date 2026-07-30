@@ -31,10 +31,10 @@ import {
 } from "@patternfly/react-icons";
 
 import type {
-  AgentPlaybook,
-  AgentPlaybookSpec,
-  AgentPlaybookStage,
   AgentResource,
+  AgentWorkload,
+  AgentWorkloadSpec,
+  AgentWorkloadStage,
 } from "@app/api/agentic/contract";
 import {
   RESOURCE_NAME_PATTERN,
@@ -42,9 +42,9 @@ import {
 } from "@app/api/agentic/contract";
 import { useFetchAgents } from "@app/queries/agents";
 import {
-  useCreatePlaybookMutation,
-  useUpdatePlaybookMutation,
-} from "@app/queries/playbooks";
+  useCreateWorkloadMutation,
+  useUpdateWorkloadMutation,
+} from "@app/queries/workloads";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface StageFormData {
@@ -65,7 +65,7 @@ function emptyStage(agents: AgentResource[]): StageFormData {
   };
 }
 
-function stagesToFormData(stages: AgentPlaybookStage[]): StageFormData[] {
+function stagesToFormData(stages: AgentWorkloadStage[]): StageFormData[] {
   return stages.map((s) => ({
     key: nextStageKey++,
     name: s.name,
@@ -96,13 +96,13 @@ function detectProviderOverlap(
   return seen.size > 1 ? Array.from(seen).join(", ") : null;
 }
 
-interface PlaybookComposerModalProps {
-  existing?: AgentPlaybook;
+interface WorkloadComposerModalProps {
+  existing?: AgentWorkload;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
+export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
   existing,
   onClose,
   onSaved,
@@ -127,11 +127,11 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
   const resolveAgentRef = (ref: string) =>
     ref || (agents[0]?.metadata.name ?? "");
 
-  const createMutation = useCreatePlaybookMutation(
+  const createMutation = useCreateWorkloadMutation(
     () => onSaved(),
     (err) => setSubmitError(getAxiosErrorMessage(err))
   );
-  const updateMutation = useUpdatePlaybookMutation(
+  const updateMutation = useUpdateWorkloadMutation(
     () => onSaved(),
     (err) => setSubmitError(getAxiosErrorMessage(err))
   );
@@ -145,11 +145,11 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
   const seenStageNames = new Set<string>();
   for (const s of stages) {
     if (!s.name.trim()) {
-      stageNameErrors[s.key] = t("agentic.playbooks.stageNameRequired");
+      stageNameErrors[s.key] = t("agentic.workloads.stageNameRequired");
     } else if (!STAGE_NAME_PATTERN.test(s.name)) {
-      stageNameErrors[s.key] = t("agentic.playbooks.stageNamePattern");
+      stageNameErrors[s.key] = t("agentic.workloads.stageNamePattern");
     } else if (seenStageNames.has(s.name)) {
-      stageNameErrors[s.key] = t("agentic.playbooks.stageNameDuplicate");
+      stageNameErrors[s.key] = t("agentic.workloads.stageNameDuplicate");
     } else {
       stageNameErrors[s.key] = null;
     }
@@ -200,10 +200,10 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
 
   const submit = () => {
     setSubmitError(null);
-    const spec: AgentPlaybookSpec = {
+    const spec: AgentWorkloadSpec = {
       guide: guide.trim() || undefined,
       stages: stages.map(
-        (s): AgentPlaybookStage => ({
+        (s): AgentWorkloadStage => ({
           name: s.name,
           agentRef: resolveAgentRef(s.agentRef),
           instructions: s.instructions.trim() || undefined,
@@ -228,8 +228,8 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
       <ModalHeader
         title={
           isEdit
-            ? t("agentic.playbooks.editPlaybookTitle", { name })
-            : t("agentic.playbooks.createPlaybook")
+            ? t("agentic.workloads.editWorkloadTitle", { name })
+            : t("agentic.workloads.createWorkload")
         }
       />
       <ModalBody>
@@ -239,8 +239,8 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
             isInline
             title={
               isEdit
-                ? t("agentic.playbooks.updateFailed")
-                : t("agentic.playbooks.createFailed")
+                ? t("agentic.workloads.updateFailed")
+                : t("agentic.workloads.createFailed")
             }
             style={{ marginBottom: "1rem" }}
           >
@@ -249,7 +249,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
         )}
 
         <Form
-          id="playbook-composer-form"
+          id="workload-composer-form"
           onSubmit={(e) => {
             e.preventDefault();
             if (canSubmit) submit();
@@ -271,20 +271,20 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                 <HelperTextItem
                   variant={name.length > 0 && !nameValid ? "error" : "default"}
                 >
-                  {t("agentic.playbooks.nameHelper")}
+                  {t("agentic.workloads.nameHelper")}
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
           </FormGroup>
 
-          <FormGroup label={t("agentic.playbooks.guide")} fieldId="pb-guide">
+          <FormGroup label={t("agentic.workloads.guide")} fieldId="pb-guide">
             <TextArea
               id="pb-guide"
               value={guide}
               onChange={(_e, v) => setGuide(v)}
               rows={3}
               resizeOrientation="vertical"
-              placeholder={t("agentic.playbooks.guidePlaceholder")}
+              placeholder={t("agentic.workloads.guidePlaceholder")}
             />
           </FormGroup>
 
@@ -292,20 +292,20 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
             variant="info"
             isInline
             isPlain
-            title={t("agentic.playbooks.artifactChainingTitle")}
+            title={t("agentic.workloads.artifactChainingTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            {t("agentic.playbooks.artifactChainingBody")}
+            {t("agentic.workloads.artifactChainingBody")}
           </Alert>
 
           {overlappingProviders && (
             <Alert
               variant="warning"
               isInline
-              title={t("agentic.playbooks.providerOverlapTitle")}
+              title={t("agentic.workloads.providerOverlapTitle")}
               style={{ marginBottom: "1rem" }}
             >
-              {t("agentic.playbooks.providerOverlapWarning", {
+              {t("agentic.workloads.providerOverlapWarning", {
                 providers: overlappingProviders,
               })}
             </Alert>
@@ -330,7 +330,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                     <>
                       <Button
                         variant="plain"
-                        aria-label={t("agentic.playbooks.moveStageUp")}
+                        aria-label={t("agentic.workloads.moveStageUp")}
                         isDisabled={index === 0}
                         onClick={() => moveStage(index, -1)}
                         size="sm"
@@ -339,7 +339,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                       </Button>
                       <Button
                         variant="plain"
-                        aria-label={t("agentic.playbooks.moveStageDown")}
+                        aria-label={t("agentic.workloads.moveStageDown")}
                         isDisabled={index === stages.length - 1}
                         onClick={() => moveStage(index, 1)}
                         size="sm"
@@ -348,7 +348,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                       </Button>
                       <Button
                         variant="plain"
-                        aria-label={t("agentic.playbooks.removeStage")}
+                        aria-label={t("agentic.workloads.removeStage")}
                         isDanger
                         onClick={() => removeStage(stage.key)}
                         size="sm"
@@ -364,7 +364,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
               </CardHeader>
               <CardBody>
                 <FormGroup
-                  label={t("agentic.playbooks.stageName")}
+                  label={t("agentic.workloads.stageName")}
                   isRequired
                   fieldId={`stage-name-${stage.key}`}
                 >
@@ -407,7 +407,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                     {agents.length === 0 && (
                       <FormSelectOption
                         value=""
-                        label={t("agentic.playbooks.noAgentsAvailable")}
+                        label={t("agentic.workloads.noAgentsAvailable")}
                         isDisabled
                       />
                     )}
@@ -416,7 +416,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                         key={a.metadata.name}
                         value={a.metadata.name}
                         label={
-                          a.metadata.name ?? t("agentic.playbooks.unnamed")
+                          a.metadata.name ?? t("agentic.workloads.unnamed")
                         }
                       />
                     ))}
@@ -435,7 +435,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
                     }
                     rows={3}
                     resizeOrientation="vertical"
-                    placeholder={t("agentic.playbooks.instructionsPlaceholder")}
+                    placeholder={t("agentic.workloads.instructionsPlaceholder")}
                   />
                 </FormGroup>
               </CardBody>
@@ -443,7 +443,7 @@ export const PlaybookComposerModal: React.FC<PlaybookComposerModalProps> = ({
           ))}
 
           <Button variant="link" icon={<PlusCircleIcon />} onClick={addStage}>
-            {t("agentic.playbooks.addStage")}
+            {t("agentic.workloads.addStage")}
           </Button>
         </Form>
       </ModalBody>

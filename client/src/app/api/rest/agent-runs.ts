@@ -2,15 +2,15 @@ import axios from "axios";
 
 import type {
   AgentImage,
-  AgentPlaybook,
-  AgentPlaybookRun,
-  AgentPlaybookSpec,
   AgentResource,
   AgentResourceSpec,
   AgentRun,
+  AgentWorkload,
+  AgentWorkloadRun,
+  AgentWorkloadSpec,
   AgenticApplication,
-  CreatePlaybookRunInput,
   CreateRunInput,
+  CreateWorkloadRunInput,
   LLMProvider,
   SeedResult,
   SkillCard,
@@ -28,8 +28,8 @@ const APPLICATIONS = agentic`/applications`;
 const SKILL_CARDS = agentic`/skillcards`;
 const SKILL_COLLECTIONS = agentic`/skillcollections`;
 const LLM_PROVIDERS = agentic`/llmproviders`;
-const PLAYBOOKS = agentic`/agentplaybooks`;
-const PLAYBOOK_RUNS = agentic`/agentplaybookruns`;
+const WORKLOADS = agentic`/agentworkloads`;
+const WORKLOAD_RUNS = agentic`/agentworkloadruns`;
 const IMAGES = agentic`/images`;
 const DEFAULTS = agentic`/defaults`;
 
@@ -167,53 +167,53 @@ export const getProvider = (name: string): Promise<LLMProvider> =>
     .get<LLMProvider>(`${LLM_PROVIDERS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
-// --------------------------------------------------------- Playbooks (CRUD)
+// --------------------------------------------------------- Workloads (CRUD)
 
-export const getPlaybooks = (): Promise<AgentPlaybook[]> =>
-  axios.get<AgentPlaybook[]>(PLAYBOOKS).then(({ data }) => data);
+export const getWorkloads = (): Promise<AgentWorkload[]> =>
+  axios.get<AgentWorkload[]>(WORKLOADS).then(({ data }) => data);
 
-export const getPlaybook = (name: string): Promise<AgentPlaybook> =>
+export const getWorkload = (name: string): Promise<AgentWorkload> =>
   axios
-    .get<AgentPlaybook>(`${PLAYBOOKS}/${encodeURIComponent(name)}`)
+    .get<AgentWorkload>(`${WORKLOADS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
-export const createPlaybook = (
+export const createWorkload = (
   name: string,
-  spec: AgentPlaybookSpec
-): Promise<AgentPlaybook> =>
-  axios.post<AgentPlaybook>(PLAYBOOKS, { name, spec }).then(({ data }) => data);
+  spec: AgentWorkloadSpec
+): Promise<AgentWorkload> =>
+  axios.post<AgentWorkload>(WORKLOADS, { name, spec }).then(({ data }) => data);
 
-export const updatePlaybook = (
+export const updateWorkload = (
   name: string,
-  spec: AgentPlaybookSpec
-): Promise<AgentPlaybook> =>
+  spec: AgentWorkloadSpec
+): Promise<AgentWorkload> =>
   axios
-    .put<AgentPlaybook>(`${PLAYBOOKS}/${encodeURIComponent(name)}`, { spec })
+    .put<AgentWorkload>(`${WORKLOADS}/${encodeURIComponent(name)}`, { spec })
     .then(({ data }) => data);
 
-export const deletePlaybook = (name: string): Promise<void> =>
+export const deleteWorkload = (name: string): Promise<void> =>
   axios
-    .delete(`${PLAYBOOKS}/${encodeURIComponent(name)}`)
+    .delete(`${WORKLOADS}/${encodeURIComponent(name)}`)
     .then(() => undefined);
 
-// ----------------------------------------------------- Playbook Runs (CRUD)
+// ----------------------------------------------------- Workload Runs (CRUD)
 
-export const getPlaybookRuns = (): Promise<AgentPlaybookRun[]> =>
-  axios.get<AgentPlaybookRun[]>(PLAYBOOK_RUNS).then(({ data }) => data);
+export const getWorkloadRuns = (): Promise<AgentWorkloadRun[]> =>
+  axios.get<AgentWorkloadRun[]>(WORKLOAD_RUNS).then(({ data }) => data);
 
-export const getPlaybookRun = (name: string): Promise<AgentPlaybookRun> =>
+export const getWorkloadRun = (name: string): Promise<AgentWorkloadRun> =>
   axios
-    .get<AgentPlaybookRun>(`${PLAYBOOK_RUNS}/${encodeURIComponent(name)}`)
+    .get<AgentWorkloadRun>(`${WORKLOAD_RUNS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
-export const createPlaybookRun = (
-  input: CreatePlaybookRunInput
-): Promise<AgentPlaybookRun> =>
-  axios.post<AgentPlaybookRun>(PLAYBOOK_RUNS, input).then(({ data }) => data);
+export const createWorkloadRun = (
+  input: CreateWorkloadRunInput
+): Promise<AgentWorkloadRun> =>
+  axios.post<AgentWorkloadRun>(WORKLOAD_RUNS, input).then(({ data }) => data);
 
-export const deletePlaybookRun = (name: string): Promise<void> =>
+export const deleteWorkloadRun = (name: string): Promise<void> =>
   axios
-    .delete(`${PLAYBOOK_RUNS}/${encodeURIComponent(name)}`)
+    .delete(`${WORKLOAD_RUNS}/${encodeURIComponent(name)}`)
     .then(() => undefined);
 
 // ----------------------------------------------------------- Images (read)

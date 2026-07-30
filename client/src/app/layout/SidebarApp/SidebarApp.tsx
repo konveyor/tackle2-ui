@@ -222,13 +222,13 @@ const MigrationSidebar = ({
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={DevPaths.playbooks} activeClassName="pf-m-current">
-              {t("sidebar.playbooks")}
+            <NavLink to={DevPaths.workloads} activeClassName="pf-m-current">
+              {t("sidebar.workloads")}
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={DevPaths.playbookRuns} activeClassName="pf-m-current">
-              {t("sidebar.playbookRuns")}
+            <NavLink to={DevPaths.workloadRuns} activeClassName="pf-m-current">
+              {t("sidebar.workloadRuns")}
             </NavLink>
           </NavItem>
         </NavExpandable>

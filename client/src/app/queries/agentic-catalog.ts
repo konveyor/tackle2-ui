@@ -10,8 +10,8 @@ import {
 } from "@app/api/rest";
 
 import { AGENTS_QUERY_KEY } from "./agents";
-import { PLAYBOOKS_QUERY_KEY } from "./playbooks";
 import { SKILL_CARDS_QUERY_KEY, SKILL_COLLECTIONS_QUERY_KEY } from "./skills";
+import { WORKLOADS_QUERY_KEY } from "./workloads";
 
 export const PROVIDERS_QUERY_KEY = "llmProviders";
 export const IMAGES_QUERY_KEY = "agentImages";
@@ -84,7 +84,7 @@ export const useLoadDefaultsMutation = (
         queryKey: [SKILL_COLLECTIONS_QUERY_KEY],
       });
       queryClient.invalidateQueries({ queryKey: [PROVIDERS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [PLAYBOOKS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WORKLOADS_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [IMAGES_QUERY_KEY] });
     },
     onError,
