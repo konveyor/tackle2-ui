@@ -21,8 +21,8 @@ import {
 
 import type {
   AgentParam,
-  AgentPlaybook,
   AgentResource,
+  AgentWorkload,
   Condition,
 } from "@app/api/agentic/contract";
 import {
@@ -37,8 +37,8 @@ import {
 } from "@app/pages/agent-runs/components/ParamFields";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
 import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
-import { useCreatePlaybookRunMutation } from "@app/queries/playbook-runs";
-import { useFetchPlaybooks } from "@app/queries/playbooks";
+import { useCreateWorkloadRunMutation } from "@app/queries/workload-runs";
+import { useFetchWorkloads } from "@app/queries/workloads";
 import { truncate } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -47,17 +47,17 @@ function errorMessage(err: unknown): string {
   return String(err);
 }
 
-function playbookReadyCondition(pb: AgentPlaybook): Condition | undefined {
+function workloadReadyCondition(pb: AgentWorkload): Condition | undefined {
   return readyCondition(pb.status?.conditions);
 }
 
 /**
- * Selectable unless the controller has EXPLICITLY marked the playbook not
+ * Selectable unless the controller has EXPLICITLY marked the workload not
  * ready (AgentsNotReady etc.). No status yet — controller catching up or
  * not running — fails open: the shim re-validates on create anyway.
  */
-function isSelectable(pb: AgentPlaybook): boolean {
-  return playbookReadyCondition(pb)?.status !== "False";
+function isSelectable(pb: AgentWorkload): boolean {
+  return workloadReadyCondition(pb)?.status !== "False";
 }
 
 /**
@@ -105,27 +105,27 @@ function defaultsFor(params: AgentParam[]): Record<string, string> {
   return values;
 }
 
-interface CreatePlaybookRunModalProps {
-  /** Pre-select this playbook (e.g. from a playbook row's "Run" action). */
-  initialPlaybook?: string;
+interface CreateWorkloadRunModalProps {
+  /** Pre-select this workload (e.g. from a workload row's "Run" action). */
+  initialWorkload?: string;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
 
-export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
-  initialPlaybook,
+export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
+  initialWorkload,
   onClose,
   onCreated,
 }) => {
   const { t } = useTranslation();
   const {
-    playbooks,
-    isLoading: playbooksLoading,
-    fetchError: playbooksError,
-  } = useFetchPlaybooks();
-  const [playbookName, setPlaybookName] = useState("");
+    workloads,
+    isLoading: workloadsLoading,
+    fetchError: workloadsError,
+  } = useFetchWorkloads();
+  const [workloadName, setWorkloadName] = useState("");
   const initializedRef = useRef(false);
-  // The selected playbook's stage Agents, fetched by name (get-by-name is
+  // The selected workload's stage Agents, fetched by name (get-by-name is
   // unfiltered, so stage agents without the managed label still resolve).
   const [stageAgents, setStageAgents] = useState<AgentResource[] | null>(null);
   const [agentsError, setAgentsError] = useState<string | null>(null);
@@ -135,13 +135,13 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const createMutation = useCreatePlaybookRunMutation(
+  const createMutation = useCreateWorkloadRunMutation(
     (run) => {
       const name = run.metadata.name;
       if (name) {
         onCreated(name);
       } else {
-        setSubmitError(t("agentic.playbookRuns.createdWithoutName"));
+        setSubmitError(t("agentic.workloadRuns.createdWithoutName"));
       }
     },
     (err) => setSubmitError(getAxiosErrorMessage(err))
@@ -159,18 +159,18 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
 
-  // Pick the initial playbook once the list first arrives: the pre-selected
+  // Pick the initial workload once the list first arrives: the pre-selected
   // one when given, else the first selectable one, else the first.
   useEffect(() => {
-    if (initializedRef.current || playbooks.length === 0) return;
+    if (initializedRef.current || workloads.length === 0) return;
     initializedRef.current = true;
     const preferred =
-      initialPlaybook &&
-      playbooks.some((pb) => pb.metadata.name === initialPlaybook)
-        ? initialPlaybook
-        : (playbooks.find(isSelectable) ?? playbooks[0])?.metadata.name;
-    if (preferred) setPlaybookName(preferred);
-  }, [playbooks, initialPlaybook]);
+      initialWorkload &&
+      workloads.some((pb) => pb.metadata.name === initialWorkload)
+        ? initialWorkload
+        : (workloads.find(isSelectable) ?? workloads[0])?.metadata.name;
+    if (preferred) setWorkloadName(preferred);
+  }, [workloads, initialWorkload]);
 
   const reloadApplications = async () => {
     setReloadingApps(true);
@@ -181,17 +181,17 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
     }
   };
 
-  const selected = playbooks.find((pb) => pb.metadata.name === playbookName);
-  // Stable key so the polling playbook list (fresh array identity every
+  const selected = workloads.find((pb) => pb.metadata.name === workloadName);
+  // Stable key so the polling workload list (fresh array identity every
   // 2s) does not re-trigger the stage-agent fetch.
   const stageRefsKey = [
     ...new Set((selected?.spec.stages ?? []).map((s) => s.agentRef)),
   ].join(",");
 
-  // Fetch the selected playbook's stage Agents — their declared params (as
+  // Fetch the selected workload's stage Agents — their declared params (as
   // a union) are the run's form. Params reset to the union's defaults.
   useEffect(() => {
-    if (!playbookName) return;
+    if (!workloadName) return;
     let disposed = false;
     setStageAgents(null);
     setAgentsError(null);
@@ -208,16 +208,16 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
     return () => {
       disposed = true;
     };
-  }, [playbookName, stageRefsKey]);
+  }, [workloadName, stageRefsKey]);
 
   const selectedReady = selected ? isSelectable(selected) : false;
   const notReady =
-    selected && !selectedReady ? playbookReadyCondition(selected) : undefined;
+    selected && !selectedReady ? workloadReadyCondition(selected) : undefined;
 
   const mergedParams = mergeParams(stageAgents ?? []);
   // Only params declared by EVERY stage agent can be sent (params forward
   // wholesale to each stage); the rest render disabled below.
-  const unnamedLabel = t("agentic.playbookRuns.unnamed");
+  const unnamedLabel = t("agentic.workloadRuns.unnamed");
   const universalParams = mergedParams.filter(
     (p) =>
       stagesMissingParam(stageAgents ?? [], p.name, unnamedLabel).length === 0
@@ -276,7 +276,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
       params[p.name] = v;
     }
     createMutation.mutate({
-      playbookRef: selected.metadata.name ?? playbookName,
+      workloadRef: selected.metadata.name ?? workloadName,
       params: Object.keys(params).length > 0 ? params : undefined,
       applicationRef: application?.id,
       targetBranch: application ? targetBranch.trim() : undefined,
@@ -292,59 +292,59 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
       }}
     >
       <ModalHeader
-        title={t("agentic.playbookRuns.create")}
-        description={t("agentic.playbookRuns.createDescription")}
+        title={t("agentic.workloadRuns.create")}
+        description={t("agentic.workloadRuns.createDescription")}
       />
       <ModalBody>
-        {playbooksError && (
+        {workloadsError && (
           <Alert
             variant="danger"
             isInline
-            title={t("agentic.playbookRuns.failedLoadPlaybooksTitle")}
+            title={t("agentic.workloadRuns.failedLoadWorkloadsTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            {getAxiosErrorMessage(playbooksError)}
+            {getAxiosErrorMessage(workloadsError)}
           </Alert>
         )}
         {submitError && (
           <Alert
             variant="danger"
             isInline
-            title={t("agentic.playbookRuns.createFailedTitle")}
+            title={t("agentic.workloadRuns.createFailedTitle")}
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
           </Alert>
         )}
-        {playbooksLoading && playbooks.length === 0 && !playbooksError ? (
-          <Spinner aria-label={t("agentic.playbookRuns.loadingPlaybooks")} />
-        ) : playbooks.length === 0 ? (
+        {workloadsLoading && workloads.length === 0 && !workloadsError ? (
+          <Spinner aria-label={t("agentic.workloadRuns.loadingWorkloads")} />
+        ) : workloads.length === 0 ? (
           <Alert
             variant="warning"
             isInline
-            title={t("agentic.playbookRuns.noPlaybooksTitle")}
+            title={t("agentic.workloadRuns.noWorkloadsTitle")}
           >
-            {t("agentic.playbookRuns.noPlaybooksBody")}
+            {t("agentic.workloadRuns.noWorkloadsBody")}
           </Alert>
         ) : (
           <Form
-            id="create-playbook-run-form"
+            id="create-workload-run-form"
             onSubmit={(e) => {
               e.preventDefault();
               submit();
             }}
           >
             <FormGroup
-              label={t("terms.playbook")}
+              label={t("terms.workload")}
               isRequired
-              fieldId="create-playbook"
+              fieldId="create-workload"
             >
               <FormSelect
-                id="create-playbook"
-                value={playbookName}
-                onChange={(_e, v) => setPlaybookName(v)}
+                id="create-workload"
+                value={workloadName}
+                onChange={(_e, v) => setWorkloadName(v)}
               >
-                {playbooks.map((pb) => (
+                {workloads.map((pb) => (
                   <FormSelectOption
                     key={pb.metadata.name}
                     value={pb.metadata.name}
@@ -352,7 +352,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                       (pb.metadata.name ?? unnamedLabel) +
                       (isSelectable(pb)
                         ? ""
-                        : ` ${t("agentic.playbookRuns.notReadySuffix")}`)
+                        : ` ${t("agentic.workloadRuns.notReadySuffix")}`)
                     }
                     isDisabled={!isSelectable(pb)}
                   />
@@ -362,7 +362,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                 <FormHelperText>
                   <HelperText>
                     <HelperTextItem>
-                      {t("agentic.playbookRuns.stageCount", {
+                      {t("agentic.workloadRuns.stageCount", {
                         count: selected.spec.stages.length,
                         stages: selected.spec.stages
                           .map((s) => s.name)
@@ -383,7 +383,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               <Alert
                 variant="warning"
                 isInline
-                title={t("agentic.playbookRuns.playbookNotReadyTitle")}
+                title={t("agentic.workloadRuns.workloadNotReadyTitle")}
               >
                 {notReady.reason ?? "NotReady"}
                 {notReady.message ? ` — ${notReady.message}` : ""}
@@ -394,9 +394,9 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title={t("agentic.playbookRuns.failedLoadStageAgentsTitle")}
+                title={t("agentic.workloadRuns.failedLoadStageAgentsTitle")}
               >
-                {t("agentic.playbookRuns.failedLoadStageAgentsBody", {
+                {t("agentic.workloadRuns.failedLoadStageAgentsBody", {
                   error: agentsError,
                 })}
               </Alert>
@@ -404,7 +404,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
             {selected && stageAgents === null && !agentsError && (
               <Spinner
                 size="md"
-                aria-label={t("agentic.playbookRuns.loadingStageAgents")}
+                aria-label={t("agentic.workloadRuns.loadingStageAgents")}
               />
             )}
 
@@ -412,9 +412,9 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               <Alert
                 variant="warning"
                 isInline
-                title={t("agentic.playbookRuns.failedLoadApplicationsTitle")}
+                title={t("agentic.workloadRuns.failedLoadApplicationsTitle")}
               >
-                {t("agentic.playbookRuns.failedLoadApplicationsBody", {
+                {t("agentic.workloadRuns.failedLoadApplicationsBody", {
                   error: applicationsError,
                 })}
               </Alert>
@@ -431,13 +431,13 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               >
                 <FormSelectOption
                   value=""
-                  label={t("agentic.playbookRuns.noApplicationOption")}
+                  label={t("agentic.workloadRuns.noApplicationOption")}
                 />
                 {applications.map((a) => (
                   <FormSelectOption
                     key={a.id}
                     value={a.id}
-                    label={t("agentic.playbookRuns.applicationOption", {
+                    label={t("agentic.workloadRuns.applicationOption", {
                       name: a.name,
                       id: a.id,
                     })}
@@ -449,11 +449,11 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                 <HelperText>
                   {stubInventory && (
                     <HelperTextItem variant="warning">
-                      {t("agentic.playbookRuns.stubInventoryHelper")}
+                      {t("agentic.workloadRuns.stubInventoryHelper")}
                     </HelperTextItem>
                   )}
                   <HelperTextItem>
-                    {t("agentic.playbookRuns.applicationHelper")}
+                    {t("agentic.workloadRuns.applicationHelper")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -465,11 +465,11 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               >
                 <span className="inventory-source-label">
                   {inventorySource === "hub"
-                    ? t("agentic.playbookRuns.hubApplicationCount", {
+                    ? t("agentic.workloadRuns.hubApplicationCount", {
                         count: applications.length,
                       })
                     : inventorySource === "stub"
-                      ? t("agentic.playbookRuns.stubInventoryLabel")
+                      ? t("agentic.workloadRuns.stubInventoryLabel")
                       : t("composed.applicationInventory")}
                 </span>
                 <code className="inventory-source-endpoint">
@@ -491,9 +491,9 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title={t("agentic.playbookRuns.noRepositoryTitle")}
+                title={t("agentic.workloadRuns.noRepositoryTitle")}
               >
-                {t("agentic.playbookRuns.noRepositoryBody", {
+                {t("agentic.workloadRuns.noRepositoryBody", {
                   name: application?.name,
                 })}
               </Alert>
@@ -518,8 +518,8 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                       variant={branchInvalid ? "error" : "default"}
                     >
                       {branchInvalid
-                        ? t("agentic.playbookRuns.targetBranchInvalid")
-                        : t("agentic.playbookRuns.targetBranchHelper")}
+                        ? t("agentic.workloadRuns.targetBranchInvalid")
+                        : t("agentic.workloadRuns.targetBranchHelper")}
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>
@@ -558,7 +558,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
                       <HelperText>
                         {partial && (
                           <HelperTextItem variant="warning">
-                            {t("agentic.playbookRuns.paramNotDeclared", {
+                            {t("agentic.workloadRuns.paramNotDeclared", {
                               count: missingStages.length,
                               stages: missingStages.join(", "),
                             })}
@@ -581,7 +581,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
       </ModalBody>
       <ModalFooter>
         <Button
-          id="create-playbook-run-submit"
+          id="create-workload-run-submit"
           variant="primary"
           isDisabled={!canCreate}
           isLoading={submitting}
@@ -590,7 +590,7 @@ export const CreatePlaybookRunModal: React.FC<CreatePlaybookRunModalProps> = ({
           {t("actions.create")}
         </Button>
         <Button
-          id="create-playbook-run-cancel"
+          id="create-workload-run-cancel"
           variant="link"
           isDisabled={submitting}
           onClick={onClose}
