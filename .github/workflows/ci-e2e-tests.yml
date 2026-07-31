@@ -1,0 +1,139 @@
+name: CI (global konveyor CI)
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release-*"
+
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "hack/**"
+      - "*.md"
+    branches:
+      - "main"
+      - "release-*"
+
+  workflow_call:
+    inputs:
+      checkout_ref:
+        type: string
+        description: Git ref to checkout (defaults to the triggering ref)
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-e2e-tests-${{ inputs.checkout_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  determine-branch-params:
+    runs-on: ubuntu-latest
+    outputs:
+      target_branch: ${{ steps.params.outputs.target_branch }}
+      bundle_image: ${{ steps.params.outputs.bundle_image }}
+      install_konveyor_version: ${{ steps.params.outputs.install_konveyor_version }}
+      build_checkout_ref: ${{ steps.params.outputs.build_checkout_ref }}
+      test_from_checkout_ref: ${{ steps.params.outputs.test_from_checkout_ref }}
+    steps:
+      - name: Determine branch-specific parameters
+        id: params
+        env:
+          CHECKOUT_REF: ${{ inputs.checkout_ref }}
+          BASE_REF: ${{ github.base_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          # Resolve the target branch (deployment context)
+          # Priority: explicit workflow_call input > PR base branch > push branch
+          TARGET="${CHECKOUT_REF:-${BASE_REF:-${REF_NAME}}}"
+          TARGET="${TARGET#refs/heads/}"
+
+          # Resolve the checkout ref (code to build)
+          # workflow_call with explicit ref: use that ref
+          # pull_request / push: use github.ref (PR merge ref or branch ref)
+          CHECKOUT="${CHECKOUT_REF:-${GITHUB_REF}}"
+
+          # Resolve the test from checkout ref (code to test)
+          # TODO: This implies build and test from the same ref. If we need to build and test
+          #       from different refs, this var will need to be updated.
+          TEST_FROM_CHECKOUT_REF="${CHECKOUT}"
+
+          # Map target branch to image tag (main -> latest, release-X.Y -> release-X.Y)
+          if [[ "$TARGET" == "main" ]]; then
+            IMAGE_TAG="latest"
+          else
+            IMAGE_TAG="$TARGET"
+          fi
+
+          BUNDLE="quay.io/konveyor/tackle2-operator-bundle:${IMAGE_TAG}"
+
+          echo "target_branch=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "bundle_image=$BUNDLE" >> "$GITHUB_OUTPUT"
+          echo "install_konveyor_version=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "build_checkout_ref=$CHECKOUT" >> "$GITHUB_OUTPUT"
+          echo "test_from_checkout_ref=$TEST_FROM_CHECKOUT_REF" >> "$GITHUB_OUTPUT"
+
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Branch Parameters
+            - target_branch: \`$TARGET\`
+            - build_checkout_ref: \`$CHECKOUT\`
+            - test_from_checkout_ref: \`$TEST_FROM_CHECKOUT_REF\`
+            - install_konveyor_version: \`$TARGET\`
+            - bundle_image: \`$BUNDLE\`
+          EOF
+
+  build-and-upload-test-ui-image:
+    needs: determine-branch-params
+    runs-on: ubuntu-latest
+    outputs:
+      IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.determine-branch-params.outputs.build_checkout_ref }}
+
+      - id: container
+        name: build the tackle2-ui container
+        env:
+          IMG_NAME: ttl.sh/tackle2-ui-${{ github.sha }}:2h
+        run: |
+          echo "IMG_NAME=${IMG_NAME}" >> "$GITHUB_OUTPUT"
+          docker build . -t ${IMG_NAME}
+          docker push ${IMG_NAME}
+
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Test UI Image
+            - UI image: \`$IMG_NAME\`
+          EOF
+
+  run-e2e-tests:
+    needs:
+      - determine-branch-params
+      - build-and-upload-test-ui-image
+    secrets: inherit
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test_tags:
+          - "@tier0"
+          - "@ci,@tier2_A"
+          - "@tier2_B"
+          - "@tier3_A"
+          - "@tier3_B"
+          - "@tier3_C"
+          - "@tier3_D"
+          - "@tier3_E"
+          - "@tier3_F"
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: ${{ matrix.test_tags }}
+      feature_auth_required: false
+      install_konveyor_version: ${{ needs.determine-branch-params.outputs.install_konveyor_version }}
+      bundle_image: ${{ needs.determine-branch-params.outputs.bundle_image }}
+      ui_image: ${{ needs.build-and-upload-test-ui-image.outputs.IMG_NAME }}
+      test_ref: ${{ needs.determine-branch-params.outputs.test_from_checkout_ref }}
