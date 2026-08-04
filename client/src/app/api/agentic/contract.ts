@@ -115,6 +115,14 @@ export interface AgentResource {
 
 // ------------------------------------------------- platform-resolved params
 
+/**
+ * Label marking an agent as Konveyor-managed: its harness hard-requires
+ * Hub context (HUB_BASE_URL / APP_ID / TARGET_BRANCH) at startup, so a
+ * run created without an application crash-loops before its ACP endpoint
+ * ever exists.
+ */
+export const MANAGED_LABEL = "konveyor.io/managed";
+
 export const PARAM_SOURCES_ANNOTATION = "konveyor.io/param-sources";
 export const CREDENTIAL_SOURCES_ANNOTATION = "konveyor.io/credential-sources";
 export const SOURCE_APPLICATION_REPOSITORY_URL =
