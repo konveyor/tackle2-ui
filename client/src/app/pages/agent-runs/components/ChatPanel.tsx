@@ -57,21 +57,26 @@ import "../agent-runs.css";
 interface UserItem {
   kind: "user";
   id: number;
+  /** Creation time (epoch ms) -- PF Message re-stamps "now" without one. */
+  at: number;
   text: string;
 }
 interface AgentItem {
   kind: "agent";
   id: number;
+  at: number;
   text: string;
 }
 interface ThoughtItem {
   kind: "thought";
   id: number;
+  at: number;
   text: string;
 }
 interface ToolItem {
   kind: "tool";
   id: number;
+  at: number;
   toolCallId: string;
   title: string;
   status: string;
@@ -237,7 +242,7 @@ function reduceUpdate(
       if (last && last.kind === "agent") {
         return [...items.slice(0, -1), { ...last, text: last.text + text }];
       }
-      return [...items, { kind: "agent", id: nextId(), text }];
+      return [...items, { kind: "agent", id: nextId(), at: Date.now(), text }];
     }
     case "agent_thought_chunk": {
       const text = contentText(u.content);
@@ -246,7 +251,10 @@ function reduceUpdate(
       if (last && last.kind === "thought") {
         return [...items.slice(0, -1), { ...last, text: last.text + text }];
       }
-      return [...items, { kind: "thought", id: nextId(), text }];
+      return [
+        ...items,
+        { kind: "thought", id: nextId(), at: Date.now(), text },
+      ];
     }
     case "plan": {
       const entries: PlanEntry[] = Array.isArray(u.entries)
@@ -275,6 +283,7 @@ function reduceUpdate(
         {
           kind: "tool",
           id: nextId(),
+          at: Date.now(),
           toolCallId: str(u.toolCallId),
           title: str(u.title),
           status: str(u.status) || "pending",
@@ -316,6 +325,11 @@ function reduceUpdate(
 
 function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
+}
+
+/** Stable per-message stamp; PF Message would otherwise show render time. */
+function messageTime(at: number): string {
+  return new Date(at).toLocaleTimeString();
 }
 
 const svgAvatar = (svg: string) =>
@@ -554,7 +568,7 @@ export function ChatPanel({
     const text = String(raw).trim();
     const s = session;
     if (!text || !s || turnActive) return;
-    pushItem({ kind: "user", id: nextId(), text });
+    pushItem({ kind: "user", id: nextId(), at: Date.now(), text });
     setTurnActive(true);
     try {
       const stopReason = await s.prompt(text);
@@ -899,6 +913,7 @@ function ChatItemView({
           role="user"
           avatar={USER_AVATAR}
           name={userName}
+          timestamp={messageTime(item.at)}
           content={item.text}
         />
       );
@@ -908,18 +923,24 @@ function ChatItemView({
           role="bot"
           avatar={BOT_AVATAR}
           name={botName}
+          timestamp={messageTime(item.at)}
           content={item.text}
         />
       );
     case "thought":
+      // Wrapper div, NOT className on Message: Message spreads consumer
+      // props over its own className, which would wipe the pf-chatbot
+      // layout classes (avatar then overlaps the text).
       return (
-        <Message
-          role="bot"
-          avatar={BOT_AVATAR}
-          name={botName}
-          className="chat-thought-message"
-          content={item.text}
-        />
+        <div className="chat-thought-message">
+          <Message
+            role="bot"
+            avatar={BOT_AVATAR}
+            name={botName}
+            timestamp={messageTime(item.at)}
+            content={item.text}
+          />
+        </div>
       );
     case "tool":
       return (
@@ -927,6 +948,7 @@ function ChatItemView({
           role="bot"
           avatar={BOT_AVATAR}
           name={botName}
+          timestamp={messageTime(item.at)}
           toolResponse={{
             toggleContent: (
               <span className="chat-tool-toggle">
