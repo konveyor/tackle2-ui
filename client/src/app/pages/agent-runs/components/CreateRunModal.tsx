@@ -26,6 +26,7 @@ import type {
 } from "@app/api/agentic/contract";
 import {
   CREDENTIAL_SOURCES_ANNOTATION,
+  MANAGED_LABEL,
   SOURCE_APPLICATION_IDENTITY,
   SOURCE_APPLICATION_REPOSITORY_BRANCH,
   SOURCE_APPLICATION_REPOSITORY_URL,
@@ -167,8 +168,17 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const platformCredentials = Object.entries(credentialSources).filter(
     ([, s]) => isRecognizedCredentialSource(s)
   );
+  // Konveyor-managed agents hard-require Hub context at startup: a run
+  // created without an application never comes up (the pod exits before
+  // its ACP endpoint exists and the viewer only sees a DNS error), so
+  // require an application even when the Agent declares no platform
+  // param/credential sources.
+  const isKonveyorManaged =
+    selected?.metadata.labels?.[MANAGED_LABEL] === "true";
   const needsApplication =
-    platformParams.length > 0 || platformCredentials.length > 0;
+    isKonveyorManaged ||
+    platformParams.length > 0 ||
+    platformCredentials.length > 0;
   const application = applications.find((a) => a.id === applicationId);
 
   const missingRequired = userParams.filter(
