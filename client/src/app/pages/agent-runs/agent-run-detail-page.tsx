@@ -259,7 +259,12 @@ const AgentRunDetailPage: React.FC = () => {
         className="run-detail-chat-section"
         padding={{ default: "padding" }}
       >
-        <ChatPanel runName={runName} />
+        <ChatPanel
+          runName={runName}
+          agentRef={agentRun.spec.agentRef}
+          targetBranch={coordinates.targetBranch}
+          targetBranchUrl={targetBranchUrl}
+        />
       </PageSection>
     </>
   );

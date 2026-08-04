@@ -2,68 +2,30 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-}
-.run-detail-chat-section .chat-panel {
-  flex: 1 1 auto;
   min-height: 0;
 }
 
-.chat-panel {
-  display: flex;
-  flex-direction: column;
-  min-height: 340px;
-  background: var(--pf-t--global--background--color--primary--default, #fff);
+/* A bounded height is what makes the transcript scroll INSIDE MessageBox
+   (its smart scroll then pins to the bottom as updates stream in). Left
+   unbounded, the chatbot grows with the transcript and new messages land
+   below the page fold. */
+.run-detail-chat-section .agent-run-chatbot {
+  height: max(480px, calc(100vh - 300px));
   border: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
   border-radius: 8px;
 }
 
-.chat-status {
-  display: flex;
+.agent-run-chatbot-title {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--pf-t--global--border--color--default, #ececec);
-  font-size: 0.875rem;
-  min-height: 2.5rem;
-}
-.chat-status-detail {
-  color: var(--pf-t--global--text--color--subtle, #6a6e73);
-  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-.chat-log {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.chat-bubble {
-  max-width: 85%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.chat-user {
-  align-self: flex-end;
-  background: #e7f1fa;
-}
-.chat-agent {
-  align-self: flex-start;
-  background: var(
-    --pf-t--global--background--color--secondary--default,
-    #f5f5f5
-  );
-}
-.chat-thought {
-  align-self: flex-start;
-  background: #faf6ec;
+/* Streamed reasoning: same bubble as agent text, visibly "aside". */
+.chat-thought-message .pf-chatbot__message-response {
   font-style: italic;
-  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  opacity: 0.85;
 }
 
 .chat-meta {
@@ -72,12 +34,37 @@
   font-size: 0.8rem;
 }
 
-.chat-tool {
+.chat-conn-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  font-size: 0.875rem;
+}
+
+.chat-plan {
   align-self: stretch;
   border: 1px solid var(--pf-t--global--border--color--default, #ececec);
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
 }
+.chat-plan-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.chat-plan-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.chat-plan-done {
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  text-decoration: line-through;
+}
+
 .chat-tool-toggle {
   display: inline-flex;
   align-items: center;
@@ -156,20 +143,4 @@
 .chat-diff-del {
   background: #fbe7e7;
   color: #7d1007;
-}
-
-.chat-input-row {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--pf-t--global--border--color--default, #ececec);
-  align-items: flex-start;
-}
-.chat-input-text {
-  flex: 1 1 auto;
-}
-.chat-input-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }

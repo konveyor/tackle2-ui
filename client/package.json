@@ -23,6 +23,7 @@
     "@hookform/resolvers": "^2.9.11",
     "@microlink/react-json-view": "^1.31.28",
     "@monaco-editor/react": "^4.7.0",
+    "@patternfly/chatbot": "^6.4.1",
     "@patternfly/patternfly": "6.4.0",
     "@patternfly/react-charts": "8.4.1",
     "@patternfly/react-code-editor": "6.4.3",
