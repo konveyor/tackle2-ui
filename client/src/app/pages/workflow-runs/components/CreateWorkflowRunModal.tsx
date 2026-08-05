@@ -22,7 +22,7 @@ import {
 import type {
   AgentParam,
   AgentResource,
-  AgentWorkload,
+  AgentWorkflow,
   Condition,
 } from "@app/api/agentic/contract";
 import {
@@ -31,14 +31,21 @@ import {
 } from "@app/api/agentic/contract";
 import { getAgent } from "@app/api/rest";
 import {
+  GatewayPicker,
+  defaultGatewayFor,
+} from "@app/pages/agent-runs/components/GatewayPicker";
+import {
   ParamValueField,
   paramHelperText,
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
-import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
-import { useCreateWorkloadRunMutation } from "@app/queries/workload-runs";
-import { useFetchWorkloads } from "@app/queries/workloads";
+import {
+  useFetchAgenticApplications,
+  useFetchGateways,
+} from "@app/queries/agentic-catalog";
+import { useCreateWorkflowRunMutation } from "@app/queries/workflow-runs";
+import { useFetchWorkflows } from "@app/queries/workflows";
 import { truncate } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -47,17 +54,17 @@ function errorMessage(err: unknown): string {
   return String(err);
 }
 
-function workloadReadyCondition(pb: AgentWorkload): Condition | undefined {
+function workflowReadyCondition(pb: AgentWorkflow): Condition | undefined {
   return readyCondition(pb.status?.conditions);
 }
 
 /**
- * Selectable unless the controller has EXPLICITLY marked the workload not
+ * Selectable unless the controller has EXPLICITLY marked the workflow not
  * ready (AgentsNotReady etc.). No status yet — controller catching up or
  * not running — fails open: the shim re-validates on create anyway.
  */
-function isSelectable(pb: AgentWorkload): boolean {
-  return workloadReadyCondition(pb)?.status !== "False";
+function isSelectable(pb: AgentWorkflow): boolean {
+  return workflowReadyCondition(pb)?.status !== "False";
 }
 
 /**
@@ -105,43 +112,57 @@ function defaultsFor(params: AgentParam[]): Record<string, string> {
   return values;
 }
 
-interface CreateWorkloadRunModalProps {
-  /** Pre-select this workload (e.g. from a workload row's "Run" action). */
-  initialWorkload?: string;
+/**
+ * Gateways declared by EVERY stage agent — the run's one gateway propagates
+ * to every stage, so a gateway missing from any stage agent's list fails
+ * that stage. Stage order is preserved from the first agent's declaration.
+ */
+function sharedGateways(agents: AgentResource[]): { ref: string }[] {
+  if (agents.length === 0) return [];
+  const [first, ...rest] = agents;
+  return (first!.spec.gateways ?? []).filter(({ ref }) =>
+    rest.every((a) => (a.spec.gateways ?? []).some((g) => g.ref === ref))
+  );
+}
+
+interface CreateWorkflowRunModalProps {
+  /** Pre-select this workflow (e.g. from a workflow row's "Run" action). */
+  initialWorkflow?: string;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
 
-export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
-  initialWorkload,
+export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
+  initialWorkflow,
   onClose,
   onCreated,
 }) => {
   const { t } = useTranslation();
   const {
-    workloads,
-    isLoading: workloadsLoading,
-    fetchError: workloadsError,
-  } = useFetchWorkloads();
-  const [workloadName, setWorkloadName] = useState("");
+    workflows,
+    isLoading: workflowsLoading,
+    fetchError: workflowsError,
+  } = useFetchWorkflows();
+  const [workflowName, setWorkflowName] = useState("");
   const initializedRef = useRef(false);
-  // The selected workload's stage Agents, fetched by name (get-by-name is
+  // The selected workflow's stage Agents, fetched by name (get-by-name is
   // unfiltered, so stage agents without the managed label still resolve).
   const [stageAgents, setStageAgents] = useState<AgentResource[] | null>(null);
   const [agentsError, setAgentsError] = useState<string | null>(null);
   const [reloadingApps, setReloadingApps] = useState(false);
   const [applicationId, setApplicationId] = useState("");
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
+  const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const createMutation = useCreateWorkloadRunMutation(
+  const createMutation = useCreateWorkflowRunMutation(
     (run) => {
       const name = run.metadata.name;
       if (name) {
         onCreated(name);
       } else {
-        setSubmitError(t("agentic.workloadRuns.createdWithoutName"));
+        setSubmitError(t("agentic.workflowRuns.createdWithoutName"));
       }
     },
     (err) => setSubmitError(getAxiosErrorMessage(err))
@@ -159,18 +180,20 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
 
-  // Pick the initial workload once the list first arrives: the pre-selected
+  const { gateways } = useFetchGateways();
+
+  // Pick the initial workflow once the list first arrives: the pre-selected
   // one when given, else the first selectable one, else the first.
   useEffect(() => {
-    if (initializedRef.current || workloads.length === 0) return;
+    if (initializedRef.current || workflows.length === 0) return;
     initializedRef.current = true;
     const preferred =
-      initialWorkload &&
-      workloads.some((pb) => pb.metadata.name === initialWorkload)
-        ? initialWorkload
-        : (workloads.find(isSelectable) ?? workloads[0])?.metadata.name;
-    if (preferred) setWorkloadName(preferred);
-  }, [workloads, initialWorkload]);
+      initialWorkflow &&
+      workflows.some((pb) => pb.metadata.name === initialWorkflow)
+        ? initialWorkflow
+        : (workflows.find(isSelectable) ?? workflows[0])?.metadata.name;
+    if (preferred) setWorkflowName(preferred);
+  }, [workflows, initialWorkflow]);
 
   const reloadApplications = async () => {
     setReloadingApps(true);
@@ -181,17 +204,17 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
     }
   };
 
-  const selected = workloads.find((pb) => pb.metadata.name === workloadName);
-  // Stable key so the polling workload list (fresh array identity every
+  const selected = workflows.find((pb) => pb.metadata.name === workflowName);
+  // Stable key so the polling workflow list (fresh array identity every
   // 2s) does not re-trigger the stage-agent fetch.
   const stageRefsKey = [
     ...new Set((selected?.spec.stages ?? []).map((s) => s.agentRef)),
   ].join(",");
 
-  // Fetch the selected workload's stage Agents — their declared params (as
+  // Fetch the selected workflow's stage Agents — their declared params (as
   // a union) are the run's form. Params reset to the union's defaults.
   useEffect(() => {
-    if (!workloadName) return;
+    if (!workflowName) return;
     let disposed = false;
     setStageAgents(null);
     setAgentsError(null);
@@ -201,6 +224,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
         if (disposed) return;
         setStageAgents(list);
         setParamValues(defaultsFor(mergeParams(list)));
+        setGateway(defaultGatewayFor(sharedGateways(list)));
       })
       .catch((err) => {
         if (!disposed) setAgentsError(errorMessage(err));
@@ -208,16 +232,17 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
     return () => {
       disposed = true;
     };
-  }, [workloadName, stageRefsKey]);
+  }, [workflowName, stageRefsKey]);
 
   const selectedReady = selected ? isSelectable(selected) : false;
   const notReady =
-    selected && !selectedReady ? workloadReadyCondition(selected) : undefined;
+    selected && !selectedReady ? workflowReadyCondition(selected) : undefined;
 
+  const gatewayRefs = sharedGateways(stageAgents ?? []);
   const mergedParams = mergeParams(stageAgents ?? []);
   // Only params declared by EVERY stage agent can be sent (params forward
   // wholesale to each stage); the rest render disabled below.
-  const unnamedLabel = t("agentic.workloadRuns.unnamed");
+  const unnamedLabel = t("agentic.workflowRuns.unnamed");
   const universalParams = mergedParams.filter(
     (p) =>
       stagesMissingParam(stageAgents ?? [], p.name, unnamedLabel).length === 0
@@ -276,10 +301,11 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
       params[p.name] = v;
     }
     createMutation.mutate({
-      workloadRef: selected.metadata.name ?? workloadName,
+      workflowRef: selected.metadata.name ?? workflowName,
       params: Object.keys(params).length > 0 ? params : undefined,
       applicationRef: application?.id,
       targetBranch: application ? targetBranch.trim() : undefined,
+      gateway,
     });
   };
 
@@ -292,59 +318,59 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
       }}
     >
       <ModalHeader
-        title={t("agentic.workloadRuns.create")}
-        description={t("agentic.workloadRuns.createDescription")}
+        title={t("agentic.workflowRuns.create")}
+        description={t("agentic.workflowRuns.createDescription")}
       />
       <ModalBody>
-        {workloadsError && (
+        {workflowsError && (
           <Alert
             variant="danger"
             isInline
-            title={t("agentic.workloadRuns.failedLoadWorkloadsTitle")}
+            title={t("agentic.workflowRuns.failedLoadWorkflowsTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            {getAxiosErrorMessage(workloadsError)}
+            {getAxiosErrorMessage(workflowsError)}
           </Alert>
         )}
         {submitError && (
           <Alert
             variant="danger"
             isInline
-            title={t("agentic.workloadRuns.createFailedTitle")}
+            title={t("agentic.workflowRuns.createFailedTitle")}
             style={{ marginBottom: "1rem" }}
           >
             {submitError}
           </Alert>
         )}
-        {workloadsLoading && workloads.length === 0 && !workloadsError ? (
-          <Spinner aria-label={t("agentic.workloadRuns.loadingWorkloads")} />
-        ) : workloads.length === 0 ? (
+        {workflowsLoading && workflows.length === 0 && !workflowsError ? (
+          <Spinner aria-label={t("agentic.workflowRuns.loadingWorkflows")} />
+        ) : workflows.length === 0 ? (
           <Alert
             variant="warning"
             isInline
-            title={t("agentic.workloadRuns.noWorkloadsTitle")}
+            title={t("agentic.workflowRuns.noWorkflowsTitle")}
           >
-            {t("agentic.workloadRuns.noWorkloadsBody")}
+            {t("agentic.workflowRuns.noWorkflowsBody")}
           </Alert>
         ) : (
           <Form
-            id="create-workload-run-form"
+            id="create-workflow-run-form"
             onSubmit={(e) => {
               e.preventDefault();
               submit();
             }}
           >
             <FormGroup
-              label={t("terms.workload")}
+              label={t("terms.workflow")}
               isRequired
-              fieldId="create-workload"
+              fieldId="create-workflow"
             >
               <FormSelect
-                id="create-workload"
-                value={workloadName}
-                onChange={(_e, v) => setWorkloadName(v)}
+                id="create-workflow"
+                value={workflowName}
+                onChange={(_e, v) => setWorkflowName(v)}
               >
-                {workloads.map((pb) => (
+                {workflows.map((pb) => (
                   <FormSelectOption
                     key={pb.metadata.name}
                     value={pb.metadata.name}
@@ -352,7 +378,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
                       (pb.metadata.name ?? unnamedLabel) +
                       (isSelectable(pb)
                         ? ""
-                        : ` ${t("agentic.workloadRuns.notReadySuffix")}`)
+                        : ` ${t("agentic.workflowRuns.notReadySuffix")}`)
                     }
                     isDisabled={!isSelectable(pb)}
                   />
@@ -362,7 +388,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
                 <FormHelperText>
                   <HelperText>
                     <HelperTextItem>
-                      {t("agentic.workloadRuns.stageCount", {
+                      {t("agentic.workflowRuns.stageCount", {
                         count: selected.spec.stages.length,
                         stages: selected.spec.stages
                           .map((s) => s.name)
@@ -383,7 +409,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
               <Alert
                 variant="warning"
                 isInline
-                title={t("agentic.workloadRuns.workloadNotReadyTitle")}
+                title={t("agentic.workflowRuns.workflowNotReadyTitle")}
               >
                 {notReady.reason ?? "NotReady"}
                 {notReady.message ? ` — ${notReady.message}` : ""}
@@ -394,9 +420,9 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title={t("agentic.workloadRuns.failedLoadStageAgentsTitle")}
+                title={t("agentic.workflowRuns.failedLoadStageAgentsTitle")}
               >
-                {t("agentic.workloadRuns.failedLoadStageAgentsBody", {
+                {t("agentic.workflowRuns.failedLoadStageAgentsBody", {
                   error: agentsError,
                 })}
               </Alert>
@@ -404,17 +430,24 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
             {selected && stageAgents === null && !agentsError && (
               <Spinner
                 size="md"
-                aria-label={t("agentic.workloadRuns.loadingStageAgents")}
+                aria-label={t("agentic.workflowRuns.loadingStageAgents")}
               />
             )}
+
+            <GatewayPicker
+              gatewayRefs={gatewayRefs}
+              gateways={gateways}
+              value={gateway}
+              onChange={setGateway}
+            />
 
             {applicationsError && (
               <Alert
                 variant="warning"
                 isInline
-                title={t("agentic.workloadRuns.failedLoadApplicationsTitle")}
+                title={t("agentic.workflowRuns.failedLoadApplicationsTitle")}
               >
-                {t("agentic.workloadRuns.failedLoadApplicationsBody", {
+                {t("agentic.workflowRuns.failedLoadApplicationsBody", {
                   error: applicationsError,
                 })}
               </Alert>
@@ -431,13 +464,13 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
               >
                 <FormSelectOption
                   value=""
-                  label={t("agentic.workloadRuns.noApplicationOption")}
+                  label={t("agentic.workflowRuns.noApplicationOption")}
                 />
                 {applications.map((a) => (
                   <FormSelectOption
                     key={a.id}
                     value={a.id}
-                    label={t("agentic.workloadRuns.applicationOption", {
+                    label={t("agentic.workflowRuns.applicationOption", {
                       name: a.name,
                       id: a.id,
                     })}
@@ -449,11 +482,11 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
                 <HelperText>
                   {stubInventory && (
                     <HelperTextItem variant="warning">
-                      {t("agentic.workloadRuns.stubInventoryHelper")}
+                      {t("agentic.workflowRuns.stubInventoryHelper")}
                     </HelperTextItem>
                   )}
                   <HelperTextItem>
-                    {t("agentic.workloadRuns.applicationHelper")}
+                    {t("agentic.workflowRuns.applicationHelper")}
                   </HelperTextItem>
                 </HelperText>
               </FormHelperText>
@@ -465,11 +498,11 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
               >
                 <span className="inventory-source-label">
                   {inventorySource === "hub"
-                    ? t("agentic.workloadRuns.hubApplicationCount", {
+                    ? t("agentic.workflowRuns.hubApplicationCount", {
                         count: applications.length,
                       })
                     : inventorySource === "stub"
-                      ? t("agentic.workloadRuns.stubInventoryLabel")
+                      ? t("agentic.workflowRuns.stubInventoryLabel")
                       : t("composed.applicationInventory")}
                 </span>
                 <code className="inventory-source-endpoint">
@@ -491,9 +524,9 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
               <Alert
                 variant="danger"
                 isInline
-                title={t("agentic.workloadRuns.noRepositoryTitle")}
+                title={t("agentic.workflowRuns.noRepositoryTitle")}
               >
-                {t("agentic.workloadRuns.noRepositoryBody", {
+                {t("agentic.workflowRuns.noRepositoryBody", {
                   name: application?.name,
                 })}
               </Alert>
@@ -518,8 +551,8 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
                       variant={branchInvalid ? "error" : "default"}
                     >
                       {branchInvalid
-                        ? t("agentic.workloadRuns.targetBranchInvalid")
-                        : t("agentic.workloadRuns.targetBranchHelper")}
+                        ? t("agentic.workflowRuns.targetBranchInvalid")
+                        : t("agentic.workflowRuns.targetBranchHelper")}
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>
@@ -558,7 +591,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
                       <HelperText>
                         {partial && (
                           <HelperTextItem variant="warning">
-                            {t("agentic.workloadRuns.paramNotDeclared", {
+                            {t("agentic.workflowRuns.paramNotDeclared", {
                               count: missingStages.length,
                               stages: missingStages.join(", "),
                             })}
@@ -581,7 +614,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
       </ModalBody>
       <ModalFooter>
         <Button
-          id="create-workload-run-submit"
+          id="create-workflow-run-submit"
           variant="primary"
           isDisabled={!canCreate}
           isLoading={submitting}
@@ -590,7 +623,7 @@ export const CreateWorkloadRunModal: React.FC<CreateWorkloadRunModalProps> = ({
           {t("actions.create")}
         </Button>
         <Button
-          id="create-workload-run-cancel"
+          id="create-workflow-run-cancel"
           variant="link"
           isDisabled={submitting}
           onClick={onClose}

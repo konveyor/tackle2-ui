@@ -3,7 +3,7 @@
  * GitHub-only commit feed (the one host whose REST API is CORS-open and
  * unauthenticated — 60 req/hr/IP, so polling is frugal: 60s while the run
  * is live, exactly once when terminal), and the by-convention stage output
- * files (PLAN.md, .konveyor/analysis.json) the workload stages chain
+ * files (PLAN.md, .konveyor/analysis.json) the workflow stages chain
  * through on that branch.
  */
 import { useEffect, useState } from "react";

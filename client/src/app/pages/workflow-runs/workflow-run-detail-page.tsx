@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@patternfly/react-core";
 
-import type { WorkloadRunDetailsRoute } from "@app/Paths";
+import type { WorkflowRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type { AgentRunPhase } from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
@@ -25,11 +25,11 @@ import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
-import { useFetchWorkloadRun } from "@app/queries/workload-runs";
+import { useFetchWorkflowRun } from "@app/queries/workflow-runs";
 import {
   formatAge,
   formatDuration,
-  workloadRunDuration,
+  workflowRunDuration,
 } from "@app/utils/agentic";
 import { formatPath } from "@app/utils/utils";
 
@@ -51,29 +51,29 @@ function stepVariant(phase?: AgentRunPhase) {
   }
 }
 
-const WorkloadRunDetailPage: React.FC = () => {
+const WorkflowRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
-  const { runName } = useParams<WorkloadRunDetailsRoute>();
-  const { workloadRun, isLoading, fetchError } = useFetchWorkloadRun(runName);
+  const { runName } = useParams<WorkflowRunDetailsRoute>();
+  const { workflowRun, isLoading, fetchError } = useFetchWorkflowRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { applications } = useFetchAgenticApplications();
 
   const breadcrumbs = [
-    { title: t("terms.workloadRuns"), path: DevPaths.workloadRuns },
+    { title: t("terms.workflowRuns"), path: DevPaths.workflowRuns },
     { title: runName },
   ];
 
-  if (isLoading && !workloadRun) {
+  if (isLoading && !workflowRun) {
     return (
       <PageSection>
         <Bullseye>
-          <Spinner aria-label={t("agentic.workloadRuns.loadingRun")} />
+          <Spinner aria-label={t("agentic.workflowRuns.loadingRun")} />
         </Bullseye>
       </PageSection>
     );
   }
 
-  if (!workloadRun) {
+  if (!workflowRun) {
     const isNotFound =
       !fetchError ||
       (fetchError instanceof AxiosError && fetchError.response?.status === 404);
@@ -87,10 +87,10 @@ const WorkloadRunDetailPage: React.FC = () => {
             <Alert
               variant="warning"
               isInline
-              title={t("agentic.workloadRuns.notFoundTitle")}
+              title={t("agentic.workflowRuns.notFoundTitle")}
             >
               <Trans
-                i18nKey="agentic.workloadRuns.notFoundBody"
+                i18nKey="agentic.workflowRuns.notFoundBody"
                 values={{ name: runName }}
               />
             </Alert>
@@ -102,9 +102,9 @@ const WorkloadRunDetailPage: React.FC = () => {
     );
   }
 
-  const stages = workloadRun.status?.stages ?? [];
-  const currentStage = workloadRun.status?.currentStage;
-  const coordinates = runHubCoordinates(workloadRun.spec.env);
+  const stages = workflowRun.status?.stages ?? [];
+  const currentStage = workflowRun.status?.currentStage;
+  const coordinates = runHubCoordinates(workflowRun.spec.env);
   const application = applications.find((a) => a.id === coordinates.appId);
 
   return (
@@ -113,13 +113,13 @@ const WorkloadRunDetailPage: React.FC = () => {
         <PageHeader
           title={runName}
           breadcrumbs={breadcrumbs}
-          description={<PhaseLabel phase={workloadRun.status?.phase} />}
+          description={<PhaseLabel phase={workflowRun.status?.phase} />}
         />
         {fetchError && (
           <Alert
             variant="warning"
             isInline
-            title={t("agentic.workloadRuns.refreshErrorTitle")}
+            title={t("agentic.workflowRuns.refreshErrorTitle")}
             style={{ marginTop: "0.5rem" }}
           >
             {fetchError instanceof Error
@@ -134,14 +134,14 @@ const WorkloadRunDetailPage: React.FC = () => {
           style={{ marginTop: "1rem" }}
         >
           <DescriptionListGroup>
-            <DescriptionListTerm>{t("terms.workload")}</DescriptionListTerm>
+            <DescriptionListTerm>{t("terms.workflow")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {workloadRun.spec.workloadRef}
+              {workflowRun.spec.workflowRef}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>
-              {t("agentic.workloadRuns.currentStage")}
+              {t("agentic.workflowRuns.currentStage")}
             </DescriptionListTerm>
             <DescriptionListDescription>
               {currentStage ?? "-"}
@@ -150,13 +150,13 @@ const WorkloadRunDetailPage: React.FC = () => {
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.age")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatAge(workloadRun.metadata.creationTimestamp)}
+              {formatAge(workflowRun.metadata.creationTimestamp)}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.duration")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {formatDuration(workloadRunDuration(workloadRun))}
+              {formatDuration(workflowRunDuration(workflowRun))}
             </DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -169,13 +169,13 @@ const WorkloadRunDetailPage: React.FC = () => {
           <Alert
             variant="info"
             isInline
-            title={t("agentic.workloadRuns.noStageStatusTitle")}
+            title={t("agentic.workflowRuns.noStageStatusTitle")}
           >
-            {t("agentic.workloadRuns.noStageStatusBody")}
+            {t("agentic.workflowRuns.noStageStatusBody")}
           </Alert>
         ) : (
           <ProgressStepper
-            aria-label={t("agentic.workloadRuns.stagesAriaLabel")}
+            aria-label={t("agentic.workflowRuns.stagesAriaLabel")}
           >
             {stages.map((stage) => (
               <ProgressStep
@@ -184,7 +184,7 @@ const WorkloadRunDetailPage: React.FC = () => {
                 isCurrent={stage.name === currentStage}
                 id={`stage-${stage.name}`}
                 titleId={`stage-${stage.name}-title`}
-                aria-label={t("agentic.workloadRuns.stageAriaLabel", {
+                aria-label={t("agentic.workflowRuns.stageAriaLabel", {
                   name: stage.name,
                   phase: stage.phase ?? t("taskState.Pending"),
                 })}
@@ -196,8 +196,8 @@ const WorkloadRunDetailPage: React.FC = () => {
                       })}
                     >
                       {stage.phase === "Running"
-                        ? t("agentic.workloadRuns.openLiveRun")
-                        : t("agentic.workloadRuns.openRun")}
+                        ? t("agentic.workflowRuns.openLiveRun")
+                        : t("agentic.workflowRuns.openRun")}
                     </Link>
                   ) : (
                     (stage.phase ?? t("taskState.Pending"))
@@ -214,7 +214,7 @@ const WorkloadRunDetailPage: React.FC = () => {
           <BranchPanel
             application={application}
             targetBranch={coordinates.targetBranch}
-            isTerminal={isTerminalPhase(workloadRun.status?.phase)}
+            isTerminal={isTerminalPhase(workflowRun.status?.phase)}
           />
         )}
       </PageSection>
@@ -222,4 +222,4 @@ const WorkloadRunDetailPage: React.FC = () => {
   );
 };
 
-export default WorkloadRunDetailPage;
+export default WorkflowRunDetailPage;

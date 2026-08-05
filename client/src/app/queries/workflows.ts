@@ -3,72 +3,72 @@ import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type {
-  AgentWorkload,
-  AgentWorkloadSpec,
+  AgentWorkflow,
+  AgentWorkflowSpec,
 } from "@app/api/agentic/contract";
 import {
-  createWorkload,
-  deleteWorkload,
-  getWorkloads,
-  updateWorkload,
+  createWorkflow,
+  deleteWorkflow,
+  getWorkflows,
+  updateWorkflow,
 } from "@app/api/rest";
 
-export const WORKLOADS_QUERY_KEY = "workloads";
+export const WORKFLOWS_QUERY_KEY = "workflows";
 
-export const useFetchWorkloads = (
+export const useFetchWorkflows = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { isLoading, error, data, refetch } = useQuery({
-    queryKey: [WORKLOADS_QUERY_KEY],
-    queryFn: getWorkloads,
+    queryKey: [WORKFLOWS_QUERY_KEY],
+    queryFn: getWorkflows,
     onError: (error: AxiosError) => console.log(error),
     refetchInterval,
   });
-  return { workloads: data || [], isLoading, fetchError: error, refetch };
+  return { workflows: data || [], isLoading, fetchError: error, refetch };
 };
 
-export const useCreateWorkloadMutation = (
-  onSuccess: (pb: AgentWorkload) => void,
+export const useCreateWorkflowMutation = (
+  onSuccess: (wf: AgentWorkflow) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ name, spec }: { name: string; spec: AgentWorkloadSpec }) =>
-      createWorkload(name, spec),
+    mutationFn: ({ name, spec }: { name: string; spec: AgentWorkflowSpec }) =>
+      createWorkflow(name, spec),
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries({ queryKey: [WORKLOADS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WORKFLOWS_QUERY_KEY] });
     },
     onError,
   });
 };
 
-export const useUpdateWorkloadMutation = (
-  onSuccess: (pb: AgentWorkload) => void,
+export const useUpdateWorkflowMutation = (
+  onSuccess: (wf: AgentWorkflow) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ name, spec }: { name: string; spec: AgentWorkloadSpec }) =>
-      updateWorkload(name, spec),
+    mutationFn: ({ name, spec }: { name: string; spec: AgentWorkflowSpec }) =>
+      updateWorkflow(name, spec),
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries({ queryKey: [WORKLOADS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WORKFLOWS_QUERY_KEY] });
     },
     onError,
   });
 };
 
-export const useDeleteWorkloadMutation = (
+export const useDeleteWorkflowMutation = (
   onSuccess: (name: string) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => deleteWorkload(name),
+    mutationFn: (name: string) => deleteWorkflow(name),
     onSuccess: (_, name) => {
       onSuccess(name);
-      queryClient.invalidateQueries({ queryKey: [WORKLOADS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WORKFLOWS_QUERY_KEY] });
     },
     onError,
   });

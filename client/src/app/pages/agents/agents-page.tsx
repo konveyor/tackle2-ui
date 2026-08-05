@@ -125,7 +125,7 @@ const AgentsPage: React.FC = () => {
                 <Tr>
                   <Th>{t("terms.name")}</Th>
                   <Th>{t("terms.image")}</Th>
-                  <Th>{t("agentic.agents.providers")}</Th>
+                  <Th>{t("agentic.agents.gateways")}</Th>
                   <Th>{t("terms.skills")}</Th>
                   <Th>{t("agentic.agents.params")}</Th>
                   <Th>{t("agentic.agents.ready")}</Th>
@@ -141,8 +141,8 @@ const AgentsPage: React.FC = () => {
                     <Tr key={name}>
                       <Td dataLabel={t("terms.name")}>{name}</Td>
                       <Td dataLabel={t("terms.image")}>{agent.spec.image}</Td>
-                      <Td dataLabel={t("agentic.agents.providers")}>
-                        {agent.spec.providers?.map((p) => p.ref).join(", ") ||
+                      <Td dataLabel={t("agentic.agents.gateways")}>
+                        {agent.spec.gateways?.map((g) => g.ref).join(", ") ||
                           "-"}
                       </Td>
                       <Td dataLabel={t("terms.skills")}>

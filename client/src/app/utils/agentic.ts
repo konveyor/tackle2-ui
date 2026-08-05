@@ -1,4 +1,4 @@
-import type { AgentWorkloadRun } from "@app/api/agentic/contract";
+import type { AgentWorkflowRun } from "@app/api/agentic/contract";
 
 /** kubectl-style compact age: 45s, 12m, 3h, 2d. */
 export function formatAge(creationTimestamp?: string): string {
@@ -22,8 +22,8 @@ export function formatDuration(seconds?: number): string {
   return s > 0 ? `${m}m ${s}s` : `${m}m`;
 }
 
-/** Workload-run status has no duration field — derive it from timestamps. */
-export function workloadRunDuration(run: AgentWorkloadRun): number | undefined {
+/** Workflow-run status has no duration field — derive it from timestamps. */
+export function workflowRunDuration(run: AgentWorkflowRun): number | undefined {
   const start = run.status?.startTime;
   if (!start) return undefined;
   const end = run.status?.completionTime;

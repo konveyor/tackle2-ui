@@ -4,28 +4,28 @@ import { AxiosError } from "axios";
 import type { SeedResult } from "@app/api/agentic/contract";
 import {
   getApplicationsWithSource,
+  getGateways,
   getImagesWithSource,
-  getProviders,
   loadDefaults,
 } from "@app/api/rest";
 
 import { AGENTS_QUERY_KEY } from "./agents";
 import { SKILL_CARDS_QUERY_KEY, SKILL_COLLECTIONS_QUERY_KEY } from "./skills";
-import { WORKLOADS_QUERY_KEY } from "./workloads";
+import { WORKFLOWS_QUERY_KEY } from "./workflows";
 
-export const PROVIDERS_QUERY_KEY = "llmProviders";
+export const GATEWAYS_QUERY_KEY = "gateways";
 export const IMAGES_QUERY_KEY = "agentImages";
 export const AGENTIC_APPLICATIONS_QUERY_KEY = "agenticApplications";
 
-// --------------------------------------------------------- Providers
+// ---------------------------------------------------------- Gateways
 
-export const useFetchProviders = () => {
+export const useFetchGateways = () => {
   const { isLoading, error, data, refetch } = useQuery({
-    queryKey: [PROVIDERS_QUERY_KEY],
-    queryFn: getProviders,
+    queryKey: [GATEWAYS_QUERY_KEY],
+    queryFn: getGateways,
     onError: (error: AxiosError) => console.log(error),
   });
-  return { providers: data || [], isLoading, fetchError: error, refetch };
+  return { gateways: data || [], isLoading, fetchError: error, refetch };
 };
 
 // ----------------------------------------------------------- Images
@@ -83,8 +83,8 @@ export const useLoadDefaultsMutation = (
       queryClient.invalidateQueries({
         queryKey: [SKILL_COLLECTIONS_QUERY_KEY],
       });
-      queryClient.invalidateQueries({ queryKey: [PROVIDERS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [WORKLOADS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [GATEWAYS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WORKFLOWS_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [IMAGES_QUERY_KEY] });
     },
     onError,

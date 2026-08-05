@@ -56,9 +56,9 @@ export const DevPaths = {
   agentRunDetails: "/agent-runs/:runName",
   agents: "/agents",
   skills: "/skills",
-  workloads: "/workloads",
-  workloadRuns: "/workload-runs",
-  workloadRunDetails: "/workload-runs/:runName",
+  workflows: "/workflows",
+  workflowRuns: "/workflow-runs",
+  workflowRunDetails: "/workflow-runs/:runName",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
@@ -152,6 +152,6 @@ export interface AgentRunDetailsRoute {
   runName: string;
 }
 
-export interface WorkloadRunDetailsRoute {
+export interface WorkflowRunDetailsRoute {
   runName: string;
 }

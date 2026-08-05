@@ -86,7 +86,6 @@ const AgentRunDetailPage: React.FC = () => {
   const application = applications.find((a) => a.id === coordinates.appId);
   const instructions = agentRun.spec.instructions;
   const params = agentRun.spec.params ?? [];
-  const models = agentRun.spec.models ?? [];
   // The run's own repository param is the repo it actually cloned; the
   // application record can be repointed after the fact.
   const runRepoUrl =
@@ -189,16 +188,10 @@ const AgentRunDetailPage: React.FC = () => {
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>
-              {t("agentic.runDetail.models")}
+              {t("agentic.runDetail.gateway")}
             </DescriptionListTerm>
             <DescriptionListDescription>
-              {models.length === 0
-                ? "-"
-                : models.map((m) => (
-                    <div key={m.role}>
-                      {m.role}: {m.provider} / {m.model}
-                    </div>
-                  ))}
+              {agentRun.spec.gateway ?? t("agentic.runDetail.gatewayDefault")}
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
