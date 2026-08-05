@@ -9,6 +9,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { isAgenticEnabled } from "@app/Constants";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -22,6 +23,7 @@ import {
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
+import { TabAgentRunsContent } from "./tab-agent-runs-content";
 import { TabDetailsContent } from "./tab-details-content";
 import { TabPlatformContent } from "./tab-platform-content";
 import { TabReportsContent } from "./tab-reports-contents";
@@ -42,6 +44,7 @@ enum TabKey {
   Reviews,
   Tasks,
   Platform,
+  AgentRuns,
 }
 
 export const ApplicationDetailDrawer: React.FC<
@@ -123,6 +126,15 @@ export const ApplicationDetailDrawer: React.FC<
             >
               <TabPlatformContent application={application} />
             </Tab>
+
+            {isAgenticEnabled && (
+              <Tab
+                eventKey={TabKey.AgentRuns}
+                title={<TabTitleText>{t("terms.agentRuns")}</TabTitleText>}
+              >
+                <TabAgentRunsContent application={application} />
+              </Tab>
+            )}
           </Tabs>
         </DrawerTabsContainer>
       ) : (

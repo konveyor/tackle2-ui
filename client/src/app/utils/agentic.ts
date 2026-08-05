@@ -98,6 +98,32 @@ export function runBlocker(
 }
 
 /**
+ * Present a Hub application to the agentic create-run modals.
+ *
+ * The shim's inventory is the Hub's, mapped id-for-id (`id: String(a.id)`),
+ * so a row the inventory table already has needs no round trip to be named
+ * as a run's application. Only the fields those modals read are carried —
+ * identity resolution stays shim-side.
+ */
+export function toAgenticApplication(app: {
+  id: number;
+  name: string;
+  repository?: { url?: string; branch?: string };
+}): {
+  id: string;
+  name: string;
+  repository?: { url: string; branch?: string };
+} {
+  return {
+    id: String(app.id),
+    name: app.name,
+    repository: app.repository?.url
+      ? { url: app.repository.url, branch: app.repository.branch }
+      : undefined,
+  };
+}
+
+/**
  * Split a selection into the applications a run can be created for and those
  * it cannot, so a caller can act on the eligible subset and report the rest
  * instead of blocking the whole batch on one bad application.
