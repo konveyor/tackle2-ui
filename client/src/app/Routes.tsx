@@ -13,7 +13,7 @@ import {
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ErrorFallback } from "@app/components/ErrorFallback";
 
-import { isDevtoolsEnabled } from "./Constants";
+import { isAgenticEnabled, isDevtoolsEnabled } from "./Constants";
 import { adminViewScopes, migrationViewScopes } from "./auth/roles-to-scopes";
 import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
@@ -269,42 +269,53 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     comp: AnalysisProfiles,
     exact: false,
   },
-  {
-    path: Paths.agentRunDetails,
-    comp: AgentRunDetails,
-    exact: true,
-  },
-  {
-    path: Paths.agentRuns,
-    comp: AgentRuns,
-    exact: true,
-  },
-  {
-    path: Paths.agents,
-    comp: Agents,
-    exact: true,
-  },
-  {
-    path: Paths.skills,
-    comp: Skills,
-    exact: true,
-  },
-  {
-    path: Paths.workflows,
-    comp: Workflows,
-    exact: true,
-  },
-  {
-    path: Paths.workflowRunDetails,
-    comp: WorkflowRunDetails,
-    exact: true,
-  },
-  {
-    path: Paths.workflowRuns,
-    comp: WorkflowRuns,
-    exact: true,
-  },
 ];
+
+/**
+ * The agentic console. Registered only when the server reports an `/agentic`
+ * proxy target (see AGENTIC_ENABLED) — without a backend every page in this
+ * section fails on load, so a deployment that has none gets no routes at all
+ * rather than routes that error.
+ */
+export const agenticRoutes: IRoute<DevPathValues>[] = isAgenticEnabled
+  ? [
+      {
+        path: Paths.agentRunDetails,
+        comp: AgentRunDetails,
+        exact: true,
+      },
+      {
+        path: Paths.agentRuns,
+        comp: AgentRuns,
+        exact: true,
+      },
+      {
+        path: Paths.agents,
+        comp: Agents,
+        exact: true,
+      },
+      {
+        path: Paths.skills,
+        comp: Skills,
+        exact: true,
+      },
+      {
+        path: Paths.workflows,
+        comp: Workflows,
+        exact: true,
+      },
+      {
+        path: Paths.workflowRunDetails,
+        comp: WorkflowRunDetails,
+        exact: true,
+      },
+      {
+        path: Paths.workflowRuns,
+        comp: WorkflowRuns,
+        exact: true,
+      },
+    ]
+  : [];
 
 export const universalRoutes: IRoute<UniversalPathValues>[] = [
   {
@@ -417,7 +428,7 @@ export const AppRoutes = () => {
     <Suspense fallback={<AppPlaceholder />}>
       <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
         <Switch>
-          {[...migrationRoutes, ...universalRoutes].map(
+          {[...migrationRoutes, ...agenticRoutes, ...universalRoutes].map(
             ({ comp, path, exact }, index) => (
               <RouteWrapper
                 comp={comp}

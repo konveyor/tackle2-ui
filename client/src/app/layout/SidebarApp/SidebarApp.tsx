@@ -10,7 +10,7 @@ import {
   PageSidebarBody,
 } from "@patternfly/react-core";
 
-import { isDevtoolsEnabled } from "@app/Constants";
+import { isAgenticEnabled, isDevtoolsEnabled } from "@app/Constants";
 import { AdminPaths, DevPaths, DevtoolPaths, UniversalPaths } from "@app/Paths";
 import {
   administrationRoutes,
@@ -200,38 +200,43 @@ const MigrationSidebar = ({
             </NavLink>
           </NavItem>
         </NavExpandable>
-        <NavExpandable
-          title={t("sidebar.agentic")}
-          srText={t("sidebar.agentic")}
-          groupId="migration-agentic"
-          isExpanded
-        >
-          <NavItem>
-            <NavLink to={DevPaths.agentRuns} activeClassName="pf-m-current">
-              {t("sidebar.agentRuns")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.agents} activeClassName="pf-m-current">
-              {t("sidebar.agents")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.skills} activeClassName="pf-m-current">
-              {t("sidebar.skills")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.workflows} activeClassName="pf-m-current">
-              {t("sidebar.workflows")}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.workflowRuns} activeClassName="pf-m-current">
-              {t("sidebar.workflowRuns")}
-            </NavLink>
-          </NavItem>
-        </NavExpandable>
+        {isAgenticEnabled && (
+          <NavExpandable
+            title={t("sidebar.agentic")}
+            srText={t("sidebar.agentic")}
+            groupId="migration-agentic"
+            isExpanded
+          >
+            <NavItem>
+              <NavLink to={DevPaths.agentRuns} activeClassName="pf-m-current">
+                {t("sidebar.agentRuns")}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to={DevPaths.agents} activeClassName="pf-m-current">
+                {t("sidebar.agents")}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to={DevPaths.skills} activeClassName="pf-m-current">
+                {t("sidebar.skills")}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to={DevPaths.workflows} activeClassName="pf-m-current">
+                {t("sidebar.workflows")}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                to={DevPaths.workflowRuns}
+                activeClassName="pf-m-current"
+              >
+                {t("sidebar.workflowRuns")}
+              </NavLink>
+            </NavItem>
+          </NavExpandable>
+        )}
         <NavExpandable
           title={t("sidebar.group.configuration")}
           srText={t("sidebar.group.configuration")}

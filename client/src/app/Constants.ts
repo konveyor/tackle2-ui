@@ -16,6 +16,7 @@ export const DEFAULT_REFETCH_INTERVAL = 5000;
 export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const isRWXSupported = ENV.RWX_SUPPORTED === "true";
+export const isAgenticEnabled = ENV.AGENTIC_ENABLED === "true";
 
 export const isDevtoolsEnabled = ENV.DEVTOOLS === "on";
 

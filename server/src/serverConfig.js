@@ -33,6 +33,13 @@ export const clientConfig = {
   UI_INGRESS_PROXY_BODY_SIZE: process.env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
   RWX_SUPPORTED: process.env.RWX_SUPPORTED ?? "true",
   AUTH_REQUIRED: process.env.AUTH_REQUIRED ?? "false",
+  // Derived, not a second knob: an operator that configures the `/agentic`
+  // proxy target gets the console, and a deployment without one never
+  // renders a nav section whose every call would fail. Set AGENTIC_ENABLED
+  // explicitly to override either way.
+  AGENTIC_ENABLED:
+    process.env.AGENTIC_ENABLED ??
+    (serverConfig.AGENTIC_SHIM_URL ? "true" : "false"),
   OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID ?? "web-ui",
 };
 
