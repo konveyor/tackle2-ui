@@ -22,6 +22,13 @@ export type ClientEnv = {
   /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
 
+  /**
+   * Show the agentic console (agent runs, agents, skills, workflows). Off
+   * unless the server has an `/agentic` proxy target configured, since the
+   * whole section is unusable without a backend behind it.
+   */
+  AGENTIC_ENABLED: "true" | "false";
+
   /** OIDC client ID for the UI */
   OIDC_CLIENT_ID: string;
 };
