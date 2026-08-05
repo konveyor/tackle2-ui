@@ -27,6 +27,7 @@ import {
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { isAgenticEnabled } from "@app/Constants";
 import { Paths } from "@app/Paths";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import { getArchetypeById, getTasksByIds } from "@app/api/rest";
@@ -91,6 +92,7 @@ import {
   universalComparator,
 } from "@app/utils/utils";
 
+import { BulkAgentRunModal } from "../agent-run-modal";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
 import { ApplicationFormModal } from "../application-form";
@@ -148,6 +150,10 @@ export const ApplicationsTable: FC = () => {
   >(null);
 
   const [generateAssetsApplications, setGenerateAssetsApplications] = useState<
+    DecoratedApplication[] | null
+  >(null);
+
+  const [bulkRunApplications, setBulkRunApplications] = useState<
     DecoratedApplication[] | null
   >(null);
 
@@ -799,6 +805,21 @@ export const ApplicationsTable: FC = () => {
             {t("actions.retrieveConfigurations")}
           </DropdownItem>
         ),
+        // Only offered where an agentic backend is configured — see
+        // AGENTIC_ENABLED. The harness clones from each application's Hub
+        // record, so a selection with no repository anywhere can't run.
+        isAgenticEnabled && applicationWriteAccess && (
+          <DropdownItem
+            key="run-agent-workflow-bulk"
+            isDisabled={
+              selectedRows.length < 1 ||
+              !selectedRows.some((app) => app.repository?.url)
+            }
+            onClick={() => setBulkRunApplications(selectedRows)}
+          >
+            {t("actions.runAgentWorkflow")}
+          </DropdownItem>
+        ),
         // TODO: Add this back when we can handle the generate operation in bulk
         // applicationWriteAccess && tasksWriteAccess && (
         //   <DropdownItem
@@ -1338,6 +1359,37 @@ export const ApplicationsTable: FC = () => {
           isOpen={true}
           onClose={() => {
             setAnalyzeModalOpen(false);
+          }}
+        />
+      )}
+      {bulkRunApplications && (
+        <BulkAgentRunModal
+          applications={bulkRunApplications}
+          onClose={() => setBulkRunApplications(null)}
+          onStarted={({ success, failure }) => {
+            setBulkRunApplications(null);
+            // Runs land in a different section entirely, so the toast is the
+            // only feedback here until the drawer tab exists (#3521).
+            pushNotification({
+              title:
+                failure.length === 0
+                  ? t("agentic.bulkRun.started", { count: success.length })
+                  : t("agentic.bulkRun.startedWithFailures", {
+                      succeeded: success.length,
+                      total: success.length + failure.length,
+                      failed: failure.length,
+                    }),
+              variant: failure.length === 0 ? "success" : "warning",
+              message: (
+                <Button
+                  variant="link"
+                  isInline
+                  onClick={() => history.push(Paths.workflowRuns)}
+                >
+                  {t("agentic.bulkRun.viewRuns")}
+                </Button>
+              ),
+            });
           }}
         />
       )}

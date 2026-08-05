@@ -59,6 +59,7 @@
     "review": "Review",
     "retrieve": "Retrieve",
     "retrieveConfigurations": "Retrieve configurations",
+    "runAgentWorkflow": "Run agent workflow",
     "rowActions": "Row actions",
     "run": "Run",
     "save": "Save",
@@ -1398,6 +1399,25 @@
       "addMember": "Add member",
       "memberNamesUnique": "Member names must be unique within a collection.",
       "memberRequired": "At least one member with a name and reference is required."
+    },
+    "bulkRun": {
+      "title": "Run agent workflow",
+      "description": "Start an agent workflow run for each selected application ({{count}} selected).",
+      "selectWorkflowPlaceholder": "Select a workflow",
+      "loadingWorkflows": "Loading workflows",
+      "failedLoadWorkflows": "Failed to load workflows",
+      "noWorkflowsTitle": "No workflows available",
+      "noWorkflowsBody": "No agent workflows are defined. Create one before starting runs from the inventory.",
+      "targetBranchHelper": "Branch the harness pushes to in each application's repository. Must differ from the application's source branch.",
+      "eligibilitySummary": "{{eligible}} of {{total}} applications eligible",
+      "excludedNoRepository": "no source repository",
+      "excludedBranchMatchesSource": "target branch matches its source branch ({{branch}})",
+      "podWarning": "Starts {{count}} independent runs, each in its own sandbox pod.",
+      "startRuns": "Start {{count}} runs",
+      "startFailed": "Failed to start runs",
+      "started": "Started {{count}} agent workflow runs",
+      "startedWithFailures": "Started {{succeeded}} of {{total}} runs; {{failed}} failed",
+      "viewRuns": "View runs"
     }
   }
 }
