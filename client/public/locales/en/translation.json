@@ -1172,7 +1172,7 @@
       "notFoundTitle": "Agent run not found",
       "notFoundMessage": "The run <strong>{{runName}}</strong> was not found. It may have been deleted.",
       "refreshError": "Refresh error",
-      "runSpec": "Run spec",
+      "runDetails": "Run details",
       "gateway": "Gateway",
       "gatewayDefault": "(controller default)",
       "applicationId": "Application id",

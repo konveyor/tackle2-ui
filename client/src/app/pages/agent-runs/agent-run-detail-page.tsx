@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
-  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -147,108 +146,120 @@ const AgentRunDetailPage: React.FC = () => {
           </DescriptionListGroup>
         </DescriptionList>
 
-        <Content>
-          <Content component="h3" style={{ marginTop: "1rem" }}>
-            {t("agentic.runDetail.runSpec")}
-          </Content>
-        </Content>
-        <DescriptionList isHorizontal isCompact style={{ marginTop: "0.5rem" }}>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t("terms.instructions")}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {!instructions ? (
-                "-"
-              ) : instructions.length > 120 ? (
-                <ExpandableSection toggleText={t("terms.instructions")}>
-                  {instructions}
-                </ExpandableSection>
-              ) : (
-                instructions
-              )}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t("terms.parameters")}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {params.length === 0
-                ? "-"
-                : params.map((p) => (
-                    <Label
-                      key={p.name}
-                      isCompact
-                      variant="outline"
-                      style={{ marginRight: "0.5rem" }}
-                    >
-                      <code>
-                        {p.name}={p.value}
-                      </code>
-                    </Label>
-                  ))}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>
-              {t("agentic.runDetail.gateway")}
-            </DescriptionListTerm>
-            <DescriptionListDescription>
-              {agentRun.spec.gateway ?? t("agentic.runDetail.gatewayDefault")}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>
-              {t("agentic.runDetail.applicationId")}
-            </DescriptionListTerm>
-            <DescriptionListDescription>
-              {coordinates.appId ?? "-"}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>
-              {t("agentic.runDetail.hubBaseUrl")}
-            </DescriptionListTerm>
-            <DescriptionListDescription>
-              {coordinates.hubBaseUrl ? (
-                <code>{coordinates.hubBaseUrl}</code>
-              ) : (
-                "-"
-              )}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>
-              {t("agentic.runDetail.hubToken")}
-            </DescriptionListTerm>
-            <DescriptionListDescription>
-              {coordinates.hasToken ? t("agentic.runDetail.tokenSet") : "-"}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t("terms.targetBranch")}</DescriptionListTerm>
-            <DescriptionListDescription>
-              {!coordinates.targetBranch ? (
-                "-"
-              ) : targetBranchUrl ? (
-                <a href={targetBranchUrl} target="_blank" rel="noreferrer">
+        {/* Collapsed by default: the transcript is what the page is for, and
+            an expanded spec pushes the chat -- message bar included -- past
+            the fold. */}
+        <ExpandableSection
+          toggleText={t("agentic.runDetail.runDetails")}
+          className="run-detail-spec-section"
+        >
+          <DescriptionList
+            isHorizontal
+            isCompact
+            style={{ marginTop: "0.5rem" }}
+          >
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.instructions")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {!instructions ? (
+                  "-"
+                ) : instructions.length > 120 ? (
+                  <ExpandableSection toggleText={t("terms.instructions")}>
+                    {instructions}
+                  </ExpandableSection>
+                ) : (
+                  instructions
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t("terms.parameters")}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {params.length === 0
+                  ? "-"
+                  : params.map((p) => (
+                      <Label
+                        key={p.name}
+                        isCompact
+                        variant="outline"
+                        style={{ marginRight: "0.5rem" }}
+                      >
+                        <code>
+                          {p.name}={p.value}
+                        </code>
+                      </Label>
+                    ))}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("agentic.runDetail.gateway")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {agentRun.spec.gateway ?? t("agentic.runDetail.gatewayDefault")}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("agentic.runDetail.applicationId")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {coordinates.appId ?? "-"}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("agentic.runDetail.hubBaseUrl")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {coordinates.hubBaseUrl ? (
+                  <code>{coordinates.hubBaseUrl}</code>
+                ) : (
+                  "-"
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("agentic.runDetail.hubToken")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {coordinates.hasToken ? t("agentic.runDetail.tokenSet") : "-"}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                {t("terms.targetBranch")}
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                {!coordinates.targetBranch ? (
+                  "-"
+                ) : targetBranchUrl ? (
+                  <a href={targetBranchUrl} target="_blank" rel="noreferrer">
+                    <code>{coordinates.targetBranch}</code>
+                  </a>
+                ) : (
                   <code>{coordinates.targetBranch}</code>
-                </a>
-              ) : (
-                <code>{coordinates.targetBranch}</code>
-              )}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        </DescriptionList>
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+          </DescriptionList>
 
-        {coordinates.targetBranch && (
-          <BranchPanel
-            application={application}
-            repoUrl={runRepoUrl}
-            targetBranch={coordinates.targetBranch}
-            isTerminal={isTerminalPhase(agentRun.status?.phase)}
-          />
-        )}
+          {coordinates.targetBranch && (
+            <BranchPanel
+              application={application}
+              repoUrl={runRepoUrl}
+              targetBranch={coordinates.targetBranch}
+              isTerminal={isTerminalPhase(agentRun.status?.phase)}
+            />
+          )}
+        </ExpandableSection>
       </PageSection>
       <PageSection
         isFilled
+        hasBodyWrapper={false}
         className="run-detail-chat-section"
         padding={{ default: "padding" }}
       >
