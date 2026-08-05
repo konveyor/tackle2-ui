@@ -23,12 +23,10 @@ import type {
   AgentParam,
   AgentResource,
   AgentWorkflow,
+  AgenticApplication,
   Condition,
 } from "@app/api/agentic/contract";
-import {
-  defaultTargetBranch,
-  invalidTargetBranchReason,
-} from "@app/api/agentic/contract";
+import { defaultTargetBranch } from "@app/api/agentic/contract";
 import { getAgent } from "@app/api/rest";
 import {
   GatewayPicker,
@@ -46,7 +44,11 @@ import {
 } from "@app/queries/agentic-catalog";
 import { useCreateWorkflowRunMutation } from "@app/queries/workflow-runs";
 import { useFetchWorkflows } from "@app/queries/workflows";
-import { truncate } from "@app/utils/agentic";
+import {
+  applicationRunBlocker,
+  targetBranchBlocker,
+  truncate,
+} from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 function errorMessage(err: unknown): string {
@@ -128,12 +130,19 @@ function sharedGateways(agents: AgentResource[]): { ref: string }[] {
 interface CreateWorkflowRunModalProps {
   /** Pre-select this workflow (e.g. from a workflow row's "Run" action). */
   initialWorkflow?: string;
+  /**
+   * Run against this application instead of asking for one. Supplied by
+   * callers that already have the application in hand (an inventory row);
+   * the picker and the inventory fetch are skipped entirely.
+   */
+  application?: AgenticApplication;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
 
 export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   initialWorkflow,
+  application: fixedApplication,
   onClose,
   onCreated,
 }) => {
@@ -175,7 +184,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     endpoint: inventoryEndpoint,
     fetchError: applicationsFetchError,
     refetch: refetchApplications,
-  } = useFetchAgenticApplications();
+  } = useFetchAgenticApplications({ enabled: !fixedApplication });
   const applicationsError = applicationsFetchError
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
@@ -250,10 +259,12 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   // The shim refuses application-scoped creates when the inventory is the
   // offline stub — stub applications have no Hub behind them to pull from.
   const stubInventory = inventorySource === "stub";
-  const application = applications.find((a) => a.id === applicationId);
+  const application =
+    fixedApplication ?? applications.find((a) => a.id === applicationId);
   // The harness clones from the Hub record — an application without a
   // repository URL dooms every stage, so block create up front.
-  const repoMissing = !!application && !application.repository?.url;
+  const repoMissing =
+    !!application && applicationRunBlocker(application) !== undefined;
 
   const missingRequired = universalParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
@@ -265,9 +276,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   // branch must be a valid git refname and differ from the source branch.
   const branchInvalid =
     !!application &&
-    (invalidTargetBranchReason(targetBranch) !== undefined ||
-      (application.repository?.branch !== undefined &&
-        targetBranch.trim() === application.repository.branch));
+    targetBranchBlocker(application, targetBranch) !== undefined;
   const canCreate =
     !!selected &&
     selectedReady &&
@@ -441,7 +450,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
               onChange={setGateway}
             />
 
-            {applicationsError && (
+            {!fixedApplication && applicationsError && (
               <Alert
                 variant="warning"
                 isInline
@@ -453,46 +462,60 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
               </Alert>
             )}
 
-            <FormGroup
-              label={t("terms.application")}
-              fieldId="create-pb-application"
-            >
-              <FormSelect
-                id="create-pb-application"
-                value={applicationId}
-                onChange={(_e, v) => setApplicationId(v)}
+            {fixedApplication ? (
+              <FormGroup
+                label={t("terms.application")}
+                fieldId="create-pb-application"
               >
-                <FormSelectOption
-                  value=""
-                  label={t("agentic.workflowRuns.noApplicationOption")}
-                />
-                {applications.map((a) => (
+                <span id="create-pb-application">
+                  {t("agentic.workflowRuns.applicationOption", {
+                    name: fixedApplication.name,
+                    id: fixedApplication.id,
+                  })}
+                </span>
+              </FormGroup>
+            ) : (
+              <FormGroup
+                label={t("terms.application")}
+                fieldId="create-pb-application"
+              >
+                <FormSelect
+                  id="create-pb-application"
+                  value={applicationId}
+                  onChange={(_e, v) => setApplicationId(v)}
+                >
                   <FormSelectOption
-                    key={a.id}
-                    value={a.id}
-                    label={t("agentic.workflowRuns.applicationOption", {
-                      name: a.name,
-                      id: a.id,
-                    })}
-                    isDisabled={stubInventory}
+                    value=""
+                    label={t("agentic.workflowRuns.noApplicationOption")}
                   />
-                ))}
-              </FormSelect>
-              <FormHelperText>
-                <HelperText>
-                  {stubInventory && (
-                    <HelperTextItem variant="warning">
-                      {t("agentic.workflowRuns.stubInventoryHelper")}
+                  {applications.map((a) => (
+                    <FormSelectOption
+                      key={a.id}
+                      value={a.id}
+                      label={t("agentic.workflowRuns.applicationOption", {
+                        name: a.name,
+                        id: a.id,
+                      })}
+                      isDisabled={stubInventory}
+                    />
+                  ))}
+                </FormSelect>
+                <FormHelperText>
+                  <HelperText>
+                    {stubInventory && (
+                      <HelperTextItem variant="warning">
+                        {t("agentic.workflowRuns.stubInventoryHelper")}
+                      </HelperTextItem>
+                    )}
+                    <HelperTextItem>
+                      {t("agentic.workflowRuns.applicationHelper")}
                     </HelperTextItem>
-                  )}
-                  <HelperTextItem>
-                    {t("agentic.workflowRuns.applicationHelper")}
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            </FormGroup>
+                  </HelperText>
+                </FormHelperText>
+              </FormGroup>
+            )}
 
-            {inventorySource && (
+            {!fixedApplication && inventorySource && (
               <div
                 className={`inventory-source inventory-source-${inventorySource}`}
               >

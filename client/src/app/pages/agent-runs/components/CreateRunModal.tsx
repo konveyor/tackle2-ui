@@ -84,11 +84,18 @@ function defaultsFor(agent: AgentResource | undefined): Record<string, string> {
 }
 
 interface CreateRunModalProps {
+  /**
+   * Run against this application instead of asking for one. Supplied by
+   * callers that already have the application in hand (an inventory row);
+   * the picker and the inventory fetch are skipped entirely.
+   */
+  application?: AgenticApplication;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
 
 export const CreateRunModal: React.FC<CreateRunModalProps> = ({
+  application: fixedApplication,
   onClose,
   onCreated,
 }) => {
@@ -116,7 +123,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     endpoint: inventoryEndpoint,
     fetchError: applicationsFetchError,
     refetch: refetchApplications,
-  } = useFetchAgenticApplications();
+  } = useFetchAgenticApplications({ enabled: !fixedApplication });
   const applicationsError = applicationsFetchError
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
@@ -188,11 +195,15 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   // param/credential sources.
   const isKonveyorManaged =
     selected?.metadata.labels?.[MANAGED_LABEL] === "true";
+  // A caller that supplied an application means the run to be about it, so
+  // send it even for an agent that declares no platform sources.
   const needsApplication =
+    !!fixedApplication ||
     isKonveyorManaged ||
     platformParams.length > 0 ||
     platformCredentials.length > 0;
-  const application = applications.find((a) => a.id === applicationId);
+  const application =
+    fixedApplication ?? applications.find((a) => a.id === applicationId);
 
   const missingRequired = userParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
@@ -324,7 +335,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               onChange={setGateway}
             />
 
-            {needsApplication && applicationsError && (
+            {!fixedApplication && needsApplication && applicationsError && (
               <Alert
                 variant="danger"
                 isInline
@@ -335,7 +346,21 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               </Alert>
             )}
 
-            {needsApplication && (
+            {fixedApplication && (
+              <FormGroup
+                label={t("terms.application")}
+                fieldId="create-application"
+              >
+                <span id="create-application">
+                  {t("agentic.createRun.applicationOption", {
+                    name: fixedApplication.name,
+                    id: fixedApplication.id,
+                  })}
+                </span>
+              </FormGroup>
+            )}
+
+            {!fixedApplication && needsApplication && (
               <FormGroup
                 label={t("terms.application")}
                 isRequired
@@ -365,7 +390,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               </FormGroup>
             )}
 
-            {needsApplication && inventorySource && (
+            {!fixedApplication && needsApplication && inventorySource && (
               <div
                 className={`inventory-source inventory-source-${inventorySource}`}
               >

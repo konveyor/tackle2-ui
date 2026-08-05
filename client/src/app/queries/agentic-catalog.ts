@@ -51,10 +51,11 @@ export const useFetchImagesWithSource = () => {
  * failures must not block pages that render without an application, so
  * callers get [] on error.
  */
-export const useFetchAgenticApplications = () => {
+export const useFetchAgenticApplications = ({ enabled = true } = {}) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [AGENTIC_APPLICATIONS_QUERY_KEY],
     queryFn: getApplicationsWithSource,
+    enabled,
     onError: (error: AxiosError) => console.log(error),
   });
   return {
