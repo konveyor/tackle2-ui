@@ -32,9 +32,16 @@ import {
   SOURCE_APPLICATION_REPOSITORY_URL,
   parseSourcesAnnotation,
 } from "@app/api/agentic/contract";
+import {
+  GatewayPicker,
+  defaultGatewayFor,
+} from "@app/pages/agent-runs/components/GatewayPicker";
 import { paramHelperText } from "@app/pages/agent-runs/components/ParamFields";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
-import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
+import {
+  useFetchAgenticApplications,
+  useFetchGateways,
+} from "@app/queries/agentic-catalog";
 import { useFetchAgents } from "@app/queries/agents";
 import { truncate } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -89,6 +96,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const [agentName, setAgentName] = useState("");
   const [reloadingApps, setReloadingApps] = useState(false);
   const [applicationId, setApplicationId] = useState("");
+  const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [instructions, setInstructions] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -113,13 +121,16 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
 
-  // Seed the agent select + param defaults once the agent list arrives.
+  const { gateways } = useFetchGateways();
+
+  // Seed the agent select + param/gateway defaults once the list arrives.
   useEffect(() => {
     if (!agentName && agents.length > 0) {
       const first = agents[0];
       if (first.metadata.name) {
         setAgentName(first.metadata.name);
         setParamValues(defaultsFor(first));
+        setGateway(defaultGatewayFor(first.spec.gateways ?? []));
       }
     }
   }, [agents, agentName]);
@@ -149,8 +160,10 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const selected = agents.find((a) => a.metadata.name === agentName);
 
   const selectAgent = (name: string) => {
+    const agent = agents.find((a) => a.metadata.name === name);
     setAgentName(name);
-    setParamValues(defaultsFor(agents.find((a) => a.metadata.name === name)));
+    setParamValues(defaultsFor(agent));
+    setGateway(defaultGatewayFor(agent?.spec.gateways ?? []));
   };
 
   const paramSources = parseSourcesAnnotation(selected);
@@ -223,6 +236,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       params: Object.keys(params).length > 0 ? params : undefined,
       instructions: instructions.trim() || undefined,
       applicationRef: needsApplication ? application?.id : undefined,
+      gateway,
     });
   };
 
@@ -302,6 +316,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 </FormHelperText>
               )}
             </FormGroup>
+
+            <GatewayPicker
+              gatewayRefs={selected?.spec.gateways ?? []}
+              gateways={gateways}
+              value={gateway}
+              onChange={setGateway}
+            />
 
             {needsApplication && applicationsError && (
               <Alert

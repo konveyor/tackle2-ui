@@ -24,7 +24,7 @@ import {
 } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
-import type { AgentWorkloadRun } from "@app/api/agentic/contract";
+import type { AgentWorkflowRun } from "@app/api/agentic/contract";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -32,19 +32,19 @@ import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import {
-  useDeleteWorkloadRunMutation,
-  useFetchWorkloadRuns,
-} from "@app/queries/workload-runs";
+  useDeleteWorkflowRunMutation,
+  useFetchWorkflowRuns,
+} from "@app/queries/workflow-runs";
 import {
   formatAge,
   formatDuration,
-  workloadRunDuration,
+  workflowRunDuration,
 } from "@app/utils/agentic";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
-import { CreateWorkloadRunModal } from "./components/CreateWorkloadRunModal";
+import { CreateWorkflowRunModal } from "./components/CreateWorkflowRunModal";
 
-function stagesSummary(run: AgentWorkloadRun): string {
+function stagesSummary(run: AgentWorkflowRun): string {
   const stages = run.status?.stages ?? [];
   if (stages.length === 0) return "-";
   const done = stages.filter((s) => s.phase === "Succeeded").length;
@@ -52,21 +52,21 @@ function stagesSummary(run: AgentWorkloadRun): string {
   return `${done}/${stages.length}${current ? ` · ${current}` : ""}`;
 }
 
-const WorkloadRunsPage: React.FC = () => {
+const WorkflowRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = useNotifications();
-  const { workloadRuns, isLoading, fetchError } = useFetchWorkloadRuns();
+  const { workflowRuns, isLoading, fetchError } = useFetchWorkflowRuns();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const deleteMutation = useDeleteWorkloadRunMutation(
+  const deleteMutation = useDeleteWorkflowRunMutation(
     (name) => {
       setDeleteTarget(null);
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: name,
-          type: t("terms.workloadRun"),
+          type: t("terms.workflowRun"),
         }),
         variant: "success",
       });
@@ -77,33 +77,33 @@ const WorkloadRunsPage: React.FC = () => {
     }
   );
 
-  const sortedRuns = [...workloadRuns].sort((a, b) => {
+  const sortedRuns = [...workflowRuns].sort((a, b) => {
     const ta = a.metadata.creationTimestamp ?? "";
     const tb = b.metadata.creationTimestamp ?? "";
     return tb.localeCompare(ta);
   });
 
   const openRun = (name: string) => {
-    history.push(formatPath(DevPaths.workloadRunDetails, { runName: name }));
+    history.push(formatPath(DevPaths.workflowRunDetails, { runName: name }));
   };
 
   return (
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">{t("terms.workloadRuns")}</Content>
+          <Content component="h1">{t("terms.workflowRuns")}</Content>
         </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isLoading && workloadRuns.length === 0 && !fetchError}
+          when={isLoading && workflowRuns.length === 0 && !fetchError}
           then={<AppPlaceholder />}
         >
           <Toolbar>
             <ToolbarContent>
               <ToolbarItem>
                 <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-                  {t("agentic.workloadRuns.create")}
+                  {t("agentic.workflowRuns.create")}
                 </Button>
               </ToolbarItem>
             </ToolbarContent>
@@ -115,21 +115,21 @@ const WorkloadRunsPage: React.FC = () => {
             <EmptyState
               headingLevel="h2"
               icon={CubesIcon}
-              titleText={t("agentic.workloadRuns.emptyTitle")}
+              titleText={t("agentic.workflowRuns.emptyTitle")}
             >
               <EmptyStateBody>
-                {t("agentic.workloadRuns.emptyBody")}
+                {t("agentic.workflowRuns.emptyBody")}
               </EmptyStateBody>
               <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-                {t("agentic.workloadRuns.create")}
+                {t("agentic.workflowRuns.create")}
               </Button>
             </EmptyState>
           ) : (
-            <Table aria-label={t("terms.workloadRuns")} variant="compact">
+            <Table aria-label={t("terms.workflowRuns")} variant="compact">
               <Thead>
                 <Tr>
                   <Th>{t("terms.name")}</Th>
-                  <Th>{t("terms.workload")}</Th>
+                  <Th>{t("terms.workflow")}</Th>
                   <Th>{t("terms.phase")}</Th>
                   <Th>{t("terms.stages")}</Th>
                   <Th>{t("terms.age")}</Th>
@@ -138,21 +138,21 @@ const WorkloadRunsPage: React.FC = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {sortedRuns.map((run: AgentWorkloadRun) => {
+                {sortedRuns.map((run: AgentWorkflowRun) => {
                   const name = run.metadata.name ?? "";
                   return (
                     <Tr key={run.metadata.uid ?? name}>
                       <Td dataLabel={t("terms.name")}>
                         <Link
-                          to={formatPath(DevPaths.workloadRunDetails, {
+                          to={formatPath(DevPaths.workflowRunDetails, {
                             runName: name,
                           })}
                         >
                           {name}
                         </Link>
                       </Td>
-                      <Td dataLabel={t("terms.workload")}>
-                        {run.spec.workloadRef}
+                      <Td dataLabel={t("terms.workflow")}>
+                        {run.spec.workflowRef}
                       </Td>
                       <Td dataLabel={t("terms.phase")}>
                         <PhaseLabel phase={run.status?.phase} />
@@ -164,7 +164,7 @@ const WorkloadRunsPage: React.FC = () => {
                         {formatAge(run.metadata.creationTimestamp)}
                       </Td>
                       <Td dataLabel={t("terms.duration")}>
-                        {formatDuration(workloadRunDuration(run))}
+                        {formatDuration(workflowRunDuration(run))}
                       </Td>
                       <Td isActionCell>
                         <ActionsColumn
@@ -186,7 +186,7 @@ const WorkloadRunsPage: React.FC = () => {
       </PageSection>
 
       {isCreateOpen && (
-        <CreateWorkloadRunModal
+        <CreateWorkflowRunModal
           onClose={() => setIsCreateOpen(false)}
           onCreated={(name) => {
             setIsCreateOpen(false);
@@ -197,11 +197,11 @@ const WorkloadRunsPage: React.FC = () => {
 
       <ConfirmDialog
         title={t("dialog.title.delete", {
-          what: t("terms.workloadRun").toLowerCase(),
+          what: t("terms.workflowRun").toLowerCase(),
         })}
         titleIconVariant="warning"
         isOpen={!!deleteTarget}
-        message={t("agentic.workloadRuns.deleteMessage", {
+        message={t("agentic.workflowRuns.deleteMessage", {
           name: deleteTarget,
         })}
         confirmBtnVariant={ButtonVariant.danger}
@@ -218,4 +218,4 @@ const WorkloadRunsPage: React.FC = () => {
   );
 };
 
-export default WorkloadRunsPage;
+export default WorkflowRunsPage;

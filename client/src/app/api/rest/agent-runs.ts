@@ -5,13 +5,13 @@ import type {
   AgentResource,
   AgentResourceSpec,
   AgentRun,
-  AgentWorkload,
-  AgentWorkloadRun,
-  AgentWorkloadSpec,
+  AgentWorkflow,
+  AgentWorkflowRun,
+  AgentWorkflowSpec,
   AgenticApplication,
   CreateRunInput,
-  CreateWorkloadRunInput,
-  LLMProvider,
+  CreateWorkflowRunInput,
+  Gateway,
   SeedResult,
   SkillCard,
   SkillCardSpec,
@@ -27,9 +27,9 @@ const AGENTS = agentic`/agents`;
 const APPLICATIONS = agentic`/applications`;
 const SKILL_CARDS = agentic`/skillcards`;
 const SKILL_COLLECTIONS = agentic`/skillcollections`;
-const LLM_PROVIDERS = agentic`/llmproviders`;
-const WORKLOADS = agentic`/agentworkloads`;
-const WORKLOAD_RUNS = agentic`/agentworkloadruns`;
+const GATEWAYS = agentic`/gateways`;
+const WORKFLOWS = agentic`/agentworkflows`;
+const WORKFLOW_RUNS = agentic`/agentworkflowruns`;
 const IMAGES = agentic`/images`;
 const DEFAULTS = agentic`/defaults`;
 
@@ -157,63 +157,63 @@ export const deleteSkillCollection = (name: string): Promise<void> =>
     .delete(`${SKILL_COLLECTIONS}/${encodeURIComponent(name)}`)
     .then(() => undefined);
 
-// -------------------------------------------------------- LLM Providers (read)
+// ------------------------------------------------------------ Gateways (read)
 
-export const getProviders = (): Promise<LLMProvider[]> =>
-  axios.get<LLMProvider[]>(LLM_PROVIDERS).then(({ data }) => data);
+export const getGateways = (): Promise<Gateway[]> =>
+  axios.get<Gateway[]>(GATEWAYS).then(({ data }) => data);
 
-export const getProvider = (name: string): Promise<LLMProvider> =>
+export const getGateway = (name: string): Promise<Gateway> =>
   axios
-    .get<LLMProvider>(`${LLM_PROVIDERS}/${encodeURIComponent(name)}`)
+    .get<Gateway>(`${GATEWAYS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
-// --------------------------------------------------------- Workloads (CRUD)
+// --------------------------------------------------------- Workflows (CRUD)
 
-export const getWorkloads = (): Promise<AgentWorkload[]> =>
-  axios.get<AgentWorkload[]>(WORKLOADS).then(({ data }) => data);
+export const getWorkflows = (): Promise<AgentWorkflow[]> =>
+  axios.get<AgentWorkflow[]>(WORKFLOWS).then(({ data }) => data);
 
-export const getWorkload = (name: string): Promise<AgentWorkload> =>
+export const getWorkflow = (name: string): Promise<AgentWorkflow> =>
   axios
-    .get<AgentWorkload>(`${WORKLOADS}/${encodeURIComponent(name)}`)
+    .get<AgentWorkflow>(`${WORKFLOWS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
-export const createWorkload = (
+export const createWorkflow = (
   name: string,
-  spec: AgentWorkloadSpec
-): Promise<AgentWorkload> =>
-  axios.post<AgentWorkload>(WORKLOADS, { name, spec }).then(({ data }) => data);
+  spec: AgentWorkflowSpec
+): Promise<AgentWorkflow> =>
+  axios.post<AgentWorkflow>(WORKFLOWS, { name, spec }).then(({ data }) => data);
 
-export const updateWorkload = (
+export const updateWorkflow = (
   name: string,
-  spec: AgentWorkloadSpec
-): Promise<AgentWorkload> =>
+  spec: AgentWorkflowSpec
+): Promise<AgentWorkflow> =>
   axios
-    .put<AgentWorkload>(`${WORKLOADS}/${encodeURIComponent(name)}`, { spec })
+    .put<AgentWorkflow>(`${WORKFLOWS}/${encodeURIComponent(name)}`, { spec })
     .then(({ data }) => data);
 
-export const deleteWorkload = (name: string): Promise<void> =>
+export const deleteWorkflow = (name: string): Promise<void> =>
   axios
-    .delete(`${WORKLOADS}/${encodeURIComponent(name)}`)
+    .delete(`${WORKFLOWS}/${encodeURIComponent(name)}`)
     .then(() => undefined);
 
-// ----------------------------------------------------- Workload Runs (CRUD)
+// ----------------------------------------------------- Workflow Runs (CRUD)
 
-export const getWorkloadRuns = (): Promise<AgentWorkloadRun[]> =>
-  axios.get<AgentWorkloadRun[]>(WORKLOAD_RUNS).then(({ data }) => data);
+export const getWorkflowRuns = (): Promise<AgentWorkflowRun[]> =>
+  axios.get<AgentWorkflowRun[]>(WORKFLOW_RUNS).then(({ data }) => data);
 
-export const getWorkloadRun = (name: string): Promise<AgentWorkloadRun> =>
+export const getWorkflowRun = (name: string): Promise<AgentWorkflowRun> =>
   axios
-    .get<AgentWorkloadRun>(`${WORKLOAD_RUNS}/${encodeURIComponent(name)}`)
+    .get<AgentWorkflowRun>(`${WORKFLOW_RUNS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
-export const createWorkloadRun = (
-  input: CreateWorkloadRunInput
-): Promise<AgentWorkloadRun> =>
-  axios.post<AgentWorkloadRun>(WORKLOAD_RUNS, input).then(({ data }) => data);
+export const createWorkflowRun = (
+  input: CreateWorkflowRunInput
+): Promise<AgentWorkflowRun> =>
+  axios.post<AgentWorkflowRun>(WORKFLOW_RUNS, input).then(({ data }) => data);
 
-export const deleteWorkloadRun = (name: string): Promise<void> =>
+export const deleteWorkflowRun = (name: string): Promise<void> =>
   axios
-    .delete(`${WORKLOAD_RUNS}/${encodeURIComponent(name)}`)
+    .delete(`${WORKFLOW_RUNS}/${encodeURIComponent(name)}`)
     .then(() => undefined);
 
 // ----------------------------------------------------------- Images (read)

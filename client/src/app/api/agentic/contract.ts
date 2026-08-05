@@ -2,6 +2,7 @@
  * Contract types + helpers for the konveyor.io/v1alpha1 agent surface.
  *
  * Source of truth: github.com/konveyor/agentic-controller api/v1alpha1/*.go
+ * (main @ 059b6f60 — post-#100 Gateway rename, post-#80 Workflow rename).
  * Browser-safe: no node builtins, no kube client.
  */
 
@@ -50,17 +51,16 @@ export interface AgentRunParam {
   value: string;
 }
 
-export interface AgentRunModelSelection {
-  role: string;
-  provider: string;
-  model: string;
-}
-
 export interface AgentRunSpec {
   agentRef: string;
   params?: AgentRunParam[];
   instructions?: string;
-  models?: AgentRunModelSelection[];
+  /**
+   * Name of a Gateway from the Agent's gateways list. Optional when the
+   * Agent declares exactly one gateway (the controller defaults to it);
+   * required when it declares several (validation fails fast otherwise).
+   */
+  gateway?: string;
   env?: EnvVar[];
   envFrom?: EnvFromSource[];
 }
@@ -100,7 +100,7 @@ export interface AgentResourceSpec {
   image: string;
   prompt?: string;
   params?: AgentParam[];
-  providers?: { ref: string }[];
+  gateways?: { ref: string }[];
   skillCards?: { ref: string }[];
   skillCollections?: { ref: string }[];
 }
@@ -226,91 +226,94 @@ export interface SkillCollection {
   status?: { observedGeneration?: number; conditions?: Condition[] };
 }
 
-// ------------------------------------------------------------- LLMProvider
+// ----------------------------------------------------------------- Gateway
 
-export interface LLMProviderModel {
+export interface GatewayModel {
   name: string;
   contextWindow: number;
   tier?: string;
 }
 
-export interface LLMProvider {
+/** One Gateway = one provider/model endpoint (post-#100 shape). */
+export interface Gateway {
   apiVersion?: string;
   kind?: string;
   metadata: ObjectMeta;
   spec: {
+    /** Runtime provider id ("anthropic", "openai", "aws-bedrock", ...). */
+    provider: string;
     endpoint: string;
-    credentialRef: { secretName: string; key: string };
-    models: LLMProviderModel[];
+    /** key absent = whole-Secret credential (e.g. AWS SigV4) via envFrom. */
+    credentialRef: { secretName: string; key?: string };
+    model: GatewayModel;
   };
   status?: {
     observedGeneration?: number;
     connectionVerified?: boolean;
-    discoveredModels?: string[];
     conditions?: Condition[];
   };
 }
 
-// ---------------------------------------------------------- AgentWorkload
+// ---------------------------------------------------------- AgentWorkflow
 
 export const STAGE_NAME_PATTERN = /^[a-z]([a-z0-9-]*[a-z0-9])?$/;
 
-export interface AgentWorkloadStage {
+export interface AgentWorkflowStage {
   name: string;
   agentRef: string;
   instructions?: string;
 }
 
-export interface AgentWorkloadSpec {
+export interface AgentWorkflowSpec {
   guide?: string;
-  stages: AgentWorkloadStage[];
+  stages: AgentWorkflowStage[];
 }
 
-export interface AgentWorkload {
+export interface AgentWorkflow {
   apiVersion?: string;
   kind?: string;
   metadata: ObjectMeta;
-  spec: AgentWorkloadSpec;
+  spec: AgentWorkflowSpec;
   status?: { observedGeneration?: number; conditions?: Condition[] };
 }
 
-// ------------------------------------------------------- AgentWorkloadRun
+// ------------------------------------------------------- AgentWorkflowRun
 
-export type AgentWorkloadRunPhase =
+export type AgentWorkflowRunPhase =
   | "Pending"
   | "Running"
   | "Succeeded"
   | "Failed";
 
-export interface AgentWorkloadRunStageStatus {
+export interface AgentWorkflowRunStageStatus {
   name: string;
   phase?: AgentRunPhase;
   agentRunName?: string;
 }
 
-export interface AgentWorkloadRunStatus {
-  phase?: AgentWorkloadRunPhase;
+export interface AgentWorkflowRunStatus {
+  phase?: AgentWorkflowRunPhase;
   observedGeneration?: number;
   currentStage?: string;
-  stages?: AgentWorkloadRunStageStatus[];
+  stages?: AgentWorkflowRunStageStatus[];
   startTime?: string;
   completionTime?: string;
   conditions?: Condition[];
 }
 
-export interface AgentWorkloadRun {
+export interface AgentWorkflowRun {
   apiVersion?: string;
   kind?: string;
   metadata: ObjectMeta;
   spec: {
-    workloadRef: string;
-    models?: AgentRunModelSelection[];
+    workflowRef: string;
+    /** Name of a Gateway, propagated to every stage's AgentRun. */
+    gateway?: string;
     params?: AgentRunParam[];
-    instructions?: string;
     env?: EnvVar[];
     envFrom?: EnvFromSource[];
   };
-  status?: AgentWorkloadRunStatus;
+  status?: AgentWorkflowRunStatus;
 }
 
 // -------------------------------------------------------- naming / helpers
@@ -353,7 +356,7 @@ export interface RunHubCoordinates {
 }
 
 /**
- * Extract the Hub coordinates from a run's (or workload run's) spec.env.
+ * Extract the Hub coordinates from a run's (or workflow run's) spec.env.
  * The shim injects HUB_TOKEN via valueFrom.secretKeyRef (no plain value),
  * so presence of the env entry — not a .value — is what counts.
  */
@@ -387,16 +390,18 @@ export interface CreateRunInput {
   instructions?: string;
   applicationRef?: string;
   targetBranch?: string;
-  model?: { provider: string; model: string };
+  /** Gateway name; omit to let the controller default (single-gateway Agent). */
+  gateway?: string;
 }
 
-export interface CreateWorkloadRunInput {
-  workloadRef: string;
+export interface CreateWorkflowRunInput {
+  workflowRef: string;
   params?: Record<string, string>;
   instructions?: string;
   applicationRef?: string;
   targetBranch?: string;
-  model?: { provider: string; model: string };
+  /** Gateway name; omit to let the controller default (single-gateway Agent). */
+  gateway?: string;
 }
 
 export interface RunApi {
@@ -408,14 +413,14 @@ export interface RunApi {
   createRun(input: CreateRunInput): Promise<AgentRun>;
   getRun(name: string): Promise<AgentRun>;
   deleteRun(name: string): Promise<void>;
-  listWorkloads(): Promise<AgentWorkload[]>;
-  listWorkloadRuns(): Promise<AgentWorkloadRun[]>;
-  getWorkloadRun(name: string): Promise<AgentWorkloadRun>;
-  createWorkloadRun(input: CreateWorkloadRunInput): Promise<AgentWorkloadRun>;
-  deleteWorkloadRun(name: string): Promise<void>;
+  listWorkflows(): Promise<AgentWorkflow[]>;
+  listWorkflowRuns(): Promise<AgentWorkflowRun[]>;
+  getWorkflowRun(name: string): Promise<AgentWorkflowRun>;
+  createWorkflowRun(input: CreateWorkflowRunInput): Promise<AgentWorkflowRun>;
+  deleteWorkflowRun(name: string): Promise<void>;
   /**
-   * Seeds the default managed resource set (provider, stage agents, skill
-   * cards, workloads, image catalog). Idempotent: existing resources are
+   * Seeds the default managed resource set (gateway, stage agents, skill
+   * cards, workflows, image catalog). Idempotent: existing resources are
    * left untouched and reported as "exists".
    */
   loadDefaults(): Promise<SeedResult[]>;

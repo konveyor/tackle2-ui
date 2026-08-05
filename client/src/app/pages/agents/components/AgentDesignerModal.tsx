@@ -12,7 +12,6 @@ import {
   FormSelectOption,
   HelperText,
   HelperTextItem,
-  Label,
   Modal,
   ModalBody,
   ModalFooter,
@@ -30,8 +29,8 @@ import type {
 import { RESOURCE_NAME_PATTERN } from "@app/api/agentic/contract";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import {
+  useFetchGateways,
   useFetchImagesWithSource,
-  useFetchProviders,
 } from "@app/queries/agentic-catalog";
 import {
   useCreateAgentMutation,
@@ -79,7 +78,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
 
   // ---- catalog data
   const { images } = useFetchImagesWithSource();
-  const { providers } = useFetchProviders();
+  const { gateways } = useFetchGateways();
   const { skillCards } = useFetchSkillCards();
   const { skillCollections } = useFetchSkillCollections();
 
@@ -92,8 +91,8 @@ export const AgentDesignerModal: React.FC<Props> = ({
     boolean | null
   >(null);
   const [prompt, setPrompt] = useState(existing?.spec.prompt ?? "");
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(
-    existing?.spec.providers?.map((p) => p.ref) ?? []
+  const [selectedGateways, setSelectedGateways] = useState<string[]>(
+    existing?.spec.gateways?.map((g) => g.ref) ?? []
   );
   const [selectedSkillCards, setSelectedSkillCards] = useState<string[]>(
     existing?.spec.skillCards?.map((s) => s.ref) ?? []
@@ -138,8 +137,8 @@ export const AgentDesignerModal: React.FC<Props> = ({
     selectedSkillCards.length + selectedSkillCollections.length;
 
   // ---- helpers
-  const toggleProvider = (ref: string) => {
-    setSelectedProviders((prev) =>
+  const toggleGateway = (ref: string) => {
+    setSelectedGateways((prev) =>
       prev.includes(ref) ? prev.filter((r) => r !== ref) : [...prev, ref]
     );
   };
@@ -192,8 +191,8 @@ export const AgentDesignerModal: React.FC<Props> = ({
     const spec: AgentResourceSpec = {
       image: imageRef.trim(),
       ...(prompt.trim() && { prompt: prompt.trim() }),
-      ...(selectedProviders.length > 0 && {
-        providers: selectedProviders.map((ref) => ({ ref })),
+      ...(selectedGateways.length > 0 && {
+        gateways: selectedGateways.map((ref) => ({ ref })),
       }),
       ...(selectedSkillCards.length > 0 && {
         skillCards: selectedSkillCards.map((ref) => ({ ref })),
@@ -315,44 +314,42 @@ export const AgentDesignerModal: React.FC<Props> = ({
             />
           </FormGroup>
 
-          {/* ---------- Providers ---------- */}
+          {/* ---------- Gateways ---------- */}
           <FormGroup
-            label={t("agentic.agents.providers")}
-            fieldId="agent-providers"
+            label={t("agentic.agents.gateways")}
+            fieldId="agent-gateways"
           >
-            {providers.length === 0 ? (
+            {gateways.length === 0 ? (
               <HelperText>
                 <HelperTextItem>
                   {t("composed.noDataStateTitle", {
-                    what: t("agentic.agents.providers").toLowerCase(),
+                    what: t("agentic.agents.gateways").toLowerCase(),
                   })}
                 </HelperTextItem>
               </HelperText>
             ) : (
-              providers.map((prov) => {
-                const ref = prov.metadata.name!;
-                const idx = selectedProviders.indexOf(ref);
-                const isSelected = idx !== -1;
+              gateways.map((gw) => {
+                const ref = gw.metadata.name!;
                 return (
                   <div key={ref} style={{ marginBottom: 4 }}>
                     <Checkbox
-                      id={`prov-${ref}`}
+                      id={`gw-${ref}`}
                       label={
                         <>
                           {ref}
-                          {isSelected && idx === 0 && (
-                            <Label
-                              color="blue"
-                              isCompact
-                              style={{ marginLeft: 8 }}
-                            >
-                              {t("agentic.agents.firstProviderBadge")}
-                            </Label>
-                          )}
+                          <span
+                            style={{
+                              marginLeft: 8,
+                              fontSize: "0.85em",
+                              color: "var(--pf-t--global--color--200)",
+                            }}
+                          >
+                            {gw.spec.model.name} ({gw.spec.provider})
+                          </span>
                         </>
                       }
-                      isChecked={isSelected}
-                      onChange={() => toggleProvider(ref)}
+                      isChecked={selectedGateways.includes(ref)}
+                      onChange={() => toggleGateway(ref)}
                     />
                   </div>
                 );

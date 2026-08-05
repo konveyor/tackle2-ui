@@ -32,9 +32,9 @@ import {
 
 import type {
   AgentResource,
-  AgentWorkload,
-  AgentWorkloadSpec,
-  AgentWorkloadStage,
+  AgentWorkflow,
+  AgentWorkflowSpec,
+  AgentWorkflowStage,
 } from "@app/api/agentic/contract";
 import {
   RESOURCE_NAME_PATTERN,
@@ -42,9 +42,9 @@ import {
 } from "@app/api/agentic/contract";
 import { useFetchAgents } from "@app/queries/agents";
 import {
-  useCreateWorkloadMutation,
-  useUpdateWorkloadMutation,
-} from "@app/queries/workloads";
+  useCreateWorkflowMutation,
+  useUpdateWorkflowMutation,
+} from "@app/queries/workflows";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface StageFormData {
@@ -65,7 +65,7 @@ function emptyStage(agents: AgentResource[]): StageFormData {
   };
 }
 
-function stagesToFormData(stages: AgentWorkloadStage[]): StageFormData[] {
+function stagesToFormData(stages: AgentWorkflowStage[]): StageFormData[] {
   return stages.map((s) => ({
     key: nextStageKey++,
     name: s.name,
@@ -74,35 +74,37 @@ function stagesToFormData(stages: AgentWorkloadStage[]): StageFormData[] {
   }));
 }
 
-function firstProviderRef(
+function firstGatewayRef(
   agentName: string,
   agents: AgentResource[]
 ): string | undefined {
   const agent = agents.find((a) => a.metadata.name === agentName);
-  return agent?.spec.providers?.[0]?.ref;
+  return agent?.spec.gateways?.[0]?.ref;
 }
 
-// Returns the comma-joined provider names when stages span more than one
-// LLM provider, otherwise null. The caller renders the warning copy.
-function detectProviderOverlap(
+// Returns the comma-joined gateway names when stages span more than one
+// Gateway, otherwise null. The caller renders the warning copy: a workflow
+// run's single gateway propagates to every stage, so a gateway that is not
+// in every stage agent's list fails that stage's validation.
+function detectGatewayOverlap(
   stages: StageFormData[],
   agents: AgentResource[]
 ): string | null {
   const seen = new Set<string>();
   for (const stage of stages) {
-    const ref = firstProviderRef(stage.agentRef, agents);
+    const ref = firstGatewayRef(stage.agentRef, agents);
     if (ref) seen.add(ref);
   }
   return seen.size > 1 ? Array.from(seen).join(", ") : null;
 }
 
-interface WorkloadComposerModalProps {
-  existing?: AgentWorkload;
+interface WorkflowComposerModalProps {
+  existing?: AgentWorkflow;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
+export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
   existing,
   onClose,
   onSaved,
@@ -127,11 +129,11 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
   const resolveAgentRef = (ref: string) =>
     ref || (agents[0]?.metadata.name ?? "");
 
-  const createMutation = useCreateWorkloadMutation(
+  const createMutation = useCreateWorkflowMutation(
     () => onSaved(),
     (err) => setSubmitError(getAxiosErrorMessage(err))
   );
-  const updateMutation = useUpdateWorkloadMutation(
+  const updateMutation = useUpdateWorkflowMutation(
     () => onSaved(),
     (err) => setSubmitError(getAxiosErrorMessage(err))
   );
@@ -145,11 +147,11 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
   const seenStageNames = new Set<string>();
   for (const s of stages) {
     if (!s.name.trim()) {
-      stageNameErrors[s.key] = t("agentic.workloads.stageNameRequired");
+      stageNameErrors[s.key] = t("agentic.workflows.stageNameRequired");
     } else if (!STAGE_NAME_PATTERN.test(s.name)) {
-      stageNameErrors[s.key] = t("agentic.workloads.stageNamePattern");
+      stageNameErrors[s.key] = t("agentic.workflows.stageNamePattern");
     } else if (seenStageNames.has(s.name)) {
-      stageNameErrors[s.key] = t("agentic.workloads.stageNameDuplicate");
+      stageNameErrors[s.key] = t("agentic.workflows.stageNameDuplicate");
     } else {
       stageNameErrors[s.key] = null;
     }
@@ -165,7 +167,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
     stages.every((s) => resolveAgentRef(s.agentRef)) &&
     !submitting;
 
-  const overlappingProviders = detectProviderOverlap(
+  const overlappingGateways = detectGatewayOverlap(
     stages.map((s) => ({ ...s, agentRef: resolveAgentRef(s.agentRef) })),
     agents
   );
@@ -200,10 +202,10 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
 
   const submit = () => {
     setSubmitError(null);
-    const spec: AgentWorkloadSpec = {
+    const spec: AgentWorkflowSpec = {
       guide: guide.trim() || undefined,
       stages: stages.map(
-        (s): AgentWorkloadStage => ({
+        (s): AgentWorkflowStage => ({
           name: s.name,
           agentRef: resolveAgentRef(s.agentRef),
           instructions: s.instructions.trim() || undefined,
@@ -228,8 +230,8 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
       <ModalHeader
         title={
           isEdit
-            ? t("agentic.workloads.editWorkloadTitle", { name })
-            : t("agentic.workloads.createWorkload")
+            ? t("agentic.workflows.editWorkflowTitle", { name })
+            : t("agentic.workflows.createWorkflow")
         }
       />
       <ModalBody>
@@ -239,8 +241,8 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
             isInline
             title={
               isEdit
-                ? t("agentic.workloads.updateFailed")
-                : t("agentic.workloads.createFailed")
+                ? t("agentic.workflows.updateFailed")
+                : t("agentic.workflows.createFailed")
             }
             style={{ marginBottom: "1rem" }}
           >
@@ -249,7 +251,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
         )}
 
         <Form
-          id="workload-composer-form"
+          id="workflow-composer-form"
           onSubmit={(e) => {
             e.preventDefault();
             if (canSubmit) submit();
@@ -271,20 +273,20 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                 <HelperTextItem
                   variant={name.length > 0 && !nameValid ? "error" : "default"}
                 >
-                  {t("agentic.workloads.nameHelper")}
+                  {t("agentic.workflows.nameHelper")}
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>
           </FormGroup>
 
-          <FormGroup label={t("agentic.workloads.guide")} fieldId="pb-guide">
+          <FormGroup label={t("agentic.workflows.guide")} fieldId="pb-guide">
             <TextArea
               id="pb-guide"
               value={guide}
               onChange={(_e, v) => setGuide(v)}
               rows={3}
               resizeOrientation="vertical"
-              placeholder={t("agentic.workloads.guidePlaceholder")}
+              placeholder={t("agentic.workflows.guidePlaceholder")}
             />
           </FormGroup>
 
@@ -292,21 +294,21 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
             variant="info"
             isInline
             isPlain
-            title={t("agentic.workloads.artifactChainingTitle")}
+            title={t("agentic.workflows.artifactChainingTitle")}
             style={{ marginBottom: "1rem" }}
           >
-            {t("agentic.workloads.artifactChainingBody")}
+            {t("agentic.workflows.artifactChainingBody")}
           </Alert>
 
-          {overlappingProviders && (
+          {overlappingGateways && (
             <Alert
               variant="warning"
               isInline
-              title={t("agentic.workloads.providerOverlapTitle")}
+              title={t("agentic.workflows.gatewayOverlapTitle")}
               style={{ marginBottom: "1rem" }}
             >
-              {t("agentic.workloads.providerOverlapWarning", {
-                providers: overlappingProviders,
+              {t("agentic.workflows.gatewayOverlapWarning", {
+                gateways: overlappingGateways,
               })}
             </Alert>
           )}
@@ -330,7 +332,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                     <>
                       <Button
                         variant="plain"
-                        aria-label={t("agentic.workloads.moveStageUp")}
+                        aria-label={t("agentic.workflows.moveStageUp")}
                         isDisabled={index === 0}
                         onClick={() => moveStage(index, -1)}
                         size="sm"
@@ -339,7 +341,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                       </Button>
                       <Button
                         variant="plain"
-                        aria-label={t("agentic.workloads.moveStageDown")}
+                        aria-label={t("agentic.workflows.moveStageDown")}
                         isDisabled={index === stages.length - 1}
                         onClick={() => moveStage(index, 1)}
                         size="sm"
@@ -348,7 +350,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                       </Button>
                       <Button
                         variant="plain"
-                        aria-label={t("agentic.workloads.removeStage")}
+                        aria-label={t("agentic.workflows.removeStage")}
                         isDanger
                         onClick={() => removeStage(stage.key)}
                         size="sm"
@@ -364,7 +366,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
               </CardHeader>
               <CardBody>
                 <FormGroup
-                  label={t("agentic.workloads.stageName")}
+                  label={t("agentic.workflows.stageName")}
                   isRequired
                   fieldId={`stage-name-${stage.key}`}
                 >
@@ -407,7 +409,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                     {agents.length === 0 && (
                       <FormSelectOption
                         value=""
-                        label={t("agentic.workloads.noAgentsAvailable")}
+                        label={t("agentic.workflows.noAgentsAvailable")}
                         isDisabled
                       />
                     )}
@@ -416,7 +418,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                         key={a.metadata.name}
                         value={a.metadata.name}
                         label={
-                          a.metadata.name ?? t("agentic.workloads.unnamed")
+                          a.metadata.name ?? t("agentic.workflows.unnamed")
                         }
                       />
                     ))}
@@ -435,7 +437,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
                     }
                     rows={3}
                     resizeOrientation="vertical"
-                    placeholder={t("agentic.workloads.instructionsPlaceholder")}
+                    placeholder={t("agentic.workflows.instructionsPlaceholder")}
                   />
                 </FormGroup>
               </CardBody>
@@ -443,7 +445,7 @@ export const WorkloadComposerModal: React.FC<WorkloadComposerModalProps> = ({
           ))}
 
           <Button variant="link" icon={<PlusCircleIcon />} onClick={addStage}>
-            {t("agentic.workloads.addStage")}
+            {t("agentic.workflows.addStage")}
           </Button>
         </Form>
       </ModalBody>

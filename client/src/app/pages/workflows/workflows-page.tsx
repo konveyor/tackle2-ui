@@ -25,7 +25,7 @@ import {
 } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
-import type { AgentWorkload } from "@app/api/agentic/contract";
+import type { AgentWorkflow } from "@app/api/agentic/contract";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -33,41 +33,41 @@ import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
 import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
-import { CreateWorkloadRunModal } from "@app/pages/workload-runs/components/CreateWorkloadRunModal";
+import { CreateWorkflowRunModal } from "@app/pages/workflow-runs/components/CreateWorkflowRunModal";
 import {
-  useDeleteWorkloadMutation,
-  useFetchWorkloads,
-} from "@app/queries/workloads";
+  useDeleteWorkflowMutation,
+  useFetchWorkflows,
+} from "@app/queries/workflows";
 import { formatAge } from "@app/utils/agentic";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
-import { WorkloadComposerModal } from "./components/WorkloadComposerModal";
+import { WorkflowComposerModal } from "./components/WorkflowComposerModal";
 
-function stagesSummary(workload: AgentWorkload): string | null {
-  const stages = workload.spec.stages ?? [];
+function stagesSummary(workflow: AgentWorkflow): string | null {
+  const stages = workflow.spec.stages ?? [];
   if (stages.length === 0) return null;
   const names = stages.map((s) => s.name);
   return `${stages.length}: ${names.join(" → ")}`;
 }
 
-const WorkloadsPage: React.FC = () => {
+const WorkflowsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = useNotifications();
-  const { workloads, isLoading, fetchError } = useFetchWorkloads();
+  const { workflows, isLoading, fetchError } = useFetchWorkflows();
   const [composerTarget, setComposerTarget] = useState<
-    AgentWorkload | "create" | null
+    AgentWorkflow | "create" | null
   >(null);
   const [runTarget, setRunTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const deleteMutation = useDeleteWorkloadMutation(
+  const deleteMutation = useDeleteWorkflowMutation(
     (name) => {
       setDeleteTarget(null);
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: name,
-          type: t("terms.workload"),
+          type: t("terms.workflow"),
         }),
         variant: "success",
       });
@@ -78,7 +78,7 @@ const WorkloadsPage: React.FC = () => {
     }
   );
 
-  const sortedWorkloads = [...workloads].sort((a, b) => {
+  const sortedWorkflows = [...workflows].sort((a, b) => {
     const ta = a.metadata.creationTimestamp ?? "";
     const tb = b.metadata.creationTimestamp ?? "";
     return tb.localeCompare(ta);
@@ -88,12 +88,12 @@ const WorkloadsPage: React.FC = () => {
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">{t("terms.workloads")}</Content>
+          <Content component="h1">{t("terms.workflows")}</Content>
         </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isLoading && workloads.length === 0 && !fetchError}
+          when={isLoading && workflows.length === 0 && !fetchError}
           then={<AppPlaceholder />}
         >
           <Toolbar>
@@ -103,7 +103,7 @@ const WorkloadsPage: React.FC = () => {
                   variant="primary"
                   onClick={() => setComposerTarget("create")}
                 >
-                  {t("agentic.workloads.createWorkload")}
+                  {t("agentic.workflows.createWorkflow")}
                 </Button>
               </ToolbarItem>
               <ToolbarItem>
@@ -114,52 +114,52 @@ const WorkloadsPage: React.FC = () => {
 
           {fetchError ? (
             <StateError />
-          ) : sortedWorkloads.length === 0 ? (
+          ) : sortedWorkflows.length === 0 ? (
             <EmptyState
               headingLevel="h2"
               icon={CubesIcon}
-              titleText={t("agentic.workloads.emptyTitle")}
+              titleText={t("agentic.workflows.emptyTitle")}
             >
               <EmptyStateBody>
-                {t("agentic.workloads.emptyBody")}
+                {t("agentic.workflows.emptyBody")}
               </EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setComposerTarget("create")}
               >
-                {t("agentic.workloads.createWorkload")}
+                {t("agentic.workflows.createWorkflow")}
               </Button>{" "}
               <LoadDefaultsButton />
             </EmptyState>
           ) : (
-            <Table aria-label={t("terms.workloads")} variant="compact">
+            <Table aria-label={t("terms.workflows")} variant="compact">
               <Thead>
                 <Tr>
                   <Th>{t("terms.name")}</Th>
                   <Th>{t("terms.stages")}</Th>
-                  <Th>{t("agentic.workloads.guide")}</Th>
-                  <Th>{t("agentic.workloads.ready")}</Th>
+                  <Th>{t("agentic.workflows.guide")}</Th>
+                  <Th>{t("agentic.workflows.ready")}</Th>
                   <Th>{t("terms.age")}</Th>
                   <Th screenReaderText={t("actions.rowActions")} />
                 </Tr>
               </Thead>
               <Tbody>
-                {sortedWorkloads.map((pb: AgentWorkload) => {
+                {sortedWorkflows.map((pb: AgentWorkflow) => {
                   const name = pb.metadata.name ?? "";
                   return (
                     <Tr key={name}>
                       <Td dataLabel={t("terms.name")}>{name}</Td>
                       <Td dataLabel={t("terms.stages")}>
-                        {stagesSummary(pb) ?? t("agentic.workloads.zeroStages")}
+                        {stagesSummary(pb) ?? t("agentic.workflows.zeroStages")}
                       </Td>
-                      <Td dataLabel={t("agentic.workloads.guide")}>
+                      <Td dataLabel={t("agentic.workflows.guide")}>
                         {pb.spec.guide ? (
                           <Truncate content={pb.spec.guide} />
                         ) : (
                           "-"
                         )}
                       </Td>
-                      <Td dataLabel={t("agentic.workloads.ready")}>
+                      <Td dataLabel={t("agentic.workflows.ready")}>
                         <ReadyLabel conditions={pb.status?.conditions} />
                       </Td>
                       <Td dataLabel={t("terms.age")}>
@@ -193,7 +193,7 @@ const WorkloadsPage: React.FC = () => {
       </PageSection>
 
       {composerTarget !== null && (
-        <WorkloadComposerModal
+        <WorkflowComposerModal
           existing={composerTarget === "create" ? undefined : composerTarget}
           onClose={() => setComposerTarget(null)}
           onSaved={() => setComposerTarget(null)}
@@ -201,19 +201,19 @@ const WorkloadsPage: React.FC = () => {
       )}
 
       {runTarget !== null && (
-        <CreateWorkloadRunModal
-          initialWorkload={runTarget}
+        <CreateWorkflowRunModal
+          initialWorkflow={runTarget}
           onClose={() => setRunTarget(null)}
           onCreated={(runName) => {
             setRunTarget(null);
-            history.push(formatPath(DevPaths.workloadRunDetails, { runName }));
+            history.push(formatPath(DevPaths.workflowRunDetails, { runName }));
           }}
         />
       )}
 
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
-          what: t("terms.workload").toLowerCase(),
+          what: t("terms.workflow").toLowerCase(),
           name: deleteTarget,
         })}
         titleIconVariant="warning"
@@ -233,4 +233,4 @@ const WorkloadsPage: React.FC = () => {
   );
 };
 
-export default WorkloadsPage;
+export default WorkflowsPage;

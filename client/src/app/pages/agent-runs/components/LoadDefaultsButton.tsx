@@ -1,7 +1,7 @@
 /**
  * "Load defaults" — POST /agentic/defaults: seeds the managed default set
- * (provider, stage skill cards, domain cards, stage agents, the default
- * workloads, and the agent-image catalog). Create-only and re-runnable:
+ * (gateway, stage skill cards, domain cards, stage agents, the default
+ * workflows, and the agent-image catalog). Create-only and re-runnable:
  * existing resources are reported, never touched.
  */
 import React, { useState } from "react";
