@@ -1418,6 +1418,11 @@
       "started": "Started {{count}} agent workflow runs",
       "startedWithFailures": "Started {{succeeded}} of {{total}} runs; {{failed}} failed",
       "viewRuns": "View runs"
+    },
+    "applicationRuns": {
+      "empty": "No agent runs have been started for this application.",
+      "loadFailed": "Could not load agent runs",
+      "tableAria": "Agent runs for this application"
     }
   }
 }

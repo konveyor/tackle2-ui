@@ -56,6 +56,7 @@ import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
 import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { CreateWorkflowRunModal } from "@app/pages/workflow-runs/components/CreateWorkflowRunModal";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -81,6 +82,7 @@ import {
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/scopes";
+import { toAgenticApplication } from "@app/utils/agentic";
 import {
   addSeparatorForOverflow,
   filterAndAddSeparator,
@@ -156,6 +158,9 @@ export const ApplicationsTable: FC = () => {
   const [bulkRunApplications, setBulkRunApplications] = useState<
     DecoratedApplication[] | null
   >(null);
+
+  const [runForApplication, setRunForApplication] =
+    useState<DecoratedApplication | null>(null);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
@@ -1272,6 +1277,16 @@ export const ApplicationsTable: FC = () => {
                                       application,
                                     ]),
                                 },
+                              // The harness clones from the Hub record, so
+                              // an application with no repository can't run.
+                              isAgenticEnabled &&
+                                applicationWriteAccess &&
+                                !!application.repository?.url && {
+                                  title: t("actions.runAgentWorkflow"),
+                                  itemKey: "runAgentWorkflow",
+                                  onClick: () =>
+                                    setRunForApplication(application),
+                                },
                             ],
                             [
                               analysesReadAccess &&
@@ -1359,6 +1374,16 @@ export const ApplicationsTable: FC = () => {
           isOpen={true}
           onClose={() => {
             setAnalyzeModalOpen(false);
+          }}
+        />
+      )}
+      {runForApplication && (
+        <CreateWorkflowRunModal
+          application={toAgenticApplication(runForApplication)}
+          onClose={() => setRunForApplication(null)}
+          onCreated={(runName) => {
+            setRunForApplication(null);
+            history.push(formatPath(Paths.workflowRunDetails, { runName }));
           }}
         />
       )}
