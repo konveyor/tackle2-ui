@@ -6,13 +6,24 @@
 }
 
 /* A bounded height is what makes the transcript scroll INSIDE MessageBox
-   (its smart scroll then pins to the bottom as updates stream in). Left
+   (useChatAutoScroll then pins it to the bottom as updates stream in). Left
    unbounded, the chatbot grows with the transcript and new messages land
-   below the page fold. */
+   below the page fold.
+
+   Filling the section beats a fixed height: the details above expand and
+   collapse, so any hard number either pushes the message bar past the fold
+   or leaves the transcript needlessly short. The floor keeps the chat
+   usable when the details are expanded -- the page scrolls at that point. */
 .run-detail-chat-section .agent-run-chatbot {
-  height: max(480px, calc(100vh - 300px));
+  flex: 1 1 auto;
+  min-height: 24rem;
   border: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
   border-radius: 8px;
+}
+
+/* Keep the toggle tight against the summary above it. */
+.run-detail-spec-section {
+  margin-top: 1rem;
 }
 
 .agent-run-chatbot-title {

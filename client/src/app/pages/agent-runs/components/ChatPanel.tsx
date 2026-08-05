@@ -15,7 +15,6 @@ import {
   MessageBox,
   MessageDivider,
 } from "@patternfly/chatbot";
-import type { MessageBoxHandle } from "@patternfly/chatbot";
 import {
   AlertActionLink,
   Button,
@@ -46,6 +45,8 @@ import {
   waitForRunning,
 } from "@app/api/agentic/contract";
 import { getAgentRun, getAgenticAcpUrl } from "@app/api/rest";
+
+import { useChatAutoScroll } from "../useChatAutoScroll";
 
 import { PhaseLabel } from "./PhaseLabel";
 
@@ -371,7 +372,7 @@ export function ChatPanel({
   const sessionRef = useRef<AcpSession | null>(null);
   const lastSessionIdRef = useRef<string | null>(null);
   const dropTimesRef = useRef<number[]>([]);
-  const messageBoxRef = useRef<MessageBoxHandle | null>(null);
+  const { messageBoxRef, pinToBottom } = useChatAutoScroll();
   const permissionResolvers = useRef(
     new Map<number, (o: PermissionOutcome) => void>()
   );
@@ -552,23 +553,12 @@ export function ChatPanel({
     };
   }, [runName, attempt, handleUpdate, handlePermission]);
 
-  // MessageBox's smart scroll tracks user intent (scroll up pauses, the
-  // jump-to-bottom button resumes) but never scrolls on its own -- pin the
-  // transcript whenever it grows. Direct assignment instead of the handle's
-  // scrollToBottom(): that defers to requestAnimationFrame, which is
-  // suspended in hidden tabs, wedging its internal scroll queue.
-  useEffect(() => {
-    const box = messageBoxRef.current;
-    if (box?.isSmartScrollActive()) {
-      box.scrollTop = box.scrollHeight;
-    }
-  }, [items, conn]);
-
   const send = async (raw: string | number) => {
     const text = String(raw).trim();
     const s = session;
     if (!text || !s || turnActive) return;
     pushItem({ kind: "user", id: nextId(), at: Date.now(), text });
+    pinToBottom(); // sending is a request to watch the reply
     setTurnActive(true);
     try {
       const stopReason = await s.prompt(text);
@@ -651,9 +641,12 @@ export function ChatPanel({
         </ChatbotHeaderActions>
       </ChatbotHeader>
       <ChatbotContent>
+        {/* No enableSmartScroll: useChatAutoScroll is the sole authority on
+            scroll position, and MessageBox's version reports reader intent
+            through state that lags a render behind the stream. */}
         <MessageBox
           ref={messageBoxRef}
-          enableSmartScroll
+          onScrollToBottomClick={pinToBottom}
           ariaLabel={t("agentic.chat.title")}
         >
           {items.map((item) => (
