@@ -98,6 +98,13 @@ if (Cypress.env("TRACE_COMMANDS")) {
   });
 }
 
+before(() => {
+  if (Cypress.config("baseUrl") === null) {
+    return;
+  }
+  Cypress.session.clearAllSavedSessions();
+});
+
 beforeEach(() => {
   // Disable for static report tests as they need to open local files
   if (Cypress.config("baseUrl") === null) {
