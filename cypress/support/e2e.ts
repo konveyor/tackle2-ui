@@ -103,6 +103,7 @@ before(() => {
     return;
   }
   Cypress.session.clearAllSavedSessions();
+  cy.clearAllCookies();
 });
 
 beforeEach(() => {
