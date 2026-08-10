@@ -50,15 +50,15 @@ export const useCreateAgentMutation = (
 };
 
 export const useUpdateAgentMutation = (
-  onSuccess: (a: AgentResource) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ name, spec }: { name: string; spec: AgentResourceSpec }) =>
       updateAgent(name, spec),
-    onSuccess: (data) => {
-      onSuccess(data);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({ queryKey: [AGENTS_QUERY_KEY] });
     },
     onError,

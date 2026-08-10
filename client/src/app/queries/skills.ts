@@ -53,15 +53,15 @@ export const useCreateSkillCardMutation = (
 };
 
 export const useUpdateSkillCardMutation = (
-  onSuccess: (sc: SkillCard) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ name, spec }: { name: string; spec: SkillCardSpec }) =>
       updateSkillCard(name, spec),
-    onSuccess: (data) => {
-      onSuccess(data);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({ queryKey: [SKILL_CARDS_QUERY_KEY] });
     },
     onError,
@@ -121,15 +121,15 @@ export const useCreateSkillCollectionMutation = (
 };
 
 export const useUpdateSkillCollectionMutation = (
-  onSuccess: (sc: SkillCollection) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ name, spec }: { name: string; spec: SkillCollectionSpec }) =>
       updateSkillCollection(name, spec),
-    onSuccess: (data) => {
-      onSuccess(data);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({
         queryKey: [SKILL_COLLECTIONS_QUERY_KEY],
       });
