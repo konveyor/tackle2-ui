@@ -77,11 +77,6 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
     })
     .then(({ data }) => data);
 
-export const deleteAgentRun = (name: string): Promise<void> =>
-  axios
-    .delete(`${AGENT_RUNS}/${encodeURIComponent(name)}`)
-    .then(() => undefined);
-
 export const getAgents = (): Promise<AgentResource[]> =>
   axios.get<AgentResource[]>(AGENTS).then(({ data }) => data);
 
@@ -275,11 +270,6 @@ export const createWorkflowRun = (
       },
     })
     .then(({ data }) => data);
-
-export const deleteWorkflowRun = (name: string): Promise<void> =>
-  axios
-    .delete(`${WORKFLOW_RUNS}/${encodeURIComponent(name)}`)
-    .then(() => undefined);
 
 // ----------------------------------------------------------- Images (read)
 

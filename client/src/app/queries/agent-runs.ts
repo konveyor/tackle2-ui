@@ -3,12 +3,7 @@ import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type { AgentRun } from "@app/api/agentic/contract";
-import {
-  createAgentRun,
-  deleteAgentRun,
-  getAgentRun,
-  getAgentRuns,
-} from "@app/api/rest";
+import { createAgentRun, getAgentRun, getAgentRuns } from "@app/api/rest";
 
 export const AGENT_RUNS_QUERY_KEY = "agentRuns";
 export const AGENT_RUN_QUERY_KEY = "agentRun";
@@ -65,24 +60,6 @@ export const useCreateAgentRunMutation = (
     onSuccess: (data) => {
       onSuccess(data);
       queryClient.invalidateQueries({ queryKey: [AGENT_RUNS_QUERY_KEY] });
-    },
-    onError,
-  });
-};
-
-export const useDeleteAgentRunMutation = (
-  onSuccess: (name: string) => void,
-  onError: (err: AxiosError) => void
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (name: string) => deleteAgentRun(name),
-    onSuccess: (_, name) => {
-      onSuccess(name);
-      queryClient.invalidateQueries({ queryKey: [AGENT_RUNS_QUERY_KEY] });
-      // Drop (not refetch) the detail cache -- the run no longer exists.
-      queryClient.removeQueries({ queryKey: [AGENT_RUN_QUERY_KEY, name] });
     },
     onError,
   });

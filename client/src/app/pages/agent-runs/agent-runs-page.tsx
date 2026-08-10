@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
   Button,
-  ButtonVariant,
   Content,
   EmptyState,
   EmptyStateBody,
@@ -13,29 +12,16 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
 import type { AgentRun } from "@app/api/agentic/contract";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
-import {
-  useDeleteAgentRunMutation,
-  useFetchAgentRuns,
-} from "@app/queries/agent-runs";
+import { useFetchAgentRuns } from "@app/queries/agent-runs";
 import { formatAge, formatDuration } from "@app/utils/agentic";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath } from "@app/utils/utils";
 
 import { CreateRunModal } from "./components/CreateRunModal";
 import { PhaseLabel } from "./components/PhaseLabel";
@@ -45,27 +31,8 @@ import "./agent-runs.css";
 const AgentRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { pushNotification } = useNotifications();
   const { agentRuns, isLoading, fetchError } = useFetchAgentRuns();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-
-  const deleteRunMutation = useDeleteAgentRunMutation(
-    (name) => {
-      setDeleteTarget(null);
-      pushNotification({
-        title: t("toastr.success.deletedWhat", {
-          what: name,
-          type: t("terms.agentRun"),
-        }),
-        variant: "success",
-      });
-    },
-    (err) => {
-      setDeleteTarget(null);
-      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
-    }
-  );
 
   const sortedRuns = [...agentRuns].sort((a, b) => {
     const ta = a.metadata.creationTimestamp ?? "";
@@ -123,7 +90,6 @@ const AgentRunsPage: React.FC = () => {
                   <Th>{t("terms.phase")}</Th>
                   <Th>{t("terms.age")}</Th>
                   <Th>{t("terms.duration")}</Th>
-                  <Th screenReaderText={t("actions.rowActions")} />
                 </Tr>
               </Thead>
               <Tbody>
@@ -150,16 +116,6 @@ const AgentRunsPage: React.FC = () => {
                       <Td dataLabel={t("terms.duration")}>
                         {formatDuration(run.status?.duration)}
                       </Td>
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setDeleteTarget(name),
-                            },
-                          ]}
-                        />
-                      </Td>
                     </Tr>
                   );
                 })}
@@ -178,25 +134,6 @@ const AgentRunsPage: React.FC = () => {
           }}
         />
       )}
-
-      <ConfirmDialog
-        title={t("dialog.title.deleteWithName", {
-          what: t("terms.agentRun").toLowerCase(),
-          name: deleteTarget,
-        })}
-        titleIconVariant="warning"
-        isOpen={!!deleteTarget}
-        message={t("agentic.agentRuns.deleteMessage")}
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        inProgress={deleteRunMutation.isLoading}
-        onCancel={() => setDeleteTarget(null)}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          if (deleteTarget) deleteRunMutation.mutate(deleteTarget);
-        }}
-      />
     </>
   );
 };

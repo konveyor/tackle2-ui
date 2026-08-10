@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
   Button,
-  ButtonVariant,
   Content,
   EmptyState,
   EmptyStateBody,
@@ -13,34 +12,21 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
 import type { AgentWorkflowRun } from "@app/api/agentic/contract";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
-import {
-  useDeleteWorkflowRunMutation,
-  useFetchWorkflowRuns,
-} from "@app/queries/workflow-runs";
+import { useFetchWorkflowRuns } from "@app/queries/workflow-runs";
 import {
   formatAge,
   formatDuration,
   workflowRunDuration,
 } from "@app/utils/agentic";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+import { formatPath } from "@app/utils/utils";
 
 import { CreateWorkflowRunModal } from "./components/CreateWorkflowRunModal";
 
@@ -55,27 +41,8 @@ function stagesSummary(run: AgentWorkflowRun): string {
 const WorkflowRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { pushNotification } = useNotifications();
   const { workflowRuns, isLoading, fetchError } = useFetchWorkflowRuns();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-
-  const deleteMutation = useDeleteWorkflowRunMutation(
-    (name) => {
-      setDeleteTarget(null);
-      pushNotification({
-        title: t("toastr.success.deletedWhat", {
-          what: name,
-          type: t("terms.workflowRun"),
-        }),
-        variant: "success",
-      });
-    },
-    (err) => {
-      setDeleteTarget(null);
-      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
-    }
-  );
 
   const sortedRuns = [...workflowRuns].sort((a, b) => {
     const ta = a.metadata.creationTimestamp ?? "";
@@ -134,7 +101,6 @@ const WorkflowRunsPage: React.FC = () => {
                   <Th>{t("terms.stages")}</Th>
                   <Th>{t("terms.age")}</Th>
                   <Th>{t("terms.duration")}</Th>
-                  <Th screenReaderText={t("actions.rowActions")} />
                 </Tr>
               </Thead>
               <Tbody>
@@ -166,16 +132,6 @@ const WorkflowRunsPage: React.FC = () => {
                       <Td dataLabel={t("terms.duration")}>
                         {formatDuration(workflowRunDuration(run))}
                       </Td>
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setDeleteTarget(name),
-                            },
-                          ]}
-                        />
-                      </Td>
                     </Tr>
                   );
                 })}
@@ -194,26 +150,6 @@ const WorkflowRunsPage: React.FC = () => {
           }}
         />
       )}
-
-      <ConfirmDialog
-        title={t("dialog.title.delete", {
-          what: t("terms.workflowRun").toLowerCase(),
-        })}
-        titleIconVariant="warning"
-        isOpen={!!deleteTarget}
-        message={t("agentic.workflowRuns.deleteMessage", {
-          name: deleteTarget,
-        })}
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        inProgress={deleteMutation.isLoading}
-        onCancel={() => setDeleteTarget(null)}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          if (deleteTarget) deleteMutation.mutate(deleteTarget);
-        }}
-      />
     </>
   );
 };
