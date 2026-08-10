@@ -82,7 +82,6 @@ import {
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/scopes";
-import { toAgenticApplication } from "@app/utils/agentic";
 import {
   addSeparatorForOverflow,
   filterAndAddSeparator,
@@ -1379,7 +1378,7 @@ export const ApplicationsTable: FC = () => {
       )}
       {runForApplication && (
         <CreateWorkflowRunModal
-          application={toAgenticApplication(runForApplication)}
+          application={runForApplication}
           onClose={() => setRunForApplication(null)}
           onCreated={(runName) => {
             setRunForApplication(null);

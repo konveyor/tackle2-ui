@@ -155,21 +155,6 @@ export function parseSourcesAnnotation(
   }
 }
 
-// ------------------------------------------------------------ Application
-
-/**
- * A Hub application as surfaced by the shim's inventory endpoint. Named
- * distinctly from api/models.ts Application (numeric id, full Hub shape)
- * to keep the two API families from cross-importing by accident.
- */
-export interface AgenticApplication {
-  id: string;
-  name: string;
-  repository?: { url: string; branch?: string };
-  identity?: { name: string };
-  identitySecret?: string;
-}
-
 // ------------------------------------------------------ BUILTIN_AGENT_IMAGES
 
 /**
@@ -404,7 +389,6 @@ export interface CreateWorkflowRunInput {
 export interface RunApi {
   listAgents(): Promise<AgentResource[]>;
   getAgent(name: string): Promise<AgentResource>;
-  listApplications(): Promise<AgenticApplication[]>;
   listRuns(): Promise<AgentRun[]>;
   createRun(input: CreateRunInput): Promise<AgentRun>;
   getRun(name: string): Promise<AgentRun>;

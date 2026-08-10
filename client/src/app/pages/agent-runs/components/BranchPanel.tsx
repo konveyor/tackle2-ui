@@ -11,7 +11,7 @@ import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Button, Content, Label } from "@patternfly/react-core";
 
-import type { AgenticApplication } from "@app/api/agentic/contract";
+import type { Application } from "@app/api/models";
 
 /** Frugal against the unauthenticated GitHub API rate limit (60/hr/IP). */
 const FEED_POLL_MS = 60_000;
@@ -140,7 +140,7 @@ export function BranchPanel({
   targetBranch,
   isTerminal,
 }: {
-  application?: AgenticApplication;
+  application?: Application;
   /**
    * Repo the run actually used (its `repository` param), which wins over the
    * application record — the app's URL can be repointed after the run.

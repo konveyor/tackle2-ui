@@ -23,10 +23,10 @@ import type {
   AgentParam,
   AgentResource,
   AgentWorkflow,
-  AgenticApplication,
   Condition,
 } from "@app/api/agentic/contract";
 import { defaultTargetBranch } from "@app/api/agentic/contract";
+import type { Application } from "@app/api/models";
 import { getAgent } from "@app/api/rest";
 import {
   GatewayPicker,
@@ -38,13 +38,12 @@ import {
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
-import {
-  useFetchAgenticApplications,
-  useFetchGateways,
-} from "@app/queries/agentic-catalog";
+import { useFetchGateways } from "@app/queries/agentic-catalog";
+import { useFetchApplications } from "@app/queries/applications";
 import { useCreateWorkflowRunMutation } from "@app/queries/workflow-runs";
 import { useFetchWorkflows } from "@app/queries/workflows";
 import {
+  applicationLabelValue,
   applicationRunBlocker,
   targetBranchBlocker,
   truncate,
@@ -133,9 +132,11 @@ interface CreateWorkflowRunModalProps {
   /**
    * Run against this application instead of asking for one. Supplied by
    * callers that already have the application in hand (an inventory row);
-   * the picker and the inventory fetch are skipped entirely.
+   * the picker is skipped. `useFetchApplications` has no `enabled` gate, so
+   * the applications list still loads in the background (react-query dedupes
+   * it against whatever already populated the shared "applications" cache).
    */
-  application?: AgenticApplication;
+  application?: Application;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
@@ -158,7 +159,6 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   // unfiltered, so stage agents without the managed label still resolve).
   const [stageAgents, setStageAgents] = useState<AgentResource[] | null>(null);
   const [agentsError, setAgentsError] = useState<string | null>(null);
-  const [reloadingApps, setReloadingApps] = useState(false);
   const [applicationId, setApplicationId] = useState("");
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
   const [gateway, setGateway] = useState<string | undefined>(undefined);
@@ -178,13 +178,8 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   );
   const submitting = createMutation.isLoading;
 
-  const {
-    applications,
-    source: inventorySource,
-    endpoint: inventoryEndpoint,
-    fetchError: applicationsFetchError,
-    refetch: refetchApplications,
-  } = useFetchAgenticApplications({ enabled: !fixedApplication });
+  const { data: applications, error: applicationsFetchError } =
+    useFetchApplications();
   const applicationsError = applicationsFetchError
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
@@ -203,15 +198,6 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
         : (workflows.find(isSelectable) ?? workflows[0])?.metadata.name;
     if (preferred) setWorkflowName(preferred);
   }, [workflows, initialWorkflow]);
-
-  const reloadApplications = async () => {
-    setReloadingApps(true);
-    try {
-      await refetchApplications();
-    } finally {
-      setReloadingApps(false);
-    }
-  };
 
   const selected = workflows.find((pb) => pb.metadata.name === workflowName);
   // Stable key so the polling workflow list (fresh array identity every
@@ -256,11 +242,9 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     (p) =>
       stagesMissingParam(stageAgents ?? [], p.name, unnamedLabel).length === 0
   );
-  // The shim refuses application-scoped creates when the inventory is the
-  // offline stub — stub applications have no Hub behind them to pull from.
-  const stubInventory = inventorySource === "stub";
   const application =
-    fixedApplication ?? applications.find((a) => a.id === applicationId);
+    fixedApplication ??
+    applications.find((a) => applicationLabelValue(a) === applicationId);
   // The harness clones from the Hub record — an application without a
   // repository URL dooms every stage, so block create up front.
   const repoMissing =
@@ -312,7 +296,9 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     createMutation.mutate({
       workflowRef: selected.metadata.name ?? workflowName,
       params: Object.keys(params).length > 0 ? params : undefined,
-      applicationRef: application?.id,
+      applicationRef: application
+        ? applicationLabelValue(application)
+        : undefined,
       targetBranch: application ? targetBranch.trim() : undefined,
       gateway,
     });
@@ -491,56 +477,22 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
                   {applications.map((a) => (
                     <FormSelectOption
                       key={a.id}
-                      value={a.id}
+                      value={applicationLabelValue(a)}
                       label={t("agentic.workflowRuns.applicationOption", {
                         name: a.name,
                         id: a.id,
                       })}
-                      isDisabled={stubInventory}
                     />
                   ))}
                 </FormSelect>
                 <FormHelperText>
                   <HelperText>
-                    {stubInventory && (
-                      <HelperTextItem variant="warning">
-                        {t("agentic.workflowRuns.stubInventoryHelper")}
-                      </HelperTextItem>
-                    )}
                     <HelperTextItem>
                       {t("agentic.workflowRuns.applicationHelper")}
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>
               </FormGroup>
-            )}
-
-            {!fixedApplication && inventorySource && (
-              <div
-                className={`inventory-source inventory-source-${inventorySource}`}
-              >
-                <span className="inventory-source-label">
-                  {inventorySource === "hub"
-                    ? t("agentic.workflowRuns.hubApplicationCount", {
-                        count: applications.length,
-                      })
-                    : inventorySource === "stub"
-                      ? t("agentic.workflowRuns.stubInventoryLabel")
-                      : t("composed.applicationInventory")}
-                </span>
-                <code className="inventory-source-endpoint">
-                  {inventoryEndpoint}
-                </code>
-                <Button
-                  variant="link"
-                  isInline
-                  isLoading={reloadingApps}
-                  isDisabled={reloadingApps}
-                  onClick={() => void reloadApplications()}
-                >
-                  {t("terms.refresh")}
-                </Button>
-              </div>
             )}
 
             {repoMissing && (

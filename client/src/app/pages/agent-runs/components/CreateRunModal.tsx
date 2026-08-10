@@ -20,10 +20,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 
-import type {
-  AgentResource,
-  AgenticApplication,
-} from "@app/api/agentic/contract";
+import type { AgentResource } from "@app/api/agentic/contract";
 import {
   CREDENTIAL_SOURCES_ANNOTATION,
   MANAGED_LABEL,
@@ -32,18 +29,17 @@ import {
   SOURCE_APPLICATION_REPOSITORY_URL,
   parseSourcesAnnotation,
 } from "@app/api/agentic/contract";
+import type { Application } from "@app/api/models";
 import {
   GatewayPicker,
   defaultGatewayFor,
 } from "@app/pages/agent-runs/components/GatewayPicker";
 import { paramHelperText } from "@app/pages/agent-runs/components/ParamFields";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
-import {
-  useFetchAgenticApplications,
-  useFetchGateways,
-} from "@app/queries/agentic-catalog";
+import { useFetchGateways } from "@app/queries/agentic-catalog";
 import { useFetchAgents } from "@app/queries/agents";
-import { truncate } from "@app/utils/agentic";
+import { useFetchApplications } from "@app/queries/applications";
+import { applicationLabelValue, truncate } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const PARAM_SOURCE_LABEL_KEYS: Record<string, string> = {
@@ -66,7 +62,7 @@ const isRecognizedCredentialSource = (source: string): boolean =>
 
 function previewValue(
   source: string,
-  app: AgenticApplication | undefined
+  app: Application | undefined
 ): string | undefined {
   if (!app) return undefined;
   if (source === SOURCE_APPLICATION_REPOSITORY_URL) return app.repository?.url;
@@ -87,9 +83,11 @@ interface CreateRunModalProps {
   /**
    * Run against this application instead of asking for one. Supplied by
    * callers that already have the application in hand (an inventory row);
-   * the picker and the inventory fetch are skipped entirely.
+   * the picker is skipped. `useFetchApplications` has no `enabled` gate, so
+   * the applications list still loads in the background (react-query dedupes
+   * it against whatever already populated the shared "applications" cache).
    */
-  application?: AgenticApplication;
+  application?: Application;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
@@ -101,7 +99,6 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [agentName, setAgentName] = useState("");
-  const [reloadingApps, setReloadingApps] = useState(false);
   const [applicationId, setApplicationId] = useState("");
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
@@ -117,13 +114,8 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     ? getAxiosErrorMessage(agentsFetchError)
     : null;
 
-  const {
-    applications,
-    source: inventorySource,
-    endpoint: inventoryEndpoint,
-    fetchError: applicationsFetchError,
-    refetch: refetchApplications,
-  } = useFetchAgenticApplications({ enabled: !fixedApplication });
+  const { data: applications, error: applicationsFetchError } =
+    useFetchApplications();
   const applicationsError = applicationsFetchError
     ? getAxiosErrorMessage(applicationsFetchError)
     : null;
@@ -141,15 +133,6 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       }
     }
   }, [agents, agentName]);
-
-  const reloadApplications = async () => {
-    setReloadingApps(true);
-    try {
-      await refetchApplications();
-    } finally {
-      setReloadingApps(false);
-    }
-  };
 
   const createRunMutation = useCreateAgentRunMutation(
     (created) => {
@@ -203,7 +186,8 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     platformParams.length > 0 ||
     platformCredentials.length > 0;
   const application =
-    fixedApplication ?? applications.find((a) => a.id === applicationId);
+    fixedApplication ??
+    applications.find((a) => applicationLabelValue(a) === applicationId);
 
   const missingRequired = userParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
@@ -246,7 +230,10 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       agentRef: selected.metadata.name ?? agentName,
       params: Object.keys(params).length > 0 ? params : undefined,
       instructions: instructions.trim() || undefined,
-      applicationRef: needsApplication ? application?.id : undefined,
+      applicationRef:
+        needsApplication && application
+          ? applicationLabelValue(application)
+          : undefined,
       gateway,
     });
   };
@@ -379,7 +366,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   {applications.map((a) => (
                     <FormSelectOption
                       key={a.id}
-                      value={a.id}
+                      value={applicationLabelValue(a)}
                       label={t("agentic.createRun.applicationOption", {
                         name: a.name,
                         id: a.id,
@@ -388,34 +375,6 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   ))}
                 </FormSelect>
               </FormGroup>
-            )}
-
-            {!fixedApplication && needsApplication && inventorySource && (
-              <div
-                className={`inventory-source inventory-source-${inventorySource}`}
-              >
-                <span className="inventory-source-label">
-                  {inventorySource === "hub"
-                    ? t("agentic.createRun.applicationsFromHub", {
-                        count: applications.length,
-                      })
-                    : inventorySource === "stub"
-                      ? t("agentic.createRun.hubUnavailable")
-                      : t("agentic.createRun.applicationInventory")}
-                </span>
-                <code className="inventory-source-endpoint">
-                  {inventoryEndpoint}
-                </code>
-                <Button
-                  variant="link"
-                  isInline
-                  isLoading={reloadingApps}
-                  isDisabled={reloadingApps}
-                  onClick={() => void reloadApplications()}
-                >
-                  {t("terms.refresh")}
-                </Button>
-              </div>
             )}
 
             {needsApplication && unresolvable.length > 0 && (

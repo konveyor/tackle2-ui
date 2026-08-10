@@ -7,7 +7,6 @@ import type {
   AgentWorkflow,
   AgentWorkflowRun,
   AgentWorkflowSpec,
-  AgenticApplication,
   CreateRunInput,
   CreateWorkflowRunInput,
   Gateway,
@@ -18,15 +17,6 @@ import type {
 } from "../agentic/contract";
 import { APPLICATION_LABEL } from "../agentic/contract";
 import { prefixedUrlTag } from "../rest";
-
-// `agentic` and `APPLICATIONS` stay pointed at the old `/agentic` shim
-// surface for this task — Task 7 removes them with their consumer
-// (applications inventory list).
-// Repointing them at `/hub/agent` now would be wrong: that kind has no
-// equivalent there. They compile, and the feature visibly breaks against
-// the mock until then (expected).
-const agentic = prefixedUrlTag("/agentic");
-const APPLICATIONS = agentic`/applications`;
 
 const hubAgent = prefixedUrlTag("/hub/agent");
 
@@ -75,19 +65,6 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
 
 export const getAgents = (): Promise<AgentResource[]> =>
   axios.get<AgentResource[]>(AGENTS).then(({ data }) => data);
-
-export interface ApplicationsWithSource {
-  source: "hub" | "stub" | "unknown";
-  endpoint: string;
-  applications: AgenticApplication[];
-}
-
-export const getApplicationsWithSource = (): Promise<ApplicationsWithSource> =>
-  axios.get<AgenticApplication[]>(APPLICATIONS).then(({ data, headers }) => ({
-    source: (headers["x-inventory-source"] as "hub" | "stub") ?? "unknown",
-    endpoint: (headers["x-inventory-endpoint"] as string) ?? "",
-    applications: data,
-  }));
 
 export const getAgenticAcpUrl = (runName: string): string => {
   const { protocol, host } = window.location;
