@@ -91,7 +91,7 @@ runs:
       uses: actions/checkout@v7
       with:
         ref: "${{ inputs.tests_ref }}"
-        repository: konveyor/tackle2-ui
+        repository: ${{ github.repository }}
         path: ui-tests
 
     - name: Setup Node.js
