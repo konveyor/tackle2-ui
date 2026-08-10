@@ -123,6 +123,9 @@ export interface AgentResource {
  */
 export const MANAGED_LABEL = "konveyor.io/managed";
 
+/** Stamped on runs at create so per-application views are a label selector. */
+export const APPLICATION_LABEL = "konveyor.io/application";
+
 export const PARAM_SOURCES_ANNOTATION = "konveyor.io/param-sources";
 export const CREDENTIAL_SOURCES_ANNOTATION = "konveyor.io/credential-sources";
 export const SOURCE_APPLICATION_REPOSITORY_URL =

@@ -44,15 +44,15 @@ export const useCreateWorkflowMutation = (
 };
 
 export const useUpdateWorkflowMutation = (
-  onSuccess: (wf: AgentWorkflow) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ name, spec }: { name: string; spec: AgentWorkflowSpec }) =>
       updateWorkflow(name, spec),
-    onSuccess: (data) => {
-      onSuccess(data);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({ queryKey: [WORKFLOWS_QUERY_KEY] });
     },
     onError,
