@@ -143,6 +143,7 @@ export default {
     target: serverConfig.TACKLE_HUB_URL || "http://localhost:9002",
     logger,
 
+    ws: true,
     changeOrigin: true,
     pathRewrite: {
       "^/hub": "",
@@ -168,20 +169,6 @@ export default {
       proxyReq: setForwardedHeader,
       proxyRes: redirectIfUnauthorized,
     },
-  },
-
-  agentic: {
-    pathFilter: "/agentic",
-    target: serverConfig.AGENTIC_SHIM_URL || "http://localhost:7080",
-    logger,
-
-    ws: true,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/agentic": "/api",
-    },
-
-    on: {},
   },
 
   kaiLLMProxy: {

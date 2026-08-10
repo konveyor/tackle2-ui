@@ -14,7 +14,6 @@ export const serverConfig = {
 
   TACKLE_HUB_URL: process.env.TACKLE_HUB_URL,
   KAI_LLM_PROXY_URL: process.env.KAI_LLM_PROXY_URL,
-  AGENTIC_SHIM_URL: process.env.AGENTIC_SHIM_URL,
   KEYCLOAK_SERVER_URL: process.env.KEYCLOAK_SERVER_URL,
 };
 
@@ -33,13 +32,9 @@ export const clientConfig = {
   UI_INGRESS_PROXY_BODY_SIZE: process.env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
   RWX_SUPPORTED: process.env.RWX_SUPPORTED ?? "true",
   AUTH_REQUIRED: process.env.AUTH_REQUIRED ?? "false",
-  // Derived, not a second knob: an operator that configures the `/agentic`
-  // proxy target gets the console, and a deployment without one never
-  // renders a nav section whose every call would fail. Set AGENTIC_ENABLED
-  // explicitly to override either way.
-  AGENTIC_ENABLED:
-    process.env.AGENTIC_ENABLED ??
-    (serverConfig.AGENTIC_SHIM_URL ? "true" : "false"),
+  // The agentic console talks to the hub's agent/* endpoints through the
+  // /hub proxy; enabling it is an explicit deployment decision.
+  AGENTIC_ENABLED: process.env.AGENTIC_ENABLED ?? "false",
   OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID ?? "web-ui",
 };
 
