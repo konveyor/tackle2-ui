@@ -143,10 +143,11 @@ jobs:
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
-      - name: "Checkout the repo (ref: ${{ inputs.test_ref || github.ref }})"
+      - name: "Checkout the repo (ref: fix-nginx-header-buffer-size)"
         uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.test_ref || github.ref }}
+          ref: fix-nginx-header-buffer-size
+          repository: sshveta/tackle2-ui
           path: tackle2-ui
 
       - name: Expose metrics endpoint
