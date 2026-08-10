@@ -26,12 +26,12 @@ import type {
   AgentResource,
   AgentResourceSpec,
 } from "@app/api/agentic/contract";
-import { RESOURCE_NAME_PATTERN } from "@app/api/agentic/contract";
-import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import {
-  useFetchGateways,
-  useFetchImagesWithSource,
-} from "@app/queries/agentic-catalog";
+  BUILTIN_AGENT_IMAGES,
+  RESOURCE_NAME_PATTERN,
+} from "@app/api/agentic/contract";
+import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
+import { useFetchGateways } from "@app/queries/agentic-catalog";
 import {
   useCreateAgentMutation,
   useUpdateAgentMutation,
@@ -77,7 +77,6 @@ export const AgentDesignerModal: React.FC<Props> = ({
   const isEdit = !!existing;
 
   // ---- catalog data
-  const { images } = useFetchImagesWithSource();
   const { gateways } = useFetchGateways();
   const { skillCards } = useFetchSkillCards();
   const { skillCollections } = useFetchSkillCollections();
@@ -85,11 +84,6 @@ export const AgentDesignerModal: React.FC<Props> = ({
   // ---- form state
   const [name, setName] = useState(existing?.metadata.name ?? "");
   const [imageRef, setImageRef] = useState(existing?.spec.image ?? "");
-  // Explicit dropdown/custom choice; null = auto-detect (custom when
-  // editing an agent whose image is not in the loaded catalog).
-  const [customImageOverride, setCustomImageOverride] = useState<
-    boolean | null
-  >(null);
   const [prompt, setPrompt] = useState(existing?.spec.prompt ?? "");
   const [selectedGateways, setSelectedGateways] = useState<string[]>(
     existing?.spec.gateways?.map((g) => g.ref) ?? []
@@ -110,15 +104,6 @@ export const AgentDesignerModal: React.FC<Props> = ({
     })) ?? []
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Derived, not effect-set: custom mode is the user's explicit choice,
-  // else auto-detected on edit when the image is not in the catalog list.
-  const customImage =
-    customImageOverride ??
-    (isEdit &&
-      !!existing?.spec.image &&
-      images.length > 0 &&
-      !images.some((i) => i.image === existing.spec.image));
 
   // ---- mutations
   const createMutation = useCreateAgentMutation(
@@ -249,58 +234,22 @@ export const AgentDesignerModal: React.FC<Props> = ({
 
           {/* ---------- Image ---------- */}
           <FormGroup label={t("terms.image")} isRequired fieldId="agent-image">
-            {!customImage ? (
-              <>
-                <FormSelect
-                  id="agent-image"
-                  value={imageRef}
-                  onChange={(_e, v) => {
-                    if (v === "__custom__") {
-                      setCustomImageOverride(true);
-                      setImageRef("");
-                    } else {
-                      setImageRef(v);
-                    }
-                  }}
-                >
-                  <FormSelectOption
-                    value=""
-                    label={t("agentic.agents.selectImagePlaceholder")}
-                  />
-                  {images.map((img) => (
-                    <FormSelectOption
-                      key={img.image}
-                      value={img.image}
-                      label={`${img.displayName} (${img.image})`}
-                    />
-                  ))}
-                  <FormSelectOption
-                    value="__custom__"
-                    label={t("agentic.agents.customImageOption")}
-                  />
-                </FormSelect>
-              </>
-            ) : (
-              <>
-                <TextInput
-                  id="agent-image-custom"
-                  value={imageRef}
-                  onChange={(_e, v) => setImageRef(v)}
-                  placeholder={t("agentic.agents.customImagePlaceholder")}
-                />
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={() => {
-                    setCustomImageOverride(false);
-                    setImageRef(images[0]?.image ?? "");
-                  }}
-                  style={{ paddingLeft: 0, marginTop: 4 }}
-                >
-                  {t("agentic.agents.backToCatalog")}
-                </Button>
-              </>
-            )}
+            <TextInput
+              id="agent-image"
+              isRequired
+              list="agent-image-suggestions"
+              value={imageRef}
+              onChange={(_e, v) => setImageRef(v)}
+              placeholder={t("agentic.agents.customImagePlaceholder")}
+            />
+            {/* Built-in suggestions via native datalist — the hub has no
+                image-catalog endpoint, so this list only assists; any
+                image ref the user types is valid. */}
+            <datalist id="agent-image-suggestions">
+              {BUILTIN_AGENT_IMAGES.map((img) => (
+                <option key={img} value={img} />
+              ))}
+            </datalist>
           </FormGroup>
 
           {/* ---------- Prompt ---------- */}

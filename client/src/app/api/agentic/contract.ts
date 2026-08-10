@@ -170,16 +170,20 @@ export interface AgenticApplication {
   identitySecret?: string;
 }
 
-// -------------------------------------------------------------- AgentImage
+// ------------------------------------------------------ BUILTIN_AGENT_IMAGES
 
-export interface AgentImage {
-  name: string;
-  image: string;
-  displayName: string;
-  description: string;
-  languages: string[];
-  parent: string | null;
-}
+/**
+ * The hub has no image-catalog endpoint, so the agent designer's image
+ * field is free text. These are suggestions only (not validated against) —
+ * the two agent images actually published by CI (.github/workflows/
+ * build-images.yml) and pinned in the ROKS demo cluster's
+ * agent-image-catalog ConfigMap override (deploy/roks/
+ * agent-image-catalog.yaml). Any other image ref the user types is valid.
+ */
+export const BUILTIN_AGENT_IMAGES: string[] = [
+  "ghcr.io/ibolton336/agent-base:demo",
+  "ghcr.io/ibolton336/agent-java:demo",
+];
 
 // --------------------------------------------------------------- SkillCard
 
@@ -401,7 +405,6 @@ export interface RunApi {
   listAgents(): Promise<AgentResource[]>;
   getAgent(name: string): Promise<AgentResource>;
   listApplications(): Promise<AgenticApplication[]>;
-  listImages(): Promise<AgentImage[]>;
   listRuns(): Promise<AgentRun[]>;
   createRun(input: CreateRunInput): Promise<AgentRun>;
   getRun(name: string): Promise<AgentRun>;

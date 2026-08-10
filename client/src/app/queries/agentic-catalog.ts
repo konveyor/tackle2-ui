@@ -1,18 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-import {
-  getApplicationsWithSource,
-  getGateways,
-  getImagesWithSource,
-} from "@app/api/rest";
+import { getApplicationsWithSource, getGateways } from "@app/api/rest";
 
 import { AGENTS_QUERY_KEY } from "./agents";
 import { SKILL_CARDS_QUERY_KEY, SKILL_COLLECTIONS_QUERY_KEY } from "./skills";
 import { WORKFLOWS_QUERY_KEY } from "./workflows";
 
 export const GATEWAYS_QUERY_KEY = "gateways";
-export const IMAGES_QUERY_KEY = "agentImages";
 export const AGENTIC_APPLICATIONS_QUERY_KEY = "agenticApplications";
 
 // ---------------------------------------------------------- Gateways
@@ -24,22 +19,6 @@ export const useFetchGateways = () => {
     onError: (error: AxiosError) => console.log(error),
   });
   return { gateways: data || [], isLoading, fetchError: error, refetch };
-};
-
-// ----------------------------------------------------------- Images
-
-export const useFetchImagesWithSource = () => {
-  const { isLoading, error, data } = useQuery({
-    queryKey: [IMAGES_QUERY_KEY],
-    queryFn: getImagesWithSource,
-    onError: (error: AxiosError) => console.log(error),
-  });
-  return {
-    images: data?.images || [],
-    source: data?.source ?? null,
-    isLoading,
-    fetchError: error,
-  };
 };
 
 // ------------------------------------------- Applications inventory
