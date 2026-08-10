@@ -90,8 +90,8 @@ runs:
     - name: "Checkout the tests (ref: ${{ inputs.tests_ref }})"
       uses: actions/checkout@v7
       with:
-        ref: "fix-nginx-header-buffer-size"
-        repository: sshveta/tackle2-ui
+        ref: "${{ inputs.tests_ref }}"
+        repository: konveyor/tackle2-ui
         path: ui-tests
 
     - name: Setup Node.js

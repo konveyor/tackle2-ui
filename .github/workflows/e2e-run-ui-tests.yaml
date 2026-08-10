@@ -1,10 +1,6 @@
 name: e2e - run UI tests on minikube
 
 on:
-  push:
-    branches:
-      - fix-nginx-header-buffer-size
-
   workflow_call: # call from another workflow
     inputs:
       test_tags:
@@ -120,8 +116,8 @@ jobs:
               name: tackle
             spec:
               image_pull_policy: IfNotPresent
-              feature_auth_required: ${{ inputs.feature_auth_required || true }}
-              ui_image_fqin: ${{ inputs.ui_image || 'quay.io/konveyor/tackle2-ui:latest' }}
+              feature_auth_required: ${{ inputs.feature_auth_required }}
+              ui_image_fqin: ${{ inputs.ui_image }}
 
       - name: Increase ingress header buffer size for OIDC
         run: |
@@ -143,11 +139,10 @@ jobs:
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
-      - name: "Checkout the repo (ref: fix-nginx-header-buffer-size)"
+      - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
         uses: actions/checkout@v7
         with:
-          ref: fix-nginx-header-buffer-size
-          repository: sshveta/tackle2-ui
+          ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
       - name: Expose metrics endpoint
@@ -157,11 +152,11 @@ jobs:
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
-          test_tags: ${{ inputs.test_tags || '@tier2_secretsNeeded,@tier3_secretsNeeded' }}
-          tests_ref: ${{ inputs.test_ref || github.ref }}
+          test_tags: ${{ inputs.test_tags }}
+          tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
-          feature_auth_required: ${{ inputs.feature_auth_required || true }}
+          feature_auth_required: ${{ inputs.feature_auth_required }}
           # Pass credentials as inputs
           git_user: ${{ secrets.GIT_USER }}
           git_password: ${{ secrets.GIT_PASSWORD }}

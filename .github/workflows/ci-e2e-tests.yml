@@ -134,7 +134,7 @@ jobs:
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}
-      feature_auth_required: true
+      feature_auth_required: false
       install_konveyor_version: ${{ needs.determine-branch-params.outputs.install_konveyor_version }}
       bundle_image: ${{ needs.determine-branch-params.outputs.bundle_image }}
       ui_image: ${{ needs.build-and-upload-test-ui-image.outputs.IMG_NAME }}
