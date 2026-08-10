@@ -21,8 +21,12 @@ import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { PageHeader } from "@app/components/PageHeader";
 import { StateError } from "@app/components/StateError";
 import { useFetchAgentRun } from "@app/queries/agent-runs";
-import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
-import { formatAge, formatDuration } from "@app/utils/agentic";
+import { useFetchApplications } from "@app/queries/applications";
+import {
+  formatAge,
+  formatDuration,
+  runBelongsToApplication,
+} from "@app/utils/agentic";
 
 import { BranchPanel, repoBranchUrl } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
@@ -35,7 +39,7 @@ const AgentRunDetailPage: React.FC = () => {
   const { runName } = useParams<AgentRunDetailsRoute>();
   const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
-  const { applications } = useFetchAgenticApplications();
+  const { data: applications } = useFetchApplications();
 
   const breadcrumbs = [
     { title: t("terms.agentRuns"), path: DevPaths.agentRuns },
@@ -82,7 +86,9 @@ const AgentRunDetailPage: React.FC = () => {
   }
 
   const coordinates = runHubCoordinates(agentRun.spec.env);
-  const application = applications.find((a) => a.id === coordinates.appId);
+  const application = applications.find((a) =>
+    runBelongsToApplication(agentRun, a.id)
+  );
   const instructions = agentRun.spec.instructions;
   const params = agentRun.spec.params ?? [];
   // The run's own repository param is the repo it actually cloned; the

@@ -272,10 +272,11 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
 ];
 
 /**
- * The agentic console. Registered only when the server reports an `/agentic`
- * proxy target (see AGENTIC_ENABLED) — without a backend every page in this
- * section fails on load, so a deployment that has none gets no routes at all
- * rather than routes that error.
+ * The agentic console. Registered only when AGENTIC_ENABLED opts the
+ * deployment in — its pages talk to the hub's `/hub/agent/*` endpoints, and
+ * without that backend every page in this section fails on load, so a
+ * deployment that has none gets no routes at all rather than routes that
+ * error.
  */
 export const agenticRoutes: IRoute<DevPathValues>[] = isAgenticEnabled
   ? [

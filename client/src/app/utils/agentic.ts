@@ -1,5 +1,9 @@
 import type { AgentWorkflowRun } from "@app/api/agentic/contract";
-import { invalidTargetBranchReason } from "@app/api/agentic/contract";
+import {
+  APPLICATION_LABEL,
+  invalidTargetBranchReason,
+} from "@app/api/agentic/contract";
+import type { Application } from "@app/api/models";
 
 /** kubectl-style compact age: 45s, 12m, 3h, 2d. */
 export function formatAge(creationTimestamp?: string): string {
@@ -36,12 +40,24 @@ export function truncate(text: string, max: number): string {
   return text.length <= max ? text : text.slice(0, max - 1) + "…";
 }
 
+// ------------------------------------------- application <-> run label
+
+/** The label value runs carry: hub application id as a string. */
+export const applicationLabelValue = (app: Application): string =>
+  String(app.id);
+
+/** True when `run` belongs to `app` via the konveyor.io/application label. */
+export const runBelongsToApplication = (
+  run: { metadata: { labels?: Record<string, string> } },
+  appId: number
+): boolean => run.metadata.labels?.[APPLICATION_LABEL] === String(appId);
+
 // ------------------------------------------------- run eligibility
 
 /**
- * The subset of an application these checks need. Deliberately structural so
- * it accepts BOTH shapes: the Hub `Application` the inventory table renders
- * and the `AgenticApplication` the shim's inventory endpoint returns.
+ * The subset of an application these checks need. Kept structural (rather
+ * than importing `Application` directly) so this module's run-eligibility
+ * helpers stay decoupled from the hub model shape.
  */
 export interface RunnableApplication {
   name?: string;
@@ -95,32 +111,6 @@ export function runBlocker(
     applicationRunBlocker(app) ??
     (branch === undefined ? undefined : targetBranchBlocker(app, branch))
   );
-}
-
-/**
- * Present a Hub application to the agentic create-run modals.
- *
- * The shim's inventory is the Hub's, mapped id-for-id (`id: String(a.id)`),
- * so a row the inventory table already has needs no round trip to be named
- * as a run's application. Only the fields those modals read are carried —
- * identity resolution stays shim-side.
- */
-export function toAgenticApplication(app: {
-  id: number;
-  name: string;
-  repository?: { url?: string; branch?: string };
-}): {
-  id: string;
-  name: string;
-  repository?: { url: string; branch?: string };
-} {
-  return {
-    id: String(app.id),
-    name: app.name,
-    repository: app.repository?.url
-      ? { url: app.repository.url, branch: app.repository.branch }
-      : undefined,
-  };
 }
 
 /**

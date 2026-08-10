@@ -24,11 +24,12 @@ import { PageHeader } from "@app/components/PageHeader";
 import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
-import { useFetchAgenticApplications } from "@app/queries/agentic-catalog";
+import { useFetchApplications } from "@app/queries/applications";
 import { useFetchWorkflowRun } from "@app/queries/workflow-runs";
 import {
   formatAge,
   formatDuration,
+  runBelongsToApplication,
   workflowRunDuration,
 } from "@app/utils/agentic";
 import { formatPath } from "@app/utils/utils";
@@ -56,7 +57,7 @@ const WorkflowRunDetailPage: React.FC = () => {
   const { runName } = useParams<WorkflowRunDetailsRoute>();
   const { workflowRun, isLoading, fetchError } = useFetchWorkflowRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
-  const { applications } = useFetchAgenticApplications();
+  const { data: applications } = useFetchApplications();
 
   const breadcrumbs = [
     { title: t("terms.workflowRuns"), path: DevPaths.workflowRuns },
@@ -105,7 +106,9 @@ const WorkflowRunDetailPage: React.FC = () => {
   const stages = workflowRun.status?.stages ?? [];
   const currentStage = workflowRun.status?.currentStage;
   const coordinates = runHubCoordinates(workflowRun.spec.env);
-  const application = applications.find((a) => a.id === coordinates.appId);
+  const application = applications.find((a) =>
+    runBelongsToApplication(workflowRun, a.id)
+  );
 
   return (
     <>

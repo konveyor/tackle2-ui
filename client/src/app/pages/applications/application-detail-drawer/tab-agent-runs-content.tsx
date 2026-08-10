@@ -6,11 +6,10 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { DevPaths } from "@app/Paths";
-import { runHubCoordinates } from "@app/api/agentic/contract";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { useFetchAgentRuns } from "@app/queries/agent-runs";
 import { useFetchWorkflowRuns } from "@app/queries/workflow-runs";
-import { formatAge } from "@app/utils/agentic";
+import { formatAge, runBelongsToApplication } from "@app/utils/agentic";
 import { formatPath } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
@@ -32,15 +31,13 @@ export const TabAgentRunsContent: React.FC<{
   const { workflowRuns, fetchError: workflowError } = useFetchWorkflowRuns();
   const { agentRuns, fetchError: agentError } = useFetchAgentRuns();
 
-  const applicationId = String(application.id);
-
-  // The application link rides in the run's spec.env APP_ID — runs carry no
-  // application label yet, so there is nothing to select on server-side and
-  // this filters the full list client-side. Fine at present scale; move to a
-  // selector once ibolton336/agentcontroller-client#3 lands.
+  // The application link rides the konveyor.io/application label runs are
+  // stamped with at create (see runBelongsToApplication) — there is nothing
+  // to select on server-side yet, so this filters the full list client-side.
+  // Fine at present scale; move to a selector if that changes.
   const rows: RunRow[] = React.useMemo(() => {
     const fromWorkflows = workflowRuns
-      .filter((run) => runHubCoordinates(run.spec.env).appId === applicationId)
+      .filter((run) => runBelongsToApplication(run, application.id))
       .map<RunRow>((run) => ({
         name: run.metadata.name ?? "",
         kind: "workflow",
@@ -53,7 +50,7 @@ export const TabAgentRunsContent: React.FC<{
       }));
 
     const fromAgents = agentRuns
-      .filter((run) => runHubCoordinates(run.spec.env).appId === applicationId)
+      .filter((run) => runBelongsToApplication(run, application.id))
       .map<RunRow>((run) => ({
         name: run.metadata.name ?? "",
         kind: "agent",
@@ -68,7 +65,7 @@ export const TabAgentRunsContent: React.FC<{
     return [...fromWorkflows, ...fromAgents].sort((a, b) =>
       a.name < b.name ? 1 : -1
     );
-  }, [workflowRuns, agentRuns, applicationId]);
+  }, [workflowRuns, agentRuns, application.id]);
 
   const fetchError = workflowError ?? agentError;
 
