@@ -42,8 +42,8 @@ export const useStartAgentWorkflowRuns = () => {
     try {
       const run = await createWorkflowRun({
         workflowRef: input.workflowRef,
-        // The shim's inventory is the Hub's, keyed by the same id — see
-        // its `id: String(a.id)` mapping — so no lookup is needed here.
+        // applicationRef carries the Hub application id as a string; this is
+        // the same value as applicationLabelValue.
         applicationRef: String(application.id),
         targetBranch: input.targetBranch,
         params: input.params,
