@@ -1,7 +1,6 @@
 import axios from "axios";
 
 import type {
-  AgentImage,
   AgentResource,
   AgentResourceSpec,
   AgentRun,
@@ -20,15 +19,14 @@ import type {
 import { APPLICATION_LABEL } from "../agentic/contract";
 import { prefixedUrlTag } from "../rest";
 
-// `agentic` and the two constants below it stay pointed at the old
-// `/agentic` shim surface for this task — Tasks 6-7 remove them with their
-// consumers (Images catalog, applications inventory list).
-// Repointing them at `/hub/agent` now would be wrong: those kinds have no
-// equivalent there. They compile, and their features visibly break against
+// `agentic` and `APPLICATIONS` stay pointed at the old `/agentic` shim
+// surface for this task — Task 7 removes them with their consumer
+// (applications inventory list).
+// Repointing them at `/hub/agent` now would be wrong: that kind has no
+// equivalent there. They compile, and the feature visibly breaks against
 // the mock until then (expected).
 const agentic = prefixedUrlTag("/agentic");
 const APPLICATIONS = agentic`/applications`;
-const IMAGES = agentic`/images`;
 
 const hubAgent = prefixedUrlTag("/hub/agent");
 
@@ -268,17 +266,3 @@ export const createWorkflowRun = (
       },
     })
     .then(({ data }) => data);
-
-// ----------------------------------------------------------- Images (read)
-
-export interface ImagesWithSource {
-  source: "configmap" | "builtin";
-  images: AgentImage[];
-}
-
-export const getImagesWithSource = (): Promise<ImagesWithSource> =>
-  axios.get<AgentImage[]>(IMAGES).then(({ data, headers }) => ({
-    source:
-      (headers["x-catalog-source"] as "configmap" | "builtin") ?? "builtin",
-    images: data,
-  }));
