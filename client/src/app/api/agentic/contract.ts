@@ -415,12 +415,10 @@ export interface RunApi {
   listRuns(): Promise<AgentRun[]>;
   createRun(input: CreateRunInput): Promise<AgentRun>;
   getRun(name: string): Promise<AgentRun>;
-  deleteRun(name: string): Promise<void>;
   listWorkflows(): Promise<AgentWorkflow[]>;
   listWorkflowRuns(): Promise<AgentWorkflowRun[]>;
   getWorkflowRun(name: string): Promise<AgentWorkflowRun>;
   createWorkflowRun(input: CreateWorkflowRunInput): Promise<AgentWorkflowRun>;
-  deleteWorkflowRun(name: string): Promise<void>;
   /**
    * Seeds the default managed resource set (gateway, stage agents, skill
    * cards, workflows, image catalog). Idempotent: existing resources are

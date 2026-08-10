@@ -5,7 +5,6 @@ import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type { AgentWorkflowRun } from "@app/api/agentic/contract";
 import {
   createWorkflowRun,
-  deleteWorkflowRun,
   getWorkflowRun,
   getWorkflowRuns,
 } from "@app/api/rest";
@@ -65,24 +64,6 @@ export const useCreateWorkflowRunMutation = (
     onSuccess: (data) => {
       onSuccess(data);
       queryClient.invalidateQueries({ queryKey: [WORKFLOW_RUNS_QUERY_KEY] });
-    },
-    onError,
-  });
-};
-
-export const useDeleteWorkflowRunMutation = (
-  onSuccess: (name: string) => void,
-  onError: (err: AxiosError) => void
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (name: string) => deleteWorkflowRun(name),
-    onSuccess: (_, name) => {
-      onSuccess(name);
-      queryClient.invalidateQueries({ queryKey: [WORKFLOW_RUNS_QUERY_KEY] });
-      // Drop (not refetch) the detail cache -- the run no longer exists.
-      queryClient.removeQueries({ queryKey: [WORKFLOW_RUN_QUERY_KEY, name] });
     },
     onError,
   });
