@@ -26,9 +26,8 @@ if (developmentMode || serverConfig.KEYCLOAK_SERVER_URL) {
   app.use(createProxyMiddleware(proxies.auth));
 }
 app.use(createProxyMiddleware(proxies.oidc));
-const agenticProxy = createProxyMiddleware(proxies.agentic);
-app.use(agenticProxy);
-app.use(createProxyMiddleware(proxies.hub));
+const hubProxy = createProxyMiddleware(proxies.hub);
+app.use(hubProxy);
 app.use(createProxyMiddleware(proxies.kai));
 app.use(createProxyMiddleware(proxies.kaiLLMProxy));
 
@@ -61,8 +60,13 @@ const server = app.listen(port, (error) => {
 
 // ws:true only upgrades sockets after the middleware has seen a plain HTTP
 // request; subscribe explicitly so a direct ACP WebSocket connect works even
-// as the first request through the proxy.
-server.on("upgrade", agenticProxy.upgrade);
+// as the first request through the proxy. Scoped to the hub's ACP path —
+// other upgrade traffic (e.g. webpack HMR in dev) is not ours to answer.
+server.on("upgrade", (req, socket, head) => {
+  if (req.url?.startsWith("/hub/agent/")) {
+    hubProxy.upgrade(req, socket, head);
+  }
+});
 
 // Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)
 const httpTerminator = createHttpTerminator({ server });
