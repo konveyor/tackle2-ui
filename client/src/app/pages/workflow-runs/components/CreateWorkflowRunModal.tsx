@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -154,7 +154,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     fetchError: workflowsError,
   } = useFetchWorkflows();
   const [workflowName, setWorkflowName] = useState("");
-  const initializedRef = useRef(false);
+  const [workflowSeeded, setWorkflowSeeded] = useState(false);
   // The selected workflow's stage Agents, fetched by name (get-by-name is
   // unfiltered, so stage agents without the managed label still resolve).
   const [stageAgents, setStageAgents] = useState<AgentResource[] | null>(null);
@@ -187,17 +187,18 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   const { gateways } = useFetchGateways();
 
   // Pick the initial workflow once the list first arrives: the pre-selected
-  // one when given, else the first selectable one, else the first.
-  useEffect(() => {
-    if (initializedRef.current || workflows.length === 0) return;
-    initializedRef.current = true;
+  // one when given, else the first selectable one, else the first. A
+  // render-phase adjustment (not an effect) so the settled state commits
+  // in one pass.
+  if (!workflowSeeded && workflows.length > 0) {
+    setWorkflowSeeded(true);
     const preferred =
       initialWorkflow &&
       workflows.some((pb) => pb.metadata.name === initialWorkflow)
         ? initialWorkflow
         : (workflows.find(isSelectable) ?? workflows[0])?.metadata.name;
     if (preferred) setWorkflowName(preferred);
-  }, [workflows, initialWorkflow]);
+  }
 
   const selected = workflows.find((pb) => pb.metadata.name === workflowName);
   // Stable key so the polling workflow list (fresh array identity every
@@ -206,13 +207,22 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     ...new Set((selected?.spec.stages ?? []).map((s) => s.agentRef)),
   ].join(",");
 
+  // Reset the stage-agent panel the moment the selection changes — a
+  // render-phase adjustment keyed on the selection, so the old workflow's
+  // agents never flash under the new selection while the fetch runs.
+  const selectionKey = `${workflowName}|${stageRefsKey}`;
+  const [resetKey, setResetKey] = useState(selectionKey);
+  if (resetKey !== selectionKey) {
+    setResetKey(selectionKey);
+    setStageAgents(null);
+    setAgentsError(null);
+  }
+
   // Fetch the selected workflow's stage Agents — their declared params (as
   // a union) are the run's form. Params reset to the union's defaults.
   useEffect(() => {
     if (!workflowName) return;
     let disposed = false;
-    setStageAgents(null);
-    setAgentsError(null);
     const refs = stageRefsKey ? stageRefsKey.split(",") : [];
     Promise.all(refs.map((ref) => getAgent(ref)))
       .then((list) => {

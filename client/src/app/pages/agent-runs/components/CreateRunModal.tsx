@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -122,17 +122,15 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
 
   const { gateways } = useFetchGateways();
 
-  // Seed the agent select + param/gateway defaults once the list arrives.
-  useEffect(() => {
-    if (!agentName && agents.length > 0) {
-      const first = agents[0];
-      if (first.metadata.name) {
-        setAgentName(first.metadata.name);
-        setParamValues(defaultsFor(first));
-        setGateway(defaultGatewayFor(first.spec.gateways ?? []));
-      }
-    }
-  }, [agents, agentName]);
+  // Seed the agent select + param/gateway defaults once the list arrives —
+  // a render-phase adjustment (not an effect) so the settled state is
+  // committed in one pass.
+  const seedAgent = !agentName && agents.length > 0 ? agents[0] : undefined;
+  if (seedAgent?.metadata.name) {
+    setAgentName(seedAgent.metadata.name);
+    setParamValues(defaultsFor(seedAgent));
+    setGateway(defaultGatewayFor(seedAgent.spec.gateways ?? []));
+  }
 
   const createRunMutation = useCreateAgentRunMutation(
     (created) => {
