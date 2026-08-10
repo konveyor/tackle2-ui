@@ -12,7 +12,6 @@ import type {
   CreateRunInput,
   CreateWorkflowRunInput,
   Gateway,
-  SeedResult,
   SkillCard,
   SkillCardSpec,
   SkillCollection,
@@ -21,16 +20,15 @@ import type {
 import { APPLICATION_LABEL } from "../agentic/contract";
 import { prefixedUrlTag } from "../rest";
 
-// `agentic` and the three constants below it stay pointed at the old
-// `/agentic` shim surface for this task — Tasks 5-7 remove them with their
-// consumers (Images catalog, Load-defaults, applications inventory list).
+// `agentic` and the two constants below it stay pointed at the old
+// `/agentic` shim surface for this task — Tasks 6-7 remove them with their
+// consumers (Images catalog, applications inventory list).
 // Repointing them at `/hub/agent` now would be wrong: those kinds have no
 // equivalent there. They compile, and their features visibly break against
 // the mock until then (expected).
 const agentic = prefixedUrlTag("/agentic");
 const APPLICATIONS = agentic`/applications`;
 const IMAGES = agentic`/images`;
-const DEFAULTS = agentic`/defaults`;
 
 const hubAgent = prefixedUrlTag("/hub/agent");
 
@@ -284,12 +282,3 @@ export const getImagesWithSource = (): Promise<ImagesWithSource> =>
       (headers["x-catalog-source"] as "configmap" | "builtin") ?? "builtin",
     images: data,
   }));
-
-// -------------------------------------------------------- Seeded defaults
-
-/**
- * Seed the managed default resource set. Idempotent create-only: existing
- * resources are reported as "exists", never updated.
- */
-export const loadDefaults = (): Promise<SeedResult[]> =>
-  axios.post<SeedResult[]>(DEFAULTS).then(({ data }) => data);
