@@ -111,6 +111,7 @@ runs:
     - name: Run login tests
       uses: cypress-io/github-action@v7
       env:
+        NODE_OPTIONS: "--max-http-header-size=65536"
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: admin
@@ -153,6 +154,7 @@ runs:
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v7
       env:
+        NODE_OPTIONS: "--max-http-header-size=65536"
         CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
         CYPRESS_EXCLUDE_TAGS: "cf,downstream${{ inputs.feature_auth_required != 'true' && ',@authNeeded' || '' }}"
         # These should match what is listed in `cypress/.env.example`
