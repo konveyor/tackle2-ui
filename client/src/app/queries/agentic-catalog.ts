@@ -1,12 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-import type { SeedResult } from "@app/api/agentic/contract";
 import {
   getApplicationsWithSource,
   getGateways,
   getImagesWithSource,
-  loadDefaults,
 } from "@app/api/rest";
 
 import { AGENTS_QUERY_KEY } from "./agents";
@@ -66,28 +64,4 @@ export const useFetchAgenticApplications = ({ enabled = true } = {}) => {
     fetchError: error,
     refetch,
   };
-};
-
-// -------------------------------------------------- Seeded defaults
-
-export const useLoadDefaultsMutation = (
-  onSuccess: (results: SeedResult[]) => void,
-  onError: (err: AxiosError) => void
-) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: loadDefaults,
-    onSuccess: (data) => {
-      onSuccess(data);
-      queryClient.invalidateQueries({ queryKey: [AGENTS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [SKILL_CARDS_QUERY_KEY] });
-      queryClient.invalidateQueries({
-        queryKey: [SKILL_COLLECTIONS_QUERY_KEY],
-      });
-      queryClient.invalidateQueries({ queryKey: [GATEWAYS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [WORKFLOWS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [IMAGES_QUERY_KEY] });
-    },
-    onError,
-  });
 };

@@ -29,7 +29,6 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
-import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import {
   ReadyLabel,
   skillCount,
@@ -94,9 +93,6 @@ const AgentsPage: React.FC = () => {
                   {t("agentic.agents.createAgent")}
                 </Button>
               </ToolbarItem>
-              <ToolbarItem>
-                <LoadDefaultsButton />
-              </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
 
@@ -111,13 +107,13 @@ const AgentsPage: React.FC = () => {
               <EmptyStateBody>
                 {t("agentic.agents.noAgentsBody")}
               </EmptyStateBody>
+              <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setDesignerTarget("create")}
               >
                 {t("agentic.agents.createAgent")}
-              </Button>{" "}
-              <LoadDefaultsButton />
+              </Button>
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.agents")} variant="compact">

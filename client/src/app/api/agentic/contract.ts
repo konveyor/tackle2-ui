@@ -375,16 +375,6 @@ export function runHubCoordinates(
   };
 }
 
-// --------------------------------------------------------- seeded defaults
-
-/** Outcome for one resource of a RunApi.loadDefaults seeding pass. */
-export interface SeedResult {
-  kind: string;
-  name: string;
-  /** "exists" means the resource was already there — seeding never updates. */
-  status: "created" | "exists";
-}
-
 // ----------------------------------------------------------------- RunApi
 
 export interface CreateRunInput {
@@ -419,12 +409,6 @@ export interface RunApi {
   listWorkflowRuns(): Promise<AgentWorkflowRun[]>;
   getWorkflowRun(name: string): Promise<AgentWorkflowRun>;
   createWorkflowRun(input: CreateWorkflowRunInput): Promise<AgentWorkflowRun>;
-  /**
-   * Seeds the default managed resource set (gateway, stage agents, skill
-   * cards, workflows, image catalog). Idempotent: existing resources are
-   * left untouched and reported as "exists".
-   */
-  loadDefaults(): Promise<SeedResult[]>;
 }
 
 // ---------------------------------------------------------------- waiting

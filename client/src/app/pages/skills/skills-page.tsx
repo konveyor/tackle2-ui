@@ -30,7 +30,6 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
-import { LoadDefaultsButton } from "@app/pages/agent-runs/components/LoadDefaultsButton";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import {
   useDeleteSkillCardMutation,
@@ -150,9 +149,6 @@ const SkillsPage: React.FC = () => {
                   {t("agentic.skills.createSkillCard")}
                 </Button>
               </ToolbarItem>
-              <ToolbarItem>
-                <LoadDefaultsButton />
-              </ToolbarItem>
             </ToolbarContent>
           </Toolbar>
 
@@ -167,13 +163,13 @@ const SkillsPage: React.FC = () => {
               <EmptyStateBody>
                 {t("agentic.skills.noSkillCardsBody")}
               </EmptyStateBody>
+              <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setCardModalTarget("create")}
               >
                 {t("agentic.skills.createSkillCard")}
-              </Button>{" "}
-              <LoadDefaultsButton />
+              </Button>
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.skillCards")} variant="compact">
@@ -278,13 +274,13 @@ const SkillsPage: React.FC = () => {
               <EmptyStateBody>
                 {t("agentic.skills.noSkillCollectionsBody")}
               </EmptyStateBody>
+              <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
               <Button
                 variant="primary"
                 onClick={() => setCollectionModalTarget("create")}
               >
                 {t("agentic.skills.createSkillCollection")}
-              </Button>{" "}
-              <LoadDefaultsButton />
+              </Button>
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.skillCollections")} variant="compact">
