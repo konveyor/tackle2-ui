@@ -1262,7 +1262,6 @@
       "paramDefault": "default: {{value}}",
       "notReady": "NotReady"
     },
-    "emptyStateSeedHint": "Default agents, skills, and workflows are seeded on the cluster by an administrator.",
     "agents": {
       "createAgent": "Create agent",
       "noAgentsTitle": "No agents",
@@ -1287,6 +1286,7 @@
       "addParameter": "Add parameter",
       "saveFailed": "Save failed"
     },
+    "emptyStateSeedHint": "Default agents, skills, and workflows are seeded on the cluster by an administrator.",
     "workflows": {
       "createWorkflow": "Create workflow",
       "emptyTitle": "No workflows",
