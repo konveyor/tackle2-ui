@@ -44,7 +44,7 @@ import {
   sleep,
   waitForRunning,
 } from "@app/api/agentic/contract";
-import { getAgentRun, getAgenticAcpUrl } from "@app/api/rest";
+import { getAgentRun, getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
@@ -161,7 +161,8 @@ function dialDelayMs(attempt: number): number {
  * or the budget runs out (then the last connect error is thrown).
  */
 async function dialAcp(opts: {
-  url: string;
+  /** Built fresh per attempt — the hub's ACP nonce is single-use. */
+  getUrl: () => Promise<string>;
   budgetMs: number;
   signal: AbortSignal;
   callbacks: AcpSessionCallbacks;
@@ -174,7 +175,7 @@ async function dialAcp(opts: {
     opts.onAttempt(attempt, Date.now() - started);
     try {
       const session = await AcpSession.connect({
-        url: opts.url,
+        url: await opts.getUrl(),
         callbacks: opts.callbacks,
       });
       if (opts.signal.aborted) {
@@ -481,7 +482,8 @@ export function ChatPanel({
       });
       if (disposed) return;
       const dialed = await dialAcp({
-        url: getAgenticAcpUrl(runName),
+        getUrl: async () =>
+          getAgenticAcpUrl(runName, (await mintAcpNonce(runName)) ?? undefined),
         budgetMs: lastSessionIdRef.current
           ? ACP_REDIAL_BUDGET_MS
           : ACP_DIAL_BUDGET_MS,

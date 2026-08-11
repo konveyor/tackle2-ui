@@ -79,10 +79,32 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
 export const getAgents = (): Promise<AgentResource[]> =>
   axios.get<AgentResource[]>(AGENTS).then(({ data }) => data);
 
-export const getAgenticAcpUrl = (runName: string): string => {
+// The hub's ACP WebSocket requires a nonce in BOTH auth modes (single-use,
+// ~30s TTL) — mint one per dial attempt, never reuse across retries. A 404
+// from the mint endpoint means a pre-nonce hub build; callers then dial
+// without a nonce.
+export const mintAcpNonce = async (runName: string): Promise<string | null> => {
+  try {
+    const { data } = await axios.post<string>(
+      `${AGENT_RUNS}/${encodeURIComponent(runName)}/acp/nonce`
+    );
+    return data;
+  } catch (err) {
+    if (
+      axios.isAxiosError(err) &&
+      (err.response?.status === 404 || err.response?.status === 405)
+    ) {
+      return null;
+    }
+    throw err;
+  }
+};
+
+export const getAgenticAcpUrl = (runName: string, nonce?: string): string => {
   const { protocol, host } = window.location;
   const wsProto = protocol === "https:" ? "wss:" : "ws:";
-  return `${wsProto}//${host}/hub/agentic/agentruns/${encodeURIComponent(runName)}/acp`;
+  const base = `${wsProto}//${host}/hub/agentic/agentruns/${encodeURIComponent(runName)}/acp`;
+  return nonce ? `${base}?nonce=${encodeURIComponent(nonce)}` : base;
 };
 
 // ---------------------------------------------------------- Agents (CRUD)
