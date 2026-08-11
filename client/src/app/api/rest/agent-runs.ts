@@ -18,7 +18,7 @@ import type {
 import { APPLICATION_LABEL } from "../agentic/contract";
 import { prefixedUrlTag } from "../rest";
 
-const hubAgent = prefixedUrlTag("/hub/agent");
+const hubAgent = prefixedUrlTag("/hub/agentic");
 
 const AGENT_RUNS = hubAgent`/runs`;
 const AGENTS = hubAgent`/agents`;
@@ -82,7 +82,7 @@ export const getAgents = (): Promise<AgentResource[]> =>
 export const getAgenticAcpUrl = (runName: string): string => {
   const { protocol, host } = window.location;
   const wsProto = protocol === "https:" ? "wss:" : "ws:";
-  return `${wsProto}//${host}/hub/agent/runs/${encodeURIComponent(runName)}/acp`;
+  return `${wsProto}//${host}/hub/agentic/runs/${encodeURIComponent(runName)}/acp`;
 };
 
 // ---------------------------------------------------------- Agents (CRUD)
