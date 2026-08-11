@@ -27,6 +27,7 @@ import {
   SOURCE_APPLICATION_IDENTITY,
   SOURCE_APPLICATION_REPOSITORY_BRANCH,
   SOURCE_APPLICATION_REPOSITORY_URL,
+  defaultTargetBranch,
   parseSourcesAnnotation,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
@@ -39,7 +40,11 @@ import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
 import { useFetchAgents } from "@app/queries/agents";
 import { useFetchApplications } from "@app/queries/applications";
-import { applicationLabelValue, truncate } from "@app/utils/agentic";
+import {
+  applicationLabelValue,
+  targetBranchBlocker,
+  truncate,
+} from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const PARAM_SOURCE_LABEL_KEYS: Record<string, string> = {
@@ -103,6 +108,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [instructions, setInstructions] = useState("");
+  const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -199,10 +205,17 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
           !previewValue(paramSources[p.name], application)
       )
     : [];
+  const branchBlocker =
+    application && targetBranch.trim()
+      ? targetBranchBlocker(application, targetBranch)
+      : undefined;
+  const branchInvalid =
+    !!application && (!targetBranch.trim() || branchBlocker !== undefined);
   const canCreate =
     !!selected &&
     missingRequired.length === 0 &&
     !missingApplication &&
+    !branchInvalid &&
     unresolvable.length === 0 &&
     !submitting;
 
@@ -232,6 +245,8 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
         needsApplication && application
           ? applicationLabelValue(application)
           : undefined,
+      targetBranch:
+        needsApplication && application ? targetBranch.trim() : undefined,
       gateway,
     });
   };
@@ -372,6 +387,33 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                     />
                   ))}
                 </FormSelect>
+              </FormGroup>
+            )}
+
+            {needsApplication && application && (
+              <FormGroup
+                label={t("terms.targetBranch")}
+                isRequired
+                fieldId="create-run-target-branch"
+              >
+                <TextInput
+                  id="create-run-target-branch"
+                  isRequired
+                  value={targetBranch}
+                  onChange={(_e, v) => setTargetBranch(v)}
+                  validated={branchInvalid ? "error" : "default"}
+                />
+                <FormHelperText>
+                  <HelperText>
+                    <HelperTextItem
+                      variant={branchInvalid ? "error" : "default"}
+                    >
+                      {branchInvalid
+                        ? t("agentic.workflowRuns.targetBranchInvalid")
+                        : t("agentic.bulkRun.targetBranchHelper")}
+                    </HelperTextItem>
+                  </HelperText>
+                </FormHelperText>
               </FormGroup>
             )}
 
