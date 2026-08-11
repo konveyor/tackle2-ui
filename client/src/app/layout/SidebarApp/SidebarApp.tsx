@@ -14,6 +14,7 @@ import { isAgenticEnabled, isDevtoolsEnabled } from "@app/Constants";
 import { AdminPaths, DevPaths, DevtoolPaths, UniversalPaths } from "@app/Paths";
 import {
   administrationRoutes,
+  agenticRoutes,
   devtoolRoutes,
   migrationRoutes,
   universalRoutes,
@@ -46,6 +47,14 @@ export const SidebarApp: React.FC = () => {
   return (
     <Switch>
       {migrationRoutes.map(({ path, exact }, index) => (
+        <Route
+          path={path}
+          exact={exact}
+          key={index}
+          render={() => <MigrationSidebar setLastPersona={setLastPersona} />}
+        />
+      ))}
+      {agenticRoutes.map(({ path, exact }, index) => (
         <Route
           path={path}
           exact={exact}
