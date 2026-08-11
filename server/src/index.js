@@ -63,7 +63,7 @@ const server = app.listen(port, (error) => {
 // as the first request through the proxy. Scoped to the hub's ACP path —
 // other upgrade traffic (e.g. webpack HMR in dev) is not ours to answer.
 server.on("upgrade", (req, socket, head) => {
-  if (req.url?.startsWith("/hub/agent/")) {
+  if (req.url?.startsWith("/hub/agentic/")) {
     hubProxy.upgrade(req, socket, head);
   }
 });
