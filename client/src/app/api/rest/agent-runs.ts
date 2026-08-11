@@ -48,6 +48,18 @@ const runMetadata = (applicationRef?: string) => ({
     : {}),
 });
 
+// App-context env rides spec.env from the CLIENT per the agreed contract
+// split: the creating client owns APP_ID / TARGET_BRANCH, the hub owns
+// HUB_BASE_URL and the minted token Secret. The harness fail-fasts without
+// APP_ID, so this is load-bearing for every managed-agent run.
+const appContextEnv = (applicationRef?: string, targetBranch?: string) => {
+  const env = [
+    ...(applicationRef ? [{ name: "APP_ID", value: applicationRef }] : []),
+    ...(targetBranch ? [{ name: "TARGET_BRANCH", value: targetBranch }] : []),
+  ];
+  return env.length > 0 ? { env } : {};
+};
+
 export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
   axios
     .post<AgentRun>(AGENT_RUNS, {
@@ -59,6 +71,7 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
           ? { instructions: input.instructions }
           : {}),
         ...(input.gateway ? { gateway: input.gateway } : {}),
+        ...appContextEnv(input.applicationRef, input.targetBranch),
       },
     })
     .then(({ data }) => data);
@@ -240,6 +253,7 @@ export const createWorkflowRun = (
         workflowRef: input.workflowRef,
         ...(paramList(input.params) ? { params: paramList(input.params) } : {}),
         ...(input.gateway ? { gateway: input.gateway } : {}),
+        ...appContextEnv(input.applicationRef, input.targetBranch),
       },
     })
     .then(({ data }) => data);
