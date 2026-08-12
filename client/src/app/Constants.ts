@@ -269,4 +269,6 @@ export enum TablePersistenceKeyPrefix {
   platformApplications = "pa",
   generatorCollections = "gc",
   generators = "g",
+  agentRuns = "agr",
+  agentWorkflowRuns = "awr",
 }
