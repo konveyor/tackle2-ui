@@ -52,6 +52,20 @@ export const runBelongsToApplication = (
   appId: number
 ): boolean => run.metadata.labels?.[APPLICATION_LABEL] === String(appId);
 
+/**
+ * Display name for the application a run is labeled with: the application's
+ * name, `#<id>` when the id no longer resolves in the inventory, "" when the
+ * run carries no application label (pre-label runs, workflow stage runs).
+ */
+export const runApplicationDisplayName = (
+  run: { metadata: { labels?: Record<string, string> } },
+  applicationsById: Map<string, Application>
+): string => {
+  const id = run.metadata.labels?.[APPLICATION_LABEL];
+  if (!id) return "";
+  return applicationsById.get(id)?.name ?? `#${id}`;
+};
+
 // ------------------------------------------------- run eligibility
 
 /**
