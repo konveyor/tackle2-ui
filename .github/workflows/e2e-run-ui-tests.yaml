@@ -116,6 +116,14 @@ jobs:
               feature_auth_required: ${{ inputs.feature_auth_required }}
               ui_image_fqin: ${{ inputs.ui_image }}
 
+      - name: Increase ingress header buffer size for OIDC
+        run: |
+          kubectl -n ingress-nginx patch configmap ingress-nginx-controller \
+            --type merge \
+            -p '{"data":{"large-client-header-buffers":"4 32k","proxy-buffer-size":"16k"}}'
+          kubectl -n ingress-nginx rollout restart deployment ingress-nginx-controller
+          kubectl -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=120s
+
       - name: Wait for Ingress
         run: |
           kubectl wait \
