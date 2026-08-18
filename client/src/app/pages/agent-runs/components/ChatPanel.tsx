@@ -38,13 +38,9 @@ import type {
   SessionUpdate,
   ToolCallDiff,
 } from "@app/api/agentic/acp";
-import type { AgentRunPhase } from "@app/api/agentic/contract";
-import {
-  isTerminalPhase,
-  sleep,
-  waitForRunning,
-} from "@app/api/agentic/contract";
-import { getAgentRun, getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
+import type { AgentRunPhase, AgentRunStatus } from "@app/api/agentic/contract";
+import { isTerminalPhase, sleep } from "@app/api/agentic/contract";
+import { getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
@@ -124,55 +120,52 @@ type ChatItem =
   | StopItem
   | ErrorItem;
 
+/** State of the dial itself; only meaningful while the run is dialable. */
 type ConnState =
-  /** Polling run status until phase=Running with a sandbox. */
-  | { kind: "waiting"; phase?: string; seconds?: number }
-  /** Run is Running; dialing the ACP endpoint until it accepts. */
-  | { kind: "starting"; attempt: number; seconds: number }
+  /** Dialing the ACP endpoint until it accepts. */
+  | { kind: "connecting"; seconds: number }
   | { kind: "connected"; sessionId: string }
   /** Connection dropped on a live run; an automatic re-dial is underway. */
   | { kind: "reconnecting" }
   /** Auto-reconnect budget exhausted; waiting for a manual reconnect. */
   | { kind: "disconnected" }
-  | { kind: "failed"; message: string }
-  | { kind: "finished"; phase: string };
+  | { kind: "failed"; message: string };
+
+/** What the panel shows: the run's status (from the page's poll) frames conn. */
+type ChatView =
+  | ConnState
+  /** Run has no dialable sandbox yet. */
+  | { kind: "waiting" }
+  | { kind: "finished" };
 
 // ----------------------------------------------------------- dial retry
 
 /**
- * phase=Running races ahead of the agent process actually listening on the
- * ACP port (the sandbox pod has no readiness probe), so refused/dropped
- * sockets right after startup are expected. First dials get a long budget
- * (image pull + agent boot); re-dials a short one (it was up moments ago).
+ * phase=Running is set when the sandbox object exists — before the agent
+ * process is listening on the ACP port (the pod has no readiness probe), so
+ * refused/dropped sockets right after startup are expected. Keep dialing at
+ * a fixed cadence until the endpoint accepts or the budget runs out; a run
+ * that finishes meanwhile is stopped by its status flipping, not from here.
  */
 const ACP_DIAL_BUDGET_MS = 180_000;
-const ACP_REDIAL_BUDGET_MS = 45_000;
+const ACP_DIAL_RETRY_MS = 3_000;
 
 /** Auto-reconnects allowed inside DROP_WINDOW_MS before going manual. */
 const MAX_DROPS_IN_WINDOW = 5;
 const DROP_WINDOW_MS = 10 * 60_000;
 
-function dialDelayMs(attempt: number): number {
-  return Math.min(1_000 * attempt, 5_000);
-}
-
-/**
- * Dial the ACP endpoint until it accepts, the run reaches a terminal phase,
- * or the budget runs out (then the last connect error is thrown).
- */
+/** Dial until the endpoint accepts or the budget runs out (last error thrown). */
 async function dialAcp(opts: {
   /** Built fresh per attempt — the hub's ACP nonce is single-use. */
   getUrl: () => Promise<string>;
-  budgetMs: number;
   signal: AbortSignal;
   callbacks: AcpSessionCallbacks;
-  getPhase: () => Promise<string>;
-  onAttempt: (attempt: number, elapsedMs: number) => void;
-}): Promise<AcpSession | { finishedPhase: string }> {
+  onAttempt: (elapsedMs: number) => void;
+}): Promise<AcpSession> {
   const started = Date.now();
-  for (let attempt = 1; ; attempt++) {
+  for (;;) {
     opts.signal.throwIfAborted();
-    opts.onAttempt(attempt, Date.now() - started);
+    opts.onAttempt(Date.now() - started);
     try {
       const session = await AcpSession.connect({
         url: await opts.getUrl(),
@@ -185,16 +178,8 @@ async function dialAcp(opts: {
       return session;
     } catch (err) {
       opts.signal.throwIfAborted();
-      // Between attempts, let a finished run win over a dead endpoint.
-      let phase: string | undefined;
-      try {
-        phase = await opts.getPhase();
-      } catch {
-        // transient status failure -- keep dialing
-      }
-      if (phase && isTerminalPhase(phase)) return { finishedPhase: phase };
-      if (Date.now() - started >= opts.budgetMs) throw err;
-      await sleep(dialDelayMs(attempt), opts.signal);
+      if (Date.now() - started >= ACP_DIAL_BUDGET_MS) throw err;
+      await sleep(ACP_DIAL_RETRY_MS, opts.signal);
     }
   }
 }
@@ -348,6 +333,8 @@ const USER_AVATAR = svgAvatar(
 
 interface ChatPanelProps {
   runName: string;
+  /** Live run status from the page's poll; decides when the panel dials. */
+  status?: AgentRunStatus;
   /** spec.agentRef -- names the bot in the transcript and header. */
   agentRef?: string;
   /** Target branch of the run, pinned in the chat header. */
@@ -358,12 +345,28 @@ interface ChatPanelProps {
 
 export function ChatPanel({
   runName,
+  status,
   agentRef,
   targetBranch,
   targetBranchUrl,
 }: ChatPanelProps) {
   const { t } = useTranslation();
-  const [conn, setConn] = useState<ConnState>({ kind: "waiting" });
+  const phase = status?.phase;
+  const finished = isTerminalPhase(phase);
+  // The hub only relays once sandboxName + secretKeyRef are populated (it
+  // 4xx's otherwise); phase gates too so a sandbox still being created is
+  // not dialed. Once the controller gates Running on readiness this is the
+  // whole wait and the first dial succeeds.
+  const dialable =
+    !finished &&
+    phase === "Running" &&
+    !!status?.sandboxName &&
+    !!status?.secretKeyRef?.name;
+
+  const [conn, setConn] = useState<ConnState>({
+    kind: "connecting",
+    seconds: 0,
+  });
   const [items, setItems] = useState<ChatItem[]>([]);
   const [session, setSession] = useState<AcpSession | null>(null);
   const [turnActive, setTurnActive] = useState(false);
@@ -426,28 +429,20 @@ export function ChatPanel({
     );
   };
 
-  // Connect flow: wait for Running, dial ACP until it accepts (the pod's
-  // agent process lags phase=Running), then new-session -- or load-session
-  // to replay history after a reconnect.
+  // Connect flow, run once the page's poll says the run is dialable: dial
+  // ACP until it accepts, then new-session -- or load-session to replay
+  // history after a reconnect. The run finishing (or the page leaving)
+  // flips `dialable`, which aborts the dial and closes the session.
   useEffect(() => {
-    let disposed = false;
+    if (!dialable) return;
     const abort = new AbortController();
+    const live = () => !abort.signal.aborted;
     let localSession: AcpSession | null = null;
 
-    // Non-terminal drop: auto-reconnect (bounded), else surface it.
-    const handleDrop = async () => {
+    // Drop on a live run: auto-reconnect (bounded), else surface it. A run
+    // that just finished shows as finished as soon as the poll catches up.
+    const handleDrop = () => {
       setSession(null);
-      let phase: string | undefined;
-      try {
-        phase = (await getAgentRun(runName)).status?.phase;
-      } catch {
-        // status unavailable -- treat as a plain drop
-      }
-      if (disposed) return;
-      if (phase && isTerminalPhase(phase)) {
-        setConn({ kind: "finished", phase });
-        return;
-      }
       const now = Date.now();
       dropTimesRef.current = dropTimesRef.current
         .filter((tms) => now - tms < DROP_WINDOW_MS)
@@ -461,62 +456,26 @@ export function ChatPanel({
     };
 
     const connect = async () => {
-      setConn({ kind: "waiting" });
-      const current = await getAgentRun(runName);
-      const currentPhase = current.status?.phase ?? "Pending";
-      if (isTerminalPhase(currentPhase)) {
-        setConn({ kind: "finished", phase: currentPhase });
-        return;
-      }
-      await waitForRunning({ getRun: getAgentRun }, runName, {
-        signal: abort.signal,
-        onPhase: (p, elapsedMs) => {
-          if (!disposed) {
-            setConn({
-              kind: "waiting",
-              phase: p,
-              seconds: Math.round(elapsedMs / 1000),
-            });
-          }
-        },
-      });
-      if (disposed) return;
-      const dialed = await dialAcp({
+      localSession = await dialAcp({
         getUrl: async () =>
           getAgenticAcpUrl(runName, (await mintAcpNonce(runName)) ?? undefined),
-        budgetMs: lastSessionIdRef.current
-          ? ACP_REDIAL_BUDGET_MS
-          : ACP_DIAL_BUDGET_MS,
         signal: abort.signal,
         callbacks: {
           onUpdate: handleUpdate,
           onPermissionRequest: handlePermission,
         },
-        getPhase: async () =>
-          (await getAgentRun(runName)).status?.phase ?? "Pending",
-        onAttempt: (n, elapsedMs) => {
-          if (!disposed) {
+        onAttempt: (elapsedMs) => {
+          if (live()) {
             setConn({
-              kind: "starting",
-              attempt: n,
+              kind: "connecting",
               seconds: Math.round(elapsedMs / 1000),
             });
           }
         },
       });
-      if ("finishedPhase" in dialed) {
-        if (!disposed)
-          setConn({ kind: "finished", phase: dialed.finishedPhase });
-        return;
-      }
-      localSession = dialed;
-      if (disposed) {
-        void localSession.close();
-        return;
-      }
       sessionRef.current = localSession;
       localSession.onClosed(() => {
-        if (!disposed) void handleDrop();
+        if (live()) handleDrop();
       });
       // Prefer resuming the previous session after a drop -- the agent
       // replays its history as session/update notifications.
@@ -534,18 +493,17 @@ export function ChatPanel({
         sessionId = await localSession.newSession();
       }
       lastSessionIdRef.current = sessionId;
-      if (!disposed) {
+      if (live()) {
         setSession(localSession);
         setConn({ kind: "connected", sessionId });
       }
     };
 
     connect().catch((err) => {
-      if (!disposed) setConn({ kind: "failed", message: errorMessage(err) });
+      if (live()) setConn({ kind: "failed", message: errorMessage(err) });
     });
 
     return () => {
-      disposed = true;
       abort.abort();
       const s = sessionRef.current ?? localSession;
       sessionRef.current = null;
@@ -553,7 +511,7 @@ export function ChatPanel({
       setSession(null);
       setTurnActive(false);
     };
-  }, [runName, attempt, handleUpdate, handlePermission]);
+  }, [runName, dialable, attempt, handleUpdate, handlePermission]);
 
   const send = async (raw: string | number) => {
     const text = String(raw).trim();
@@ -584,20 +542,20 @@ export function ChatPanel({
   const botName = agentRef ?? t("agentic.chat.agentName");
   const userName = t("agentic.chat.you");
 
+  const view: ChatView = finished
+    ? { kind: "finished" }
+    : !dialable
+      ? { kind: "waiting" }
+      : conn;
+
   const notice = (() => {
-    switch (conn.kind) {
+    switch (view.kind) {
       case "waiting":
-        return conn.phase
-          ? t("agentic.chat.waitingForSandbox", {
-              phase: conn.phase,
-              seconds: conn.seconds,
-            })
-          : t("agentic.chat.checkingRunStatus");
-      case "starting":
-        return t("agentic.chat.startingAcp", {
-          attempt: conn.attempt,
-          seconds: conn.seconds,
+        return t("agentic.chat.waitingForSandbox", {
+          phase: phase ?? "Pending",
         });
+      case "connecting":
+        return t("agentic.chat.startingAcp", { seconds: view.seconds });
       case "reconnecting":
         return t("agentic.chat.reconnectingToAgent");
       default:
@@ -616,7 +574,7 @@ export function ChatPanel({
           <ChatbotHeaderTitle>
             <span className="agent-run-chatbot-title">
               {botName}
-              <ConnBadge conn={conn} />
+              <ConnBadge view={view} phase={phase} />
             </span>
           </ChatbotHeaderTitle>
         </ChatbotHeaderMain>
@@ -665,13 +623,13 @@ export function ChatPanel({
               <Spinner size="sm" aria-label={notice} /> <span>{notice}</span>
             </div>
           )}
-          {conn.kind === "connected" && items.length === 0 && (
+          {view.kind === "connected" && items.length === 0 && (
             <div className="chat-meta">
               {t("agentic.chat.connectedHint")}{" "}
-              {t("agentic.chat.session", { sessionId: conn.sessionId })}
+              {t("agentic.chat.session", { sessionId: view.sessionId })}
             </div>
           )}
-          {conn.kind === "disconnected" && (
+          {view.kind === "disconnected" && (
             <ChatbotAlert
               variant="warning"
               title={t("agentic.chat.disconnectedFromAgent")}
@@ -684,11 +642,11 @@ export function ChatPanel({
               {t("agentic.chat.disconnectedBody")}
             </ChatbotAlert>
           )}
-          {conn.kind === "failed" && (
+          {view.kind === "failed" && (
             <ChatbotAlert
               variant="danger"
               title={t("agentic.chat.connectionFailed", {
-                message: conn.message,
+                message: view.message,
               })}
               actionLinks={
                 <AlertActionLink onClick={manualRetry}>
@@ -699,19 +657,15 @@ export function ChatPanel({
               {t("agentic.chat.connectionFailedHint")}
             </ChatbotAlert>
           )}
-          {conn.kind === "finished" &&
+          {view.kind === "finished" &&
             (items.length > 0 ? (
               <MessageDivider
-                content={t("agentic.chat.runFinishedLive", {
-                  phase: conn.phase,
-                })}
+                content={t("agentic.chat.runFinishedLive", { phase })}
               />
             ) : (
               <ChatbotAlert
                 variant="info"
-                title={t("agentic.chat.runAlreadyFinished", {
-                  phase: conn.phase,
-                })}
+                title={t("agentic.chat.runAlreadyFinished", { phase })}
               >
                 {t("agentic.chat.finishedNoTranscript")}
               </ChatbotAlert>
@@ -739,16 +693,16 @@ export function ChatPanel({
 
 // -------------------------------------------------------- connection badge
 
-function ConnBadge({ conn }: { conn: ConnState }) {
+function ConnBadge({ view, phase }: { view: ChatView; phase?: AgentRunPhase }) {
   const { t } = useTranslation();
-  switch (conn.kind) {
+  switch (view.kind) {
     case "waiting":
       return (
         <Label isCompact color="grey" icon={<Spinner size="sm" />}>
           {t("agentic.chat.waiting")}
         </Label>
       );
-    case "starting":
+    case "connecting":
     case "reconnecting":
       return (
         <Label isCompact color="blue" icon={<Spinner size="sm" />}>
@@ -774,7 +728,7 @@ function ConnBadge({ conn }: { conn: ConnState }) {
         </Label>
       );
     case "finished":
-      return <PhaseLabel phase={conn.phase as AgentRunPhase} />;
+      return <PhaseLabel phase={phase} />;
   }
 }
 

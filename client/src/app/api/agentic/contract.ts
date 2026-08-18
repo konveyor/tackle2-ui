@@ -404,52 +404,6 @@ export function isTerminalPhase(p?: string): boolean {
   return p === "Succeeded" || p === "Failed";
 }
 
-export interface WaitForRunningOptions {
-  timeoutMs?: number;
-  pollMs?: number;
-  signal?: AbortSignal;
-  onPhase?: (phase: string, elapsedMs: number) => void;
-}
-
-export async function waitForRunning(
-  api: Pick<RunApi, "getRun">,
-  name: string,
-  opts?: WaitForRunningOptions
-): Promise<AgentRun> {
-  const timeoutMs = opts?.timeoutMs ?? 120_000;
-  const pollMs = opts?.pollMs ?? 1_000;
-  const started = Date.now();
-  for (;;) {
-    opts?.signal?.throwIfAborted();
-    const run = await api.getRun(name);
-    const phase = run.status?.phase ?? "Pending";
-    const elapsed = Date.now() - started;
-    opts?.onPhase?.(phase, elapsed);
-    if (phase === "Failed") {
-      const detail = (run.status?.conditions ?? [])
-        .map((c) => c.message)
-        .filter(Boolean)
-        .join("; ");
-      throw new Error(`AgentRun ${name} failed${detail ? `: ${detail}` : ""}`);
-    }
-    if (
-      phase === "Running" &&
-      run.status?.sandboxName &&
-      run.status?.secretKeyRef?.name
-    ) {
-      return run;
-    }
-    if (Date.now() - started >= timeoutMs) {
-      throw new Error(
-        `Timed out after ${timeoutMs}ms waiting for AgentRun ${name} to reach Running with a ` +
-          `sandbox and ACP key (last phase=${phase}, sandboxName=${run.status?.sandboxName ?? "unset"}, ` +
-          `secretKeyRef=${run.status?.secretKeyRef?.name ?? "unset"}).`
-      );
-    }
-    await sleep(pollMs, opts?.signal);
-  }
-}
-
 export function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     const onAbort = () => {
