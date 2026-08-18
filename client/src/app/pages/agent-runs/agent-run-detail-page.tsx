@@ -270,7 +270,9 @@ const AgentRunDetailPage: React.FC = () => {
         padding={{ default: "padding" }}
       >
         <ChatPanel
+          key={runName} // a different run starts a fresh transcript
           runName={runName}
+          status={agentRun.status}
           agentRef={agentRun.spec.agentRef}
           targetBranch={coordinates.targetBranch}
           targetBranchUrl={targetBranchUrl}
