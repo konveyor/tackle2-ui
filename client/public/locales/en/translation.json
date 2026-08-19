@@ -1192,6 +1192,7 @@
       "agentName": "Agent",
       "you": "You",
       "waitingForSandbox": "waiting for the run to start ({{phase}})…",
+      "waitingForAcp": "agent is starting — waiting for its ACP endpoint ({{detail}})…",
       "startingAcp": "waiting for the agent to accept connections ({{seconds}}s)…",
       "reconnectingToAgent": "connection dropped — reconnecting…",
       "waiting": "Waiting",
