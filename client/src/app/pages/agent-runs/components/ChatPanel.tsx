@@ -21,9 +21,15 @@ import {
   AlertActionLink,
   Button,
   ButtonVariant,
+  Checkbox,
+  Form,
+  FormGroup,
   Icon,
   Label,
+  Radio,
   Spinner,
+  TextArea,
+  TextInput,
   Tooltip,
 } from "@patternfly/react-core";
 import {
@@ -41,6 +47,9 @@ import { isAgenticSteerEnabled } from "@app/Constants";
 import { AcpSession, acpErrorInfo } from "@app/api/agentic/acp";
 import type {
   AcpSessionCallbacks,
+  ElicitationOutcome,
+  ElicitationProperty,
+  ElicitationRequest,
   PermissionOutcome,
   PermissionRequest,
   SessionUpdate,
@@ -135,6 +144,20 @@ interface PermissionItem {
   /** optionId chosen by the user, or "cancelled". Unset while pending. */
   chosen?: string;
 }
+/**
+ * The agent asking the human a question (elicitation/create, e.g. the
+ * harness's ask_user tool). The agent's turn is blocked until it is
+ * answered, declined, or the harness times it out.
+ */
+interface AskItem {
+  kind: "ask";
+  id: number;
+  at: number;
+  message: string;
+  schema: ElicitationRequest["requestedSchema"];
+  /** Set once answered: what went back to the agent. */
+  outcome?: ElicitationOutcome;
+}
 /** A one-line transcript divider (e.g. "stop requested"). */
 interface NoticeItem {
   kind: "notice";
@@ -154,6 +177,7 @@ type ChatItem =
   | ToolItem
   | PlanItem
   | PermissionItem
+  | AskItem
   | NoticeItem
   | ErrorItem;
 
@@ -514,6 +538,9 @@ export function ChatPanel({
   const permissionResolvers = useRef(
     new Map<number, (o: PermissionOutcome) => void>()
   );
+  const askResolvers = useRef(
+    new Map<number, (o: ElicitationOutcome) => void>()
+  );
 
   const nextId = () => ++idRef.current;
 
@@ -600,6 +627,42 @@ export function ChatPanel({
     []
   );
 
+  // The agent's question renders inline as a form; the returned promise
+  // resolves when the user answers or declines (see answerAsk). Answerable
+  // regardless of the steer flag: like a permission ask it is solicited by
+  // the agent, which is blocked until someone responds.
+  const handleElicitation = useCallback(
+    (r: ElicitationRequest): Promise<ElicitationOutcome> => {
+      return new Promise((resolve) => {
+        const id = ++idRef.current;
+        askResolvers.current.set(id, resolve);
+        setItems((prev) => [
+          ...prev,
+          {
+            kind: "ask",
+            id,
+            at: Date.now(),
+            message: r.message,
+            schema: r.requestedSchema,
+          },
+        ]);
+      });
+    },
+    []
+  );
+
+  const answerAsk = (id: number, outcome: ElicitationOutcome) => {
+    const resolve = askResolvers.current.get(id);
+    if (!resolve) return;
+    askResolvers.current.delete(id);
+    resolve(outcome);
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === id && it.kind === "ask" ? { ...it, outcome } : it
+      )
+    );
+  };
+
   const choosePermission = (id: number, optionId: string | null) => {
     const resolve = permissionResolvers.current.get(id);
     if (!resolve) return;
@@ -652,6 +715,7 @@ export function ChatPanel({
         callbacks: {
           onUpdate: handleUpdate,
           onPermissionRequest: handlePermission,
+          onElicitation: handleElicitation,
         },
         onAttempt: (elapsedMs) => {
           if (live()) {
@@ -707,6 +771,7 @@ export function ChatPanel({
     attempt,
     handleUpdate,
     handlePermission,
+    handleElicitation,
   ]);
 
   // Redirect the agent: goose steer on the RUN's session, relayed by the
@@ -888,6 +953,7 @@ export function ChatPanel({
               botName={botName}
               userName={userName}
               onPermission={choosePermission}
+              onAsk={answerAsk}
             />
           ))}
           {notice && (
@@ -1239,11 +1305,13 @@ function ChatItemView({
   botName,
   userName,
   onPermission,
+  onAsk,
 }: {
   item: ChatItem;
   botName: string;
   userName: string;
   onPermission: (id: number, optionId: string | null) => void;
+  onAsk: (id: number, outcome: ElicitationOutcome) => void;
 }) {
   const { t } = useTranslation();
   switch (item.kind) {
@@ -1340,6 +1408,8 @@ function ChatItemView({
       );
     case "notice":
       return <MessageDivider content={item.text} />;
+    case "ask":
+      return <AskView item={item} botName={botName} onAsk={onAsk} />;
     case "error":
       return (
         <ChatbotAlert variant="danger" title={t("agentic.chat.chatError")}>
@@ -1383,4 +1453,200 @@ function ChatItemView({
       );
     }
   }
+}
+
+// --------------------------------------------------------------- ask view
+
+/** Answer values keyed by property name, as typed (strings) or toggled. */
+type AskDraft = Record<string, string | boolean | undefined>;
+
+function askDefaults(schema: ElicitationRequest["requestedSchema"]): AskDraft {
+  const draft: AskDraft = {};
+  for (const [name, prop] of Object.entries(schema.properties)) {
+    if (prop.type === "boolean") {
+      draft[name] = prop.default === true;
+    } else if (prop.default !== undefined && prop.default !== null) {
+      draft[name] = String(prop.default);
+    }
+  }
+  return draft;
+}
+
+/** Enum choices of a string property: plain `enum` or titled `oneOf`. */
+function askChoices(
+  prop: ElicitationProperty
+): { value: string; label: string }[] | null {
+  if (Array.isArray(prop.oneOf) && prop.oneOf.length > 0) {
+    return prop.oneOf
+      .filter((o) => isRecord(o) && typeof o.const === "string")
+      .map((o) => ({ value: o.const, label: o.title || o.const }));
+  }
+  if (Array.isArray(prop.enum) && prop.enum.length > 0) {
+    return prop.enum
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => ({ value: v, label: v }));
+  }
+  return null;
+}
+
+/** Coerce the typed draft into schema-shaped content. */
+function askContent(
+  schema: ElicitationRequest["requestedSchema"],
+  draft: AskDraft
+): Record<string, unknown> {
+  const content: Record<string, unknown> = {};
+  for (const [name, prop] of Object.entries(schema.properties)) {
+    const v = draft[name];
+    if (v === undefined || v === "") continue;
+    if (prop.type === "boolean") content[name] = v === true;
+    else if (prop.type === "number" || prop.type === "integer") {
+      const n = Number(v);
+      if (!Number.isNaN(n))
+        content[name] = prop.type === "integer" ? Math.trunc(n) : n;
+    } else content[name] = String(v);
+  }
+  return content;
+}
+
+function AskView({
+  item,
+  botName,
+  onAsk,
+}: {
+  item: AskItem;
+  botName: string;
+  onAsk: (id: number, outcome: ElicitationOutcome) => void;
+}) {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState<AskDraft>(() => askDefaults(item.schema));
+  const names = Object.keys(item.schema.properties);
+  const missing = item.schema.required.filter((r) => {
+    const v = draft[r];
+    const prop = item.schema.properties[r];
+    if (prop?.type === "boolean") return false;
+    return v === undefined || v === "";
+  });
+  const answered = item.outcome;
+
+  const summary = (() => {
+    if (!answered) return null;
+    if (answered.action !== "accept") return t("agentic.chat.askDeclined");
+    const parts = Object.entries(answered.content ?? {}).map(([k, v]) =>
+      names.length > 1 ? `${k}: ${String(v)}` : String(v)
+    );
+    return t("agentic.chat.askAnswered", { answer: parts.join(", ") });
+  })();
+
+  return (
+    <div className="chat-permission chat-ask">
+      <div className="chat-permission-title">
+        {t("agentic.chat.askTitle", { name: botName })}
+      </div>
+      <div className="chat-ask-message">{item.message}</div>
+      {summary ? (
+        <Label color="blue">{summary}</Label>
+      ) : (
+        <Form
+          isHorizontal={false}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (missing.length === 0) {
+              onAsk(item.id, {
+                action: "accept",
+                content: askContent(item.schema, draft),
+              });
+            }
+          }}
+        >
+          {names.map((name) => {
+            const prop = item.schema.properties[name];
+            const required = item.schema.required.includes(name);
+            const choices = prop.type === "array" ? null : askChoices(prop);
+            const label = prop.title || (names.length > 1 ? name : "");
+            const fieldId = `ask-${item.id}-${name}`;
+            const field = (() => {
+              if (choices) {
+                return choices.map((c) => (
+                  <Radio
+                    key={c.value}
+                    id={`${fieldId}-${c.value}`}
+                    name={fieldId}
+                    label={c.label}
+                    isChecked={draft[name] === c.value}
+                    onChange={() =>
+                      setDraft((d) => ({ ...d, [name]: c.value }))
+                    }
+                  />
+                ));
+              }
+              if (prop.type === "boolean") {
+                return (
+                  <Checkbox
+                    id={fieldId}
+                    label={prop.description || label || name}
+                    isChecked={draft[name] === true}
+                    onChange={(_e, checked) =>
+                      setDraft((d) => ({ ...d, [name]: checked }))
+                    }
+                  />
+                );
+              }
+              if (prop.type === "number" || prop.type === "integer") {
+                return (
+                  <TextInput
+                    id={fieldId}
+                    type="number"
+                    value={typeof draft[name] === "string" ? draft[name] : ""}
+                    onChange={(_e, v) => setDraft((d) => ({ ...d, [name]: v }))}
+                  />
+                );
+              }
+              return (
+                <TextArea
+                  id={fieldId}
+                  aria-label={label || name}
+                  resizeOrientation="vertical"
+                  rows={2}
+                  value={typeof draft[name] === "string" ? draft[name] : ""}
+                  onChange={(_e, v) => setDraft((d) => ({ ...d, [name]: v }))}
+                />
+              );
+            })();
+            return (
+              <FormGroup
+                key={name}
+                fieldId={fieldId}
+                label={label || undefined}
+                isRequired={required}
+                role={choices ? "radiogroup" : undefined}
+              >
+                {field}
+                {prop.description && !choices && prop.type !== "boolean" && (
+                  <div className="chat-meta">{prop.description}</div>
+                )}
+              </FormGroup>
+            );
+          })}
+          <div className="chat-permission-actions">
+            <Button
+              size="sm"
+              variant="primary"
+              type="submit"
+              isDisabled={missing.length > 0}
+            >
+              {t("agentic.chat.askAnswer")}
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onAsk(item.id, { action: "decline" })}
+            >
+              {t("agentic.chat.askDecline")}
+            </Button>
+          </div>
+          <div className="chat-meta">{t("agentic.chat.askHint")}</div>
+        </Form>
+      )}
+    </div>
+  );
 }

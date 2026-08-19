@@ -174,3 +174,12 @@
   border-radius: 0;
   min-height: 0;
 }
+
+/* The agent's question: the permission card, plus room for a small form. */
+.chat-ask .chat-ask-message {
+  margin: 0.25rem 0 0.75rem;
+  white-space: pre-wrap;
+}
+.chat-ask .pf-v6-c-form {
+  gap: 0.75rem;
+}
