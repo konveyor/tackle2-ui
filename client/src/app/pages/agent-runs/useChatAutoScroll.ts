@@ -10,12 +10,12 @@ import type { MessageBoxHandle } from "@patternfly/chatbot";
 const AT_BOTTOM_PX = 40;
 
 /**
- * How long an explicit "follow again" (send, jump-to-bottom) outranks the
- * reader-moved-it check -- long enough to cover MessageBox's smooth
- * scroll animation, which would otherwise land short of a tail that kept
- * growing underneath it and immediately release the pin again.
+ * After input that scrolls AWAY from the tail, how long a scroll event that
+ * still reads "at the bottom" is ignored: the first scroll events of a wheel
+ * or touch gesture land within AT_BOTTOM_PX of where it started, and
+ * re-arming on them would drag the reader straight back.
  */
-const FORCE_FOLLOW_MS = 500;
+const AWAY_GRACE_MS = 400;
 
 function isScrollable(el: Element): boolean {
   const { overflowY } = window.getComputedStyle(el);
@@ -39,6 +39,10 @@ function findScroller(box: HTMLElement | null): HTMLElement | null {
   return null;
 }
 
+function atBottom(el: HTMLElement): boolean {
+  return el.scrollHeight - el.scrollTop - el.clientHeight <= AT_BOTTOM_PX;
+}
+
 /**
  * Keeps the transcript pinned to the newest content while the agent
  * streams, and lets go the moment the reader scrolls up.
@@ -48,12 +52,17 @@ function findScroller(box: HTMLElement | null): HTMLElement | null {
  * - The pin is driven by DOM mutations, not React renders. Streamed text,
  *   markdown that lays out a beat after its chunk arrives and tool output
  *   expanding all move the tail, and only some of those are renders.
- * - Reader intent is read synchronously, by noticing that the scroll
- *   position is no longer where the last pin left it. Waiting to be told --
- *   MessageBox's state-backed `isSmartScrollActive`, or even a plain scroll
- *   listener -- leaves a window between the reader's scroll and the
- *   notification; a chunk landing in that window scrolls them back down,
- *   which at streaming rates is most of the time.
+ * - Reader intent is read from INPUT -- a wheel/touch/key scroll up, or a
+ *   drag on the scrollbar -- never inferred from the scroll position.
+ *   Positions drift without any reader: the browser's scroll anchoring
+ *   shifts scrollTop when content above the viewport grows, and a clamped
+ *   pin reads back a pixel or two off; treating that as "the reader
+ *   moved" released the pin for good on the first big message. Scrolling
+ *   back to the tail (by any means, including the jump button) re-arms it.
+ *
+ * Each scroll container is wired once: MessageBox remounts when the panel
+ * toggles full screen (it is portaled out), so the listeners and observers
+ * follow the element the ref currently points at.
  */
 export function useChatAutoScroll(): {
   messageBoxRef: RefObject<MessageBoxHandle | null>;
@@ -63,21 +72,17 @@ export function useChatAutoScroll(): {
   const messageBoxRef = useRef<MessageBoxHandle | null>(null);
   const scrollerRef = useRef<HTMLElement | null>(null);
   const pinnedRef = useRef(true);
-  /** Where the last pin left the scroll position. */
-  const pinnedTopRef = useRef(0);
-  const forceUntilRef = useRef(0);
+  const draggingRef = useRef(false);
+  /** Until when scroll events must not re-arm the pin (see AWAY_GRACE_MS). */
+  const awayUntilRef = useRef(0);
+  const wiredBoxRef = useRef<HTMLElement | null>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   const getScroller = useCallback((): HTMLElement | null => {
     const cached = scrollerRef.current;
     if (cached?.isConnected && isScrollable(cached)) return cached;
     const found = findScroller(messageBoxRef.current);
-    if (found !== cached) {
-      // Scrolling moved to a different element (see findScroller), so the
-      // position we last pinned describes the old one. Adopt the new
-      // element's position: a layout change is not the reader scrolling.
-      pinnedTopRef.current = found?.scrollTop ?? 0;
-      scrollerRef.current = found;
-    }
+    scrollerRef.current = found;
     return found;
   }, []);
 
@@ -86,54 +91,80 @@ export function useChatAutoScroll(): {
     // defers to requestAnimationFrame, which is suspended in hidden tabs,
     // wedging its internal scroll queue.
     scroller.scrollTop = scroller.scrollHeight;
-    pinnedTopRef.current = scroller.scrollTop;
   }, []);
 
   const pinToBottom = useCallback(() => {
     pinnedRef.current = true;
-    forceUntilRef.current = Date.now() + FORCE_FOLLOW_MS;
     const scroller = getScroller();
     if (scroller) pin(scroller);
   }, [getScroller, pin]);
 
-  useEffect(() => {
+  const attach = useCallback(() => {
     const box = messageBoxRef.current;
-    if (!box) return;
+    if (!box || box === wiredBoxRef.current) return;
+    cleanupRef.current?.();
+    wiredBoxRef.current = box;
+    scrollerRef.current = null;
 
-    /**
-     * Content or the viewport changed. Re-read where the reader is before
-     * deciding whether to follow: a position we did not write means they
-     * moved it themselves.
-     */
+    // Content grew or the viewport changed: follow if still pinned.
     const follow = () => {
       const scroller = getScroller();
-      if (!scroller) return;
-      const { scrollTop, scrollHeight, clientHeight } = scroller;
-      const movedByReader = Math.abs(scrollTop - pinnedTopRef.current) > 1;
-      if (movedByReader && Date.now() > forceUntilRef.current) {
-        // Also re-arms when they scroll back down to the tail, and copes
-        // with the browser clamping scrollTop when the transcript shrinks.
-        pinnedRef.current =
-          scrollHeight - scrollTop - clientHeight <= AT_BOTTOM_PX;
-      }
-      if (pinnedRef.current) pin(scroller);
+      if (scroller && pinnedRef.current && !draggingRef.current) pin(scroller);
     };
 
+    // Input that scrolls away from the tail releases the pin ...
+    const away = () => {
+      pinnedRef.current = false;
+      awayUntilRef.current = Date.now() + AWAY_GRACE_MS;
+    };
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0) away();
+    };
+    const onTouchMove = away;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === "ArrowUp" ||
+        event.key === "PageUp" ||
+        event.key === "Home"
+      ) {
+        away();
+      }
+    };
+    // ... and so does grabbing the scrollbar (a click past clientWidth is
+    // on the bar, not on content); the pin stays off while dragging.
+    const onMouseDown = (event: MouseEvent) => {
+      const scroller = getScroller();
+      if (
+        scroller &&
+        event.target === scroller &&
+        event.offsetX >= scroller.clientWidth
+      ) {
+        draggingRef.current = true;
+        pinnedRef.current = false;
+      }
+    };
+    const onMouseUp = () => {
+      draggingRef.current = false;
+    };
+    // ... while arriving back at the tail, by any means, re-arms it.
     // Scroll events don't bubble, but they do reach capture-phase listeners
     // on ancestors -- so one listener covers whichever element is scrolling.
-    // This only sharpens the response: returning to the tail re-arms the pin
-    // right away instead of on the next chunk.
     const onScroll = (event: Event) => {
-      if (Date.now() <= forceUntilRef.current) return;
       const scroller = event.target as HTMLElement | null;
       if (!scroller?.scrollHeight) return;
-      const { scrollTop, scrollHeight, clientHeight } = scroller;
-      pinnedRef.current =
-        scrollHeight - scrollTop - clientHeight <= AT_BOTTOM_PX;
-      pinnedTopRef.current = scrollTop;
+      if (Date.now() < awayUntilRef.current) return;
+      if (atBottom(scroller)) pinnedRef.current = true;
     };
 
-    const root = box.closest(".pf-chatbot") ?? box;
+    const root = (box.closest(".pf-chatbot") as HTMLElement | null) ?? box;
+    root.addEventListener("wheel", onWheel, { capture: true, passive: true });
+    root.addEventListener("touchmove", onTouchMove, {
+      capture: true,
+      passive: true,
+    });
+    root.addEventListener("keydown", onKeyDown, { capture: true });
+    root.addEventListener("mousedown", onMouseDown, { capture: true });
+    window.addEventListener("mouseup", onMouseUp);
     root.addEventListener("scroll", onScroll, { capture: true, passive: true });
 
     // Content grew: a streamed chunk, a new message, markdown finishing.
@@ -143,17 +174,34 @@ export function useChatAutoScroll(): {
       subtree: true,
       characterData: true,
     });
-
-    // The viewport grew or shrank: window resize, details panel collapsing.
+    // The viewport grew or shrank: window resize, details panel collapsing,
+    // the panel expanding to full screen.
     const sizeObserver = new ResizeObserver(follow);
     sizeObserver.observe(box);
 
-    return () => {
+    cleanupRef.current = () => {
+      root.removeEventListener("wheel", onWheel, { capture: true });
+      root.removeEventListener("touchmove", onTouchMove, { capture: true });
+      root.removeEventListener("keydown", onKeyDown, { capture: true });
+      root.removeEventListener("mousedown", onMouseDown, { capture: true });
+      window.removeEventListener("mouseup", onMouseUp);
       root.removeEventListener("scroll", onScroll, { capture: true });
       contentObserver.disconnect();
       sizeObserver.disconnect();
+      if (wiredBoxRef.current === box) wiredBoxRef.current = null;
     };
+
+    // A freshly (re)mounted box starts at the top; land on the tail if we
+    // were following it.
+    follow();
   }, [getScroller, pin]);
+
+  // Wire on mount; re-wire whenever the panel re-renders with a new box
+  // (attach is idempotent for the same element). Detach on unmount.
+  useEffect(() => {
+    attach();
+  });
+  useEffect(() => () => cleanupRef.current?.(), []);
 
   return { messageBoxRef, pinToBottom };
 }
