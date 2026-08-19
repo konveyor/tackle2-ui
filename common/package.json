@@ -25,5 +25,8 @@
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production rslib build",
     "start:dev": "NODE_ENV=development rslib build --watch"
+  },
+  "devDependencies": {
+    "@rslib/core": "^0.23.2"
   }
 }

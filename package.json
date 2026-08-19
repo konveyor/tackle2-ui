@@ -16,8 +16,8 @@
     "dist": "rimraf ./dist && copyfiles -e 'node_modules/**' entrypoint.sh '**/package.json' '*/dist/**/*' ./dist",
     "build": "npm run build -ws --if-present",
     "start:dev:common": "npm run start:dev -w common",
-    "start:dev:server": "wait-on -l -d 500 common/dist/index.d.ts && npm run start:dev -w server",
-    "start:dev:client": "wait-on -l -d 500 common/dist/index.d.ts && npm run start:dev -w client",
+    "start:dev:server": "wait-on -l -d 1000 common/dist/index.mjs && npm run start:dev -w server",
+    "start:dev:client": "wait-on -l -d 1000 common/dist/index.cjs && npm run start:dev -w client",
     "start:dev": "concurrently -n port-forward,common,server,client -c 'white.bold.inverse,green.bold.inverse,teal,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:server' 'npm:start:dev:client'",
     "start": "npm run build -w common -w client && npm run start -w server",
     "test": "npm run test -ws --if-present --",
@@ -42,9 +42,6 @@
     "npm": "^9.5.0 || ^10.5.2 || >=11"
   },
   "devDependencies": {
-    "@rslib/core": "^0.23.2",
-    "@rspack/cli": "^2.1.10",
-    "@rspack/core": "^2.1.10",
     "@tanstack/eslint-plugin-query": "^5.101.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.19.15",

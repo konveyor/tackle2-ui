@@ -19,5 +19,8 @@
   },
   "dependencies": {
     "http-terminator": "^3.2.0"
+  },
+  "devDependencies": {
+    "@rslib/core": "^0.23.2"
   }
 }
