@@ -6,6 +6,7 @@ import {
   ChatbotContent,
   ChatbotDisplayMode,
   ChatbotFooter,
+  ChatbotFootnote,
   ChatbotHeader,
   ChatbotHeaderActions,
   ChatbotHeaderMain,
@@ -18,6 +19,7 @@ import {
 import {
   AlertActionLink,
   Button,
+  ButtonVariant,
   Icon,
   Label,
   Spinner,
@@ -28,14 +30,17 @@ import {
   ExclamationCircleIcon,
   ExternalLinkAltIcon,
   PendingIcon,
+  StopCircleIcon,
 } from "@patternfly/react-icons";
 
-import { AcpSession } from "@app/api/agentic/acp";
+import { isAgenticSteerEnabled } from "@app/Constants";
+import { AcpSession, acpErrorInfo } from "@app/api/agentic/acp";
 import type {
   AcpSessionCallbacks,
   PermissionOutcome,
   PermissionRequest,
   SessionUpdate,
+  SteerResult,
   ToolCallDiff,
 } from "@app/api/agentic/acp";
 import type { AgentRunPhase, AgentRunStatus } from "@app/api/agentic/contract";
@@ -45,6 +50,7 @@ import {
   sleep,
 } from "@app/api/agentic/contract";
 import { getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
@@ -55,12 +61,34 @@ import "../agent-runs.css";
 
 // ------------------------------------------------------------- chat model
 
+/**
+ * Lifecycle of a redirect injected into the agent's active turn (goose
+ * steer, relayed by the harness tee): the message is queued, the agent reads
+ * it at its next step, and the turn keeps running.
+ */
+type SteerState =
+  /** Request on its way to the harness. */
+  | { state: "sending" }
+  /** goose queued it; the agent reads it at its next step. */
+  | { state: "queued"; messageId: string }
+  /**
+   * The running turn picked it up — goose echoed it back as a user
+   * message. `streamed` marks a redirect this panel only knows from the
+   * stream (another viewer's), whose text may still arrive in chunks.
+   */
+  | { state: "delivered"; messageId?: string; streamed?: boolean }
+  /** The turn ended before the agent reached it; goose discards it. */
+  | { state: "dropped"; messageId?: string }
+  | { state: "failed"; message: string };
+
 interface UserItem {
   kind: "user";
   id: number;
   /** Creation time (epoch ms) -- PF Message re-stamps "now" without one. */
   at: number;
   text: string;
+  /** Set when the message is a mid-turn redirect rather than a prompt. */
+  steer?: SteerState;
 }
 interface AgentItem {
   kind: "agent";
@@ -103,10 +131,11 @@ interface PermissionItem {
   /** optionId chosen by the user, or "cancelled". Unset while pending. */
   chosen?: string;
 }
-interface StopItem {
-  kind: "stop";
+/** A one-line transcript divider (e.g. "stop requested"). */
+interface NoticeItem {
+  kind: "notice";
   id: number;
-  stopReason: string;
+  text: string;
 }
 interface ErrorItem {
   kind: "error";
@@ -121,8 +150,13 @@ type ChatItem =
   | ToolItem
   | PlanItem
   | PermissionItem
-  | StopItem
+  | NoticeItem
   | ErrorItem;
+
+/** The agent's active turn, as goose announces it on the run's session. */
+interface ActiveRun {
+  runId: string;
+}
 
 /** State of the dial itself; only meaningful while the run is dialable. */
 type ConnState =
@@ -214,6 +248,16 @@ function contentText(content: unknown): string {
   return "";
 }
 
+/** goose's vendor metadata on an update (`_meta.goose`), or {}. */
+function gooseMeta(u: SessionUpdate): Record<string, unknown> {
+  return isRecord(u._meta) && isRecord(u._meta.goose) ? u._meta.goose : {};
+}
+
+/** Id goose stamps on a streamed message; a steer pickup carries the steer's. */
+function updateMessageId(u: SessionUpdate): string | undefined {
+  return str(gooseMeta(u).messageId) || str(u.messageId) || undefined;
+}
+
 /** Text carried by tool_call_update.content: [{type:"content", content:{...}}]. */
 function toolUpdateText(content: unknown): string {
   if (!Array.isArray(content)) return "";
@@ -285,6 +329,54 @@ function reduceUpdate(
           title: str(u.title),
           status: str(u.status) || "pending",
           detail: toolUpdateText(u.content),
+        },
+      ];
+    }
+    case "user_message_chunk": {
+      // Only redirects are transcript material here: when the running turn
+      // picks up a steer, goose echoes it as a user message flagged
+      // _meta.goose.steer. Other user chunks are replays of the prompt the
+      // harness sent -- the live view is the agent's stream, not the prompt.
+      const goose = gooseMeta(u);
+      if (goose.steer !== true) return items;
+      const text = contentText(u.content);
+      const messageId = updateMessageId(u);
+      // A redirect this viewer sent already sits in the list: flip it to
+      // delivered instead of echoing a second bubble. Match by id, or by
+      // text for one whose id has not come back yet.
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        if (!it || it.kind !== "user" || !it.steer) continue;
+        const st = it.steer;
+        const knownId = "messageId" in st ? st.messageId : undefined;
+        const byId = !!messageId && knownId === messageId;
+        const pending = st.state === "sending" || st.state === "queued";
+        if (!byId && !(pending && it.text === text)) continue;
+        if (st.state === "delivered") {
+          // A later chunk of the same pickup: ours is already complete.
+          if (!st.streamed || !text) return items;
+          return [
+            ...items.slice(0, i),
+            { ...it, text: it.text + text },
+            ...items.slice(i + 1),
+          ];
+        }
+        const next: UserItem = {
+          ...it,
+          steer: { state: "delivered", messageId: messageId ?? knownId },
+        };
+        return [...items.slice(0, i), next, ...items.slice(i + 1)];
+      }
+      if (!text) return items;
+      // Another viewer's redirect -- show it.
+      return [
+        ...items,
+        {
+          kind: "user",
+          id: nextId(),
+          at: Date.now(),
+          text,
+          steer: { state: "delivered", messageId, streamed: true },
         },
       ];
     }
@@ -386,12 +478,22 @@ export function ChatPanel({
   });
   const [items, setItems] = useState<ChatItem[]>([]);
   const [session, setSession] = useState<AcpSession | null>(null);
-  const [turnActive, setTurnActive] = useState(false);
   const [attempt, setAttempt] = useState(0); // bumped to rerun the connect flow
+  // The run's own session and active turn, learned from the teed stream.
+  // activeRun: undefined = not observed yet, null = goose said the turn is
+  // over, object = the turn steer must name.
+  const [runSession, setRunSession] = useState<string | null>(null);
+  const [activeRun, setActiveRun] = useState<ActiveRun | null | undefined>(
+    undefined
+  );
+  const [steerBusy, setSteerBusy] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   const idRef = useRef(0);
   const sessionRef = useRef<AcpSession | null>(null);
   const lastSessionIdRef = useRef<string | null>(null);
+  const runSessionRef = useRef<string | null>(null);
+  const activeRunRef = useRef<ActiveRun | null | undefined>(undefined);
   const dropTimesRef = useRef<number[]>([]);
   const { messageBoxRef, pinToBottom } = useChatAutoScroll();
   const permissionResolvers = useRef(
@@ -402,9 +504,64 @@ export function ChatPanel({
 
   const pushItem = (item: ChatItem) => setItems((prev) => [...prev, item]);
 
-  const handleUpdate = useCallback((u: SessionUpdate) => {
-    setItems((prev) => reduceUpdate(prev, u, () => ++idRef.current));
+  const noteActiveRun = useCallback((run: ActiveRun | null | undefined) => {
+    activeRunRef.current = run;
+    setActiveRun(run);
   }, []);
+
+  const handleUpdate = useCallback(
+    (u: SessionUpdate, sid: string) => {
+      // Through the tee, the RUN's session streams alongside this viewer's
+      // own (which stays silent -- the panel never prompts it). The run's
+      // is the session steer and cancel must name.
+      const isRun = !!sid && sid !== lastSessionIdRef.current;
+      if (isRun && runSessionRef.current !== sid) {
+        runSessionRef.current = sid;
+        setRunSession(sid);
+      }
+      if (isRun && u.sessionUpdate === "session_info_update") {
+        const goose = gooseMeta(u);
+        if ("activeRunId" in goose) {
+          const id = goose.activeRunId;
+          if (typeof id === "string" && id) {
+            noteActiveRun({ runId: id });
+          } else if (id === null) {
+            noteActiveRun(null);
+            // goose discards steers the turn never reached.
+            setItems((prev) =>
+              prev.map((it) =>
+                it.kind === "user" &&
+                it.steer &&
+                (it.steer.state === "sending" || it.steer.state === "queued")
+                  ? {
+                      ...it,
+                      steer: {
+                        state: "dropped",
+                        messageId:
+                          "messageId" in it.steer
+                            ? it.steer.messageId
+                            : undefined,
+                      },
+                    }
+                  : it
+              )
+            );
+          }
+        }
+        // Any viewer's accepted steer names the run it landed in.
+        const queued = goose.queuedSteer;
+        if (
+          isRecord(queued) &&
+          typeof queued.runId === "string" &&
+          queued.runId
+        ) {
+          noteActiveRun({ runId: queued.runId });
+        }
+      }
+      setItems((prev) => reduceUpdate(prev, u, () => ++idRef.current));
+    },
+    [noteActiveRun]
+  );
 
   // Render permission asks inline; the returned promise resolves when the
   // user clicks an option (see choosePermission).
@@ -527,7 +684,6 @@ export function ChatPanel({
       sessionRef.current = null;
       if (s) void s.close();
       setSession(null);
-      setTurnActive(false);
     };
   }, [
     runName,
@@ -538,22 +694,77 @@ export function ChatPanel({
     handlePermission,
   ]);
 
-  const send = async (raw: string | number) => {
+  // Redirect the agent: goose steer on the RUN's session, relayed by the
+  // harness tee onto the run connection (rejected there with -32601 when
+  // HARNESS_HITL_STEER=off). The message is queued into the active turn and
+  // read at the agent's next step; the turn keeps running.
+  const steerRun = async (raw: string | number) => {
     const text = String(raw).trim();
     const s = session;
-    if (!text || !s || turnActive) return;
-    pushItem({ kind: "user", id: nextId(), at: Date.now(), text });
+    const runSid = runSessionRef.current;
+    if (!text || !s || !runSid || steerBusy) return;
+    const id = nextId();
+    pushItem({
+      kind: "user",
+      id,
+      at: Date.now(),
+      text,
+      steer: { state: "sending" },
+    });
     pinToBottom(); // sending is a request to watch the reply
-    setTurnActive(true);
+    setSteerBusy(true);
+    const setSteer = (steer: SteerState, onlyWhileSending = false) =>
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === id &&
+          it.kind === "user" &&
+          (!onlyWhileSending || it.steer?.state === "sending")
+            ? { ...it, steer }
+            : it
+        )
+      );
     try {
-      const stopReason = await s.prompt(text);
-      pushItem({ kind: "stop", id: nextId(), stopReason });
+      const expected = activeRunRef.current?.runId ?? DISCOVER_RUN_ID;
+      let result: SteerResult;
+      try {
+        result = await s.steer(runSid, expected, text);
+      } catch (err) {
+        // Late attach: goose refuses an id we never saw but names the
+        // current one -- adopt it and go again.
+        const actual = actualRunIdFrom(err);
+        if (!actual || actual === expected) throw err;
+        noteActiveRun({ runId: actual });
+        result = await s.steer(runSid, actual, text);
+      }
+      if (result.runId) noteActiveRun({ runId: result.runId });
+      // The pickup may already have flipped it to delivered: keep that.
+      setSteer({ state: "queued", messageId: result.messageId }, true);
     } catch (err) {
-      pushItem({ kind: "error", id: nextId(), message: errorMessage(err) });
+      if (isNoActiveRun(err)) noteActiveRun(null);
+      setSteer({ state: "failed", message: steerErrorMessage(err, t) });
     } finally {
-      setTurnActive(false);
+      setSteerBusy(false);
     }
   };
+
+  // Stop the agent's turn: session/cancel naming the run session, relayed by
+  // the tee. A human abort fails the stage -- hence the confirm.
+  const cancelRunTurn = () => {
+    setConfirmCancel(false);
+    const s = sessionRef.current;
+    const runSid = runSessionRef.current;
+    if (!s || !runSid) return;
+    s.cancelSession(runSid);
+    pushItem({
+      kind: "notice",
+      id: nextId(),
+      text: t("agentic.chat.cancelRequested"),
+    });
+  };
+
+  // Steer needs a live connection, the run's session, and a turn that is not
+  // known to be over (unknown is fine: the run id is discovered on send).
+  const canSteer = !!session && !!runSession && activeRun !== null && !finished;
 
   const manualRetry = () => {
     dropTimesRef.current = [];
@@ -701,23 +912,138 @@ export function ChatPanel({
             ))}
         </MessageBox>
       </ChatbotContent>
-      <ChatbotFooter>
-        <MessageBar
-          onSendMessage={(m) => void send(m)}
-          hasAttachButton={false}
-          alwayShowSendButton
-          isSendButtonDisabled={!session || turnActive}
-          hasStopButton={turnActive}
-          handleStopButton={() => void sessionRef.current?.cancel()}
-          placeholder={t("agentic.chat.messagePlaceholder")}
-          isDisabled={!session}
-          buttonProps={{
-            stop: { tooltipContent: t("agentic.chat.cancelTurn") },
-          }}
-        />
-      </ChatbotFooter>
+      {/* Steering (and stopping a turn) is an intervention — hidden unless
+          the deployment opts in. Permission prompts stay answerable above:
+          those are solicited by the agent, and an unanswered ask hangs the
+          turn. */}
+      {isAgenticSteerEnabled && (
+        <ChatbotFooter>
+          <MessageBar
+            onSendMessage={(m) => void steerRun(m)}
+            hasAttachButton={false}
+            alwayShowSendButton
+            isSendButtonDisabled={!canSteer || steerBusy}
+            isDisabled={!session}
+            placeholder={
+              activeRun === null
+                ? t("agentic.chat.steerTurnOver")
+                : t("agentic.chat.steerPlaceholder")
+            }
+            buttonProps={{
+              send: { tooltipContent: t("agentic.chat.steerSend") },
+            }}
+          />
+          <div className="chat-steer-footer">
+            <ChatbotFootnote
+              label={t("agentic.chat.steerFootnote")}
+              popover={{
+                title: t("agentic.chat.steerFootnoteTitle"),
+                description: t("agentic.chat.steerFootnoteBody"),
+              }}
+            />
+            <Button
+              variant="link"
+              isDanger
+              size="sm"
+              icon={<StopCircleIcon />}
+              isDisabled={!canSteer}
+              onClick={() => setConfirmCancel(true)}
+            >
+              {t("agentic.chat.cancelTurn")}
+            </Button>
+          </div>
+          <ConfirmDialog
+            isOpen={confirmCancel}
+            title={t("agentic.chat.cancelTurnTitle")}
+            titleIconVariant="warning"
+            message={t("agentic.chat.cancelTurnBody")}
+            confirmBtnLabel={t("agentic.chat.cancelTurnConfirm")}
+            cancelBtnLabel={t("actions.cancel")}
+            confirmBtnVariant={ButtonVariant.danger}
+            onClose={() => setConfirmCancel(false)}
+            onCancel={() => setConfirmCancel(false)}
+            onConfirm={cancelRunTurn}
+          />
+        </ChatbotFooter>
+      )}
     </Chatbot>
   );
+}
+
+// ------------------------------------------------------------------ steer
+
+/**
+ * expectedRunId for a steer sent before this viewer has seen the run id.
+ * goose checks the id before queuing anything and answers a mismatch with
+ * the current id in the error data -- the only way a viewer that attached
+ * mid-turn can learn it, since the tee replays harness frames to late
+ * viewers but not goose's one-off session_info_update.
+ */
+const DISCOVER_RUN_ID = "discover";
+
+/** The run id goose reports on an expectedRunId mismatch, if any. */
+function actualRunIdFrom(err: unknown): string | undefined {
+  const { data } = acpErrorInfo(err);
+  return isRecord(data) && typeof data.actualRunId === "string"
+    ? data.actualRunId
+    : undefined;
+}
+
+function isNoActiveRun(err: unknown): boolean {
+  const { data } = acpErrorInfo(err);
+  return typeof data === "string" && data.includes("no active run");
+}
+
+function steerErrorMessage(
+  err: unknown,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string {
+  const { code } = acpErrorInfo(err);
+  const message = errorMessage(err);
+  if (
+    code === -32601 &&
+    /HARNESS_HITL_STEER|steering is disabled/i.test(message)
+  ) {
+    return t("agentic.chat.steerDisabledByPolicy");
+  }
+  if (isNoActiveRun(err)) return t("agentic.chat.steerNoActiveRun");
+  return message;
+}
+
+function SteerStatus({ steer }: { steer: SteerState }) {
+  const { t } = useTranslation();
+  switch (steer.state) {
+    case "sending":
+      return (
+        <Label isCompact color="blue" icon={<Spinner size="sm" />}>
+          {t("agentic.chat.steerSending")}
+        </Label>
+      );
+    case "queued":
+      return (
+        <Label isCompact color="blue" icon={<PendingIcon />}>
+          {t("agentic.chat.steerQueued")}
+        </Label>
+      );
+    case "delivered":
+      return (
+        <Label isCompact color="green" icon={<CheckCircleIcon />}>
+          {t("agentic.chat.steerDelivered")}
+        </Label>
+      );
+    case "dropped":
+      return (
+        <Label isCompact color="orange">
+          {t("agentic.chat.steerDropped")}
+        </Label>
+      );
+    case "failed":
+      return (
+        <Label isCompact color="red" icon={<ExclamationCircleIcon />}>
+          {t("agentic.chat.steerFailed", { message: steer.message })}
+        </Label>
+      );
+  }
 }
 
 // -------------------------------------------------------- connection badge
@@ -890,9 +1216,18 @@ function ChatItemView({
         <Message
           role="user"
           avatar={USER_AVATAR}
-          name={userName}
+          name={
+            item.steer?.state === "delivered" && item.steer.streamed
+              ? t("agentic.chat.viewer")
+              : userName
+          }
           timestamp={messageTime(item.at)}
           content={item.text}
+          extraContent={
+            item.steer
+              ? { afterMainContent: <SteerStatus steer={item.steer} /> }
+              : undefined
+          }
         />
       );
     case "agent":
@@ -967,12 +1302,8 @@ function ChatItemView({
           ))}
         </div>
       );
-    case "stop":
-      return (
-        <MessageDivider
-          content={t("agentic.chat.turnEnded", { stopReason: item.stopReason })}
-        />
-      );
+    case "notice":
+      return <MessageDivider content={item.text} />;
     case "error":
       return (
         <ChatbotAlert variant="danger" title={t("agentic.chat.chatError")}>
