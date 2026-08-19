@@ -11,7 +11,9 @@
  *   client -> agent: initialize, session/new, session/load, session/prompt
  *   client -> agent (notification): session/cancel
  *   agent -> client (notification): session/update
- *   agent -> client (request): session/request_permission
+ *   agent -> client (request): session/request_permission, elicitation/create
+ *     (the agent asking the human a question — e.g. the harness's ask_user
+ *     tool — as a flat form schema; the turn blocks until it is answered)
  *
  * Plus one goose extension, relayed onto the run's own connection by the
  * harness tee (agentic-controller#96) when steering is enabled there:
@@ -60,6 +62,41 @@ export interface PermissionOutcome {
   outcome: { outcome: string; optionId?: string };
 }
 
+/**
+ * One field of an elicitation form (ACP ElicitationPropertySchema): a
+ * primitive — string (optionally an enum / titled oneOf), number, integer,
+ * boolean — or an array of enum strings (multi-select). Unknown types are
+ * rendered as free text.
+ */
+export type ElicitationProperty = {
+  type?: string;
+  title?: string;
+  description?: string;
+  enum?: string[];
+  oneOf?: { const: string; title: string }[];
+  default?: unknown;
+  [k: string]: unknown;
+};
+
+/** An agent -> client elicitation/create ask (form mode). */
+export type ElicitationRequest = {
+  sessionId?: string;
+  mode?: string;
+  message: string;
+  requestedSchema: {
+    title?: string;
+    description?: string;
+    properties: Record<string, ElicitationProperty>;
+    required: string[];
+  };
+};
+
+/** Shape of the elicitation/create response payload. */
+export interface ElicitationOutcome {
+  action: "accept" | "decline" | "cancel";
+  content?: Record<string, unknown>;
+}
+
 /** Result of a steer: the run it landed in and the queued message's id. */
 export interface SteerResult {
   runId: string;
@@ -81,6 +118,14 @@ export interface AcpSessionCallbacks {
   onPermissionRequest?(
     r: PermissionRequest
   ): Promise<PermissionOutcome> | PermissionOutcome;
+  /**
+   * The agent asking the human a question (elicitation/create). Resolve
+   * with accept + content matching the schema, or decline. When absent,
+   * asks are answered "cancel" (never silently accepted).
+   */
+  onElicitation?(
+    r: ElicitationRequest
+  ): Promise<ElicitationOutcome> | ElicitationOutcome;
 }
 
 export type AcpLogger = Pick<Console, "info" | "warn" | "error" | "debug">;
@@ -442,6 +487,10 @@ export class AcpSession {
     method: string,
     params: unknown
   ): Promise<void> {
+    if (method === "elicitation/create") {
+      await this.handleElicitation(id, params);
+      return;
+    }
     if (method !== "session/request_permission") {
       this.respondError(id, -32601, `Method not found: ${method}`);
       return;
@@ -485,6 +534,53 @@ export class AcpSession {
         id,
         -32603,
         err instanceof Error ? err.message : "permission handler failed"
+      );
+    }
+  }
+
+  private async handleElicitation(
+    id: number | string,
+    params: unknown
+  ): Promise<void> {
+    const p = isRecord(params) ? params : {};
+    const schema = isRecord(p.requestedSchema) ? p.requestedSchema : {};
+    const properties: Record<string, ElicitationProperty> = {};
+    if (isRecord(schema.properties)) {
+      for (const [name, def] of Object.entries(schema.properties)) {
+        if (isRecord(def)) properties[name] = def as ElicitationProperty;
+      }
+    }
+    const request: ElicitationRequest = {
+      sessionId: typeof p.sessionId === "string" ? p.sessionId : undefined,
+      mode: typeof p.mode === "string" ? p.mode : undefined,
+      message: typeof p.message === "string" ? p.message : "",
+      requestedSchema: {
+        title: typeof schema.title === "string" ? schema.title : undefined,
+        description:
+          typeof schema.description === "string"
+            ? schema.description
+            : undefined,
+        properties,
+        required: Array.isArray(schema.required)
+          ? schema.required.filter((r): r is string => typeof r === "string")
+          : [],
+      },
+    };
+    try {
+      const result: ElicitationOutcome = this.callbacks.onElicitation
+        ? await this.callbacks.onElicitation(request)
+        : { action: "cancel" };
+      if (!this.closed) {
+        this.sendRaw({ jsonrpc: "2.0", id, result });
+      }
+    } catch (err) {
+      this.logger.error(
+        `AcpSession: onElicitation threw: ${err instanceof Error ? err.message : String(err)}`
+      );
+      this.respondError(
+        id,
+        -32603,
+        err instanceof Error ? err.message : "elicitation handler failed"
       );
     }
   }
