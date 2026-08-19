@@ -155,3 +155,14 @@
   background: #fbe7e7;
   color: #7d1007;
 }
+
+/* Steer footer: the footnote and the stop-turn action share one row. */
+.chat-steer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.chat-steer-footer .pf-chatbot__footnote {
+  padding: 0;
+}

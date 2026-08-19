@@ -29,6 +29,13 @@ export type ClientEnv = {
    */
   AGENTIC_ENABLED: "true" | "false";
 
+  /**
+   * Allow steering a live agent from the run chat (free-text messages).
+   * Off by default — the dev-preview HITL posture is read-only: watch the
+   * transcript, don't inject instructions mid-run.
+   */
+  AGENTIC_STEER_ENABLED: "true" | "false";
+
   /** OIDC client ID for the UI */
   OIDC_CLIENT_ID: string;
 };

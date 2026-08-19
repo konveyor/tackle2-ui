@@ -13,6 +13,14 @@
  *   agent -> client (notification): session/update
  *   agent -> client (request): session/request_permission
  *
+ * Plus one goose extension, relayed onto the run's own connection by the
+ * harness tee (agentic-controller#96) when steering is enabled there:
+ *
+ *   client -> agent: _goose/unstable/session/steer — queue a message into
+ *   the session's ACTIVE turn (needs the run id goose announces as
+ *   `_meta.goose.activeRunId` on a session_info_update); the pickup streams
+ *   back as a user_message_chunk flagged `_meta.goose.steer`.
+ *
  * The socket is always `new WebSocket(url)` with no custom headers —
  * browsers cannot set them; the hub-shim injects X-Secret-Key upstream.
  */
@@ -21,6 +29,9 @@
 export const PROTOCOL_VERSION = 1;
 
 const DEFAULT_CWD = "/workspace";
+
+/** goose's mid-turn redirect request (relayed by the harness tee). */
+export const STEER_METHOD = "_goose/unstable/session/steer";
 
 // ------------------------------------------------------------------ types
 
@@ -49,8 +60,19 @@ export interface PermissionOutcome {
   outcome: { outcome: string; optionId?: string };
 }
 
+/** Result of a steer: the run it landed in and the queued message's id. */
+export interface SteerResult {
+  runId: string;
+  messageId: string;
+}
+
 export interface AcpSessionCallbacks {
-  onUpdate?(u: SessionUpdate): void;
+  /**
+   * A session/update notification. `sessionId` is the session it belongs
+   * to — through the harness tee a viewer sees the RUN's session as well
+   * as its own, and the two must not be confused.
+   */
+  onUpdate?(u: SessionUpdate, sessionId: string): void;
   /**
    * Human-in-the-loop approval. Return {outcome:{outcome:"selected",
    * optionId}} or {outcome:{outcome:"cancelled"}}. When absent, permission
@@ -259,6 +281,38 @@ export class AcpSession {
     }
   }
 
+  /**
+   * Cancel the active turn of an arbitrary session — through the tee,
+   * naming the RUN's session stops the agent (the harness then records the
+   * stage as failed: a human abort is not a success).
+   */
+  cancelSession(sessionId: string): void {
+    if (!this.closed) this.notify("session/cancel", { sessionId });
+  }
+
+  /**
+   * Inject `text` into the active turn of `sessionId` (goose steer). The
+   * message is queued and picked up at the agent's next step; the turn
+   * keeps running. `expectedRunId` must name the active run — goose
+   * rejects an empty or stale id with invalid params (-32602), and the
+   * mismatch error carries the current id as `data.actualRunId`.
+   */
+  async steer(
+    sessionId: string,
+    expectedRunId: string,
+    text: string
+  ): Promise<SteerResult> {
+    const res = await this.request<Partial<SteerResult>>(STEER_METHOD, {
+      sessionId,
+      expectedRunId,
+      prompt: [{ type: "text", text }],
+    });
+    return {
+      runId: typeof res?.runId === "string" ? res.runId : expectedRunId,
+      messageId: typeof res?.messageId === "string" ? res.messageId : "",
+    };
+  }
+
   /** Close the connection; pending requests reject. Idempotent. */
   async close(): Promise<void> {
     this.explicitlyClosed = true;
@@ -361,9 +415,13 @@ export class AcpSession {
   private handleNotification(method: string, params: unknown): void {
     if (method === "session/update") {
       const update = isRecord(params) ? params.update : undefined;
+      const sessionId =
+        isRecord(params) && typeof params.sessionId === "string"
+          ? params.sessionId
+          : "";
       if (isRecord(update) && typeof update.sessionUpdate === "string") {
         try {
-          this.callbacks.onUpdate?.(update as SessionUpdate);
+          this.callbacks.onUpdate?.(update as SessionUpdate, sessionId);
         } catch (err) {
           this.logger.error(
             `AcpSession: onUpdate callback threw: ${err instanceof Error ? err.message : String(err)}`
@@ -493,6 +551,22 @@ export class AcpSession {
 }
 
 // ---------------------------------------------------------------- helpers
+
+/** JSON-RPC error detail attached to the Error a failed request rejects with. */
+export interface AcpErrorInfo {
+  code?: number;
+  data?: unknown;
+}
+
+/** Reads the JSON-RPC code/data off an ACP request failure (see settle()). */
+export function acpErrorInfo(err: unknown): AcpErrorInfo {
+  if (!isRecord(err)) return {};
+  const rec = err as Record<string, unknown>;
+  return {
+    code: typeof rec.code === "number" ? rec.code : undefined,
+    data: rec.data,
+  };
+}
 
 async function toText(raw: unknown): Promise<string | undefined> {
   if (typeof raw === "string") return raw;

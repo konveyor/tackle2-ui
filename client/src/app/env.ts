@@ -9,6 +9,7 @@ const CLIENT_ENV_DEFAULTS: ClientEnv = {
   RWX_SUPPORTED: "true",
   AUTH_REQUIRED: "false",
   AGENTIC_ENABLED: "false",
+  AGENTIC_STEER_ENABLED: "false",
   OIDC_CLIENT_ID: "web-ui",
 };
 
