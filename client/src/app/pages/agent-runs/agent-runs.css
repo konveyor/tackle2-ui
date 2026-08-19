@@ -166,3 +166,11 @@
 .chat-steer-footer .pf-chatbot__footnote {
   padding: 0;
 }
+
+/* Expanded transcript: PF's fullscreen mode pins the chatbot over the
+   viewport (position: fixed, inset 0); drop the inline card chrome there. */
+.agent-run-chatbot.pf-chatbot--fullscreen {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}

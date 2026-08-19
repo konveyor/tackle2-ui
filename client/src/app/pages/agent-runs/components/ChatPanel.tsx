@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import {
   Chatbot,
@@ -23,11 +24,14 @@ import {
   Icon,
   Label,
   Spinner,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   CodeBranchIcon,
+  CompressIcon,
   ExclamationCircleIcon,
+  ExpandIcon,
   ExternalLinkAltIcon,
   PendingIcon,
   StopCircleIcon,
@@ -488,6 +492,17 @@ export function ChatPanel({
   );
   const [steerBusy, setSteerBusy] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  // Full-screen transcript: PF's fullscreen display mode pins the chatbot
+  // over the viewport; Escape (or the header button) brings it back inline.
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expanded]);
 
   const idRef = useRef(0);
   const sessionRef = useRef<AcpSession | null>(null);
@@ -803,9 +818,11 @@ export function ChatPanel({
     }
   })();
 
-  return (
+  const chatbot = (
     <Chatbot
-      displayMode={ChatbotDisplayMode.embedded}
+      displayMode={
+        expanded ? ChatbotDisplayMode.fullscreen : ChatbotDisplayMode.embedded
+      }
       className="agent-run-chatbot"
       ariaLabel={t("agentic.chat.title")}
     >
@@ -838,6 +855,21 @@ export function ChatPanel({
                 <code>{targetBranch}</code>
               </Label>
             ))}
+          <Tooltip
+            content={
+              expanded ? t("agentic.chat.collapse") : t("agentic.chat.expand")
+            }
+          >
+            <Button
+              variant="plain"
+              aria-label={
+                expanded ? t("agentic.chat.collapse") : t("agentic.chat.expand")
+              }
+              aria-pressed={expanded}
+              icon={expanded ? <CompressIcon /> : <ExpandIcon />}
+              onClick={() => setExpanded((v) => !v)}
+            />
+          </Tooltip>
         </ChatbotHeaderActions>
       </ChatbotHeader>
       <ChatbotContent>
@@ -968,6 +1000,10 @@ export function ChatPanel({
       )}
     </Chatbot>
   );
+  // Expanded: PF's fullscreen mode is position: fixed, but the page's main
+  // region is its own stacking context, so inline it would still sit under
+  // the masthead and sidebar -- portal it to <body> for the duration.
+  return expanded ? createPortal(chatbot, document.body) : chatbot;
 }
 
 // ------------------------------------------------------------------ steer

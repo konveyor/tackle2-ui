@@ -1210,6 +1210,8 @@
       "reconnect": "Reconnect",
       "retry": "Retry",
       "connectedHint": "Connected — waiting for the agent's first update.",
+      "expand": "Expand the transcript to full screen",
+      "collapse": "Exit full screen (Esc)",
       "viewer": "Viewer",
       "steerPlaceholder": "Redirect the agent — it reads this at its next step…",
       "steerTurnOver": "The agent's turn is over — nothing to redirect.",
