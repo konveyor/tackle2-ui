@@ -28,7 +28,10 @@ describe("Settings validation", () => {
 
     if (token && token.length >= 2) {
       const suffix = token.slice(-2);
-      cy.task("log", `Config check: ${user || "default"} [${suffix}]`);
+      cy.task(
+        "log",
+        `Config check: ${user || "default"} [${suffix}] len=${token.length}`
+      );
     }
 
     expect(token).to.not.be.undefined;
