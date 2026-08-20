@@ -14,6 +14,8 @@ export interface StartRunsInput {
 }
 
 export interface StartRunsResult {
+  /** Echoed from the input so the caller can build the filtered landing. */
+  workflowRef: string;
   success: { run: AgentWorkflowRun; application: DecoratedApplication }[];
   failure: { cause: Error; application: DecoratedApplication }[];
 }
@@ -71,7 +73,7 @@ export const useStartAgentWorkflowRuns = () => {
     if (success.length > 0) {
       queryClient.invalidateQueries({ queryKey: [WORKFLOW_RUNS_QUERY_KEY] });
     }
-    return { success, failure };
+    return { workflowRef: input.workflowRef, success, failure };
   };
 
   return { startRuns };
