@@ -24,8 +24,8 @@ export type ClientEnv = {
 
   /**
    * Show the agentic console (agent runs, agents, skills, workflows). Off
-   * unless the server has an `/agentic` proxy target configured, since the
-   * whole section is unusable without a backend behind it.
+   * by default; a deployment opts in when its hub serves the agentic
+   * endpoints, since the console is unusable without them.
    */
   AGENTIC_ENABLED: "true" | "false";
 
