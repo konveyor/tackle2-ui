@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, rspack } from "@rslib/core";
 import { render } from "ejs";
 
+import { pluginBuildMarker } from "./rslib-plugin-build-marker";
+
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const baseBrandingPath = process.env.BRANDING ?? "./branding";
@@ -80,4 +82,5 @@ export default defineConfig({
       ],
     },
   },
+  plugins: [pluginBuildMarker({ markerFilePath: "./dist/.built" })],
 });
