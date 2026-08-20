@@ -57,6 +57,7 @@ import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CreateWorkflowRunModal } from "@app/pages/workflow-runs/components/CreateWorkflowRunModal";
+import { workflowRunsPath } from "@app/pages/workflow-runs/runs-page-links";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -1390,10 +1391,16 @@ export const ApplicationsTable: FC = () => {
         <BulkAgentRunModal
           applications={bulkRunApplications}
           onClose={() => setBulkRunApplications(null)}
-          onStarted={({ success, failure }) => {
+          onStarted={({ workflowRef, success, failure }) => {
             setBulkRunApplications(null);
-            // Runs land in a different section entirely, so the toast is the
-            // only feedback here until the drawer tab exists (#3521).
+            // The canonical post-launch landing: the runs page pre-filtered
+            // to what was just launched. The toast repeats the link so the
+            // view stays reachable after navigating away.
+            const launchedRunsPath = workflowRunsPath({
+              application: success.map(({ application }) => application.name),
+              workflow: [workflowRef],
+            });
+            if (success.length > 0) history.push(launchedRunsPath);
             pushNotification({
               title:
                 failure.length === 0
@@ -1408,7 +1415,7 @@ export const ApplicationsTable: FC = () => {
                 <Button
                   variant="link"
                   isInline
-                  onClick={() => history.push(Paths.workflowRuns)}
+                  onClick={() => history.push(launchedRunsPath)}
                 >
                   {t("agentic.bulkRun.viewRuns")}
                 </Button>

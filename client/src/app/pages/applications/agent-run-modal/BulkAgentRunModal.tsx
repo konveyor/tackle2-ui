@@ -24,8 +24,14 @@ import {
 import type { AgentWorkflow } from "@app/api/agentic/contract";
 import { defaultTargetBranch } from "@app/api/agentic/contract";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
+import { useFetchAgents } from "@app/queries/agents";
 import { useFetchWorkflows } from "@app/queries/workflows";
-import { RunBlocker, partitionByRunEligibility } from "@app/utils/agentic";
+import {
+  RunBlocker,
+  hasSourceCredential,
+  partitionByRunEligibility,
+  workflowStagePreflight,
+} from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
@@ -61,6 +67,11 @@ export const BulkAgentRunModal: React.FC<BulkAgentRunModalProps> = ({
     isLoading: workflowsLoading,
     fetchError: workflowsError,
   } = useFetchWorkflows();
+  const {
+    agents,
+    isLoading: agentsLoading,
+    fetchError: agentsError,
+  } = useFetchAgents();
 
   const [workflowName, setWorkflowName] = useState("");
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
@@ -101,9 +112,29 @@ export const BulkAgentRunModal: React.FC<BulkAgentRunModalProps> = ({
     ({ blocker }) => blocker.kind === "branchInvalid"
   );
 
+  // The bulk path supplies no params, so any required, defaultless param on
+  // any stage agent (or a dangling agentRef) dooms the whole batch — block
+  // rather than claim eligibility. Fail open until the agents list is real.
+  const stagePreflight = useMemo(
+    () =>
+      !selectedWorkflow || agentsLoading || agentsError
+        ? []
+        : workflowStagePreflight(selectedWorkflow, agents),
+    [selectedWorkflow, agents, agentsLoading, agentsError]
+  );
+
+  // Push failures don't block (a default identity may still cover the app),
+  // but they get named: every stage ends in a push, so a missing source
+  // credential means the run does its work and then fails.
+  const missingCredential = useMemo(
+    () => eligible.filter((application) => !hasSourceCredential(application)),
+    [eligible]
+  );
+
   const canSubmit =
     !!selectedWorkflow &&
     isSelectable(selectedWorkflow) &&
+    stagePreflight.length === 0 &&
     !branchMalformed &&
     eligible.length > 0 &&
     !submitting;
@@ -211,6 +242,33 @@ export const BulkAgentRunModal: React.FC<BulkAgentRunModalProps> = ({
               </FormSelect>
             </FormGroup>
 
+            {stagePreflight.length > 0 && (
+              <Alert
+                variant="danger"
+                isInline
+                title={t("agentic.bulkRun.preflightTitle")}
+              >
+                <List>
+                  {stagePreflight.map((failure) => (
+                    <ListItem key={failure.stage}>
+                      {failure.agentMissing
+                        ? t("agentic.bulkRun.preflightMissingAgent", {
+                            stage: failure.stage,
+                            agent: failure.agent,
+                          })
+                        : t("agentic.bulkRun.preflightMissingParams", {
+                            stage: failure.stage,
+                            agent: failure.agent,
+                            params: failure.missingParams?.join(", "),
+                          })}
+                    </ListItem>
+                  ))}
+                </List>
+                {stagePreflight.some((failure) => failure.missingParams) &&
+                  t("agentic.bulkRun.preflightHint")}
+              </Alert>
+            )}
+
             <FormGroup
               label={t("terms.targetBranch")}
               isRequired
@@ -253,6 +311,26 @@ export const BulkAgentRunModal: React.FC<BulkAgentRunModalProps> = ({
                 </List>
               )}
             </Alert>
+
+            {missingCredential.length > 0 && (
+              <Alert
+                variant="warning"
+                isInline
+                title={t("agentic.bulkRun.credentialWarningTitle", {
+                  count: missingCredential.length,
+                  eligible: eligible.length,
+                })}
+              >
+                <List>
+                  {missingCredential.map((application) => (
+                    <ListItem key={application.id}>
+                      <strong>{application.name}</strong>
+                    </ListItem>
+                  ))}
+                </List>
+                {t("agentic.bulkRun.credentialWarningBody")}
+              </Alert>
+            )}
 
             {eligible.length > 0 && (
               <HelperText>

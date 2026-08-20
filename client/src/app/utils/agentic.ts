@@ -1,4 +1,8 @@
-import type { AgentWorkflowRun } from "@app/api/agentic/contract";
+import type {
+  AgentResource,
+  AgentWorkflow,
+  AgentWorkflowRun,
+} from "@app/api/agentic/contract";
 import {
   APPLICATION_LABEL,
   invalidTargetBranchReason,
@@ -125,6 +129,74 @@ export function runBlocker(
     applicationRunBlocker(app) ??
     (branch === undefined ? undefined : targetBranchBlocker(app, branch))
   );
+}
+
+// ------------------------------------------------- workflow stage preflight
+
+/** One stage of a workflow that would fail as launched. */
+export interface StagePreflightFailure {
+  stage: string;
+  agent: string;
+  /** Required, defaultless params the launch does not supply. */
+  missingParams?: string[];
+  /** The stage's agentRef resolves to no Agent (name refs fail at run). */
+  agentMissing?: boolean;
+}
+
+/**
+ * Predict the failures a run of `workflow` hits on arrival, given the param
+ * names the caller will supply. A required param with no default that nobody
+ * supplies dies as InvalidParams the moment its stage starts, and a dangling
+ * agentRef never starts at all — for a bulk launch (which supplies no
+ * params) either one dooms every run in the batch, so the modal must count
+ * it before claiming applications are eligible.
+ *
+ * Callers fail open: only invoke this once the agents list has genuinely
+ * loaded — an empty list mid-fetch is not evidence of dangling refs.
+ */
+export function workflowStagePreflight(
+  workflow: AgentWorkflow,
+  agents: AgentResource[],
+  suppliedParams: ReadonlySet<string> = new Set()
+): StagePreflightFailure[] {
+  const agentsByName = new Map(agents.map((a) => [a.metadata.name ?? "", a]));
+  const failures: StagePreflightFailure[] = [];
+  for (const stage of workflow.spec.stages ?? []) {
+    const agent = agentsByName.get(stage.agentRef);
+    if (!agent) {
+      failures.push({
+        stage: stage.name,
+        agent: stage.agentRef,
+        agentMissing: true,
+      });
+      continue;
+    }
+    const missingParams = (agent.spec.params ?? [])
+      .filter(
+        (p) => p.required && p.default == null && !suppliedParams.has(p.name)
+      )
+      .map((p) => p.name);
+    if (missingParams.length > 0)
+      failures.push({
+        stage: stage.name,
+        agent: stage.agentRef,
+        missingParams,
+      });
+  }
+  return failures;
+}
+
+/**
+ * True when the application has a source-role credential assigned. Every
+ * stage ends by pushing the target branch to the application's repository,
+ * so a run against an application without one does all its work and then
+ * dies at the push — callers surface this at launch rather than block on
+ * it (a global default identity may still cover the app).
+ */
+export function hasSourceCredential(
+  app: Pick<Application, "identities">
+): boolean {
+  return app.identities?.some((i) => i.role === "source") ?? false;
 }
 
 /**

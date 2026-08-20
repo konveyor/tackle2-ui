@@ -102,6 +102,11 @@ const WorkflowRunsPage: React.FC = () => {
     [rows]
   );
 
+  const workflowOptions = useMemo(
+    () => [...new Set(rows.map((row) => row.workflow).filter(Boolean))].sort(),
+    [rows]
+  );
+
   const tableControls = useLocalTableControls({
     tableName: "workflow-runs-table",
     persistTo: "urlParams",
@@ -132,6 +137,18 @@ const WorkflowRunsPage: React.FC = () => {
           t("actions.filterBy", { what: t("terms.name").toLowerCase() }) +
           "...",
         getItemValue: (row) => row.name,
+      },
+      {
+        categoryKey: "workflow",
+        title: t("terms.workflow"),
+        type: FilterType.multiselect,
+        logicOperator: "OR",
+        selectOptions: workflowOptions.map((name) => ({ value: name })),
+        placeholderText:
+          t("actions.filterBy", { what: t("terms.workflow").toLowerCase() }) +
+          "...",
+        // Exact match, same rationale as the application filter below.
+        matcher: (filter, row) => row.workflow === filter,
       },
       {
         categoryKey: "application",
