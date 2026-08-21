@@ -33,6 +33,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import {
+  BookOpenIcon,
   CheckCircleIcon,
   CodeBranchIcon,
   CompressIcon,
@@ -123,6 +124,8 @@ interface ToolItem {
   title: string;
   status: string;
   detail: string;
+  /** The call's rawInput as announced (e.g. load_skill's `{name}`), if any. */
+  input?: Record<string, unknown>;
 }
 interface PlanEntry {
   content: string;
@@ -357,6 +360,7 @@ function reduceUpdate(
           title: str(u.title),
           status: str(u.status) || "pending",
           detail: toolUpdateText(u.content),
+          input: isRecord(u.rawInput) ? u.rawInput : undefined,
         },
       ];
     }
@@ -1282,6 +1286,52 @@ function toolStatusColor(status: string): "green" | "red" | "blue" {
   return "blue";
 }
 
+/** A load_skill call: the skill named, and the supporting file within it if one was asked for. */
+interface SkillLoad {
+  skill: string;
+  file?: string;
+}
+
+/**
+ * goose loads a skill's content on demand through its `load_skill` tool
+ * (ADR 0014): the call is titled with the tool name and carries the skill
+ * as `rawInput.name` -- `"<skill>"`, or `"<skill>/relative/file"` for one
+ * of its supporting files. Either signal (title or input) identifies it.
+ */
+function skillLoadOf(
+  item: Pick<ToolItem, "title" | "input">
+): SkillLoad | undefined {
+  const name = item.input?.name;
+  if (typeof name !== "string" || !name.trim()) return undefined;
+  if (!/^load_skill\b/i.test(item.title) && !/skill/i.test(item.title)) {
+    return undefined;
+  }
+  const slash = name.indexOf("/");
+  if (slash < 0) return { skill: name };
+  const file = name.slice(slash + 1);
+  return file
+    ? { skill: name.slice(0, slash), file }
+    : { skill: name.slice(0, slash) };
+}
+
+function skillLoadText(
+  load: SkillLoad,
+  status: string,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string {
+  const { skill: name, file } = load;
+  if (status === "completed") {
+    return file
+      ? t("agentic.chat.loadedSkillFile", { name, file })
+      : t("agentic.chat.loadedSkill", { name });
+  }
+  const text =
+    status === "failed" || status === "error"
+      ? t("agentic.chat.skillLoadFailed", { name })
+      : t("agentic.chat.loadingSkill", { name });
+  return file ? `${text} · ${file}` : text;
+}
+
 function PlanEntryIcon({ status }: { status: string }) {
   if (status === "completed") {
     return (
@@ -1359,7 +1409,8 @@ function ChatItemView({
           />
         </div>
       );
-    case "tool":
+    case "tool": {
+      const skillLoad = skillLoadOf(item);
       return (
         <Message
           role="bot"
@@ -1370,7 +1421,16 @@ function ChatItemView({
             toggleContent: (
               <span className="chat-tool-toggle">
                 <ToolStatusIcon status={item.status} />{" "}
-                {item.title || t("agentic.chat.toolCall")}{" "}
+                {skillLoad ? (
+                  <>
+                    <Icon>
+                      <BookOpenIcon aria-hidden="true" />
+                    </Icon>{" "}
+                    {skillLoadText(skillLoad, item.status, t)}
+                  </>
+                ) : (
+                  item.title || t("agentic.chat.toolCall")
+                )}{" "}
                 <Label
                   isCompact
                   color={toolStatusColor(item.status)}
@@ -1388,6 +1448,7 @@ function ChatItemView({
           }}
         />
       );
+    }
     case "plan":
       return (
         <div className="chat-plan">

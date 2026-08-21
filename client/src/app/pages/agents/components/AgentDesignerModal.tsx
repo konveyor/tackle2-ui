@@ -12,12 +12,14 @@ import {
   FormSelectOption,
   HelperText,
   HelperTextItem,
+  Label,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   TextArea,
   TextInput,
+  Tooltip,
 } from "@patternfly/react-core";
 
 import type {
@@ -31,6 +33,10 @@ import {
   RESOURCE_NAME_PATTERN,
 } from "@app/api/agentic/contract";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
+import {
+  SkillDescription,
+  SkillTypeLabel,
+} from "@app/pages/skills/components/SkillLabels";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
 import {
   useCreateAgentMutation,
@@ -43,6 +49,19 @@ import {
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const PARAM_TYPES: AgentParamType[] = ["string", "number", "boolean"];
+
+/** Checkbox label row: name, secondary text and status labels on one line. */
+const inlineLabelStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const secondaryTextStyle: React.CSSProperties = {
+  fontSize: "0.85em",
+  color: "var(--pf-t--global--text--color--subtle)",
+};
 
 interface ParamRow {
   name: string;
@@ -118,8 +137,15 @@ export const AgentDesignerModal: React.FC<Props> = ({
   // ---- validation
   const nameValid = RESOURCE_NAME_PATTERN.test(name) && name.length > 0;
   const imageValid = imageRef.trim().length > 0;
-  const totalSkills =
-    selectedSkillCards.length + selectedSkillCollections.length;
+
+  // ---- skill summary: rules (always injected) vs on-demand skills among the
+  // selected cards. A selected ref whose card is not in the catalog counts as
+  // a skill, which is the CRD default for `spec.type`.
+  const ruleCount = skillCards.filter(
+    (sc) =>
+      sc.spec.type === "rule" && selectedSkillCards.includes(sc.metadata.name!)
+  ).length;
+  const onDemandCount = selectedSkillCards.length - ruleCount;
 
   // ---- helpers
   const toggleGateway = (ref: string) => {
@@ -319,26 +345,26 @@ export const AgentDesignerModal: React.FC<Props> = ({
             ) : (
               skillCards.map((sc) => {
                 const ref = sc.metadata.name!;
+                const displayName = sc.spec.displayName?.trim();
+                const description = sc.spec.description?.trim();
                 return (
                   <div key={ref} style={{ marginBottom: 4 }}>
                     <Checkbox
                       id={`sc-${ref}`}
                       label={
-                        <>
-                          {sc.spec.displayName ?? ref}{" "}
-                          <ReadyLabel conditions={sc.status?.conditions} />
-                          {sc.status?.resolvedImage && (
-                            <span
-                              style={{
-                                marginLeft: 8,
-                                fontSize: "0.85em",
-                                color: "var(--pf-t--global--color--200)",
-                              }}
-                            >
-                              {sc.status.resolvedImage}
-                            </span>
+                        <span style={inlineLabelStyle}>
+                          <span>{displayName || ref}</span>
+                          {displayName && displayName !== ref && (
+                            <span style={secondaryTextStyle}>{ref}</span>
                           )}
-                        </>
+                          <SkillTypeLabel type={sc.spec.type} isCompact />
+                          <ReadyLabel conditions={sc.status?.conditions} />
+                        </span>
+                      }
+                      description={
+                        description ? (
+                          <SkillDescription text={description} max={100} />
+                        ) : undefined
                       }
                       isChecked={selectedSkillCards.includes(ref)}
                       onChange={() => toggleSkillCard(ref)}
@@ -365,11 +391,45 @@ export const AgentDesignerModal: React.FC<Props> = ({
             ) : (
               skillCollections.map((col) => {
                 const ref = col.metadata.name!;
+                // Enumerate mode (spec.image) vs an explicit member list.
+                const memberNames = col.spec.skills?.map((s) => s.name) ?? [];
+                const tooltipLines = col.spec.image
+                  ? [col.spec.image]
+                  : memberNames;
+                const modeLabel = (
+                  <Label isCompact variant="outline">
+                    {col.spec.image
+                      ? t("agentic.agents.collectionEnumerated")
+                      : t("agentic.agents.collectionSkillCount", {
+                          count: memberNames.length,
+                        })}
+                  </Label>
+                );
                 return (
                   <div key={ref} style={{ marginBottom: 4 }}>
                     <Checkbox
                       id={`col-${ref}`}
-                      label={ref}
+                      label={
+                        <span style={inlineLabelStyle}>
+                          <span>{ref}</span>
+                          {tooltipLines.length > 0 ? (
+                            <Tooltip
+                              content={
+                                <div style={{ wordBreak: "break-all" }}>
+                                  {tooltipLines.map((line) => (
+                                    <div key={line}>{line}</div>
+                                  ))}
+                                </div>
+                              }
+                            >
+                              {modeLabel}
+                            </Tooltip>
+                          ) : (
+                            modeLabel
+                          )}
+                          <ReadyLabel conditions={col.status?.conditions} />
+                        </span>
+                      }
                       isChecked={selectedSkillCollections.includes(ref)}
                       onChange={() => toggleSkillCollection(ref)}
                     />
@@ -379,15 +439,21 @@ export const AgentDesignerModal: React.FC<Props> = ({
             )}
           </FormGroup>
 
-          {totalSkills === 0 && (
-            <Alert
-              variant="danger"
-              isInline
-              title={t("agentic.agents.noSkillsSelectedTitle")}
-            >
-              {t("agentic.agents.noSkillsSelectedBody")}
-            </Alert>
-          )}
+          {/* ---------- Skill summary ---------- */}
+          {/* Skills are optional on an Agent, so this is guidance, not an
+              error: what the selection loads always vs on demand. */}
+          <HelperText>
+            <HelperTextItem>
+              {t("agentic.agents.skillSummary", {
+                rules: ruleCount,
+                skills: onDemandCount,
+                collections: selectedSkillCollections.length,
+              })}
+            </HelperTextItem>
+            <HelperTextItem>
+              {t("agentic.agents.skillsGuidance")}
+            </HelperTextItem>
+          </HelperText>
 
           {/* ---------- Parameters ---------- */}
           <FormGroup label={t("terms.parameters")} fieldId="agent-params">

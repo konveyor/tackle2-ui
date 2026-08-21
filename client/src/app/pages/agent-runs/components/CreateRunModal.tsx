@@ -36,10 +36,15 @@ import {
   defaultGatewayFor,
 } from "@app/pages/agent-runs/components/GatewayPicker";
 import { paramHelperText } from "@app/pages/agent-runs/components/ParamFields";
+import { RunSkillsSummary } from "@app/pages/agent-runs/components/RunSkillsSummary";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
 import { useFetchAgents } from "@app/queries/agents";
 import { useFetchApplications } from "@app/queries/applications";
+import {
+  useFetchSkillCards,
+  useFetchSkillCollections,
+} from "@app/queries/skills";
 import {
   applicationLabelValue,
   targetBranchBlocker,
@@ -127,6 +132,24 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     : null;
 
   const { gateways } = useFetchGateways();
+
+  // Read-only: a run mounts whatever its Agent references, so the form only
+  // shows them (nothing here goes into the create payload).
+  const {
+    skillCards,
+    isLoading: skillCardsLoading,
+    fetchError: skillCardsFetchError,
+  } = useFetchSkillCards();
+  const {
+    skillCollections,
+    isLoading: skillCollectionsLoading,
+    fetchError: skillCollectionsFetchError,
+  } = useFetchSkillCollections();
+  const skillsUnresolved =
+    skillCardsLoading ||
+    !!skillCardsFetchError ||
+    skillCollectionsLoading ||
+    !!skillCollectionsFetchError;
 
   // Seed the agent select + param/gateway defaults once the list arrives —
   // a render-phase adjustment (not an effect) so the settled state is
@@ -327,6 +350,24 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 </FormHelperText>
               )}
             </FormGroup>
+
+            {selected && (
+              <FormGroup
+                label={t("agentic.createRun.skillsHeading")}
+                fieldId="create-run-skills"
+                role="group"
+              >
+                <div id="create-run-skills">
+                  <RunSkillsSummary
+                    agent={selected}
+                    skillCards={skillCards}
+                    skillCollections={skillCollections}
+                    variant="block"
+                    unresolved={skillsUnresolved}
+                  />
+                </div>
+              </FormGroup>
+            )}
 
             <GatewayPicker
               gatewayRefs={selected?.spec.gateways ?? []}
