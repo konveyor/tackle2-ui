@@ -24,6 +24,7 @@ import { PageHeader } from "@app/components/PageHeader";
 import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
+import { RunConditionSummary } from "@app/pages/agent-runs/components/RunConditionSummary";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchWorkflowRun } from "@app/queries/workflow-runs";
 import {
@@ -33,6 +34,8 @@ import {
   workflowRunDuration,
 } from "@app/utils/agentic";
 import { formatPath } from "@app/utils/utils";
+
+import "@app/pages/agent-runs/agent-runs.css";
 
 /**
  * Map a stage phase to a ProgressStepper variant. Ready=False on the run
@@ -116,7 +119,14 @@ const WorkflowRunDetailPage: React.FC = () => {
         <PageHeader
           title={runName}
           breadcrumbs={breadcrumbs}
-          description={<PhaseLabel phase={workflowRun.status?.phase} />}
+          description={
+            <span className="run-phase-line">
+              <PhaseLabel phase={workflowRun.status?.phase} />
+              <RunConditionSummary
+                conditions={workflowRun.status?.conditions}
+              />
+            </span>
+          }
         />
         {fetchError && (
           <Alert

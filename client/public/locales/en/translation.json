@@ -1187,7 +1187,9 @@
       "feedNetworkErrorRetrying": "commit feed unavailable (network error) — retrying",
       "retry": "Retry",
       "noCommitsYet": "no commits on this branch yet",
-      "collectionLabel": "collection: {{name}}"
+      "collectionLabel": "collection: {{name}}",
+      "conditionTooltip": "{{type}}={{status}}{{since}}",
+      "conditionSince": " since {{time}}"
     },
     "chat": {
       "title": "Agent session",

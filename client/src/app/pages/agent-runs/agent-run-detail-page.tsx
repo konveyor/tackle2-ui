@@ -36,6 +36,7 @@ import {
 import { BranchPanel, repoBranchUrl } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { PhaseLabel } from "./components/PhaseLabel";
+import { RunConditionSummary } from "./components/RunConditionSummary";
 import { RunSkillsSummary } from "./components/RunSkillsSummary";
 
 import "./agent-runs.css";
@@ -132,7 +133,12 @@ const AgentRunDetailPage: React.FC = () => {
         <PageHeader
           title={runName}
           breadcrumbs={breadcrumbs}
-          description={<PhaseLabel phase={agentRun.status?.phase} />}
+          description={
+            <span className="run-phase-line">
+              <PhaseLabel phase={agentRun.status?.phase} />
+              <RunConditionSummary conditions={agentRun.status?.conditions} />
+            </span>
+          }
         />
         {fetchError && (
           <Alert

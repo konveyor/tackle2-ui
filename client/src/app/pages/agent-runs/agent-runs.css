@@ -21,6 +21,24 @@
   border-radius: 8px;
 }
 
+/* Phase label and, when there is one, the condition that explains it. */
+.run-phase-line {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.run-condition-summary {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.run-condition-message {
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  font-size: 0.875rem;
+}
+
 /* Keep the toggle tight against the summary above it. */
 .run-detail-spec-section {
   margin-top: 1rem;
