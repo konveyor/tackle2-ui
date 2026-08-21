@@ -32,6 +32,12 @@ const devClientEnv = (env: ClientEnv = process.env as unknown as ClientEnv) =>
       UI_INGRESS_PROXY_BODY_SIZE: env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
       RWX_SUPPORTED: env.RWX_SUPPORTED ?? "true",
       AUTH_REQUIRED: env.AUTH_REQUIRED ?? "false",
+      // On by default in dev — the standalone dev server has no proxy config
+      // to derive from, and dev is where the console is being built.
+      AGENTIC_ENABLED: env.AGENTIC_ENABLED ?? "true",
+      // Also on in dev so the chat send path stays exercisable locally;
+      // deployments opt in explicitly (serverConfig.js defaults it off).
+      AGENTIC_STEER_ENABLED: env.AGENTIC_STEER_ENABLED ?? "true",
       OIDC_CLIENT_ID: env.OIDC_CLIENT_ID ?? "web-ui",
     } as ClientEnv)
   );

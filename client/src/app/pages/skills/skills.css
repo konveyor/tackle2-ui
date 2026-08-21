@@ -1,0 +1,64 @@
+/* Skills page: detail drawers for skill cards and skill collections. */
+
+.skills-drawer__break {
+  word-break: break-all;
+}
+
+.skills-drawer__mono {
+  font-family: var(--pf-t--global--font--family--mono);
+  word-break: break-all;
+}
+
+.skills-drawer__hint {
+  margin-block-start: var(--pf-t--global--spacer--xs);
+}
+
+/* Conditions: one block per condition, message in full. */
+.skills-drawer__conditions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skills-drawer__condition + .skills-drawer__condition {
+  margin-block-start: var(--pf-t--global--spacer--sm);
+}
+
+.skills-drawer__condition-message {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Inline SKILL.md: scroll inside the drawer instead of growing it. */
+.skills-drawer__code {
+  max-height: 24rem;
+  overflow: auto;
+}
+
+/* Collection members: one bordered block per entry. */
+.skills-drawer__member {
+  padding-block: var(--pf-t--global--spacer--sm);
+  border-block-end: var(--pf-t--global--border--width--divider--default) solid
+    var(--pf-t--global--border--color--default);
+}
+
+.skills-drawer__member:last-child {
+  border-block-end: none;
+}
+
+.skills-drawer__member-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--sm);
+}
+
+.skills-drawer__plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skills-drawer__plain-list > li + li {
+  margin-block-start: var(--pf-t--global--spacer--xs);
+}

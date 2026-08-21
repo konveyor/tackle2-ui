@@ -22,6 +22,20 @@ export type ClientEnv = {
   /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
 
+  /**
+   * Show the agentic console (agent runs, agents, skills, workflows). Off
+   * by default; a deployment opts in when its hub serves the agentic
+   * endpoints, since the console is unusable without them.
+   */
+  AGENTIC_ENABLED: "true" | "false";
+
+  /**
+   * Allow steering a live agent from the run chat (free-text messages).
+   * Off by default — the dev-preview HITL posture is read-only: watch the
+   * transcript, don't inject instructions mid-run.
+   */
+  AGENTIC_STEER_ENABLED: "true" | "false";
+
   /** OIDC client ID for the UI */
   OIDC_CLIENT_ID: string;
 };

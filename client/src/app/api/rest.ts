@@ -6,16 +6,30 @@ import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 import { HubPaginatedResult, HubRequestParams } from "./models";
 
 export { template };
-export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
+
+// Function declarations only here: rest.ts and the ./rest/* modules form an
+// import cycle (export * below), so anything siblings call at module-eval
+// time must be hoisted — a `const` tag would be a TDZ ReferenceError.
+function joinUrlTemplate(tsa: TemplateStringsArray, vals: unknown[]): string {
   let path = "";
+  const queue = [...vals];
   tsa.forEach((str) => {
     path += str;
-    if (vals.length > 0) {
-      path += String(vals.shift());
+    if (queue.length > 0) {
+      path += String(queue.shift());
     }
   });
+  return path;
+}
 
-  return `/hub${path}`;
+/** Tagged-template URL builder rooted at `prefix` (see `hub`). */
+export function prefixedUrlTag(prefix: string) {
+  return (tsa: TemplateStringsArray, ...vals: unknown[]): string =>
+    `${prefix}${joinUrlTemplate(tsa, vals)}`;
+}
+
+export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
+  return `/hub${joinUrlTemplate(tsa, vals)}`;
 }
 
 export const FILES = hub`/files`;
@@ -70,6 +84,7 @@ export * from "./rest/tasks";
 export * from "./rest/tickets";
 export * from "./rest/tokens";
 export * from "./rest/trackers";
+export * from "./rest/agent-runs";
 export * from "./rest/users";
 
 /**

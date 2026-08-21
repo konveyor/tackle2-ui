@@ -12,4 +12,5 @@ export const stylePaths = [
   /node_modules\/@patternfly\/patternfly/,
   /node_modules\/@patternfly\/react-core\/.*\.css/,
   /node_modules\/@patternfly\/react-styles/,
+  /node_modules\/@patternfly\/chatbot\/.*\.css/,
 ];

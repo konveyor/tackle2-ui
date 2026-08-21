@@ -1,0 +1,208 @@
+.run-detail-chat-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* A bounded height is what makes the transcript scroll INSIDE MessageBox
+   (useChatAutoScroll then pins it to the bottom as updates stream in). Left
+   unbounded, the chatbot grows with the transcript and new messages land
+   below the page fold.
+
+   Filling the section beats a fixed height: the details above expand and
+   collapse, so any hard number either pushes the message bar past the fold
+   or leaves the transcript needlessly short. The floor keeps the chat
+   usable when the details are expanded -- the page scrolls at that point. */
+.run-detail-chat-section .agent-run-chatbot {
+  flex: 1 1 auto;
+  min-height: 24rem;
+  border: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+  border-radius: 8px;
+}
+
+/* Keep the toggle tight against the summary above it. */
+.run-detail-spec-section {
+  margin-top: 1rem;
+}
+
+/* Skills a run carries (RunSkillsSummary): labels in a summary cell, or one
+   row per reference in the create-run form. */
+.run-skills-inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.run-skills-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.run-skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.run-skills-name {
+  font-family: var(--pf-t--global--font--family--mono, monospace);
+  font-size: 0.875rem;
+}
+
+.agent-run-chatbot-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+/* Streamed reasoning: same bubble as agent text, visibly "aside". */
+.chat-thought-message .pf-chatbot__message-response {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.chat-meta {
+  align-self: center;
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  font-size: 0.8rem;
+}
+
+.chat-conn-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  font-size: 0.875rem;
+}
+
+.chat-plan {
+  align-self: stretch;
+  border: 1px solid var(--pf-t--global--border--color--default, #ececec);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+.chat-plan-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.chat-plan-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.chat-plan-done {
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  text-decoration: line-through;
+}
+
+.chat-tool-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.chat-tool-detail {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem;
+  background: var(
+    --pf-t--global--background--color--secondary--default,
+    #f8f8f8
+  );
+  border-radius: 4px;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.chat-permission {
+  align-self: stretch;
+  border: 1px solid #f4c145;
+  background: #fdf7e7;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.chat-permission-title {
+  font-weight: 600;
+}
+.chat-permission-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chat-diff {
+  border: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+  border-radius: 4px;
+  background: var(--pf-t--global--background--color--primary--default, #fff);
+  overflow: hidden;
+}
+.chat-diff-path {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: var(
+    --pf-t--global--background--color--secondary--default,
+    #f0f0f0
+  );
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+  font-size: 0.85rem;
+}
+.chat-diff-body {
+  margin: 0;
+  padding: 0.25rem 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  overflow-x: auto;
+}
+.chat-diff-line {
+  padding: 0 0.5rem;
+  white-space: pre;
+}
+.chat-diff-sign {
+  display: inline-block;
+  width: 1rem;
+  user-select: none;
+  opacity: 0.7;
+}
+.chat-diff-add {
+  background: #e6f6e6;
+  color: #1e4f18;
+}
+.chat-diff-del {
+  background: #fbe7e7;
+  color: #7d1007;
+}
+
+/* Steer footer: the footnote and the stop-turn action share one row. */
+.chat-steer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.chat-steer-footer .pf-chatbot__footnote {
+  padding: 0;
+}
+
+/* Expanded transcript: PF's fullscreen mode pins the chatbot over the
+   viewport (position: fixed, inset 0); drop the inline card chrome there. */
+.agent-run-chatbot.pf-chatbot--fullscreen {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+/* The agent's question: the permission card, plus room for a small form. */
+.chat-ask .chat-ask-message {
+  margin: 0.25rem 0 0.75rem;
+  white-space: pre-wrap;
+}
+.chat-ask .pf-v6-c-form {
+  gap: 0.75rem;
+}

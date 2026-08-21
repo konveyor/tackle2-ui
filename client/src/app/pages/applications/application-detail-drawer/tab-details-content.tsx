@@ -20,6 +20,7 @@ import {
 import { EditIcon, UnlinkIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { isAgenticEnabled } from "@app/Constants";
 import { Archetype } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { ExternalLink } from "@app/components/ExternalLink";
@@ -34,6 +35,7 @@ import {
   getDependenciesUrlFilteredByAppName,
   getIssuesSingleAppSelectedLocation,
 } from "@app/pages/issues/helpers";
+import { workflowRunsPath } from "@app/pages/workflow-runs/runs-page-links";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { useFetchTickets } from "@app/queries/tickets";
 
@@ -85,6 +87,15 @@ export const TabDetailsContent: React.FC<{
               {t("terms.dependencies")}
             </Link>
           </ListItem>
+          {/* Replaces the drawer's own runs tab (#3521): runs live on the
+              runs page, reached pre-filtered to this application. */}
+          {isAgenticEnabled && (
+            <ListItem>
+              <Link to={workflowRunsPath({ application: [application.name] })}>
+                {t("terms.workflowRuns")}
+              </Link>
+            </ListItem>
+          )}
         </List>
       </Content>
 

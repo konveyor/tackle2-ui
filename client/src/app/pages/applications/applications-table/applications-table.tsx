@@ -27,6 +27,7 @@ import {
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { isAgenticEnabled } from "@app/Constants";
 import { Paths } from "@app/Paths";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import { getArchetypeById, getTasksByIds } from "@app/api/rest";
@@ -55,6 +56,8 @@ import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
 import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { CreateWorkflowRunModal } from "@app/pages/workflow-runs/components/CreateWorkflowRunModal";
+import { workflowRunsPath } from "@app/pages/workflow-runs/runs-page-links";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -91,6 +94,7 @@ import {
   universalComparator,
 } from "@app/utils/utils";
 
+import { BulkAgentRunModal } from "../agent-run-modal";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
 import { ApplicationFormModal } from "../application-form";
@@ -150,6 +154,13 @@ export const ApplicationsTable: FC = () => {
   const [generateAssetsApplications, setGenerateAssetsApplications] = useState<
     DecoratedApplication[] | null
   >(null);
+
+  const [bulkRunApplications, setBulkRunApplications] = useState<
+    DecoratedApplication[] | null
+  >(null);
+
+  const [runForApplication, setRunForApplication] =
+    useState<DecoratedApplication | null>(null);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
@@ -799,6 +810,21 @@ export const ApplicationsTable: FC = () => {
             {t("actions.retrieveConfigurations")}
           </DropdownItem>
         ),
+        // Only offered where an agentic backend is configured — see
+        // AGENTIC_ENABLED. The harness clones from each application's Hub
+        // record, so a selection with no repository anywhere can't run.
+        isAgenticEnabled && applicationWriteAccess && (
+          <DropdownItem
+            key="run-agent-workflow-bulk"
+            isDisabled={
+              selectedRows.length < 1 ||
+              !selectedRows.some((app) => app.repository?.url)
+            }
+            onClick={() => setBulkRunApplications(selectedRows)}
+          >
+            {t("actions.runAgentWorkflow")}
+          </DropdownItem>
+        ),
         // TODO: Add this back when we can handle the generate operation in bulk
         // applicationWriteAccess && tasksWriteAccess && (
         //   <DropdownItem
@@ -1251,6 +1277,16 @@ export const ApplicationsTable: FC = () => {
                                       application,
                                     ]),
                                 },
+                              // The harness clones from the Hub record, so
+                              // an application with no repository can't run.
+                              isAgenticEnabled &&
+                                applicationWriteAccess &&
+                                !!application.repository?.url && {
+                                  title: t("actions.runAgentWorkflow"),
+                                  itemKey: "runAgentWorkflow",
+                                  onClick: () =>
+                                    setRunForApplication(application),
+                                },
                             ],
                             [
                               analysesReadAccess &&
@@ -1338,6 +1374,53 @@ export const ApplicationsTable: FC = () => {
           isOpen={true}
           onClose={() => {
             setAnalyzeModalOpen(false);
+          }}
+        />
+      )}
+      {runForApplication && (
+        <CreateWorkflowRunModal
+          application={runForApplication}
+          onClose={() => setRunForApplication(null)}
+          onCreated={(runName) => {
+            setRunForApplication(null);
+            history.push(formatPath(Paths.workflowRunDetails, { runName }));
+          }}
+        />
+      )}
+      {bulkRunApplications && (
+        <BulkAgentRunModal
+          applications={bulkRunApplications}
+          onClose={() => setBulkRunApplications(null)}
+          onStarted={({ workflowRef, success, failure }) => {
+            setBulkRunApplications(null);
+            // The canonical post-launch landing: the runs page pre-filtered
+            // to what was just launched. The toast repeats the link so the
+            // view stays reachable after navigating away.
+            const launchedRunsPath = workflowRunsPath({
+              application: success.map(({ application }) => application.name),
+              workflow: [workflowRef],
+            });
+            if (success.length > 0) history.push(launchedRunsPath);
+            pushNotification({
+              title:
+                failure.length === 0
+                  ? t("agentic.bulkRun.started", { count: success.length })
+                  : t("agentic.bulkRun.startedWithFailures", {
+                      succeeded: success.length,
+                      total: success.length + failure.length,
+                      failed: failure.length,
+                    }),
+              variant: failure.length === 0 ? "success" : "warning",
+              message: (
+                <Button
+                  variant="link"
+                  isInline
+                  onClick={() => history.push(launchedRunsPath)}
+                >
+                  {t("agentic.bulkRun.viewRuns")}
+                </Button>
+              ),
+            });
           }}
         />
       )}
