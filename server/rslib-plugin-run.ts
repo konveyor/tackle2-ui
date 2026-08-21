@@ -17,6 +17,7 @@ export const pluginRunNode = ({
 }): RsbuildPlugin => ({
   name: "plugin-run-node",
   setup(api) {
+    api.logger.start("[run] plugin started...");
     let child: ReturnType<typeof spawn> | null = null;
 
     const killChild = (): Promise<void> => {
@@ -40,31 +41,39 @@ export const pluginRunNode = ({
     process.on("SIGINT", () => process.exit(0));
     process.on("SIGTERM", () => process.exit(0));
 
-    api.onAfterBuild(async ({ isFirstCompile }) => {
-      await killChild();
+    api.onAfterBuild({
+      order: "post",
+      handler: async ({ isFirstCompile }) => {
+        await killChild();
 
-      if (!entryPath) {
-        console.error("[run] Entry path is required");
-        return;
-      }
+        if (!entryPath) {
+          api.logger.error("[run] Entry path is required");
+          return;
+        }
 
-      const action = isFirstCompile ? "Starting" : "Restarting";
-      console.log(`\n[run] ${action} node ${entryPath}...`);
-      child = spawn("node", [...execArgv, entryPath], {
-        stdio: "inherit",
-        shell: false,
-        detached: true,
-      });
+        const action = isFirstCompile ? "Starting" : "Restarting";
+        api.logger.info(`[run] ${action} node ${entryPath}...`);
+        child = spawn("node", [...execArgv, entryPath], {
+          stdio: "inherit",
+          shell: false,
+          detached: true,
+        });
 
-      child.on("error", (err) => {
-        console.error("[run] Failed to start process:", err);
-      });
+        child.on("error", (err) => {
+          api.logger.error("[run] Failed to start process:", err);
+        });
+      },
     });
 
     // Fires after process.exit(0) above; synchronously kills the child so it
     // doesn't become an orphan now that it's in its own process group.
     api.onExit(() => {
+      api.logger.info("[run] exiting, killing child process", child?.pid);
       child?.kill("SIGTERM");
     });
+
+    api.logger.start(
+      `[run] ready to run ${entryPath} when build is complete...`
+    );
   },
 });
