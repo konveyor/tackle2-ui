@@ -63,6 +63,10 @@ Your development server should start up and serve the locally running UI from:
 http://localhost:9000
 ```
 
+The dev server enables the agentic console by default. Against a Hub without the agentic API its
+pages fail on load; hide it with `AGENTIC_ENABLED=false npm run start:dev` (see
+[Understanding the local development environment](#understanding-the-local-development-environment)).
+
 ## Konveyor environment setup
 
 Summary of tasks to setup a local environment:
@@ -95,8 +99,10 @@ The React and Patternfly based UI is composed of web pages served by an http ser
 
 - In **production** mode, the application code is served as statically built UI assets. A small
   handler inserts relevant environment information on the root page. This configures how the UI
-  runs in the browser. The server's listener port is configurable via environment variables and
-  defaults to **:8080**.
+  runs in the browser; the set of variables and their defaults is `clientConfig` in
+  [server/src/serverConfig.js](server/src/serverConfig.js), typed as `ClientEnv` in
+  [common/src/env-types.ts](common/src/env-types.ts). The server's listener port is configurable
+  via environment variables and defaults to **:8080**.
 
 - In **development** mode, the application code is proxied to the client's webpack-dev-server
   running on port **:9003**. The server's listener port is configurable via environment variables
@@ -107,6 +113,17 @@ The React and Patternfly based UI is composed of web pages served by an http ser
   - `/hub` &rarr; `TACKLE_HUB_URL` defines the location of the HUB REST endpoint. If it
     is not defined, the URL `http://localhost:9002` is used by default.
   - `/oidc` &rarr; Proxied to the Hub's built-in OIDC provider (same target as `/hub`).
+
+- The agentic console (agent runs, agents, skills, workflows) is feature-flagged and off by
+  default. The server passes two variables to the browser with the rest of the environment:
+  - `AGENTIC_ENABLED` &rarr; `true` shows the console. It needs a Hub that serves the
+    `/agentic/*` API with an agentic-controller behind it; against any other Hub leave it off.
+  - `AGENTIC_STEER_ENABLED` &rarr; `true` additionally lets you send free-text instructions to a
+    live run and stop its turn from the chat panel. Off keeps the panel read-only (the agent's
+    own questions can still be answered).
+
+  Both default to `false` in production and to `true` under `npm run start:dev`. See
+  [ARCHITECTURE.md](ARCHITECTURE.md#agentic-console) for what each flag gates.
 
 ### Running the UI outside the cluster
 
