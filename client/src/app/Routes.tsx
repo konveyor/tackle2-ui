@@ -102,6 +102,7 @@ const Agents = lazy(() => import("./pages/agents"));
 const Skills = lazy(() => import("./pages/skills"));
 const Workflows = lazy(() => import("./pages/workflows"));
 const WorkflowRuns = lazy(() => import("./pages/workflow-runs"));
+const Gateways = lazy(() => import("./pages/gateways"));
 const WorkflowRunDetails = lazy(
   () => import("./pages/workflow-runs/workflow-run-detail-page")
 );
@@ -313,6 +314,11 @@ export const agenticRoutes: IRoute<DevPathValues>[] = isAgenticEnabled
       {
         path: Paths.workflowRuns,
         comp: WorkflowRuns,
+        exact: true,
+      },
+      {
+        path: Paths.gateways,
+        comp: Gateways,
         exact: true,
       },
     ]

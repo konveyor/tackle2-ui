@@ -412,7 +412,8 @@
     "agents": "Agents",
     "skills": "Skills",
     "workflows": "Workflows",
-    "workflowRuns": "Workflow runs"
+    "workflowRuns": "Workflow runs",
+    "gateways": "Gateways"
   },
   "taskState": {
     "Canceled": "Canceled",
@@ -1534,6 +1535,20 @@
       "started": "Started {{count}} agent workflow runs",
       "startedWithFailures": "Started {{succeeded}} of {{total}} runs; {{failed}} failed",
       "viewRuns": "View runs"
+    },
+    "gateways": {
+      "description": "LLM endpoints the agents run against: one provider and model per gateway. Gateways are managed cluster-side; this view is read-only.",
+      "emptyTitle": "No gateways",
+      "emptyBody": "No Gateway resources found. Agents need at least one to run.",
+      "endpoint": "Endpoint",
+      "contextWindow": "Context window",
+      "credential": "Credential",
+      "ready": "Ready",
+      "unverifiableProvider": "Unverifiable provider",
+      "unverifiableProviderTooltip": "The controller verifies a gateway by probing GET /v1/models, which the native {{provider}} API does not serve — verification reports {{reason}} and cannot pass (agentic-controller#167). Agents referencing this gateway stay Not Ready.",
+      "unverifiableAlertTitle_one": "{{names}} cannot pass the controller's verification",
+      "unverifiableAlertTitle_other": "{{count}} gateways cannot pass the controller's verification: {{names}}",
+      "unverifiableAlertBody": "The controller verifies a gateway by probing GET /v1/models on its endpoint, which the native aws-bedrock and gcp-vertex-ai APIs do not serve, so these gateways never become Ready and every Agent that references them stays Not Ready — runs are blocked behind that hold even with valid credentials. Tracked as <issue>agentic-controller#167</issue>."
     }
   }
 }

@@ -59,6 +59,7 @@ export const DevPaths = {
   workflows: "/workflows",
   workflowRuns: "/workflow-runs",
   workflowRunDetails: "/workflow-runs/:runName",
+  gateways: "/gateways",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];

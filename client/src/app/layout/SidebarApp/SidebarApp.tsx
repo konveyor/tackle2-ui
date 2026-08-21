@@ -244,6 +244,11 @@ const MigrationSidebar = ({
                 {t("sidebar.workflowRuns")}
               </NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink to={DevPaths.gateways} activeClassName="pf-m-current">
+                {t("sidebar.gateways")}
+              </NavLink>
+            </NavItem>
           </NavExpandable>
         )}
         <NavExpandable
