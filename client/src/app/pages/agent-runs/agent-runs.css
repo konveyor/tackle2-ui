@@ -78,6 +78,32 @@
   font-size: 0.875rem;
 }
 
+/* A status notice from goose or the harness (stage outcome, compaction). */
+.chat-status-notice {
+  align-self: stretch;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-left: 3px solid
+    var(--pf-t--global--border--color--brand--default, #0066cc);
+  border-radius: 4px;
+  background: var(
+    --pf-t--global--background--color--secondary--default,
+    #f8f8f8
+  );
+  font-size: 0.875rem;
+}
+.chat-status-text {
+  white-space: pre-wrap;
+}
+.chat-status-time {
+  margin-left: auto;
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 .chat-plan {
   align-self: stretch;
   border: 1px solid var(--pf-t--global--border--color--default, #ececec);

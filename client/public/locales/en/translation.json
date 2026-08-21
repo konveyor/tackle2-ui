@@ -1252,7 +1252,16 @@
       "skillLoadFailed": "Could not load skill {{name}}",
       "noAccessShort": "No access",
       "noSessionAccessTitle": "Your role cannot open the live session",
-      "noSessionAccessBody": "Watching or steering an agent session needs the agentic.agentruns.acp scope, which the hub grants to the admin, architect and migrator roles. The run status above still updates."
+      "noSessionAccessBody": "Watching or steering an agent session needs the agentic.agentruns.acp scope, which the hub grants to the admin, architect and migrator roles. The run status above still updates.",
+      "usage": "Usage",
+      "usageContext": "Context window: {{used}} of {{limit}} tokens ({{percent}}%)",
+      "usageContextUnbounded": "Context window: {{used}} tokens",
+      "usageTokens": "Tokens: {{input}} in, {{output}} out",
+      "usageTurns_one": "{{count}} turn",
+      "usageTurns_other": "{{count}} turns",
+      "usageTurnsHint": "model responses so far, the counter maxTurns limits",
+      "usageCost": "Cost so far: {{amount}}",
+      "harnessStep": "Harness: {{title}}"
     },
     "createRun": {
       "title": "Create run",

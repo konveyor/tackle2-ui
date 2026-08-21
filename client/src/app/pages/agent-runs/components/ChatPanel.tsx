@@ -40,8 +40,10 @@ import {
   ExclamationCircleIcon,
   ExpandIcon,
   ExternalLinkAltIcon,
+  InfoCircleIcon,
   PendingIcon,
   StopCircleIcon,
+  TachometerAltIcon,
 } from "@patternfly/react-icons";
 
 import { isAgenticSteerEnabled } from "@app/Constants";
@@ -169,6 +171,17 @@ interface NoticeItem {
   id: number;
   text: string;
 }
+/**
+ * A status notice on goose's custom channel (`status_message` of type
+ * notice): goose's own (a compaction, a skipped step) or the harness's
+ * stage outcome ("stage succeeded — results pushed to branch …").
+ */
+interface StatusItem {
+  kind: "status";
+  id: number;
+  at: number;
+  text: string;
+}
 interface ErrorItem {
   kind: "error";
   id: number;
@@ -184,11 +197,34 @@ type ChatItem =
   | PermissionItem
   | AskItem
   | NoticeItem
+  | StatusItem
   | ErrorItem;
 
 /** The agent's active turn, as goose announces it on the run's session. */
 interface ActiveRun {
   runId: string;
+}
+
+/**
+ * Live spend counters for the run's session, folded from goose's usage
+ * notices. These are the units the coming run limits are measured in
+ * (agentic-controller#115: maxTurns via GOOSE_MAX_TURNS, maxCost).
+ */
+interface RunUsage {
+  /** Tokens occupying the context window right now. */
+  used: number;
+  contextLimit?: number;
+  /** Accumulated over the session. */
+  inputTokens?: number;
+  outputTokens?: number;
+  /** Accumulated cost as goose reports it (usage_update.accumulatedCost). */
+  cost?: number;
+  /** Per-response costs summed (message_usage) — the fallback when goose
+   * reports no accumulated figure. */
+  summedCost?: number;
+  currency?: string;
+  /** Model responses so far — what maxTurns counts. */
+  turns: number;
 }
 
 /** State of the dial itself; only meaningful while the run is dialable. */
@@ -291,6 +327,50 @@ function gooseMeta(u: SessionUpdate): Record<string, unknown> {
 /** Id goose stamps on a streamed message; a steer pickup carries the steer's. */
 function updateMessageId(u: SessionUpdate): string | undefined {
   return str(gooseMeta(u).messageId) || str(u.messageId) || undefined;
+}
+
+const num = (v: unknown): number | undefined =>
+  typeof v === "number" && Number.isFinite(v) ? v : undefined;
+
+/**
+ * Fold a usage notice into the running counters. goose's custom
+ * `usage_update` (customNotifications) carries used / contextLimit /
+ * accumulatedInputTokens / accumulatedOutputTokens / accumulatedCost; the
+ * standard ACP one it also emits at prompt end carries used / size /
+ * cost.{amount,currency}. `message_usage` is one per model response.
+ */
+function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
+  const base: RunUsage = prev ?? { used: 0, turns: 0 };
+  if (u.sessionUpdate === "message_usage") {
+    const usage = isRecord(u.usage) ? u.usage : {};
+    const cost = num(usage.cost);
+    return {
+      ...base,
+      turns: base.turns + 1,
+      summedCost:
+        cost === undefined ? base.summedCost : (base.summedCost ?? 0) + cost,
+    };
+  }
+  const cost = isRecord(u.cost) ? u.cost : undefined;
+  return {
+    ...base,
+    used: num(u.used) ?? base.used,
+    contextLimit: num(u.contextLimit) ?? num(u.size) ?? base.contextLimit,
+    inputTokens: num(u.accumulatedInputTokens) ?? base.inputTokens,
+    outputTokens: num(u.accumulatedOutputTokens) ?? base.outputTokens,
+    cost: num(u.accumulatedCost) ?? num(cost?.amount) ?? base.cost,
+    currency: str(cost?.currency) || base.currency,
+  };
+}
+
+/** The {type, message} of a status_message update, if well-formed. */
+function statusMessageOf(
+  u: SessionUpdate
+): { type: string; message: string } | undefined {
+  if (u.sessionUpdate !== "status_message") return undefined;
+  const status = isRecord(u.status) ? u.status : {};
+  const message = str(status.message);
+  return message ? { type: str(status.type), message } : undefined;
 }
 
 /** Text carried by tool_call_update.content: [{type:"content", content:{...}}]. */
@@ -416,6 +496,17 @@ function reduceUpdate(
         },
       ];
     }
+    case "status_message": {
+      // Notices are transcript material (the harness's stage outcome
+      // rides here); progress lines are transient and handled by the
+      // panel, not the transcript.
+      const status = statusMessageOf(u);
+      if (!status || status.type !== "notice") return items;
+      return [
+        ...items,
+        { kind: "status", id: nextId(), at: Date.now(), text: status.message },
+      ];
+    }
     case "tool_call_update": {
       const toolCallId = str(u.toolCallId);
       let idx = -1;
@@ -528,6 +619,11 @@ export function ChatPanel({
   const [activeRun, setActiveRun] = useState<ActiveRun | null | undefined>(
     undefined
   );
+  // Spend counters and the latest progress line, from goose's custom
+  // channel on the run's session. Usage survives a reconnect (goose does
+  // not replay it with the history); progress clears when the turn ends.
+  const [usage, setUsage] = useState<RunUsage | null>(null);
+  const [progress, setProgress] = useState<string | null>(null);
   const [steerBusy, setSteerBusy] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   // Full-screen transcript: PF's fullscreen display mode pins the chatbot
@@ -575,6 +671,19 @@ export function ChatPanel({
         runSessionRef.current = sid;
         setRunSession(sid);
       }
+      if (
+        isRun &&
+        (u.sessionUpdate === "usage_update" ||
+          u.sessionUpdate === "message_usage")
+      ) {
+        setUsage((prev) => mergeUsage(prev, u));
+        return;
+      }
+      if (isRun && u.sessionUpdate === "status_message") {
+        const status = statusMessageOf(u);
+        setProgress(status?.type === "progress" ? status.message : null);
+        if (status?.type === "progress") return;
+      }
       if (isRun && u.sessionUpdate === "session_info_update") {
         const goose = gooseMeta(u);
         if ("activeRunId" in goose) {
@@ -583,6 +692,7 @@ export function ChatPanel({
             noteActiveRun({ runId: id });
           } else if (id === null) {
             noteActiveRun(null);
+            setProgress(null);
             // goose discards steers the turn never reached.
             setItems((prev) =>
               prev.map((it) =>
@@ -917,6 +1027,7 @@ export function ChatPanel({
           </ChatbotHeaderTitle>
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
+          {usage && <UsageBadge usage={usage} />}
           {targetBranch &&
             (targetBranchUrl ? (
               <Button
@@ -975,6 +1086,12 @@ export function ChatPanel({
           {notice && (
             <div className="chat-conn-notice">
               <Spinner size="sm" aria-label={notice} /> <span>{notice}</span>
+            </div>
+          )}
+          {progress && view.kind === "connected" && (
+            <div className="chat-conn-notice" role="status">
+              <Spinner size="sm" aria-label={progress} />{" "}
+              <span>{progress}</span>
             </div>
           )}
           {view.kind === "connected" && items.length === 0 && (
@@ -1170,6 +1287,93 @@ function SteerStatus({ steer }: { steer: SteerState }) {
         </Label>
       );
   }
+}
+
+// ------------------------------------------------------------ usage badge
+
+const compactNumber = new Intl.NumberFormat(undefined, {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+function formatCost(amount: number, currency?: string): string {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: currency || "USD",
+      maximumFractionDigits: amount < 1 ? 4 : 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toFixed(4)} ${currency ?? ""}`.trim();
+  }
+}
+
+/**
+ * Context occupancy, turns and cost in the chat header — the counters the
+ * run limits are measured in, so a viewer can see a run approaching one.
+ */
+function UsageBadge({ usage }: { usage: RunUsage }) {
+  const { t } = useTranslation();
+  const cost = usage.cost ?? usage.summedCost;
+  const costText = cost === undefined ? null : formatCost(cost, usage.currency);
+  const parts = [
+    usage.contextLimit
+      ? `${compactNumber.format(usage.used)} / ${compactNumber.format(usage.contextLimit)}`
+      : compactNumber.format(usage.used),
+    usage.turns > 0
+      ? t("agentic.chat.usageTurns", { count: usage.turns })
+      : null,
+    costText,
+  ].filter(Boolean);
+  const percent = usage.contextLimit
+    ? Math.round((usage.used / usage.contextLimit) * 100)
+    : undefined;
+  return (
+    <Tooltip
+      content={
+        <div>
+          <div>
+            {usage.contextLimit
+              ? t("agentic.chat.usageContext", {
+                  used: usage.used.toLocaleString(),
+                  limit: usage.contextLimit.toLocaleString(),
+                  percent,
+                })
+              : t("agentic.chat.usageContextUnbounded", {
+                  used: usage.used.toLocaleString(),
+                })}
+          </div>
+          {usage.inputTokens !== undefined &&
+            usage.outputTokens !== undefined && (
+              <div>
+                {t("agentic.chat.usageTokens", {
+                  input: usage.inputTokens.toLocaleString(),
+                  output: usage.outputTokens.toLocaleString(),
+                })}
+              </div>
+            )}
+          {usage.turns > 0 && (
+            <div>
+              {t("agentic.chat.usageTurns", { count: usage.turns })} —{" "}
+              {t("agentic.chat.usageTurnsHint")}
+            </div>
+          )}
+          {costText && (
+            <div>{t("agentic.chat.usageCost", { amount: costText })}</div>
+          )}
+        </div>
+      }
+    >
+      <Label
+        isCompact
+        variant="outline"
+        icon={<TachometerAltIcon />}
+        aria-label={t("agentic.chat.usage")}
+      >
+        {parts.join(" · ")}
+      </Label>
+    </Tooltip>
+  );
 }
 
 // -------------------------------------------------------- connection badge
@@ -1437,6 +1641,10 @@ function ChatItemView({
       );
     case "tool": {
       const skillLoad = skillLoadOf(item);
+      // The harness's own steps (watcher / final git push) ride the run
+      // session with a harness-* call id — mark them as the harness's, not
+      // the agent's.
+      const harnessStep = item.toolCallId.startsWith("harness-");
       return (
         <Message
           role="bot"
@@ -1453,6 +1661,15 @@ function ChatItemView({
                       <BookOpenIcon aria-hidden="true" />
                     </Icon>{" "}
                     {skillLoadText(skillLoad, item.status, t)}
+                  </>
+                ) : harnessStep ? (
+                  <>
+                    <Icon>
+                      <CodeBranchIcon aria-hidden="true" />
+                    </Icon>{" "}
+                    {t("agentic.chat.harnessStep", {
+                      title: item.title || t("agentic.chat.toolCall"),
+                    })}
                   </>
                 ) : (
                   item.title || t("agentic.chat.toolCall")
@@ -1495,6 +1712,16 @@ function ChatItemView({
       );
     case "notice":
       return <MessageDivider content={item.text} />;
+    case "status":
+      return (
+        <div className="chat-status-notice" role="status">
+          <Icon size="sm">
+            <InfoCircleIcon aria-hidden="true" />
+          </Icon>
+          <span className="chat-status-text">{item.text}</span>
+          <span className="chat-status-time">{messageTime(item.at)}</span>
+        </div>
+      );
     case "ask":
       return <AskView item={item} botName={botName} onAsk={onAsk} />;
     case "error":

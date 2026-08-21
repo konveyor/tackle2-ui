@@ -11,6 +11,10 @@
  *   client -> agent: initialize, session/new, session/load, session/prompt
  *   client -> agent (notification): session/cancel
  *   agent -> client (notification): session/update
+ *   agent -> client (notification): _goose/unstable/session/update — goose's
+ *     custom channel (usage_update spend counters, status_message notices
+ *     and progress), same {sessionId, update} shape, enabled by the harness
+ *     declaring the customNotifications capability and teed to viewers
  *   agent -> client (request): session/request_permission, elicitation/create
  *     (the agent asking the human a question — e.g. the harness's ask_user
  *     tool — as a flat form schema; the turn blocks until it is answered)
@@ -34,6 +38,15 @@ const DEFAULT_CWD = "/workspace";
 
 /** goose's mid-turn redirect request (relayed by the harness tee). */
 export const STEER_METHOD = "_goose/unstable/session/steer";
+
+/**
+ * goose's custom notification channel: `usage_update` (context occupancy
+ * and accumulated tokens / cost), `message_usage` (one per model response)
+ * and `status_message` (notice | progress). The harness emits its own stage
+ * outcome on it too. Dispatched to onUpdate like session/update — the
+ * update's `sessionUpdate` discriminator tells them apart.
+ */
+export const GOOSE_UPDATE_METHOD = "_goose/unstable/session/update";
 
 // ------------------------------------------------------------------ types
 
@@ -458,7 +471,7 @@ export class AcpSession {
   }
 
   private handleNotification(method: string, params: unknown): void {
-    if (method === "session/update") {
+    if (method === "session/update" || method === GOOSE_UPDATE_METHOD) {
       const update = isRecord(params) ? params.update : undefined;
       const sessionId =
         isRecord(params) && typeof params.sessionId === "string"
@@ -474,7 +487,7 @@ export class AcpSession {
         }
       } else {
         this.logger.debug(
-          "AcpSession: session/update without a usable update payload"
+          `AcpSession: ${method} without a usable update payload`
         );
       }
       return;
