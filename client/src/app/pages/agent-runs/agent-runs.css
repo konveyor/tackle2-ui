@@ -26,6 +26,29 @@
   margin-top: 1rem;
 }
 
+/* Skills a run carries (RunSkillsSummary): labels in a summary cell, or one
+   row per reference in the create-run form. */
+.run-skills-inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.run-skills-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.run-skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.run-skills-name {
+  font-family: var(--pf-t--global--font--family--mono, monospace);
+  font-size: 0.875rem;
+}
+
 .agent-run-chatbot-title {
   display: inline-flex;
   align-items: center;

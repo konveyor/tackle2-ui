@@ -180,14 +180,37 @@ export const BUILTIN_AGENT_IMAGES: string[] = [
 
 // --------------------------------------------------------------- SkillCard
 
+/**
+ * Load policy. `skill` (default) is listed to the agent by name and
+ * description and loaded on demand via `load_skill`; `rule` is injected
+ * into every prompt of every Agent that references it (ADR 0014/0015).
+ */
 export type SkillCardType = "skill" | "rule";
 
+/**
+ * How the controller delivers a card's content to the sandbox, reported in
+ * status post agentic-controller#157. Absent on older controllers.
+ */
+export type SkillDeliveryMode = "image" | "inline" | "source";
+
+/**
+ * One skill (an AgentSkills.io directory). Exactly one of `image`, `source`,
+ * `inline` is set; every field is optional here so pre-#157 objects still
+ * parse. Use `skillSourceKind()` from `@app/utils/skills` to pick the source.
+ */
 export interface SkillCardSpec {
   displayName?: string;
   description?: string;
+  /** OCI image holding the skill (or several — then `subPath` selects one). */
   image?: string;
-  inline?: string;
+  /** Directory of the skill inside the image or repository. */
+  subPath?: string;
+  /** Git repository URL. */
   source?: string;
+  /** Branch, tag or commit for `source`; unset clones the default branch on every run. */
+  ref?: string;
+  /** A single SKILL.md (YAML frontmatter + markdown), delivered as a ConfigMap. */
+  inline?: string;
   tags?: string[];
   type?: SkillCardType;
   version?: string;
@@ -200,21 +223,46 @@ export interface SkillCard {
   spec: SkillCardSpec;
   status?: {
     observedGeneration?: number;
+    /** Image cards only. */
     resolvedImage?: string;
+    deliveryMode?: SkillDeliveryMode;
     conditions?: Condition[];
   };
 }
 
 // --------------------------------------------------------- SkillCollection
 
+/**
+ * Label the controller stamps on SkillCards it creates while enumerating a
+ * collection's `spec.image` (value = the collection name).
+ */
+export const SKILL_COLLECTION_LABEL = "konveyor.io/skillcollection";
+
+/**
+ * One explicit member: `name` plus exactly one of `skillCardRef` | `image` |
+ * `source`. `ref`/`subPath`/`type` apply to image and source entries only —
+ * a `skillCardRef` entry's `type` is ignored (the card carries its own).
+ */
 export interface SkillCollectionSkillRef {
   name: string;
   skillCardRef?: string;
   image?: string;
   source?: string;
+  ref?: string;
+  subPath?: string;
+  type?: SkillCardType;
 }
 
+/**
+ * Either an explicit `skills` list (≥ 1 entry) or, post-#157, an `image` the
+ * controller enumerates into one owned SkillCard per skill found. The two are
+ * mutually exclusive.
+ */
 export interface SkillCollectionSpec {
+  version?: string;
+  image?: string;
+  /** Load policy applied to every skill enumerated from `image`. */
+  type?: SkillCardType;
   skills?: SkillCollectionSkillRef[];
 }
 
@@ -223,7 +271,12 @@ export interface SkillCollection {
   kind?: string;
   metadata: ObjectMeta;
   spec: SkillCollectionSpec;
-  status?: { observedGeneration?: number; conditions?: Condition[] };
+  status?: {
+    observedGeneration?: number;
+    conditions?: Condition[];
+    /** Names of the SkillCards the collection resolves to (enumerate mode). */
+    resolvedSkills?: string[];
+  };
 }
 
 // ----------------------------------------------------------------- Gateway

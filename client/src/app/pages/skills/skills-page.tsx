@@ -1,5 +1,5 @@
+import "./skills.css";
 import React, { useState } from "react";
-import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -7,11 +7,11 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
-  Label,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import {
@@ -31,6 +31,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useNotifications } from "@app/components/NotificationsContext";
 import { StateError } from "@app/components/StateError";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
+import { useFetchAgents } from "@app/queries/agents";
 import {
   useDeleteSkillCardMutation,
   useDeleteSkillCollectionMutation,
@@ -40,15 +41,63 @@ import {
 import { formatAge } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
+import { SkillCardDetailDrawer } from "./components/SkillCardDetailDrawer";
 import { SkillCardModal } from "./components/SkillCardModal";
+import {
+  SkillCollectionDetailDrawer,
+  isEnumeratedCollection,
+} from "./components/SkillCollectionDetailDrawer";
 import { SkillCollectionModal } from "./components/SkillCollectionModal";
+import {
+  SkillDescription,
+  SkillSourceLabel,
+  SkillTypeLabel,
+} from "./components/SkillLabels";
 
-function sourceLabel(spec: SkillCard["spec"], t: TFunction): string {
-  if (spec.image) return t("agentic.skills.sourceImage");
-  if (spec.inline) return t("agentic.skills.sourceInline");
-  if (spec.source) return t("agentic.skills.sourceGit");
-  return "-";
+/**
+ * The one object whose drawer is open; only one drawer at a time. The uid
+ * (when the server reports one) pins the selection to that object, so a
+ * re-created namesake does not re-open a drawer the user never asked for.
+ */
+interface Selection {
+  kind: "card" | "collection";
+  name: string;
+  uid?: string;
 }
+
+const matchesSelection = (
+  item: { metadata: { name?: string; uid?: string } },
+  selected: Selection
+) => item.metadata.name === selected.name && item.metadata.uid === selected.uid;
+
+const byNewest = <T extends { metadata: { creationTimestamp?: string } }>(
+  a: T,
+  b: T
+) =>
+  (b.metadata.creationTimestamp ?? "").localeCompare(
+    a.metadata.creationTimestamp ?? ""
+  );
+
+/** A count that lists the names on hover. */
+const CountWithNames: React.FC<{ count: React.ReactNode; names: string[] }> = ({
+  count,
+  names,
+}) =>
+  names.length === 0 ? (
+    <>{count}</>
+  ) : (
+    <Tooltip
+      content={
+        <div>
+          {names.map((n) => (
+            <div key={n}>{n}</div>
+          ))}
+        </div>
+      }
+    >
+      <span>{count}</span>
+    </Tooltip>
+  );
 
 const SkillsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -63,6 +112,8 @@ const SkillsPage: React.FC = () => {
     isLoading: collectionsLoading,
     fetchError: collectionsError,
   } = useFetchSkillCollections();
+  // Only for the drawers' "Referenced by" section.
+  const { agents } = useFetchAgents();
 
   const [cardModalTarget, setCardModalTarget] = useState<
     SkillCard | "create" | null
@@ -76,9 +127,41 @@ const SkillsPage: React.FC = () => {
     string | null
   >(null);
 
+  // ---- detail drawer: the selection is a reference; the object is read live
+  // from the query result, so the drawer follows refetches and collapses the
+  // moment the object is gone (deleted here or by someone else).
+  const [selected, setSelected] = useState<Selection | null>(null);
+  const selectedCard =
+    selected?.kind === "card"
+      ? (skillCards.find((c) => matchesSelection(c, selected)) ?? null)
+      : null;
+  const selectedCollection =
+    selected?.kind === "collection"
+      ? (skillCollections.find((c) => matchesSelection(c, selected)) ?? null)
+      : null;
+
+  const selectCard = (card: SkillCard) =>
+    setSelected({
+      kind: "card",
+      name: card.metadata.name ?? "",
+      uid: card.metadata.uid,
+    });
+  const selectCollection = (col: SkillCollection) =>
+    setSelected({
+      kind: "collection",
+      name: col.metadata.name ?? "",
+      uid: col.metadata.uid,
+    });
+  const closeDrawer = () => setSelected(null);
+  const forgetSelection = (kind: Selection["kind"], name: string) =>
+    setSelected((prev) =>
+      prev?.kind === kind && prev.name === name ? null : prev
+    );
+
   const deleteCardMutation = useDeleteSkillCardMutation(
     (name) => {
       setDeleteCardTarget(null);
+      forgetSelection("card", name);
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: name,
@@ -96,6 +179,7 @@ const SkillsPage: React.FC = () => {
   const deleteCollectionMutation = useDeleteSkillCollectionMutation(
     (name) => {
       setDeleteCollectionTarget(null);
+      forgetSelection("collection", name);
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: name,
@@ -110,17 +194,25 @@ const SkillsPage: React.FC = () => {
     }
   );
 
-  const sortedCards = [...skillCards].sort((a, b) => {
-    const ta = a.metadata.creationTimestamp ?? "";
-    const tb = b.metadata.creationTimestamp ?? "";
-    return tb.localeCompare(ta);
-  });
+  const sortedCards = [...skillCards].sort(byNewest);
+  const sortedCollections = [...skillCollections].sort(byNewest);
 
-  const sortedCollections = [...skillCollections].sort((a, b) => {
-    const ta = a.metadata.creationTimestamp ?? "";
-    const tb = b.metadata.creationTimestamp ?? "";
-    return tb.localeCompare(ta);
-  });
+  // Clicks inside the actions cell and the name link must not reach the row,
+  // whose click toggles the drawer.
+  const stopRowClick = (e: React.MouseEvent) => e.stopPropagation();
+
+  // PF's Tr routes Enter/Space from the whole row subtree into onRowClick and
+  // preventDefault()s, which swallows the kebab's and name link's own
+  // activation. Own the keydown instead: act only when the <tr> itself has
+  // focus.
+  const rowKeyDown =
+    (activate: () => void) => (e: React.KeyboardEvent<HTMLTableRowElement>) => {
+      if (e.target !== e.currentTarget) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activate();
+      }
+    };
 
   return (
     <>
@@ -177,6 +269,7 @@ const SkillsPage: React.FC = () => {
                 <Tr>
                   <Th>{t("terms.name")}</Th>
                   <Th>{t("terms.displayName")}</Th>
+                  <Th>{t("terms.description")}</Th>
                   <Th>{t("terms.type")}</Th>
                   <Th>{t("terms.source")}</Th>
                   <Th>{t("agentic.skills.ready")}</Th>
@@ -188,34 +281,61 @@ const SkillsPage: React.FC = () => {
               <Tbody>
                 {sortedCards.map((card: SkillCard) => {
                   const name = card.metadata.name ?? "";
+                  const toggleCard = () =>
+                    selectedCard === card ? closeDrawer() : selectCard(card);
                   return (
-                    <Tr key={name}>
-                      <Td dataLabel={t("terms.name")}>{name}</Td>
+                    <Tr
+                      key={name}
+                      isClickable
+                      isRowSelected={selectedCard === card}
+                      onRowClick={toggleCard}
+                      onKeyDown={rowKeyDown(toggleCard)}
+                    >
+                      <Td dataLabel={t("terms.name")}>
+                        <Button
+                          variant="link"
+                          isInline
+                          onClick={(e) => {
+                            stopRowClick(e);
+                            selectCard(card);
+                          }}
+                        >
+                          {name}
+                        </Button>
+                      </Td>
                       <Td dataLabel={t("terms.displayName")}>
                         {card.spec.displayName ?? "-"}
                       </Td>
+                      <Td dataLabel={t("terms.description")}>
+                        <SkillDescription text={card.spec.description} />
+                      </Td>
                       <Td dataLabel={t("terms.type")}>
-                        <Label
-                          color={card.spec.type === "rule" ? "orange" : "blue"}
-                        >
-                          {card.spec.type ?? "skill"}
-                        </Label>
+                        <SkillTypeLabel type={card.spec.type} />
                       </Td>
                       <Td dataLabel={t("terms.source")}>
-                        {sourceLabel(card.spec, t)}
+                        <SkillSourceLabel
+                          spec={card.spec}
+                          status={card.status}
+                        />
                       </Td>
                       <Td dataLabel={t("agentic.skills.ready")}>
                         <ReadyLabel conditions={card.status?.conditions} />
                       </Td>
                       <Td dataLabel={t("terms.tags")}>
-                        {card.spec.tags?.join(", ") ?? "-"}
+                        {card.spec.tags?.length
+                          ? card.spec.tags.join(", ")
+                          : "-"}
                       </Td>
                       <Td dataLabel={t("terms.age")}>
                         {formatAge(card.metadata.creationTimestamp)}
                       </Td>
-                      <Td isActionCell>
+                      <Td isActionCell onClick={stopRowClick}>
                         <ActionsColumn
                           items={[
+                            {
+                              title: t("actions.view"),
+                              onClick: () => selectCard(card),
+                            },
                             {
                               title: t("actions.edit"),
                               onClick: () => setCardModalTarget(card),
@@ -287,6 +407,7 @@ const SkillsPage: React.FC = () => {
               <Thead>
                 <Tr>
                   <Th>{t("terms.name")}</Th>
+                  <Th>{t("terms.mode")}</Th>
                   <Th>{t("terms.skills")}</Th>
                   <Th>{t("agentic.skills.ready")}</Th>
                   <Th>{t("terms.age")}</Th>
@@ -296,11 +417,49 @@ const SkillsPage: React.FC = () => {
               <Tbody>
                 {sortedCollections.map((col: SkillCollection) => {
                   const name = col.metadata.name ?? "";
+                  const enumerated = isEnumeratedCollection(col);
+                  // Enumerated: the controller reports what it found; "—"
+                  // until it has. Explicit: the members in the spec.
+                  const memberNames = enumerated
+                    ? (col.status?.resolvedSkills ?? [])
+                    : (col.spec.skills?.map((s) => s.name) ?? []);
+                  const count =
+                    enumerated && !col.status?.resolvedSkills
+                      ? "—"
+                      : memberNames.length;
+                  const toggleCollection = () =>
+                    selectedCollection === col
+                      ? closeDrawer()
+                      : selectCollection(col);
                   return (
-                    <Tr key={name}>
-                      <Td dataLabel={t("terms.name")}>{name}</Td>
+                    <Tr
+                      key={name}
+                      isClickable
+                      isRowSelected={selectedCollection === col}
+                      onRowClick={toggleCollection}
+                      onKeyDown={rowKeyDown(toggleCollection)}
+                    >
+                      <Td dataLabel={t("terms.name")}>
+                        <Button
+                          variant="link"
+                          isInline
+                          onClick={(e) => {
+                            stopRowClick(e);
+                            selectCollection(col);
+                          }}
+                        >
+                          {name}
+                        </Button>
+                      </Td>
+                      <Td dataLabel={t("terms.mode")}>
+                        {t(
+                          enumerated
+                            ? "agentic.skills.modeEnumeratedLabel"
+                            : "agentic.skills.modeExplicitLabel"
+                        )}
+                      </Td>
                       <Td dataLabel={t("terms.skills")}>
-                        {col.spec.skills?.length ?? 0}
+                        <CountWithNames count={count} names={memberNames} />
                       </Td>
                       <Td dataLabel={t("agentic.skills.ready")}>
                         <ReadyLabel conditions={col.status?.conditions} />
@@ -308,9 +467,13 @@ const SkillsPage: React.FC = () => {
                       <Td dataLabel={t("terms.age")}>
                         {formatAge(col.metadata.creationTimestamp)}
                       </Td>
-                      <Td isActionCell>
+                      <Td isActionCell onClick={stopRowClick}>
                         <ActionsColumn
                           items={[
+                            {
+                              title: t("actions.view"),
+                              onClick: () => selectCollection(col),
+                            },
                             {
                               title: t("actions.edit"),
                               onClick: () => setCollectionModalTarget(col),
@@ -330,6 +493,31 @@ const SkillsPage: React.FC = () => {
           )}
         </ConditionalRender>
       </PageSection>
+
+      {/* ---- Detail drawer: exactly one PageDrawerContent mounted at a time ---- */}
+      {selected?.kind === "collection" ? (
+        <SkillCollectionDetailDrawer
+          collection={selectedCollection}
+          agents={agents}
+          skillCards={skillCards}
+          onViewSkillCard={(name) => {
+            const card = skillCards.find((c) => c.metadata.name === name);
+            if (card) selectCard(card);
+          }}
+          onCloseClick={closeDrawer}
+        />
+      ) : (
+        <SkillCardDetailDrawer
+          card={selectedCard}
+          agents={agents}
+          skillCollections={skillCollections}
+          onViewCollection={(name) => {
+            const col = skillCollections.find((c) => c.metadata.name === name);
+            if (col) selectCollection(col);
+          }}
+          onCloseClick={closeDrawer}
+        />
+      )}
 
       {/* ---- Modals ---- */}
       {cardModalTarget && (

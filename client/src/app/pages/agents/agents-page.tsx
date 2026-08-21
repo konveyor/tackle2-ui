@@ -6,11 +6,11 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
-  Label,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import {
@@ -133,6 +133,14 @@ const AgentsPage: React.FC = () => {
                 {sortedAgents.map((agent: AgentResource) => {
                   const name = agent.metadata.name ?? "";
                   const skills = skillCount(agent.spec);
+                  // Hover detail for the count: card refs, then collections.
+                  const skillRefs = [
+                    ...(agent.spec.skillCards?.map((s) => s.ref) ?? []),
+                    ...(agent.spec.skillCollections?.map(
+                      (s) =>
+                        `${t("terms.skillCollection").toLowerCase()}: ${s.ref}`
+                    ) ?? []),
+                  ];
                   return (
                     <Tr key={name}>
                       <Td dataLabel={t("terms.name")}>{name}</Td>
@@ -142,7 +150,21 @@ const AgentsPage: React.FC = () => {
                           "-"}
                       </Td>
                       <Td dataLabel={t("terms.skills")}>
-                        {skills === 0 ? <Label color="red">0</Label> : skills}
+                        {skillRefs.length === 0 ? (
+                          skills
+                        ) : (
+                          <Tooltip
+                            content={
+                              <div>
+                                {skillRefs.map((r) => (
+                                  <div key={r}>{r}</div>
+                                ))}
+                              </div>
+                            }
+                          >
+                            <span>{skills}</span>
+                          </Tooltip>
+                        )}
                       </Td>
                       <Td dataLabel={t("agentic.agents.params")}>
                         {agent.spec.params?.length ?? 0}

@@ -21,7 +21,12 @@ import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { PageHeader } from "@app/components/PageHeader";
 import { StateError } from "@app/components/StateError";
 import { useFetchAgentRun } from "@app/queries/agent-runs";
+import { useFetchAgents } from "@app/queries/agents";
 import { useFetchApplications } from "@app/queries/applications";
+import {
+  useFetchSkillCards,
+  useFetchSkillCollections,
+} from "@app/queries/skills";
 import {
   formatAge,
   formatDuration,
@@ -31,6 +36,7 @@ import {
 import { BranchPanel, repoBranchUrl } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { PhaseLabel } from "./components/PhaseLabel";
+import { RunSkillsSummary } from "./components/RunSkillsSummary";
 
 import "./agent-runs.css";
 
@@ -40,6 +46,25 @@ const AgentRunDetailPage: React.FC = () => {
   const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { data: applications } = useFetchApplications();
+  // The run mounts whatever its Agent references (no per-run selection);
+  // resolve the Agent by name to list them. Failures leave it undefined and
+  // the Skills cell shows "-".
+  const { agents } = useFetchAgents();
+  const {
+    skillCards,
+    isLoading: skillCardsLoading,
+    fetchError: skillCardsFetchError,
+  } = useFetchSkillCards();
+  const {
+    skillCollections,
+    isLoading: skillCollectionsLoading,
+    fetchError: skillCollectionsFetchError,
+  } = useFetchSkillCollections();
+  const skillsUnresolved =
+    skillCardsLoading ||
+    !!skillCardsFetchError ||
+    skillCollectionsLoading ||
+    !!skillCollectionsFetchError;
 
   const breadcrumbs = [
     { title: t("terms.agentRuns"), path: DevPaths.agentRuns },
@@ -89,6 +114,7 @@ const AgentRunDetailPage: React.FC = () => {
   const application = applications.find((a) =>
     runBelongsToApplication(agentRun, a.id)
   );
+  const agent = agents.find((a) => a.metadata.name === agentRun.spec.agentRef);
   const instructions = agentRun.spec.instructions;
   const params = agentRun.spec.params ?? [];
   // The run's own repository param is the repo it actually cloned; the
@@ -130,6 +156,18 @@ const AgentRunDetailPage: React.FC = () => {
             <DescriptionListTerm>{t("terms.agent")}</DescriptionListTerm>
             <DescriptionListDescription>
               {agentRun.spec.agentRef}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t("terms.skills")}</DescriptionListTerm>
+            <DescriptionListDescription>
+              <RunSkillsSummary
+                agent={agent}
+                skillCards={skillCards}
+                skillCollections={skillCollections}
+                variant="inline"
+                unresolved={skillsUnresolved}
+              />
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
