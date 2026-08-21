@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -23,9 +23,13 @@ import type {
   AgentParam,
   AgentResource,
   AgentWorkflow,
+  AgentWorkflowRun,
   Condition,
 } from "@app/api/agentic/contract";
-import { defaultTargetBranch } from "@app/api/agentic/contract";
+import {
+  APPLICATION_LABEL,
+  defaultTargetBranch,
+} from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
 import { getAgent } from "@app/api/rest";
 import {
@@ -130,6 +134,13 @@ interface CreateWorkflowRunModalProps {
   /** Pre-select this workflow (e.g. from a workflow row's "Run" action). */
   initialWorkflow?: string;
   /**
+   * Seed the form from an earlier run ("Run again"): its workflow, params,
+   * gateway and application. The target branch is not reused — the old one
+   * holds the earlier results — so a re-run gets a fresh migration branch
+   * by default, editable like any other.
+   */
+  prefill?: AgentWorkflowRun;
+  /**
    * Run against this application instead of asking for one. Supplied by
    * callers that already have the application in hand (an inventory row);
    * the picker is skipped. `useFetchApplications` has no `enabled` gate, so
@@ -142,12 +153,22 @@ interface CreateWorkflowRunModalProps {
 }
 
 export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
-  initialWorkflow,
+  initialWorkflow: initialWorkflowProp,
+  prefill,
   application: fixedApplication,
   onClose,
   onCreated,
 }) => {
   const { t } = useTranslation();
+  // The prefill is read once: the caller's run object is a polled query
+  // result whose identity changes every refetch, and the stage-agent
+  // effect below must not re-run (and reset the form) on each one.
+  const [initialPrefill] = useState(prefill);
+  const initialWorkflow =
+    initialPrefill?.spec.workflowRef ?? initialWorkflowProp;
+  // The earlier run's params and gateway land once its workflow's stage
+  // agents are loaded (the form's fields come from them); consumed once.
+  const prefillPending = useRef(!!initialPrefill);
   const {
     workflows,
     isLoading: workflowsLoading,
@@ -159,7 +180,9 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   // unfiltered, so stage agents without the managed label still resolve).
   const [stageAgents, setStageAgents] = useState<AgentResource[] | null>(null);
   const [agentsError, setAgentsError] = useState<string | null>(null);
-  const [applicationId, setApplicationId] = useState("");
+  const [applicationId, setApplicationId] = useState(
+    () => initialPrefill?.metadata.labels?.[APPLICATION_LABEL] ?? ""
+  );
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
@@ -228,8 +251,32 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
       .then((list) => {
         if (disposed) return;
         setStageAgents(list);
-        setParamValues(defaultsFor(mergeParams(list)));
-        setGateway(defaultGatewayFor(sharedGateways(list)));
+        const defaults = defaultsFor(mergeParams(list));
+        const shared = sharedGateways(list);
+        // Apply the earlier run's values once, and only on its own
+        // workflow — a prefill whose workflow is gone seeds a different
+        // one and must not carry its inputs there.
+        const applyPrefill =
+          prefillPending.current &&
+          !!initialPrefill &&
+          initialPrefill.spec.workflowRef === workflowName;
+        prefillPending.current = false;
+        if (applyPrefill) {
+          const values = { ...defaults };
+          for (const p of initialPrefill.spec.params ?? []) {
+            values[p.name] = p.value;
+          }
+          setParamValues(values);
+          setGateway(
+            initialPrefill.spec.gateway &&
+              shared.some((g) => g.ref === initialPrefill.spec.gateway)
+              ? initialPrefill.spec.gateway
+              : defaultGatewayFor(shared)
+          );
+        } else {
+          setParamValues(defaults);
+          setGateway(defaultGatewayFor(shared));
+        }
       })
       .catch((err) => {
         if (!disposed) setAgentsError(errorMessage(err));
@@ -237,7 +284,14 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     return () => {
       disposed = true;
     };
-  }, [workflowName, stageRefsKey]);
+  }, [workflowName, stageRefsKey, initialPrefill]);
+
+  const prefillWorkflowMissing =
+    !!initialPrefill &&
+    workflows.length > 0 &&
+    !workflows.some(
+      (pb) => pb.metadata.name === initialPrefill.spec.workflowRef
+    );
 
   const selectedReady = selected ? isSelectable(selected) : false;
   const notReady =
@@ -323,10 +377,26 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
       }}
     >
       <ModalHeader
-        title={t("agentic.workflowRuns.create")}
+        title={
+          initialPrefill
+            ? t("agentic.workflowRuns.rerunTitle", {
+                name: initialPrefill.metadata.name,
+              })
+            : t("agentic.workflowRuns.create")
+        }
         description={t("agentic.workflowRuns.createDescription")}
       />
       <ModalBody>
+        {prefillWorkflowMissing && (
+          <Alert
+            variant="warning"
+            isInline
+            title={t("agentic.workflowRuns.prefillWorkflowMissing", {
+              name: initialPrefill?.spec.workflowRef,
+            })}
+            style={{ marginBottom: "1rem" }}
+          />
+        )}
         {workflowsError && (
           <Alert
             variant="danger"

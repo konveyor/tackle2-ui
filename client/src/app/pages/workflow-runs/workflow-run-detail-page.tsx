@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
+  Button,
   Content,
   DescriptionList,
   DescriptionListDescription,
@@ -15,11 +16,13 @@ import {
   ProgressStepper,
   Spinner,
 } from "@patternfly/react-core";
+import { RedoIcon } from "@patternfly/react-icons";
 
 import type { WorkflowRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type { AgentRunPhase } from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { PageHeader } from "@app/components/PageHeader";
 import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
@@ -27,6 +30,7 @@ import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { RunConditionSummary } from "@app/pages/agent-runs/components/RunConditionSummary";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchWorkflowRun } from "@app/queries/workflow-runs";
+import { agenticWorkflowRunsCreateScopes } from "@app/scopes";
 import {
   formatAge,
   formatDuration,
@@ -34,6 +38,8 @@ import {
   workflowRunDuration,
 } from "@app/utils/agentic";
 import { formatPath } from "@app/utils/utils";
+
+import { CreateWorkflowRunModal } from "./components/CreateWorkflowRunModal";
 
 import "@app/pages/agent-runs/agent-runs.css";
 
@@ -57,8 +63,13 @@ function stepVariant(phase?: AgentRunPhase) {
 
 const WorkflowRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
+  const history = useHistory();
   const { runName } = useParams<WorkflowRunDetailsRoute>();
   const { workflowRun, isLoading, fetchError } = useFetchWorkflowRun(runName);
+  // "Run again": the spec is immutable and the hub has no delete, so a
+  // prefilled create is the one re-run shape there is.
+  const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
+  const [rerunOpen, setRerunOpen] = useState(false);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { data: applications } = useFetchApplications();
 
@@ -112,6 +123,7 @@ const WorkflowRunDetailPage: React.FC = () => {
   const application = applications.find((a) =>
     runBelongsToApplication(workflowRun, a.id)
   );
+  const finished = isTerminalPhase(workflowRun.status?.phase);
 
   return (
     <>
@@ -124,8 +136,20 @@ const WorkflowRunDetailPage: React.FC = () => {
               <PhaseLabel phase={workflowRun.status?.phase} />
               <RunConditionSummary
                 conditions={workflowRun.status?.conditions}
+                phase={workflowRun.status?.phase}
               />
             </span>
+          }
+          btnActions={
+            finished && canCreate ? (
+              <Button
+                variant="secondary"
+                icon={<RedoIcon />}
+                onClick={() => setRerunOpen(true)}
+              >
+                {t("actions.runAgain")}
+              </Button>
+            ) : undefined
           }
         />
         {fetchError && (
@@ -227,10 +251,22 @@ const WorkflowRunDetailPage: React.FC = () => {
           <BranchPanel
             application={application}
             targetBranch={coordinates.targetBranch}
-            isTerminal={isTerminalPhase(workflowRun.status?.phase)}
+            isTerminal={finished}
           />
         )}
       </PageSection>
+      {rerunOpen && (
+        <CreateWorkflowRunModal
+          prefill={workflowRun}
+          onClose={() => setRerunOpen(false)}
+          onCreated={(name) => {
+            setRerunOpen(false);
+            history.push(
+              formatPath(DevPaths.workflowRunDetails, { runName: name })
+            );
+          }}
+        />
+      )}
     </>
   );
 };

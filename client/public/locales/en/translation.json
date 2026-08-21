@@ -86,7 +86,8 @@
     "addSelected": "Add selected",
     "addAll": "Add all",
     "removeSelected": "Remove selected",
-    "removeAll": "Remove all"
+    "removeAll": "Remove all",
+    "runAgain": "Run again"
   },
   "analysisProfiles": {
     "none": "None",
@@ -1308,7 +1309,9 @@
       "skillCollectionNotFound": "Skill collection {{name}} was not found.",
       "collectionSkills_one": "{{count}} skill",
       "collectionSkills_other": "{{count}} skills",
-      "collectionEnumerated": "enumerated image"
+      "collectionEnumerated": "enumerated image",
+      "rerunTitle": "Run again: {{name}}",
+      "prefillAgentMissing": "The earlier run's agent \"{{name}}\" no longer exists — pick another agent."
     },
     "agents": {
       "createAgent": "Create agent",
@@ -1405,7 +1408,9 @@
       "targetBranchInvalid": "Must be a valid git branch name and differ from the application's source branch.",
       "targetBranchHelper": "One branch, all stages: each stage continues the previous stage's work on it (plan commits PLAN.md, execute reads it).",
       "paramNotDeclared_one": "not declared by stage {{stages}} — cannot be set on a workflow run (params forward to every stage)",
-      "paramNotDeclared_other": "not declared by stages {{stages}} — cannot be set on a workflow run (params forward to every stage)"
+      "paramNotDeclared_other": "not declared by stages {{stages}} — cannot be set on a workflow run (params forward to every stage)",
+      "rerunTitle": "Run again: {{name}}",
+      "prefillWorkflowMissing": "The earlier run's workflow \"{{name}}\" no longer exists — pick another workflow."
     },
     "skills": {
       "createSkillCard": "Create skill card",

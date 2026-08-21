@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
+  Button,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -14,10 +15,12 @@ import {
   PageSection,
   Spinner,
 } from "@patternfly/react-core";
+import { RedoIcon } from "@patternfly/react-icons";
 
 import type { AgentRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { PageHeader } from "@app/components/PageHeader";
 import { StateError } from "@app/components/StateError";
 import { useFetchAgentRun } from "@app/queries/agent-runs";
@@ -27,14 +30,17 @@ import {
   useFetchSkillCards,
   useFetchSkillCollections,
 } from "@app/queries/skills";
+import { agenticAgentRunsCreateScopes } from "@app/scopes";
 import {
   formatAge,
   formatDuration,
   runBelongsToApplication,
 } from "@app/utils/agentic";
+import { formatPath } from "@app/utils/utils";
 
 import { BranchPanel, repoBranchUrl } from "./components/BranchPanel";
 import { ChatPanel } from "./components/ChatPanel";
+import { CreateRunModal } from "./components/CreateRunModal";
 import { PhaseLabel } from "./components/PhaseLabel";
 import { RunConditionSummary } from "./components/RunConditionSummary";
 import { RunSkillsSummary } from "./components/RunSkillsSummary";
@@ -43,8 +49,13 @@ import "./agent-runs.css";
 
 const AgentRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
+  const history = useHistory();
   const { runName } = useParams<AgentRunDetailsRoute>();
   const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName);
+  // "Run again": the spec is immutable and the hub has no delete, so a
+  // prefilled create is the one re-run shape there is.
+  const canCreate = useHasSomeScopes(agenticAgentRunsCreateScopes);
+  const [rerunOpen, setRerunOpen] = useState(false);
   // Inventory failures leave `application` undefined — BranchPanel copes.
   const { data: applications } = useFetchApplications();
   // The run mounts whatever its Agent references (no per-run selection);
@@ -126,6 +137,7 @@ const AgentRunDetailPage: React.FC = () => {
   const targetBranchUrl = coordinates.targetBranch
     ? repoBranchUrl(runRepoUrl, coordinates.targetBranch)
     : undefined;
+  const finished = isTerminalPhase(agentRun.status?.phase);
 
   return (
     <>
@@ -136,8 +148,22 @@ const AgentRunDetailPage: React.FC = () => {
           description={
             <span className="run-phase-line">
               <PhaseLabel phase={agentRun.status?.phase} />
-              <RunConditionSummary conditions={agentRun.status?.conditions} />
+              <RunConditionSummary
+                conditions={agentRun.status?.conditions}
+                phase={agentRun.status?.phase}
+              />
             </span>
+          }
+          btnActions={
+            finished && canCreate ? (
+              <Button
+                variant="secondary"
+                icon={<RedoIcon />}
+                onClick={() => setRerunOpen(true)}
+              >
+                {t("actions.runAgain")}
+              </Button>
+            ) : undefined
           }
         />
         {fetchError && (
@@ -302,7 +328,7 @@ const AgentRunDetailPage: React.FC = () => {
               application={application}
               repoUrl={runRepoUrl}
               targetBranch={coordinates.targetBranch}
-              isTerminal={isTerminalPhase(agentRun.status?.phase)}
+              isTerminal={finished}
             />
           )}
         </ExpandableSection>
@@ -322,6 +348,18 @@ const AgentRunDetailPage: React.FC = () => {
           targetBranchUrl={targetBranchUrl}
         />
       </PageSection>
+      {rerunOpen && (
+        <CreateRunModal
+          prefill={agentRun}
+          onClose={() => setRerunOpen(false)}
+          onCreated={(name) => {
+            setRerunOpen(false);
+            history.push(
+              formatPath(DevPaths.agentRunDetails, { runName: name })
+            );
+          }}
+        />
+      )}
     </>
   );
 };

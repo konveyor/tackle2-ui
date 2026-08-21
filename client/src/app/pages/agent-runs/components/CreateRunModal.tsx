@@ -20,8 +20,9 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 
-import type { AgentResource } from "@app/api/agentic/contract";
+import type { AgentResource, AgentRun } from "@app/api/agentic/contract";
 import {
+  APPLICATION_LABEL,
   CREDENTIAL_SOURCES_ANNOTATION,
   MANAGED_LABEL,
   SOURCE_APPLICATION_IDENTITY,
@@ -89,6 +90,13 @@ function defaultsFor(agent: AgentResource | undefined): Record<string, string> {
   return values;
 }
 
+/** The param values an earlier run was created with, by name. */
+function paramsOf(run: AgentRun | undefined): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const p of run?.spec.params ?? []) values[p.name] = p.value;
+  return values;
+}
+
 interface CreateRunModalProps {
   /**
    * Run against this application instead of asking for one. Supplied by
@@ -98,21 +106,35 @@ interface CreateRunModalProps {
    * it against whatever already populated the shared "applications" cache).
    */
   application?: Application;
+  /**
+   * Seed the form from an earlier run ("Run again"): its agent, params,
+   * instructions, gateway and application. The target branch is not reused
+   * — the old one holds the earlier results — so a re-run gets a fresh
+   * migration branch by default, editable like any other.
+   */
+  prefill?: AgentRun;
   onClose: () => void;
   onCreated: (runName: string) => void;
 }
 
 export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   application: fixedApplication,
+  prefill: prefillProp,
   onClose,
   onCreated,
 }) => {
   const { t } = useTranslation();
+  // Read once: the caller's run object is a polled query result.
+  const [prefill] = useState(prefillProp);
   const [agentName, setAgentName] = useState("");
-  const [applicationId, setApplicationId] = useState("");
+  const [applicationId, setApplicationId] = useState(
+    () => prefill?.metadata.labels?.[APPLICATION_LABEL] ?? ""
+  );
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
-  const [instructions, setInstructions] = useState("");
+  const [instructions, setInstructions] = useState(
+    () => prefill?.spec.instructions ?? ""
+  );
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -153,13 +175,33 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
 
   // Seed the agent select + param/gateway defaults once the list arrives —
   // a render-phase adjustment (not an effect) so the settled state is
-  // committed in one pass.
-  const seedAgent = !agentName && agents.length > 0 ? agents[0] : undefined;
+  // committed in one pass. A prefill seeds its own agent (when it still
+  // exists) with the earlier run's values over the agent's defaults.
+  const prefillAgent = prefill?.spec.agentRef;
+  const seedAgent =
+    !agentName && agents.length > 0
+      ? (agents.find((a) => a.metadata.name === prefillAgent) ?? agents[0])
+      : undefined;
   if (seedAgent?.metadata.name) {
+    const isPrefillAgent = seedAgent.metadata.name === prefillAgent;
+    const gatewayRefs = seedAgent.spec.gateways ?? [];
+    const prefillGateway =
+      isPrefillAgent &&
+      prefill?.spec.gateway &&
+      gatewayRefs.some((g) => g.ref === prefill.spec.gateway)
+        ? prefill.spec.gateway
+        : undefined;
     setAgentName(seedAgent.metadata.name);
-    setParamValues(defaultsFor(seedAgent));
-    setGateway(defaultGatewayFor(seedAgent.spec.gateways ?? []));
+    setParamValues({
+      ...defaultsFor(seedAgent),
+      ...(isPrefillAgent ? paramsOf(prefill) : {}),
+    });
+    setGateway(prefillGateway ?? defaultGatewayFor(gatewayRefs));
   }
+  const prefillAgentMissing =
+    !!prefillAgent &&
+    agents.length > 0 &&
+    !agents.some((a) => a.metadata.name === prefillAgent);
 
   const createRunMutation = useCreateAgentRunMutation(
     (created) => {
@@ -282,8 +324,26 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
         if (!submitting) onClose();
       }}
     >
-      <ModalHeader title={t("agentic.createRun.title")} />
+      <ModalHeader
+        title={
+          prefill
+            ? t("agentic.createRun.rerunTitle", {
+                name: prefill.metadata.name,
+              })
+            : t("agentic.createRun.title")
+        }
+      />
       <ModalBody>
+        {prefillAgentMissing && (
+          <Alert
+            variant="warning"
+            isInline
+            title={t("agentic.createRun.prefillAgentMissing", {
+              name: prefillAgent,
+            })}
+            style={{ marginBottom: "1rem" }}
+          />
+        )}
         {agentsError && (
           <Alert
             variant="danger"
