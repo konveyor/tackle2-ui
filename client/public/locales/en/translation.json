@@ -1335,7 +1335,11 @@
       "skillsGuidance": "Skills are optional. Rules are injected into every prompt; skills are loaded when the agent decides they are relevant. A stage that depends on a skill should name it in its instructions.",
       "collectionSkillCount_one": "{{count}} skill",
       "collectionSkillCount_other": "{{count}} skills",
-      "collectionEnumerated": "enumerated"
+      "collectionEnumerated": "enumerated",
+      "loadingCatalog": "Loading {{what}}",
+      "noParams": "No parameters declared. A run supplies values for the parameters an agent declares here.",
+      "paramFieldAriaLabel": "Parameter {{row}} {{field}}",
+      "removeParameterNamed": "Remove parameter {{name}}"
     },
     "emptyStateSeedHint": "Default agents, skills, and workflows are seeded on the cluster by an administrator.",
     "workflows": {

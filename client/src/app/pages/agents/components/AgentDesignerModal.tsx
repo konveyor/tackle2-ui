@@ -17,10 +17,13 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
   TextArea,
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
+import { TimesIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import type {
   AgentParam,
@@ -95,10 +98,19 @@ export const AgentDesignerModal: React.FC<Props> = ({
   const { t } = useTranslation();
   const isEdit = !!existing;
 
-  // ---- catalog data
-  const { gateways } = useFetchGateways();
-  const { skillCards } = useFetchSkillCards();
-  const { skillCollections } = useFetchSkillCollections();
+  // ---- catalog data. Each list shows a spinner until its first fetch
+  // settles: the designer usually opens before the catalog is cached, and
+  // "no gateways" flashing in for a moment reads as a real empty catalog.
+  const { gateways, isLoading: gatewaysLoading } = useFetchGateways();
+  const { skillCards, isLoading: skillCardsLoading } = useFetchSkillCards();
+  const { skillCollections, isLoading: skillCollectionsLoading } =
+    useFetchSkillCollections();
+  const catalogSpinner = (label: string) => (
+    <Spinner
+      size="md"
+      aria-label={t("agentic.agents.loadingCatalog", { what: label })}
+    />
+  );
 
   // ---- form state
   const [name, setName] = useState(existing?.metadata.name ?? "");
@@ -294,7 +306,9 @@ export const AgentDesignerModal: React.FC<Props> = ({
             label={t("agentic.agents.gateways")}
             fieldId="agent-gateways"
           >
-            {gateways.length === 0 ? (
+            {gatewaysLoading && gateways.length === 0 ? (
+              catalogSpinner(t("agentic.agents.gateways").toLowerCase())
+            ) : gateways.length === 0 ? (
               <HelperText>
                 <HelperTextItem>
                   {t("composed.noDataStateTitle", {
@@ -309,6 +323,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   <div key={ref} style={{ marginBottom: 4 }}>
                     <Checkbox
                       id={`gw-${ref}`}
+                      aria-label={ref}
                       label={
                         <>
                           {ref}
@@ -334,7 +349,9 @@ export const AgentDesignerModal: React.FC<Props> = ({
 
           {/* ---------- Skill Cards ---------- */}
           <FormGroup label={t("terms.skillCards")} fieldId="agent-skill-cards">
-            {skillCards.length === 0 ? (
+            {skillCardsLoading && skillCards.length === 0 ? (
+              catalogSpinner(t("terms.skillCards").toLowerCase())
+            ) : skillCards.length === 0 ? (
               <HelperText>
                 <HelperTextItem>
                   {t("composed.noDataStateTitle", {
@@ -351,6 +368,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   <div key={ref} style={{ marginBottom: 4 }}>
                     <Checkbox
                       id={`sc-${ref}`}
+                      aria-label={displayName || ref}
                       label={
                         <span style={inlineLabelStyle}>
                           <span>{displayName || ref}</span>
@@ -380,7 +398,9 @@ export const AgentDesignerModal: React.FC<Props> = ({
             label={t("terms.skillCollections")}
             fieldId="agent-skill-collections"
           >
-            {skillCollections.length === 0 ? (
+            {skillCollectionsLoading && skillCollections.length === 0 ? (
+              catalogSpinner(t("terms.skillCollections").toLowerCase())
+            ) : skillCollections.length === 0 ? (
               <HelperText>
                 <HelperTextItem>
                   {t("composed.noDataStateTitle", {
@@ -409,6 +429,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                   <div key={ref} style={{ marginBottom: 4 }}>
                     <Checkbox
                       id={`col-${ref}`}
+                      aria-label={ref}
                       label={
                         <span style={inlineLabelStyle}>
                           <span>{ref}</span>
@@ -456,70 +477,150 @@ export const AgentDesignerModal: React.FC<Props> = ({
           </HelperText>
 
           {/* ---------- Parameters ---------- */}
+          {/* A table, not a row of bare inputs: the column headers name each
+              field for every row, each control is labelled with its row and
+              column for assistive tech, and the Required checkbox gets a
+              normal cell-sized target. */}
           <FormGroup label={t("terms.parameters")} fieldId="agent-params">
-            {params.map((p, idx) => (
-              <div
-                key={idx}
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "flex-start",
-                  marginBottom: 8,
-                }}
+            {params.length === 0 ? (
+              <HelperText>
+                <HelperTextItem>{t("agentic.agents.noParams")}</HelperTextItem>
+              </HelperText>
+            ) : (
+              <Table
+                id="agent-params"
+                variant="compact"
+                borders={false}
+                aria-label={t("terms.parameters")}
               >
-                <TextInput
-                  aria-label={t("agentic.agents.paramName")}
-                  placeholder={t("terms.name").toLowerCase()}
-                  value={p.name}
-                  onChange={(_e, v) => updateParam(idx, { name: v })}
-                  style={{ flex: "1 1 120px" }}
-                />
-                <FormSelect
-                  aria-label={t("agentic.agents.paramType")}
-                  value={p.type}
-                  onChange={(_e, v) =>
-                    updateParam(idx, { type: v as AgentParamType })
-                  }
-                  style={{ flex: "0 0 100px" }}
-                >
-                  {PARAM_TYPES.map((t) => (
-                    <FormSelectOption key={t} value={t} label={t} />
-                  ))}
-                </FormSelect>
-                <TextInput
-                  aria-label={t("terms.description")}
-                  placeholder={t("terms.description").toLowerCase()}
-                  value={p.description}
-                  onChange={(_e, v) => updateParam(idx, { description: v })}
-                  style={{ flex: "2 1 160px" }}
-                />
-                <TextInput
-                  aria-label={t("agentic.agents.default")}
-                  placeholder={t("agentic.agents.default").toLowerCase()}
-                  value={p.defaultValue}
-                  onChange={(_e, v) => updateParam(idx, { defaultValue: v })}
-                  style={{ flex: "1 1 100px" }}
-                />
-                <Checkbox
-                  id={`param-req-${idx}`}
-                  label={t("agentic.agents.required")}
-                  isChecked={p.required}
-                  isDisabled={p.defaultValue !== ""}
-                  onChange={(_e, checked) =>
-                    updateParam(idx, { required: checked })
-                  }
-                  style={{ flex: "0 0 auto", marginTop: 6 }}
-                />
-                <Button
-                  variant="plain"
-                  aria-label={t("agentic.agents.removeParameter")}
-                  onClick={() => removeParam(idx)}
-                  style={{ flex: "0 0 auto" }}
-                >
-                  &times;
-                </Button>
-              </div>
-            ))}
+                <Thead>
+                  <Tr>
+                    <Th>{t("terms.name")}</Th>
+                    <Th>{t("terms.type")}</Th>
+                    <Th>{t("terms.description")}</Th>
+                    <Th>{t("agentic.agents.default")}</Th>
+                    <Th>{t("agentic.agents.required")}</Th>
+                    <Th screenReaderText={t("actions.rowActions")} />
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {params.map((p, idx) => {
+                    const row = idx + 1;
+                    const rowLabel = p.name.trim() || String(row);
+                    return (
+                      <Tr key={idx}>
+                        <Td dataLabel={t("terms.name")}>
+                          <TextInput
+                            id={`agent-param-${idx}-name`}
+                            aria-label={t(
+                              "agentic.agents.paramFieldAriaLabel",
+                              {
+                                row,
+                                field: t("terms.name"),
+                              }
+                            )}
+                            placeholder={t("terms.name").toLowerCase()}
+                            value={p.name}
+                            onChange={(_e, v) => updateParam(idx, { name: v })}
+                          />
+                        </Td>
+                        <Td dataLabel={t("terms.type")}>
+                          <FormSelect
+                            id={`agent-param-${idx}-type`}
+                            aria-label={t(
+                              "agentic.agents.paramFieldAriaLabel",
+                              {
+                                row,
+                                field: t("terms.type"),
+                              }
+                            )}
+                            value={p.type}
+                            onChange={(_e, v) =>
+                              updateParam(idx, { type: v as AgentParamType })
+                            }
+                          >
+                            {PARAM_TYPES.map((type) => (
+                              <FormSelectOption
+                                key={type}
+                                value={type}
+                                label={type}
+                              />
+                            ))}
+                          </FormSelect>
+                        </Td>
+                        <Td dataLabel={t("terms.description")}>
+                          <TextInput
+                            id={`agent-param-${idx}-description`}
+                            aria-label={t(
+                              "agentic.agents.paramFieldAriaLabel",
+                              {
+                                row,
+                                field: t("terms.description"),
+                              }
+                            )}
+                            placeholder={t("terms.description").toLowerCase()}
+                            value={p.description}
+                            onChange={(_e, v) =>
+                              updateParam(idx, { description: v })
+                            }
+                          />
+                        </Td>
+                        <Td dataLabel={t("agentic.agents.default")}>
+                          <TextInput
+                            id={`agent-param-${idx}-default`}
+                            aria-label={t(
+                              "agentic.agents.paramFieldAriaLabel",
+                              {
+                                row,
+                                field: t("agentic.agents.default"),
+                              }
+                            )}
+                            placeholder={t(
+                              "agentic.agents.default"
+                            ).toLowerCase()}
+                            value={p.defaultValue}
+                            onChange={(_e, v) =>
+                              updateParam(idx, { defaultValue: v })
+                            }
+                          />
+                        </Td>
+                        <Td dataLabel={t("agentic.agents.required")}>
+                          <Checkbox
+                            id={`agent-param-${idx}-required`}
+                            // A visible, wrapped label makes the whole
+                            // word the click target, not just the 13 px box.
+                            label={t("agentic.agents.required")}
+                            isLabelWrapped
+                            aria-label={t(
+                              "agentic.agents.paramFieldAriaLabel",
+                              { row, field: t("agentic.agents.required") }
+                            )}
+                            isChecked={p.required}
+                            isDisabled={p.defaultValue !== ""}
+                            onChange={(_e, checked) =>
+                              updateParam(idx, { required: checked })
+                            }
+                          />
+                        </Td>
+                        <Td isActionCell>
+                          <Button
+                            variant="plain"
+                            icon={<TimesIcon />}
+                            aria-label={t(
+                              "agentic.agents.removeParameterNamed",
+                              {
+                                name: rowLabel,
+                              }
+                            )}
+                            onClick={() => removeParam(idx)}
+                          />
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+              </Table>
+            )}
             <Button
               variant="link"
               size="sm"
