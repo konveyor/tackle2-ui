@@ -25,6 +25,7 @@ import {
 } from "@patternfly/react-table";
 
 import type { SkillCard, SkillCollection } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -38,6 +39,10 @@ import {
   useFetchSkillCards,
   useFetchSkillCollections,
 } from "@app/queries/skills";
+import {
+  agenticSkillCollectionsWriteScopes,
+  agenticSkillsWriteScopes,
+} from "@app/scopes";
 import { formatAge } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -114,6 +119,11 @@ const SkillsPage: React.FC = () => {
   } = useFetchSkillCollections();
   // Only for the drawers' "Referenced by" section.
   const { agents } = useFetchAgents();
+  // Authoring is admin/architect (tackle2-hub#1119); everyone else reads.
+  const canWriteCards = useHasSomeScopes(agenticSkillsWriteScopes);
+  const canWriteCollections = useHasSomeScopes(
+    agenticSkillCollectionsWriteScopes
+  );
 
   const [cardModalTarget, setCardModalTarget] = useState<
     SkillCard | "create" | null
@@ -231,18 +241,20 @@ const SkillsPage: React.FC = () => {
           when={cardsLoading && skillCards.length === 0 && !cardsError}
           then={<AppPlaceholder />}
         >
-          <Toolbar>
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button
-                  variant="primary"
-                  onClick={() => setCardModalTarget("create")}
-                >
-                  {t("agentic.skills.createSkillCard")}
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+          {canWriteCards && (
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarItem>
+                  <Button
+                    variant="primary"
+                    onClick={() => setCardModalTarget("create")}
+                  >
+                    {t("agentic.skills.createSkillCard")}
+                  </Button>
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+          )}
 
           {cardsError ? (
             <StateError />
@@ -256,12 +268,14 @@ const SkillsPage: React.FC = () => {
                 {t("agentic.skills.noSkillCardsBody")}
               </EmptyStateBody>
               <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
-              <Button
-                variant="primary"
-                onClick={() => setCardModalTarget("create")}
-              >
-                {t("agentic.skills.createSkillCard")}
-              </Button>
+              {canWriteCards && (
+                <Button
+                  variant="primary"
+                  onClick={() => setCardModalTarget("create")}
+                >
+                  {t("agentic.skills.createSkillCard")}
+                </Button>
+              )}
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.skillCards")} variant="compact">
@@ -336,14 +350,18 @@ const SkillsPage: React.FC = () => {
                               title: t("actions.view"),
                               onClick: () => selectCard(card),
                             },
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setCardModalTarget(card),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setDeleteCardTarget(name),
-                            },
+                            ...(canWriteCards
+                              ? [
+                                  {
+                                    title: t("actions.edit"),
+                                    onClick: () => setCardModalTarget(card),
+                                  },
+                                  {
+                                    title: t("actions.delete"),
+                                    onClick: () => setDeleteCardTarget(name),
+                                  },
+                                ]
+                              : []),
                           ]}
                         />
                       </Td>
@@ -370,18 +388,20 @@ const SkillsPage: React.FC = () => {
           }
           then={<AppPlaceholder />}
         >
-          <Toolbar>
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button
-                  variant="primary"
-                  onClick={() => setCollectionModalTarget("create")}
-                >
-                  {t("agentic.skills.createSkillCollection")}
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+          {canWriteCollections && (
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarItem>
+                  <Button
+                    variant="primary"
+                    onClick={() => setCollectionModalTarget("create")}
+                  >
+                    {t("agentic.skills.createSkillCollection")}
+                  </Button>
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+          )}
 
           {collectionsError ? (
             <StateError />
@@ -395,12 +415,14 @@ const SkillsPage: React.FC = () => {
                 {t("agentic.skills.noSkillCollectionsBody")}
               </EmptyStateBody>
               <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
-              <Button
-                variant="primary"
-                onClick={() => setCollectionModalTarget("create")}
-              >
-                {t("agentic.skills.createSkillCollection")}
-              </Button>
+              {canWriteCollections && (
+                <Button
+                  variant="primary"
+                  onClick={() => setCollectionModalTarget("create")}
+                >
+                  {t("agentic.skills.createSkillCollection")}
+                </Button>
+              )}
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.skillCollections")} variant="compact">
@@ -474,14 +496,20 @@ const SkillsPage: React.FC = () => {
                               title: t("actions.view"),
                               onClick: () => selectCollection(col),
                             },
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setCollectionModalTarget(col),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setDeleteCollectionTarget(name),
-                            },
+                            ...(canWriteCollections
+                              ? [
+                                  {
+                                    title: t("actions.edit"),
+                                    onClick: () =>
+                                      setCollectionModalTarget(col),
+                                  },
+                                  {
+                                    title: t("actions.delete"),
+                                    onClick: () =>
+                                      setDeleteCollectionTarget(name),
+                                  },
+                                ]
+                              : []),
                           ]}
                         />
                       </Td>

@@ -18,6 +18,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { DevPaths } from "@app/Paths";
 import type { AgentRun, AgentRunPhase } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -30,6 +31,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchAgentRuns } from "@app/queries/agent-runs";
 import { useFetchApplications } from "@app/queries/applications";
+import { agenticAgentRunsCreateScopes } from "@app/scopes";
 import {
   formatAge,
   formatDuration,
@@ -68,6 +70,9 @@ const AgentRunsPage: React.FC = () => {
   const history = useHistory();
   const { agentRuns, isLoading, fetchError } = useFetchAgentRuns();
   const { data: applications } = useFetchApplications();
+  // Every hub role can list runs; creating one is admin/architect/migrator
+  // (tackle2-hub#1119).
+  const canCreate = useHasSomeScopes(agenticAgentRunsCreateScopes);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const rows = useMemo<AgentRunRow[]>(() => {
@@ -195,16 +200,18 @@ const AgentRunsPage: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="action-group">
-                <ToolbarItem>
-                  <Button
-                    variant="primary"
-                    onClick={() => setIsCreateOpen(true)}
-                  >
-                    {t("agentic.agentRuns.createRun")}
-                  </Button>
-                </ToolbarItem>
-              </ToolbarGroup>
+              {canCreate && (
+                <ToolbarGroup variant="action-group">
+                  <ToolbarItem>
+                    <Button
+                      variant="primary"
+                      onClick={() => setIsCreateOpen(true)}
+                    >
+                      {t("agentic.agentRuns.createRun")}
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              )}
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
                   idPrefix="agent-runs-table"
@@ -241,12 +248,14 @@ const AgentRunsPage: React.FC = () => {
                   <EmptyStateBody>
                     {t("agentic.agentRuns.emptyBody")}
                   </EmptyStateBody>
-                  <Button
-                    variant="primary"
-                    onClick={() => setIsCreateOpen(true)}
-                  >
-                    {t("agentic.agentRuns.createRun")}
-                  </Button>
+                  {canCreate && (
+                    <Button
+                      variant="primary"
+                      onClick={() => setIsCreateOpen(true)}
+                    >
+                      {t("agentic.agentRuns.createRun")}
+                    </Button>
+                  )}
                 </EmptyState>
               }
               numRenderedColumns={numRenderedColumns}

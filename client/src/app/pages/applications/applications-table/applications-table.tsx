@@ -73,6 +73,7 @@ import {
 } from "@app/queries/tasks";
 import {
   ScopeGate,
+  agenticWorkflowRunsCreateScopes,
   analysesReadScopes,
   applicationsWriteScopes,
   assessmentWriteScopes,
@@ -708,6 +709,12 @@ export const ApplicationsTable: FC = () => {
   const tasksReadAccess = useHasSomeScopes(tasksReadScopes);
   const tasksWriteAccess = useHasSomeScopes(tasksWriteScopes);
   const reviewsWriteAccess = useHasSomeScopes(reviewsWriteScopes);
+  // Launching agent workflow runs is its own hub scope (tackle2-hub#1119):
+  // a migrator has it without application write access, a project manager
+  // has neither.
+  const agentWorkflowRunAccess = useHasSomeScopes(
+    agenticWorkflowRunsCreateScopes
+  );
 
   const toolbarKebabItems = filterAndAddSeparator(
     (index) => (
@@ -813,7 +820,7 @@ export const ApplicationsTable: FC = () => {
         // Only offered where an agentic backend is configured — see
         // AGENTIC_ENABLED. The harness clones from each application's Hub
         // record, so a selection with no repository anywhere can't run.
-        isAgenticEnabled && applicationWriteAccess && (
+        isAgenticEnabled && agentWorkflowRunAccess && (
           <DropdownItem
             key="run-agent-workflow-bulk"
             isDisabled={
@@ -1280,7 +1287,7 @@ export const ApplicationsTable: FC = () => {
                               // The harness clones from the Hub record, so
                               // an application with no repository can't run.
                               isAgenticEnabled &&
-                                applicationWriteAccess &&
+                                agentWorkflowRunAccess &&
                                 !!application.repository?.url && {
                                   title: t("actions.runAgentWorkflow"),
                                   itemKey: "runAgentWorkflow",

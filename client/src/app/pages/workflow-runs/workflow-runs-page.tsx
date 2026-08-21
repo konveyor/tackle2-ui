@@ -21,6 +21,7 @@ import type {
   AgentWorkflowRun,
   AgentWorkflowRunPhase,
 } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -34,6 +35,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchWorkflowRuns } from "@app/queries/workflow-runs";
+import { agenticWorkflowRunsCreateScopes } from "@app/scopes";
 import {
   formatAge,
   formatDuration,
@@ -79,6 +81,9 @@ const WorkflowRunsPage: React.FC = () => {
   const history = useHistory();
   const { workflowRuns, isLoading, fetchError } = useFetchWorkflowRuns();
   const { data: applications } = useFetchApplications();
+  // Every hub role can list runs; creating one is admin/architect/migrator
+  // (tackle2-hub#1119).
+  const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const rows = useMemo<WorkflowRunRow[]>(() => {
@@ -225,16 +230,18 @@ const WorkflowRunsPage: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="action-group">
-                <ToolbarItem>
-                  <Button
-                    variant="primary"
-                    onClick={() => setIsCreateOpen(true)}
-                  >
-                    {t("agentic.workflowRuns.create")}
-                  </Button>
-                </ToolbarItem>
-              </ToolbarGroup>
+              {canCreate && (
+                <ToolbarGroup variant="action-group">
+                  <ToolbarItem>
+                    <Button
+                      variant="primary"
+                      onClick={() => setIsCreateOpen(true)}
+                    >
+                      {t("agentic.workflowRuns.create")}
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              )}
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
                   idPrefix="workflow-runs-table"
@@ -272,12 +279,14 @@ const WorkflowRunsPage: React.FC = () => {
                   <EmptyStateBody>
                     {t("agentic.workflowRuns.emptyBody")}
                   </EmptyStateBody>
-                  <Button
-                    variant="primary"
-                    onClick={() => setIsCreateOpen(true)}
-                  >
-                    {t("agentic.workflowRuns.create")}
-                  </Button>
+                  {canCreate && (
+                    <Button
+                      variant="primary"
+                      onClick={() => setIsCreateOpen(true)}
+                    >
+                      {t("agentic.workflowRuns.create")}
+                    </Button>
+                  )}
                 </EmptyState>
               }
               numRenderedColumns={numRenderedColumns}

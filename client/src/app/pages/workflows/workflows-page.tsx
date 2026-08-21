@@ -26,6 +26,7 @@ import {
 
 import { DevPaths } from "@app/Paths";
 import type { AgentWorkflow } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -37,6 +38,10 @@ import {
   useDeleteWorkflowMutation,
   useFetchWorkflows,
 } from "@app/queries/workflows";
+import {
+  agenticWorkflowRunsCreateScopes,
+  agenticWorkflowsWriteScopes,
+} from "@app/scopes";
 import { formatAge } from "@app/utils/agentic";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -54,6 +59,11 @@ const WorkflowsPage: React.FC = () => {
   const history = useHistory();
   const { pushNotification } = useNotifications();
   const { workflows, isLoading, fetchError } = useFetchWorkflows();
+  // Authoring is admin/architect; running one is also a migrator's
+  // (tackle2-hub#1119). Hide what would 403.
+  const canWrite = useHasSomeScopes(agenticWorkflowsWriteScopes);
+  const canRun = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
+  const hasRowActions = canWrite || canRun;
   const [composerTarget, setComposerTarget] = useState<
     AgentWorkflow | "create" | null
   >(null);
@@ -95,18 +105,20 @@ const WorkflowsPage: React.FC = () => {
           when={isLoading && workflows.length === 0 && !fetchError}
           then={<AppPlaceholder />}
         >
-          <Toolbar>
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button
-                  variant="primary"
-                  onClick={() => setComposerTarget("create")}
-                >
-                  {t("agentic.workflows.createWorkflow")}
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+          {canWrite && (
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarItem>
+                  <Button
+                    variant="primary"
+                    onClick={() => setComposerTarget("create")}
+                  >
+                    {t("agentic.workflows.createWorkflow")}
+                  </Button>
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+          )}
 
           {fetchError ? (
             <StateError />
@@ -120,12 +132,14 @@ const WorkflowsPage: React.FC = () => {
                 {t("agentic.workflows.emptyBody")}
               </EmptyStateBody>
               <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
-              <Button
-                variant="primary"
-                onClick={() => setComposerTarget("create")}
-              >
-                {t("agentic.workflows.createWorkflow")}
-              </Button>
+              {canWrite && (
+                <Button
+                  variant="primary"
+                  onClick={() => setComposerTarget("create")}
+                >
+                  {t("agentic.workflows.createWorkflow")}
+                </Button>
+              )}
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.workflows")} variant="compact">
@@ -136,7 +150,9 @@ const WorkflowsPage: React.FC = () => {
                   <Th>{t("agentic.workflows.guide")}</Th>
                   <Th>{t("agentic.workflows.ready")}</Th>
                   <Th>{t("terms.age")}</Th>
-                  <Th screenReaderText={t("actions.rowActions")} />
+                  {hasRowActions && (
+                    <Th screenReaderText={t("actions.rowActions")} />
+                  )}
                 </Tr>
               </Thead>
               <Tbody>
@@ -161,24 +177,34 @@ const WorkflowsPage: React.FC = () => {
                       <Td dataLabel={t("terms.age")}>
                         {formatAge(pb.metadata.creationTimestamp)}
                       </Td>
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.run"),
-                              onClick: () => setRunTarget(name),
-                            },
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setComposerTarget(pb),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setDeleteTarget(name),
-                            },
-                          ]}
-                        />
-                      </Td>
+                      {hasRowActions && (
+                        <Td isActionCell>
+                          <ActionsColumn
+                            items={[
+                              ...(canRun
+                                ? [
+                                    {
+                                      title: t("actions.run"),
+                                      onClick: () => setRunTarget(name),
+                                    },
+                                  ]
+                                : []),
+                              ...(canWrite
+                                ? [
+                                    {
+                                      title: t("actions.edit"),
+                                      onClick: () => setComposerTarget(pb),
+                                    },
+                                    {
+                                      title: t("actions.delete"),
+                                      onClick: () => setDeleteTarget(name),
+                                    },
+                                  ]
+                                : []),
+                            ]}
+                          />
+                        </Td>
+                      )}
                     </Tr>
                   );
                 })}

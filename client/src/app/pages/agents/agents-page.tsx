@@ -24,6 +24,7 @@ import {
 } from "@patternfly/react-table";
 
 import type { AgentResource } from "@app/api/agentic/contract";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -34,6 +35,7 @@ import {
   skillCount,
 } from "@app/pages/agent-runs/components/ReadyLabel";
 import { useDeleteAgentMutation, useFetchAgents } from "@app/queries/agents";
+import { agenticAgentsWriteScopes } from "@app/scopes";
 import { formatAge } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -43,6 +45,9 @@ const AgentsPage: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = useNotifications();
   const { agents, isLoading, fetchError, refetch } = useFetchAgents();
+  // The hub grants agent authoring to admins only (the architect is
+  // get-only on agents and gateways by design) — hide what would 403.
+  const canWrite = useHasSomeScopes(agenticAgentsWriteScopes);
   const [designerTarget, setDesignerTarget] = useState<
     AgentResource | "create" | null
   >(null);
@@ -83,18 +88,20 @@ const AgentsPage: React.FC = () => {
           when={isLoading && agents.length === 0 && !fetchError}
           then={<AppPlaceholder />}
         >
-          <Toolbar>
-            <ToolbarContent>
-              <ToolbarItem>
-                <Button
-                  variant="primary"
-                  onClick={() => setDesignerTarget("create")}
-                >
-                  {t("agentic.agents.createAgent")}
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+          {canWrite && (
+            <Toolbar>
+              <ToolbarContent>
+                <ToolbarItem>
+                  <Button
+                    variant="primary"
+                    onClick={() => setDesignerTarget("create")}
+                  >
+                    {t("agentic.agents.createAgent")}
+                  </Button>
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+          )}
 
           {fetchError ? (
             <StateError />
@@ -108,12 +115,14 @@ const AgentsPage: React.FC = () => {
                 {t("agentic.agents.noAgentsBody")}
               </EmptyStateBody>
               <EmptyStateBody>{t("agentic.emptyStateSeedHint")}</EmptyStateBody>
-              <Button
-                variant="primary"
-                onClick={() => setDesignerTarget("create")}
-              >
-                {t("agentic.agents.createAgent")}
-              </Button>
+              {canWrite && (
+                <Button
+                  variant="primary"
+                  onClick={() => setDesignerTarget("create")}
+                >
+                  {t("agentic.agents.createAgent")}
+                </Button>
+              )}
             </EmptyState>
           ) : (
             <Table aria-label={t("terms.agents")} variant="compact">
@@ -126,7 +135,9 @@ const AgentsPage: React.FC = () => {
                   <Th>{t("agentic.agents.params")}</Th>
                   <Th>{t("agentic.agents.ready")}</Th>
                   <Th>{t("terms.age")}</Th>
-                  <Th screenReaderText={t("actions.rowActions")} />
+                  {canWrite && (
+                    <Th screenReaderText={t("actions.rowActions")} />
+                  )}
                 </Tr>
               </Thead>
               <Tbody>
@@ -175,20 +186,22 @@ const AgentsPage: React.FC = () => {
                       <Td dataLabel={t("terms.age")}>
                         {formatAge(agent.metadata.creationTimestamp)}
                       </Td>
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setDesignerTarget(agent),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setDeleteTarget(name),
-                            },
-                          ]}
-                        />
-                      </Td>
+                      {canWrite && (
+                        <Td isActionCell>
+                          <ActionsColumn
+                            items={[
+                              {
+                                title: t("actions.edit"),
+                                onClick: () => setDesignerTarget(agent),
+                              },
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => setDeleteTarget(name),
+                              },
+                            ]}
+                          />
+                        </Td>
+                      )}
                     </Tr>
                   );
                 })}

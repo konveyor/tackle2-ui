@@ -1249,7 +1249,10 @@
       "loadingSkill": "Loading skill {{name}}",
       "loadedSkill": "Loaded skill {{name}}",
       "loadedSkillFile": "Loaded {{file}} from skill {{name}}",
-      "skillLoadFailed": "Could not load skill {{name}}"
+      "skillLoadFailed": "Could not load skill {{name}}",
+      "noAccessShort": "No access",
+      "noSessionAccessTitle": "Your role cannot open the live session",
+      "noSessionAccessBody": "Watching or steering an agent session needs the agentic.agentruns.acp scope, which the hub grants to the admin, architect and migrator roles. The run status above still updates."
     },
     "createRun": {
       "title": "Create run",

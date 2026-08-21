@@ -64,7 +64,9 @@ import {
   sleep,
 } from "@app/api/agentic/contract";
 import { getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
+import { useHasSomeScopes } from "@app/auth";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
@@ -205,6 +207,8 @@ type ChatView =
   | ConnState
   /** Run has no dialable sandbox yet. */
   | { kind: "waiting" }
+  /** The user's role cannot open the ACP channel (no nonce for them). */
+  | { kind: "forbidden" }
   | { kind: "finished" };
 
 // ----------------------------------------------------------- dial retry
@@ -485,6 +489,11 @@ export function ChatPanel({
   targetBranchUrl,
 }: ChatPanelProps) {
   const { t } = useTranslation();
+  // The hub mints the ACP nonce under agentic.agentruns.acp (admin,
+  // architect, migrator); a project manager gets a 403 — so don't dial,
+  // say so. Steering rides the same bit until tackle2-hub#1116 splits it.
+  const canOpenSession = useHasSomeScopes(agenticAcpScopes);
+  const canIntervene = useHasSomeScopes(agenticSteerScopes);
   const phase = status?.phase;
   const finished = isTerminalPhase(phase);
   // ACPReady (when the controller reports it) is the signal to dial on.
@@ -495,6 +504,7 @@ export function ChatPanel({
     (c) => c.type === ACP_READY_CONDITION
   );
   const dialable =
+    canOpenSession &&
     !finished &&
     (acpReady
       ? acpReady.status === "True"
@@ -864,9 +874,11 @@ export function ChatPanel({
 
   const view: ChatView = finished
     ? { kind: "finished" }
-    : !dialable
-      ? { kind: "waiting" }
-      : conn;
+    : !canOpenSession
+      ? { kind: "forbidden" }
+      : !dialable
+        ? { kind: "waiting" }
+        : conn;
 
   const notice = (() => {
     switch (view.kind) {
@@ -971,6 +983,14 @@ export function ChatPanel({
               {t("agentic.chat.session", { sessionId: view.sessionId })}
             </div>
           )}
+          {view.kind === "forbidden" && (
+            <ChatbotAlert
+              variant="info"
+              title={t("agentic.chat.noSessionAccessTitle")}
+            >
+              {t("agentic.chat.noSessionAccessBody")}
+            </ChatbotAlert>
+          )}
           {view.kind === "disconnected" && (
             <ChatbotAlert
               variant="warning"
@@ -1018,7 +1038,7 @@ export function ChatPanel({
           the deployment opts in. Permission prompts stay answerable above:
           those are solicited by the agent, and an unanswered ask hangs the
           turn. */}
-      {isAgenticSteerEnabled && (
+      {isAgenticSteerEnabled && canIntervene && (
         <ChatbotFooter>
           <MessageBar
             onSendMessage={(m) => void steerRun(m)}
@@ -1186,6 +1206,12 @@ function ConnBadge({ view, phase }: { view: ChatView; phase?: AgentRunPhase }) {
       return (
         <Label isCompact color="red">
           {t("agentic.chat.failedShort")}
+        </Label>
+      );
+    case "forbidden":
+      return (
+        <Label isCompact color="grey">
+          {t("agentic.chat.noAccessShort")}
         </Label>
       );
     case "finished":
