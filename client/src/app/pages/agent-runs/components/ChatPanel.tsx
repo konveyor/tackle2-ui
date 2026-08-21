@@ -63,7 +63,6 @@ import type { AgentRunPhase, AgentRunStatus } from "@app/api/agentic/contract";
 import {
   ACP_READY_CONDITION,
   isTerminalPhase,
-  sleep,
 } from "@app/api/agentic/contract";
 import { getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
 import { useHasSomeScopes } from "@app/auth";
@@ -229,8 +228,8 @@ interface RunUsage {
 
 /** State of the dial itself; only meaningful while the run is dialable. */
 type ConnState =
-  /** Dialing the ACP endpoint until it accepts. */
-  | { kind: "connecting"; seconds: number }
+  /** Dialing the ACP endpoint. */
+  | { kind: "connecting" }
   | { kind: "connected"; sessionId: string }
   /** Connection dropped on a live run; an automatic re-dial is underway. */
   | { kind: "reconnecting" }
@@ -247,56 +246,36 @@ type ChatView =
   | { kind: "forbidden" }
   | { kind: "finished" };
 
-// ----------------------------------------------------------- dial retry
-
-/**
- * Controllers that report the ACPReady condition (agentic-controller#160)
- * say exactly when the agent's ACP endpoint accepts, so the panel dials
- * once. Older controllers only offer phase=Running, which fires when the
- * sandbox object exists — before the agent listens — so there the panel
- * keeps dialing at a fixed cadence until the endpoint accepts or the budget
- * runs out; a run that finishes meanwhile is stopped by its status flipping.
- */
-const ACP_DIAL_BUDGET_MS = 180_000;
-const ACP_DIAL_RETRY_MS = 3_000;
+// ------------------------------------------------------------------ dial
 
 /** Auto-reconnects allowed inside DROP_WINDOW_MS before going manual. */
 const MAX_DROPS_IN_WINDOW = 5;
 const DROP_WINDOW_MS = 10 * 60_000;
 
 /**
- * Dial until the endpoint accepts or the budget runs out (last error thrown)
- * -- or exactly once when `retry` is false: a controller that reports the
- * ACPReady condition has already vouched that the endpoint accepts.
+ * One dial. The controller's ACPReady condition (agentic-controller#160)
+ * says exactly when the agent's endpoint accepts, so the panel dials once
+ * on it and never polls the endpoint; a refused dial is a real failure
+ * and surfaces as one, with a manual retry.
  */
 async function dialAcp(opts: {
   /** Built fresh per attempt — the hub's ACP nonce is single-use. */
   getUrl: () => Promise<string>;
   signal: AbortSignal;
   callbacks: AcpSessionCallbacks;
-  onAttempt: (elapsedMs: number) => void;
-  retry: boolean;
+  onAttempt: () => void;
 }): Promise<AcpSession> {
-  const started = Date.now();
-  for (;;) {
+  opts.signal.throwIfAborted();
+  opts.onAttempt();
+  const session = await AcpSession.connect({
+    url: await opts.getUrl(),
+    callbacks: opts.callbacks,
+  });
+  if (opts.signal.aborted) {
+    void session.close();
     opts.signal.throwIfAborted();
-    opts.onAttempt(Date.now() - started);
-    try {
-      const session = await AcpSession.connect({
-        url: await opts.getUrl(),
-        callbacks: opts.callbacks,
-      });
-      if (opts.signal.aborted) {
-        void session.close();
-        opts.signal.throwIfAborted();
-      }
-      return session;
-    } catch (err) {
-      opts.signal.throwIfAborted();
-      if (!opts.retry || Date.now() - started >= ACP_DIAL_BUDGET_MS) throw err;
-      await sleep(ACP_DIAL_RETRY_MS, opts.signal);
-    }
   }
+  return session;
 }
 
 // -------------------------------------------------- session/update mapping
@@ -587,28 +566,16 @@ export function ChatPanel({
   const canIntervene = useHasSomeScopes(agenticSteerScopes);
   const phase = status?.phase;
   const finished = isTerminalPhase(phase);
-  // ACPReady (when the controller reports it) is the signal to dial on.
-  // Without it, fall back to phase=Running plus the fields the hub needs
-  // to relay (sandboxName + secretKeyRef) and let the dial loop ride out
-  // the agent's startup.
+  // ACPReady is the one signal to dial on: phase=Running fires when the
+  // sandbox pod runs, before the agent listens, and every controller in
+  // service reports the condition (agentic-controller#160) — the dial
+  // loop that rode out the gap on older controllers is gone.
   const acpReady = status?.conditions?.find(
     (c) => c.type === ACP_READY_CONDITION
   );
-  const dialable =
-    canOpenSession &&
-    !finished &&
-    (acpReady
-      ? acpReady.status === "True"
-      : phase === "Running" &&
-        !!status?.sandboxName &&
-        !!status?.secretKeyRef?.name);
+  const dialable = canOpenSession && !finished && acpReady?.status === "True";
 
-  const acpReadyKnown = !!acpReady;
-
-  const [conn, setConn] = useState<ConnState>({
-    kind: "connecting",
-    seconds: 0,
-  });
+  const [conn, setConn] = useState<ConnState>({ kind: "connecting" });
   const [items, setItems] = useState<ChatItem[]>([]);
   const [session, setSession] = useState<AcpSession | null>(null);
   const [attempt, setAttempt] = useState(0); // bumped to rerun the connect flow
@@ -841,15 +808,9 @@ export function ChatPanel({
           onPermissionRequest: handlePermission,
           onElicitation: handleElicitation,
         },
-        onAttempt: (elapsedMs) => {
-          if (live()) {
-            setConn({
-              kind: "connecting",
-              seconds: Math.round(elapsedMs / 1000),
-            });
-          }
+        onAttempt: () => {
+          if (live()) setConn({ kind: "connecting" });
         },
-        retry: !acpReadyKnown,
       });
       sessionRef.current = localSession;
       localSession.onClosed(() => {
@@ -891,7 +852,6 @@ export function ChatPanel({
   }, [
     runName,
     dialable,
-    acpReadyKnown,
     attempt,
     handleUpdate,
     handlePermission,
@@ -993,15 +953,19 @@ export function ChatPanel({
   const notice = (() => {
     switch (view.kind) {
       case "waiting":
-        return acpReady && phase === "Running"
-          ? t("agentic.chat.waitingForAcp", {
-              detail: acpReady.message || acpReady.reason || "",
-            })
-          : t("agentic.chat.waitingForSandbox", {
-              phase: phase ?? "Pending",
-            });
+        if (acpReady && phase === "Running") {
+          return t("agentic.chat.waitingForAcp", {
+            detail: acpReady.message || acpReady.reason || "",
+          });
+        }
+        if (!acpReady && phase === "Running") {
+          return t("agentic.chat.waitingForAcpCondition", { phase });
+        }
+        return t("agentic.chat.waitingForSandbox", {
+          phase: phase ?? "Pending",
+        });
       case "connecting":
-        return t("agentic.chat.startingAcp", { seconds: view.seconds });
+        return t("agentic.chat.startingAcp");
       case "reconnecting":
         return t("agentic.chat.reconnectingToAgent");
       default:

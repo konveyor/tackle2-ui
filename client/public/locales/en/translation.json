@@ -1197,7 +1197,7 @@
       "you": "You",
       "waitingForSandbox": "waiting for the run to start ({{phase}})…",
       "waitingForAcp": "agent is starting — waiting for its ACP endpoint ({{detail}})…",
-      "startingAcp": "waiting for the agent to accept connections ({{seconds}}s)…",
+      "startingAcp": "waiting for the agent to accept connections…",
       "reconnectingToAgent": "connection dropped — reconnecting…",
       "waiting": "Waiting",
       "connecting": "Connecting",
@@ -1264,7 +1264,8 @@
       "usageTurns_other": "{{count}} turns",
       "usageTurnsHint": "model responses so far, the counter maxTurns limits",
       "usageCost": "Cost so far: {{amount}}",
-      "harnessStep": "Harness: {{title}}"
+      "harnessStep": "Harness: {{title}}",
+      "waitingForAcpCondition": "The run is {{phase}} but the controller reports no ACPReady condition; the console dials only on that signal (agentic-controller#160)."
     },
     "createRun": {
       "title": "Create run",

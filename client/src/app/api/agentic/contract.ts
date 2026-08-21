@@ -69,7 +69,9 @@ export interface AgentRunSpec {
  * AgentRun condition reporting whether the agent's ACP endpoint accepts
  * connections (agentic-controller#160): True/Listening once the sandbox
  * pod passes its tcpSocket:4000 readiness probe, False/NotListening until
- * then, False/Finished once the run ends. Dial on this, not on phase.
+ * then, False/Finished once the run ends. The console dials on this and
+ * on nothing else — a run whose controller never reports it is never
+ * dialed (phase=Running predates the agent listening).
  */
 export const ACP_READY_CONDITION = "ACPReady";
 
