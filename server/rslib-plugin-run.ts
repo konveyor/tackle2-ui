@@ -19,19 +19,13 @@ export const pluginRunNode = ({
   setup(api) {
     api.logger.start("[run] plugin started...");
     let child: ReturnType<typeof spawn> | null = null;
+    let controller: AbortController | null = null;
 
     const killChild = (): Promise<void> => {
       if (!child) return Promise.resolve();
-      return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-          child?.kill("SIGKILL");
-        }, 3000);
-        child?.on("exit", () => {
-          clearTimeout(timeout);
-          child = null;
-          resolve();
-        });
-        child?.kill("SIGTERM");
+      return new Promise<void>((resolve) => {
+        child!.on("exit", () => resolve());
+        controller!.abort();
       });
     };
 
@@ -53,23 +47,30 @@ export const pluginRunNode = ({
 
         const action = isFirstCompile ? "Starting" : "Restarting";
         api.logger.info(`[run] ${action} node ${entryPath}...`);
+
+        controller = new AbortController();
         child = spawn("node", [...execArgv, entryPath], {
           stdio: "inherit",
-          shell: false,
           detached: true,
+          signal: controller.signal,
+        });
+
+        child.on("exit", () => {
+          child = null;
+          controller = null;
         });
 
         child.on("error", (err) => {
-          api.logger.error("[run] Failed to start process:", err);
+          if (err.name !== "AbortError") {
+            api.logger.error("[run] Failed to start process:", err);
+          }
         });
       },
     });
 
-    // Fires after process.exit(0) above; synchronously kills the child so it
-    // doesn't become an orphan now that it's in its own process group.
     api.onExit(() => {
       api.logger.info("[run] exiting, killing child process", child?.pid);
-      child?.kill("SIGTERM");
+      controller?.abort();
     });
 
     api.logger.start(
