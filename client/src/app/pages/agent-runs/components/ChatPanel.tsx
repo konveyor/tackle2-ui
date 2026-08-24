@@ -910,6 +910,19 @@ export function ChatPanel({
     handleAskResolved,
   ]);
 
+  // An open ask (a permission prompt or an ask_user question) gates the turn:
+  // goose is parked on the elicitation reply and reads nothing else, so a
+  // steer typed now would land nowhere — and, worse, it invites the human to
+  // type the answer into this box instead of the card, leaving the card open
+  // and the run stuck waiting. Block the composer until every card above is
+  // answered. A card resolved elsewhere (timeout, or another viewer) carries
+  // an outcome/chosen too, so it stops gating the moment it closes.
+  const hasOpenAsk = items.some(
+    (it) =>
+      (it.kind === "permission" && !it.chosen) ||
+      (it.kind === "ask" && !it.outcome)
+  );
+
   // Redirect the agent: goose steer on the RUN's session, relayed by the
   // harness tee onto the run connection (rejected there with -32601 when
   // HARNESS_HITL_STEER=off). The message is queued into the active turn and
@@ -918,7 +931,7 @@ export function ChatPanel({
     const text = String(raw).trim();
     const s = session;
     const runSid = runSessionRef.current;
-    if (!text || !s || !runSid || steerBusy) return;
+    if (!text || !s || !runSid || steerBusy || hasOpenAsk) return;
     const id = nextId();
     pushItem({
       kind: "user",
@@ -1007,6 +1020,7 @@ export function ChatPanel({
   // spinning-up run looks the same as a ready one and invites typing that
   // goes nowhere. Keyed off `view` so it always agrees with the header badge.
   const steerPlaceholder = (() => {
+    if (hasOpenAsk) return t("agentic.chat.steerAnswerFirst");
     switch (view.kind) {
       case "connected":
         return activeRun === null
@@ -1197,8 +1211,8 @@ export function ChatPanel({
             onSendMessage={(m) => void steerRun(m)}
             hasAttachButton={false}
             alwayShowSendButton
-            isSendButtonDisabled={!canSteer || steerBusy}
-            isDisabled={!session}
+            isSendButtonDisabled={!canSteer || steerBusy || hasOpenAsk}
+            isDisabled={!session || hasOpenAsk}
             placeholder={steerPlaceholder}
             buttonProps={{
               send: { tooltipContent: t("agentic.chat.steerSend") },

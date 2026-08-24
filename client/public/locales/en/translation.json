@@ -1231,6 +1231,7 @@
       "steerConnecting": "Connecting to the agent — you can't redirect it yet…",
       "steerUnavailable": "The agent isn't available to redirect.",
       "steerTurnOver": "The agent's turn is over — nothing to redirect.",
+      "steerAnswerFirst": "Answer the question above before redirecting the agent…",
       "steerSend": "Send redirect",
       "steerFootnote": "Messages steer the agent's current turn",
       "steerFootnoteTitle": "Steering a live run",
