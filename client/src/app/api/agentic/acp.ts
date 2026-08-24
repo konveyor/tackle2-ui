@@ -65,6 +65,8 @@ export type ToolCallDiff = {
 
 /** An agent -> client session/request_permission ask. */
 export type PermissionRequest = {
+  /** ACP request id (kperm-<n>) this ask arrived under. */
+  id: string;
   sessionId: string;
   toolCall?: { toolCallId?: string; title?: string; diffs?: ToolCallDiff[] };
   options: { optionId: string; name: string; kind: string }[];
@@ -93,6 +95,8 @@ export type ElicitationProperty = {
 
 /** An agent -> client elicitation/create ask (form mode). */
 export type ElicitationRequest = {
+  /** ACP request id (kask-<n>) this ask arrived under. */
+  id: string;
   sessionId?: string;
   mode?: string;
   message: string;
@@ -139,6 +143,16 @@ export interface AcpSessionCallbacks {
   onElicitation?(
     r: ElicitationRequest
   ): Promise<ElicitationOutcome> | ElicitationOutcome;
+  /**
+   * An ask (question or permission) concluded elsewhere: another viewer
+   * answered it, or the harness timed it out and cancelled it. The harness
+   * broadcasts a JSON-RPC response keyed by the ask's id; `id` is that id
+   * (a kask-/kperm-<n> string) and `result` is the broadcast result — an
+   * ElicitationOutcome or PermissionOutcome. The console closes the
+   * matching card. It must NOT send its own response: the ask is already
+   * resolved upstream.
+   */
+  onAskResolved?(id: string, result: unknown): void;
 }
 
 export type AcpLogger = Pick<Console, "info" | "warn" | "error" | "debug">;
@@ -199,6 +213,15 @@ export class AcpSession {
 
   private readonly pending = new Map<number | string, PendingRequest>();
   private nextId = 1;
+
+  // Server asks (elicitation/permission) the console is currently showing,
+  // keyed by their ACP id. An `externallyResolved` entry means the harness
+  // broadcast a resolution for it (another viewer answered, or it timed
+  // out): the console closes the card and skips its own response.
+  private readonly inFlightAsks = new Map<
+    number | string,
+    { externallyResolved: boolean }
+  >();
 
   private _sessionId: string | null = null;
   private _loadSessionSupported = false;
@@ -462,7 +485,11 @@ export class AcpSession {
         void this.handleServerRequest(id, method, msg.params);
       }
     } else if (id !== undefined && id !== null) {
-      this.settle(id, msg);
+      if (this.inFlightAsks.has(id)) {
+        this.resolveAskExternally(id, msg);
+      } else {
+        this.settle(id, msg);
+      }
     } else {
       this.logger.debug(
         "AcpSession: ignoring message with neither method nor id"
@@ -528,18 +555,25 @@ export class AcpSession {
         }))
       : [];
     const request: PermissionRequest = {
+      id: String(id),
       sessionId: typeof p.sessionId === "string" ? p.sessionId : "",
       toolCall,
       options,
     };
+    const ask = { externallyResolved: false };
+    this.inFlightAsks.set(id, ask);
     try {
       const result: PermissionOutcome = this.callbacks.onPermissionRequest
         ? await this.callbacks.onPermissionRequest(request)
         : { outcome: { outcome: "cancelled" } };
+      // The harness resolved this ask elsewhere while we waited; the card is
+      // already closed and a second response would be a duplicate.
+      if (ask.externallyResolved) return;
       if (!this.closed) {
         this.sendRaw({ jsonrpc: "2.0", id, result });
       }
     } catch (err) {
+      if (ask.externallyResolved) return;
       this.logger.error(
         `AcpSession: onPermissionRequest threw: ${err instanceof Error ? err.message : String(err)}`
       );
@@ -548,6 +582,8 @@ export class AcpSession {
         -32603,
         err instanceof Error ? err.message : "permission handler failed"
       );
+    } finally {
+      this.inFlightAsks.delete(id);
     }
   }
 
@@ -564,6 +600,7 @@ export class AcpSession {
       }
     }
     const request: ElicitationRequest = {
+      id: String(id),
       sessionId: typeof p.sessionId === "string" ? p.sessionId : undefined,
       mode: typeof p.mode === "string" ? p.mode : undefined,
       message: typeof p.message === "string" ? p.message : "",
@@ -579,14 +616,20 @@ export class AcpSession {
           : [],
       },
     };
+    const ask = { externallyResolved: false };
+    this.inFlightAsks.set(id, ask);
     try {
       const result: ElicitationOutcome = this.callbacks.onElicitation
         ? await this.callbacks.onElicitation(request)
         : { action: "cancel" };
+      // The harness resolved this ask elsewhere while we waited; the card is
+      // already closed and a second response would be a duplicate.
+      if (ask.externallyResolved) return;
       if (!this.closed) {
         this.sendRaw({ jsonrpc: "2.0", id, result });
       }
     } catch (err) {
+      if (ask.externallyResolved) return;
       this.logger.error(
         `AcpSession: onElicitation threw: ${err instanceof Error ? err.message : String(err)}`
       );
@@ -594,6 +637,27 @@ export class AcpSession {
         id,
         -32603,
         err instanceof Error ? err.message : "elicitation handler failed"
+      );
+    } finally {
+      this.inFlightAsks.delete(id);
+    }
+  }
+
+  // A resolution frame arrived for an ask the console is showing: the
+  // harness concluded it upstream (another viewer answered, or it timed out
+  // and was cancelled). Mark it so the waiting handler skips its own
+  // response, and tell the console to close the card.
+  private resolveAskExternally(
+    id: number | string,
+    msg: Record<string, unknown>
+  ): void {
+    const ask = this.inFlightAsks.get(id);
+    if (ask) ask.externallyResolved = true;
+    try {
+      this.callbacks.onAskResolved?.(String(id), msg.result);
+    } catch (err) {
+      this.logger.error(
+        `AcpSession: onAskResolved callback threw: ${err instanceof Error ? err.message : String(err)}`
       );
     }
   }

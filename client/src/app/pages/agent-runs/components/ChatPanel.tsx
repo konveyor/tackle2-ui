@@ -149,6 +149,9 @@ interface PermissionItem {
   options: PermissionRequest["options"];
   /** optionId chosen by the user, or "cancelled". Unset while pending. */
   chosen?: string;
+  /** Concluded elsewhere (another viewer answered, or the harness timed it
+   * out) rather than by this viewer — the card closes either way. */
+  external?: boolean;
 }
 /**
  * The agent asking the human a question (elicitation/create, e.g. the
@@ -163,6 +166,9 @@ interface AskItem {
   schema: ElicitationRequest["requestedSchema"];
   /** Set once answered: what went back to the agent. */
   outcome?: ElicitationOutcome;
+  /** Concluded elsewhere (another viewer answered, or the harness timed it
+   * out) rather than by this viewer — the card closes either way. */
+  external?: boolean;
 }
 /** A one-line transcript divider (e.g. "stop requested"). */
 interface NoticeItem {
@@ -618,6 +624,10 @@ export function ChatPanel({
   const askResolvers = useRef(
     new Map<number, (o: ElicitationOutcome) => void>()
   );
+  // ACP ask id (kask-/kperm-<n>) -> local card id, so a resolution frame
+  // (another viewer answered, or the harness timed the ask out) can find
+  // and close the right card.
+  const askAcpIds = useRef(new Map<string, number>());
 
   const nextId = () => ++idRef.current;
 
@@ -703,6 +713,7 @@ export function ChatPanel({
       return new Promise((resolve) => {
         const id = ++idRef.current;
         permissionResolvers.current.set(id, resolve);
+        askAcpIds.current.set(r.id, id);
         setItems((prev) => [
           ...prev,
           {
@@ -727,6 +738,7 @@ export function ChatPanel({
       return new Promise((resolve) => {
         const id = ++idRef.current;
         askResolvers.current.set(id, resolve);
+        askAcpIds.current.set(r.id, id);
         setItems((prev) => [
           ...prev,
           {
@@ -772,6 +784,44 @@ export function ChatPanel({
     );
   };
 
+  // The harness broadcast a resolution for an ask: another viewer answered
+  // it, or it timed out and was cancelled. Close the matching card. If its
+  // resolver is gone this viewer already answered locally — nothing to do.
+  const handleAskResolved = useCallback((acpId: string, result: unknown) => {
+    const localId = askAcpIds.current.get(acpId);
+    if (localId === undefined) return;
+    askAcpIds.current.delete(acpId);
+
+    const askResolve = askResolvers.current.get(localId);
+    if (askResolve) {
+      askResolvers.current.delete(localId);
+      const outcome = asElicitationOutcome(result);
+      askResolve(outcome);
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === localId && it.kind === "ask"
+            ? { ...it, outcome, external: true }
+            : it
+        )
+      );
+      return;
+    }
+    const permResolve = permissionResolvers.current.get(localId);
+    if (permResolve) {
+      permissionResolvers.current.delete(localId);
+      const outcome = asPermissionOutcome(result);
+      permResolve(outcome);
+      const chosen = outcome.outcome.optionId ?? "cancelled";
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === localId && it.kind === "permission"
+            ? { ...it, chosen, external: true }
+            : it
+        )
+      );
+    }
+  }, []);
+
   // Connect flow, run once the page's poll says the run is dialable: dial
   // ACP until it accepts, then new-session -- or load-session to replay
   // history after a reconnect. The run finishing (or the page leaving)
@@ -807,6 +857,7 @@ export function ChatPanel({
           onUpdate: handleUpdate,
           onPermissionRequest: handlePermission,
           onElicitation: handleElicitation,
+          onAskResolved: handleAskResolved,
         },
         onAttempt: () => {
           if (live()) setConn({ kind: "connecting" });
@@ -856,6 +907,7 @@ export function ChatPanel({
     handleUpdate,
     handlePermission,
     handleElicitation,
+    handleAskResolved,
   ]);
 
   // Redirect the agent: goose steer on the RUN's session, relayed by the
@@ -1725,9 +1777,13 @@ function ChatItemView({
           {item.diffs?.map((d) => (
             <DiffPreview key={d.path} diff={d} />
           ))}
-          {chosenName ? (
-            <Label color="blue">
-              {t("agentic.chat.answered", { choice: chosenName })}
+          {item.chosen ? (
+            <Label color={item.external ? "grey" : "blue"}>
+              {item.external
+                ? item.chosen === "cancelled"
+                  ? t("agentic.chat.closedElsewhere")
+                  : t("agentic.chat.answeredElsewhere", { choice: chosenName })
+                : t("agentic.chat.answered", { choice: chosenName })}
             </Label>
           ) : (
             <div className="chat-permission-actions">
@@ -1750,6 +1806,40 @@ function ChatItemView({
 }
 
 // --------------------------------------------------------------- ask view
+
+/** Coerce a broadcast ask-resolution result into an ElicitationOutcome. */
+function asElicitationOutcome(result: unknown): ElicitationOutcome {
+  if (
+    isRecord(result) &&
+    (result.action === "accept" ||
+      result.action === "decline" ||
+      result.action === "cancel")
+  ) {
+    return {
+      action: result.action,
+      content: isRecord(result.content) ? result.content : undefined,
+    };
+  }
+  return { action: "cancel" };
+}
+
+/** Coerce a broadcast ask-resolution result into a PermissionOutcome. */
+function asPermissionOutcome(result: unknown): PermissionOutcome {
+  if (
+    isRecord(result) &&
+    isRecord(result.outcome) &&
+    typeof result.outcome.outcome === "string"
+  ) {
+    const o = result.outcome;
+    return {
+      outcome: {
+        outcome: o.outcome as string,
+        optionId: typeof o.optionId === "string" ? o.optionId : undefined,
+      },
+    };
+  }
+  return { outcome: { outcome: "cancelled" } };
+}
 
 /** Answer values keyed by property name, as typed (strings) or toggled. */
 type AskDraft = Record<string, string | boolean | undefined>;
@@ -1824,11 +1914,17 @@ function AskView({
 
   const summary = (() => {
     if (!answered) return null;
-    if (answered.action !== "accept") return t("agentic.chat.askDeclined");
+    if (answered.action !== "accept") {
+      return item.external
+        ? t("agentic.chat.askClosedElsewhere")
+        : t("agentic.chat.askDeclined");
+    }
     const parts = Object.entries(answered.content ?? {}).map(([k, v]) =>
       names.length > 1 ? `${k}: ${String(v)}` : String(v)
     );
-    return t("agentic.chat.askAnswered", { answer: parts.join(", ") });
+    return item.external
+      ? t("agentic.chat.askAnsweredElsewhere", { answer: parts.join(", ") })
+      : t("agentic.chat.askAnswered", { answer: parts.join(", ") });
   })();
 
   return (
@@ -1838,7 +1934,7 @@ function AskView({
       </div>
       <div className="chat-ask-message">{item.message}</div>
       {summary ? (
-        <Label color="blue">{summary}</Label>
+        <Label color={item.external ? "grey" : "blue"}>{summary}</Label>
       ) : (
         <Form
           isHorizontal={false}
