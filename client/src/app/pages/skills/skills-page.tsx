@@ -241,7 +241,9 @@ const SkillsPage: React.FC = () => {
           when={cardsLoading && skillCards.length === 0 && !cardsError}
           then={<AppPlaceholder />}
         >
-          {canWriteCards && (
+          {/* Toolbar CTA only when the table has rows; the empty state
+              carries its own create button, so showing both duplicates it. */}
+          {canWriteCards && sortedCards.length > 0 && (
             <Toolbar>
               <ToolbarContent>
                 <ToolbarItem>
@@ -388,7 +390,9 @@ const SkillsPage: React.FC = () => {
           }
           then={<AppPlaceholder />}
         >
-          {canWriteCollections && (
+          {/* Toolbar CTA only when the table has rows; the empty state
+              carries its own create button, so showing both duplicates it. */}
+          {canWriteCollections && sortedCollections.length > 0 && (
             <Toolbar>
               <ToolbarContent>
                 <ToolbarItem>
