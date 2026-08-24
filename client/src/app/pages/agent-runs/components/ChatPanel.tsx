@@ -950,6 +950,26 @@ export function ChatPanel({
         ? { kind: "waiting" }
         : conn;
 
+  // The steer box is only usable once the ACP session is live; until then
+  // `isDisabled` greys it, but the placeholder must say why — otherwise a
+  // spinning-up run looks the same as a ready one and invites typing that
+  // goes nowhere. Keyed off `view` so it always agrees with the header badge.
+  const steerPlaceholder = (() => {
+    switch (view.kind) {
+      case "connected":
+        return activeRun === null
+          ? t("agentic.chat.steerTurnOver")
+          : t("agentic.chat.steerPlaceholder");
+      case "connecting":
+      case "reconnecting":
+        return t("agentic.chat.steerConnecting");
+      case "waiting":
+        return t("agentic.chat.steerWaiting");
+      default:
+        return t("agentic.chat.steerUnavailable");
+    }
+  })();
+
   const notice = (() => {
     switch (view.kind) {
       case "waiting":
@@ -1127,11 +1147,7 @@ export function ChatPanel({
             alwayShowSendButton
             isSendButtonDisabled={!canSteer || steerBusy}
             isDisabled={!session}
-            placeholder={
-              activeRun === null
-                ? t("agentic.chat.steerTurnOver")
-                : t("agentic.chat.steerPlaceholder")
-            }
+            placeholder={steerPlaceholder}
             buttonProps={{
               send: { tooltipContent: t("agentic.chat.steerSend") },
             }}
