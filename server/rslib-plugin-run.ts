@@ -1,6 +1,19 @@
 import { spawn } from "node:child_process";
 
-import type { RsbuildPlugin } from "@rsbuild/core";
+import {
+  type RsbuildPlugin,
+  type RsbuildPluginAPI,
+  createLogger,
+} from "@rsbuild/core";
+import { color } from "rslog";
+
+function createPrefixLogger(api: RsbuildPluginAPI, prefix: string) {
+  return createLogger({
+    ...api.logger.options,
+    prefix: color.dim(prefix),
+    level: api.logger.level,
+  });
+}
 
 /**
  * A rslib plugin which runs your bundle in Node once it has been built. In watch mode, every
@@ -17,14 +30,16 @@ export const pluginRunNode = ({
 }): RsbuildPlugin => ({
   name: "plugin-run-node",
   setup(api) {
-    api.logger.start("[run] plugin started...");
+    const logger = createPrefixLogger(api, "[run]");
+    logger.start("plugin started...");
+
     let child: ReturnType<typeof spawn> | null = null;
     let controller: AbortController | null = null;
 
     const killChild = (): Promise<void> => {
       if (!child) return Promise.resolve();
       return new Promise<void>((resolve) => {
-        child!.on("exit", () => resolve());
+        child!.on("close", () => resolve());
         controller!.abort();
       });
     };
@@ -41,12 +56,12 @@ export const pluginRunNode = ({
         await killChild();
 
         if (!entryPath) {
-          api.logger.error("[run] Entry path is required");
+          logger.error("Entry path is required");
           return;
         }
 
         const action = isFirstCompile ? "Starting" : "Restarting";
-        api.logger.info(`[run] ${action} node ${entryPath}...`);
+        logger.info(`${action} node ${entryPath}...`);
 
         controller = new AbortController();
         child = spawn("node", [...execArgv, entryPath], {
@@ -55,26 +70,24 @@ export const pluginRunNode = ({
           signal: controller.signal,
         });
 
-        child.on("exit", () => {
+        child.on("close", () => {
           child = null;
           controller = null;
         });
 
         child.on("error", (err) => {
           if (err.name !== "AbortError") {
-            api.logger.error("[run] Failed to start process:", err);
+            logger.error("Failed to start process:", err);
           }
         });
       },
     });
 
     api.onExit(() => {
-      api.logger.info("[run] exiting, killing child process", child?.pid);
+      logger.info("exiting, killing child process", child?.pid);
       controller?.abort();
     });
 
-    api.logger.start(
-      `[run] ready to run ${entryPath} when build is complete...`
-    );
+    logger.ready(`ready to run ${entryPath} when build is complete...`);
   },
 });

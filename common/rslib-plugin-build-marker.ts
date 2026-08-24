@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { RsbuildPlugin } from "@rsbuild/core";
+import {
+  type RsbuildPlugin,
+  type RsbuildPluginAPI,
+  createLogger,
+} from "@rsbuild/core";
+import { color } from "rslog";
 
 const isDev = process.env.NODE_ENV === "development";
 const isWatch =
@@ -23,6 +28,14 @@ const chrootResolve = (root: string, filePath: string): string => {
   }
   return resolved;
 };
+
+function createPrefixLogger(api: RsbuildPluginAPI, prefix: string) {
+  return createLogger({
+    ...api.logger.options,
+    prefix: color.dim(prefix),
+    level: api.logger.level,
+  });
+}
 
 /**
  * A rslib plugin which will create/touch a marker file once the bundles are first generated. This
@@ -50,7 +63,8 @@ export const pluginBuildMarker = ({
     : {
         name: "plugin-build-marker",
         setup(api) {
-          api.logger.start("plugin-build-marker started...");
+          const logger = createPrefixLogger(api, "[build-marker]");
+          logger.start("plugin started...");
 
           const resolvedPath = chrootResolve(
             api.context.rootPath,
@@ -61,7 +75,7 @@ export const pluginBuildMarker = ({
 
           const removeMarker = (): void => {
             if (fs.existsSync(resolvedPath)) {
-              api.logger.info("Removing marker file from", resolvedPath);
+              logger.info("Removing marker file from", resolvedPath);
               fs.rmSync(resolvedPath, { force: true });
             }
           };
@@ -97,12 +111,12 @@ export const pluginBuildMarker = ({
                 totalEnvironments > 0 &&
                 finishedEnvironments.size === totalEnvironments
               ) {
-                api.logger.success("first build complete, writing marker file");
+                logger.success("first build complete, writing marker file");
                 writeMarker();
               }
             },
           });
 
-          api.logger.ready("build marker ready, path:", resolvedPath);
+          logger.ready("marker path:", resolvedPath);
         },
       };

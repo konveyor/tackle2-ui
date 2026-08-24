@@ -21,6 +21,7 @@
     "http-terminator": "^3.2.0"
   },
   "devDependencies": {
-    "@rslib/core": "^0.23.2"
+    "@rslib/core": "^0.23.2",
+    "rslog": "^2.3.0"
   }
 }

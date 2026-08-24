@@ -27,6 +27,7 @@
     "start:dev": "NODE_ENV=development rslib build --watch"
   },
   "devDependencies": {
-    "@rslib/core": "^0.23.2"
+    "@rslib/core": "^0.23.2",
+    "rslog": "^2.3.0"
   }
 }
