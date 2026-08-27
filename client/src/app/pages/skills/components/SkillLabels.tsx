@@ -104,19 +104,25 @@ export function SkillSourceLabel({
  * best-effort Resolvable condition (agentic-controller#188): Present (green),
  * Missing (red — a run would ImagePullBackOff) or Unverified (orange — the
  * controller could not confirm, e.g. a private registry). Renders nothing when
- * the condition is absent (older controllers, non-image cards). The reason and
- * message show on hover, so the registry's own words reach the operator.
+ * the condition is absent (older controllers, non-image cards). Pass
+ * `omitPresent` to also render nothing for a verified-present artifact — used in
+ * the list, where a green Ready already says enough and only problems warrant a
+ * second label. The reason and message show on hover, so the registry's own
+ * words reach the operator.
  */
 export function ResolvableLabel({
   conditions,
   isCompact,
+  omitPresent,
 }: {
   conditions?: Condition[];
   isCompact?: boolean;
+  omitPresent?: boolean;
 }) {
   const { t } = useTranslation();
   const c = resolvableCondition(conditions);
   if (!c) return null;
+  if (omitPresent && c.status === "True") return null;
 
   const { color, text } =
     c.status === "True"

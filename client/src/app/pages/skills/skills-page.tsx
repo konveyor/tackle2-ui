@@ -44,7 +44,6 @@ import {
   agenticSkillsWriteScopes,
 } from "@app/scopes";
 import { formatAge } from "@app/utils/agentic";
-import { resolvableCondition } from "@app/utils/skills";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { SkillCardDetailDrawer } from "./components/SkillCardDetailDrawer";
@@ -342,13 +341,11 @@ const SkillsPage: React.FC = () => {
                           {/* Flag a phantom or unverified artifact in the list
                               itself, so it is visible before a run. Present
                               artifacts stay quiet — the green Ready is enough. */}
-                          {resolvableCondition(card.status?.conditions)
-                            ?.status !== "True" && (
-                            <ResolvableLabel
-                              conditions={card.status?.conditions}
-                              isCompact
-                            />
-                          )}
+                          <ResolvableLabel
+                            conditions={card.status?.conditions}
+                            omitPresent
+                            isCompact
+                          />
                         </span>
                       </Td>
                       <Td dataLabel={t("terms.tags")}>
