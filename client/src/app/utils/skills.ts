@@ -7,6 +7,7 @@
  */
 
 import type { Condition, SkillCardSpec } from "@app/api/agentic/contract";
+import { SKILL_RESOLVABLE_CONDITION } from "@app/api/agentic/contract";
 
 // ------------------------------------------------------------- conditions
 
@@ -15,6 +16,16 @@ export function readyCondition(
   conditions?: Condition[]
 ): Condition | undefined {
   return conditions?.find((c) => c.type === "Ready");
+}
+
+/**
+ * The `Resolvable` condition of an image SkillCard, if any. Absent on older
+ * controllers and on non-image cards (see SKILL_RESOLVABLE_CONDITION).
+ */
+export function resolvableCondition(
+  conditions?: Condition[]
+): Condition | undefined {
+  return conditions?.find((c) => c.type === SKILL_RESOLVABLE_CONDITION);
 }
 
 // ----------------------------------------------------------------- source

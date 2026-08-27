@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Label, Tooltip } from "@patternfly/react-core";
 
 import type {
+  Condition,
   SkillCard,
   SkillCardSpec,
   SkillCardType,
 } from "@app/api/agentic/contract";
 import { truncate } from "@app/utils/agentic";
-import { skillSourceKind } from "@app/utils/skills";
+import { resolvableCondition, skillSourceKind } from "@app/utils/skills";
 
 /**
  * Load policy as a label: rule (orange) = injected into every prompt, skill
@@ -94,6 +95,57 @@ export function SkillSourceLabel({
       <Label variant="outline" isCompact={isCompact}>
         {text}
       </Label>
+    </Tooltip>
+  );
+}
+
+/**
+ * Whether an image card's referenced artifact actually exists, from the
+ * best-effort Resolvable condition (agentic-controller#188): Present (green),
+ * Missing (red — a run would ImagePullBackOff) or Unverified (orange — the
+ * controller could not confirm, e.g. a private registry). Renders nothing when
+ * the condition is absent (older controllers, non-image cards). The reason and
+ * message show on hover, so the registry's own words reach the operator.
+ */
+export function ResolvableLabel({
+  conditions,
+  isCompact,
+}: {
+  conditions?: Condition[];
+  isCompact?: boolean;
+}) {
+  const { t } = useTranslation();
+  const c = resolvableCondition(conditions);
+  if (!c) return null;
+
+  const { color, text } =
+    c.status === "True"
+      ? { color: "green" as const, text: t("agentic.skills.resolvablePresent") }
+      : c.status === "False"
+        ? { color: "red" as const, text: t("agentic.skills.resolvableMissing") }
+        : {
+            color: "orange" as const,
+            text: t("agentic.skills.resolvableUnknown"),
+          };
+
+  const label = (
+    <Label color={color} isCompact={isCompact}>
+      {text}
+    </Label>
+  );
+  if (!c.reason && !c.message) return label;
+  return (
+    <Tooltip
+      content={
+        <div style={{ wordBreak: "break-word" }}>
+          {c.reason && <div>{c.reason}</div>}
+          {c.message && (
+            <div style={{ whiteSpace: "pre-wrap" }}>{c.message}</div>
+          )}
+        </div>
+      }
+    >
+      {label}
     </Tooltip>
   );
 }

@@ -36,11 +36,16 @@ import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import {
   type SkillValidationIssue,
   readyCondition,
+  resolvableCondition,
   skillSourceKind,
   validateSkillMarkdown,
 } from "@app/utils/skills";
 
-import { SkillSourceLabel, SkillTypeLabel } from "./SkillLabels";
+import {
+  ResolvableLabel,
+  SkillSourceLabel,
+  SkillTypeLabel,
+} from "./SkillLabels";
 
 // ------------------------------------------------------------ shared bits
 // Also used by SkillCollectionDetailDrawer so the two drawers read alike.
@@ -248,6 +253,7 @@ const SkillCardDetails: React.FC<{
   const kind = skillSourceKind(spec);
   const isRule = spec.type === "rule";
   const ready = readyCondition(status?.conditions);
+  const resolvable = resolvableCondition(status?.conditions);
 
   const references = useMemo(
     () => cardReferences(card, agents, skillCollections),
@@ -366,6 +372,31 @@ const SkillCardDetails: React.FC<{
                 </span>
               ) : (
                 "-"
+              )}
+            </DrawerField>
+          )}
+          {kind === "image" && (
+            <DrawerField term={t("agentic.skills.resolvable")}>
+              {resolvable ? (
+                <>
+                  <ResolvableLabel conditions={status?.conditions} />
+                  <DrawerHint>
+                    {t(
+                      resolvable.status === "False"
+                        ? "agentic.skills.resolvableMissingHint"
+                        : resolvable.status === "Unknown"
+                          ? "agentic.skills.resolvableUnknownHint"
+                          : "agentic.skills.resolvableHint"
+                    )}
+                  </DrawerHint>
+                </>
+              ) : (
+                <>
+                  {"-"}
+                  <DrawerHint>
+                    {t("agentic.skills.resolvableUnsupported")}
+                  </DrawerHint>
+                </>
               )}
             </DrawerField>
           )}

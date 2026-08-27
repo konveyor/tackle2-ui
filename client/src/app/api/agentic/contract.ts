@@ -196,6 +196,19 @@ export type SkillCardType = "skill" | "rule";
 export type SkillDeliveryMode = "image" | "inline" | "source";
 
 /**
+ * SkillCard condition (image cards only, post agentic-controller#188)
+ * reporting a best-effort registry check that the referenced artifact
+ * actually exists — distinct from Ready, which only means the ref was
+ * accepted. True/ArtifactPresent when the manifest was found,
+ * False/ArtifactMissing on a definitive not-found (the run would
+ * ImagePullBackOff), Unknown/ResolveInconclusive when the check could not
+ * complete (e.g. a private registry the controller cannot authenticate to,
+ * where the pod may still pull with its own imagePullSecrets). Absent on
+ * older controllers and on non-image cards.
+ */
+export const SKILL_RESOLVABLE_CONDITION = "Resolvable";
+
+/**
  * One skill (an AgentSkills.io directory). Exactly one of `image`, `source`,
  * `inline` is set; every field is optional here so pre-#157 objects still
  * parse. Use `skillSourceKind()` from `@app/utils/skills` to pick the source.
