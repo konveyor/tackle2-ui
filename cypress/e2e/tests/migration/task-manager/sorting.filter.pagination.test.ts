@@ -128,7 +128,7 @@ describe(
         if ($body.find(TaskManagerColumns.status).length > 0) {
           try {
             validateTextPresence(TaskManagerColumns.status, TaskStatus.running);
-          } catch (e) {
+          } catch {
             cy.log("No running tasks found - tasks completed too quickly");
           }
         }
