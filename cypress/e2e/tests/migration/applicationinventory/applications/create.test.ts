@@ -133,7 +133,7 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
 
     // Unassign contributor#1 and verify only contributor#2 is listed
     cy.get(applicationContributorsChipGroup)
-      .find(`span[aria-label='${stakeHoldersList[0].name}']`)
+      .contains("span", stakeHoldersList[0].name)
       .closest("li")
       .find("button")
       .click();
