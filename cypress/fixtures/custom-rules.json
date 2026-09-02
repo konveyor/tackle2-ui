@@ -16,7 +16,7 @@
     "image": "img/cloud.png",
     "repository": {
       "repositoryType": "git",
-      "repositoryUrl": "https://github.com/ibraginsky/book-server",
+      "repositoryUrl": "https://github.com/ibragins/book-server",
       "branch": "",
       "rootPath": "custom-rules"
     }
