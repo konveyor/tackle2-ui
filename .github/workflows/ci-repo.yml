@@ -197,6 +197,10 @@ jobs:
     steps:
       - name: Check matrix results
         run: |
+          if [[ "${{ needs.unit-test-lookup.result }}" != "success" ]]; then
+            echo "Unit-test lookup failed: ${{ needs.unit-test-lookup.result }}"
+            exit 1
+          fi
           if [[ "${{ needs.unit-test-lookup.outputs.should-test }}" != "true" ]]; then
             echo "Unit tests were skipped (docs/hacks-only change)"
             exit 0
