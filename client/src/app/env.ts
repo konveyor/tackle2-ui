@@ -8,6 +8,8 @@ const CLIENT_ENV_DEFAULTS: ClientEnv = {
   UI_INGRESS_PROXY_BODY_SIZE: "500m",
   RWX_SUPPORTED: "true",
   AUTH_REQUIRED: "false",
+  AGENTIC_ENABLED: "false",
+  AGENTIC_STEER_ENABLED: "false",
   OIDC_CLIENT_ID: "web-ui",
 };
 

@@ -13,7 +13,7 @@ import {
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ErrorFallback } from "@app/components/ErrorFallback";
 
-import { isDevtoolsEnabled } from "./Constants";
+import { isAgenticEnabled, isDevtoolsEnabled } from "./Constants";
 import { adminViewScopes, migrationViewScopes } from "./auth/roles-to-scopes";
 import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
@@ -92,6 +92,19 @@ const SourcePlatforms = lazy(
 
 const AssetGenerators = lazy(
   () => import("./pages/asset-generators/asset-generators")
+);
+
+const AgentRuns = lazy(() => import("./pages/agent-runs"));
+const AgentRunDetails = lazy(
+  () => import("./pages/agent-runs/agent-run-detail-page")
+);
+const Agents = lazy(() => import("./pages/agents"));
+const Skills = lazy(() => import("./pages/skills"));
+const Workflows = lazy(() => import("./pages/workflows"));
+const WorkflowRuns = lazy(() => import("./pages/workflow-runs"));
+const Gateways = lazy(() => import("./pages/gateways"));
+const WorkflowRunDetails = lazy(
+  () => import("./pages/workflow-runs/workflow-run-detail-page")
 );
 
 export interface IRoute<T> {
@@ -259,6 +272,58 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
   },
 ];
 
+/**
+ * The agentic console. Registered only when AGENTIC_ENABLED opts the
+ * deployment in — its pages talk to the hub's `/hub/agentic/*` endpoints, and
+ * without that backend every page in this section fails on load, so a
+ * deployment that has none gets no routes at all rather than routes that
+ * error.
+ */
+export const agenticRoutes: IRoute<DevPathValues>[] = isAgenticEnabled
+  ? [
+      {
+        path: Paths.agentRunDetails,
+        comp: AgentRunDetails,
+        exact: true,
+      },
+      {
+        path: Paths.agentRuns,
+        comp: AgentRuns,
+        exact: true,
+      },
+      {
+        path: Paths.agents,
+        comp: Agents,
+        exact: true,
+      },
+      {
+        path: Paths.skills,
+        comp: Skills,
+        exact: true,
+      },
+      {
+        path: Paths.workflows,
+        comp: Workflows,
+        exact: true,
+      },
+      {
+        path: Paths.workflowRunDetails,
+        comp: WorkflowRunDetails,
+        exact: true,
+      },
+      {
+        path: Paths.workflowRuns,
+        comp: WorkflowRuns,
+        exact: true,
+      },
+      {
+        path: Paths.gateways,
+        comp: Gateways,
+        exact: true,
+      },
+    ]
+  : [];
+
 export const universalRoutes: IRoute<UniversalPathValues>[] = [
   {
     path: Paths.tasks,
@@ -370,7 +435,7 @@ export const AppRoutes = () => {
     <Suspense fallback={<AppPlaceholder />}>
       <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
         <Switch>
-          {[...migrationRoutes, ...universalRoutes].map(
+          {[...migrationRoutes, ...agenticRoutes, ...universalRoutes].map(
             ({ comp, path, exact }, index) => (
               <RouteWrapper
                 comp={comp}

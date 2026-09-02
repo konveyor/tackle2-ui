@@ -1,0 +1,219 @@
+import type {
+  AgentResource,
+  AgentWorkflow,
+  AgentWorkflowRun,
+} from "@app/api/agentic/contract";
+import {
+  APPLICATION_LABEL,
+  invalidTargetBranchReason,
+} from "@app/api/agentic/contract";
+import type { Application } from "@app/api/models";
+
+/** kubectl-style compact age: 45s, 12m, 3h, 2d. */
+export function formatAge(creationTimestamp?: string): string {
+  if (!creationTimestamp) return "-";
+  const ms = Date.now() - new Date(creationTimestamp).getTime();
+  if (ms < 0) return "0s";
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
+}
+
+export function formatDuration(seconds?: number): string {
+  if (seconds == null) return "-";
+  if (seconds < 60) return `${seconds}s`;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
+/** Workflow-run status has no duration field — derive it from timestamps. */
+export function workflowRunDuration(run: AgentWorkflowRun): number | undefined {
+  const start = run.status?.startTime;
+  if (!start) return undefined;
+  const end = run.status?.completionTime;
+  const ms = (end ? Date.parse(end) : Date.now()) - Date.parse(start);
+  return ms >= 0 ? Math.round(ms / 1000) : undefined;
+}
+
+export function truncate(text: string, max: number): string {
+  return text.length <= max ? text : text.slice(0, max - 1) + "…";
+}
+
+// ------------------------------------------- application <-> run label
+
+/** The label value runs carry: hub application id as a string. */
+export const applicationLabelValue = (app: Application): string =>
+  String(app.id);
+
+/** True when `run` belongs to `app` via the konveyor.io/application label. */
+export const runBelongsToApplication = (
+  run: { metadata: { labels?: Record<string, string> } },
+  appId: number
+): boolean => run.metadata.labels?.[APPLICATION_LABEL] === String(appId);
+
+/**
+ * Display name for the application a run is labeled with: the application's
+ * name, `#<id>` when the id no longer resolves in the inventory, "" when the
+ * run carries no application label (pre-label runs, workflow stage runs).
+ */
+export const runApplicationDisplayName = (
+  run: { metadata: { labels?: Record<string, string> } },
+  applicationsById: Map<string, Application>
+): string => {
+  const id = run.metadata.labels?.[APPLICATION_LABEL];
+  if (!id) return "";
+  return applicationsById.get(id)?.name ?? `#${id}`;
+};
+
+// ------------------------------------------------- run eligibility
+
+/**
+ * The subset of an application these checks need. Kept structural (rather
+ * than importing `Application` directly) so this module's run-eligibility
+ * helpers stay decoupled from the hub model shape.
+ */
+export interface RunnableApplication {
+  name?: string;
+  repository?: { url?: string; branch?: string };
+}
+
+/**
+ * Why a run cannot be created for an application. Structural rather than a
+ * message so callers own their own wording — a modal renders one of these
+ * inline, while a bulk caller lists them as exclusions.
+ */
+export type RunBlocker =
+  | { kind: "noRepository" }
+  | { kind: "branchInvalid"; detail: string }
+  | { kind: "branchMatchesSource"; branch: string };
+
+/**
+ * Why no run can target this application, regardless of agent or branch. The
+ * harness clones from the Hub record, so an application with no repository
+ * URL dooms every stage before it starts.
+ */
+export function applicationRunBlocker(
+  app: RunnableApplication
+): RunBlocker | undefined {
+  return app.repository?.url ? undefined : { kind: "noRepository" };
+}
+
+/**
+ * Why `branch` cannot be this application's target branch. Mirrors what the
+ * shim re-validates on create: a valid git refname that differs from the
+ * source branch (the harness refuses to push onto the source branch).
+ */
+export function targetBranchBlocker(
+  app: RunnableApplication,
+  branch: string
+): RunBlocker | undefined {
+  const detail = invalidTargetBranchReason(branch);
+  if (detail) return { kind: "branchInvalid", detail };
+  const source = app.repository?.branch;
+  if (source && branch.trim() === source)
+    return { kind: "branchMatchesSource", branch: source };
+  return undefined;
+}
+
+/** Both checks; the branch check is skipped when no branch is chosen yet. */
+export function runBlocker(
+  app: RunnableApplication,
+  branch?: string
+): RunBlocker | undefined {
+  return (
+    applicationRunBlocker(app) ??
+    (branch === undefined ? undefined : targetBranchBlocker(app, branch))
+  );
+}
+
+// ------------------------------------------------- workflow stage preflight
+
+/** One stage of a workflow that would fail as launched. */
+export interface StagePreflightFailure {
+  stage: string;
+  agent: string;
+  /** Required, defaultless params the launch does not supply. */
+  missingParams?: string[];
+  /** The stage's agentRef resolves to no Agent (name refs fail at run). */
+  agentMissing?: boolean;
+}
+
+/**
+ * Predict the failures a run of `workflow` hits on arrival, given the param
+ * names the caller will supply. A required param with no default that nobody
+ * supplies dies as InvalidParams the moment its stage starts, and a dangling
+ * agentRef never starts at all — for a bulk launch (which supplies no
+ * params) either one dooms every run in the batch, so the modal must count
+ * it before claiming applications are eligible.
+ *
+ * Callers fail open: only invoke this once the agents list has genuinely
+ * loaded — an empty list mid-fetch is not evidence of dangling refs.
+ */
+export function workflowStagePreflight(
+  workflow: AgentWorkflow,
+  agents: AgentResource[],
+  suppliedParams: ReadonlySet<string> = new Set()
+): StagePreflightFailure[] {
+  const agentsByName = new Map(agents.map((a) => [a.metadata.name ?? "", a]));
+  const failures: StagePreflightFailure[] = [];
+  for (const stage of workflow.spec.stages ?? []) {
+    const agent = agentsByName.get(stage.agentRef);
+    if (!agent) {
+      failures.push({
+        stage: stage.name,
+        agent: stage.agentRef,
+        agentMissing: true,
+      });
+      continue;
+    }
+    const missingParams = (agent.spec.params ?? [])
+      .filter(
+        (p) => p.required && p.default == null && !suppliedParams.has(p.name)
+      )
+      .map((p) => p.name);
+    if (missingParams.length > 0)
+      failures.push({
+        stage: stage.name,
+        agent: stage.agentRef,
+        missingParams,
+      });
+  }
+  return failures;
+}
+
+/**
+ * True when the application has a source-role credential assigned. Every
+ * stage ends by pushing the target branch to the application's repository,
+ * so a run against an application without one does all its work and then
+ * dies at the push — callers surface this at launch rather than block on
+ * it (a global default identity may still cover the app).
+ */
+export function hasSourceCredential(
+  app: Pick<Application, "identities">
+): boolean {
+  return app.identities?.some((i) => i.role === "source") ?? false;
+}
+
+/**
+ * Split a selection into the applications a run can be created for and those
+ * it cannot, so a caller can act on the eligible subset and report the rest
+ * instead of blocking the whole batch on one bad application.
+ */
+export function partitionByRunEligibility<T extends RunnableApplication>(
+  applications: T[],
+  branchFor?: (app: T) => string
+): { eligible: T[]; excluded: { application: T; blocker: RunBlocker }[] } {
+  const eligible: T[] = [];
+  const excluded: { application: T; blocker: RunBlocker }[] = [];
+  for (const application of applications) {
+    const blocker = runBlocker(application, branchFor?.(application));
+    if (blocker) excluded.push({ application, blocker });
+    else eligible.push(application);
+  }
+  return { eligible, excluded };
+}

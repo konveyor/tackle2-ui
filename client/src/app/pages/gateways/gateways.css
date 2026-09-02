@@ -1,0 +1,7 @@
+/* Ready label plus the verification-hold marker on one line. */
+.gateway-ready-cell {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

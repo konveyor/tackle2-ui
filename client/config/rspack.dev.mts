@@ -27,6 +27,11 @@ const devClientEnv = (env: ClientEnv = process.env as unknown as ClientEnv) =>
       UI_INGRESS_PROXY_BODY_SIZE: env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
       RWX_SUPPORTED: env.RWX_SUPPORTED ?? "true",
       AUTH_REQUIRED: env.AUTH_REQUIRED ?? "false",
+      // Off by default so the agentic console has zero impact on the rest of
+      // the product unless explicitly opted in; matches serverConfig.js. Local
+      // console work sets AGENTIC_ENABLED=true (and AGENTIC_STEER_ENABLED=true).
+      AGENTIC_ENABLED: env.AGENTIC_ENABLED ?? "false",
+      AGENTIC_STEER_ENABLED: env.AGENTIC_STEER_ENABLED ?? "false",
       OIDC_CLIENT_ID: env.OIDC_CLIENT_ID ?? "web-ui",
     } as ClientEnv)
   );

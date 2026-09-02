@@ -32,6 +32,12 @@ export const clientConfig = {
   UI_INGRESS_PROXY_BODY_SIZE: process.env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
   RWX_SUPPORTED: process.env.RWX_SUPPORTED ?? "true",
   AUTH_REQUIRED: process.env.AUTH_REQUIRED ?? "false",
+  // The agentic console talks to the hub's agent/* endpoints through the
+  // /hub proxy; enabling it is an explicit deployment decision.
+  AGENTIC_ENABLED: process.env.AGENTIC_ENABLED ?? "false",
+  // Steering (free-text messages to a live agent) is a separate opt-in on
+  // top of the console — the preview posture is read-only HITL.
+  AGENTIC_STEER_ENABLED: process.env.AGENTIC_STEER_ENABLED ?? "false",
   OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID ?? "web-ui",
 };
 

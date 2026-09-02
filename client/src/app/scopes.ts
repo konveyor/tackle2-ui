@@ -146,3 +146,54 @@ export const tokensCreateScopes = ["tokens:post"];
 export const tokensDeleteScopes = ["tokens:delete"];
 export const rolesReadScopes = ["roles:get"];
 export const ADMIN_PUT = "admin:put";
+
+// ---------------------------------------------------------------------------
+// Agentic console. The hub seeds these per role (tackle2-hub#1119):
+//   admin            everything
+//   architect        runs, skills, skill collections, workflows: full;
+//                    agents and gateways: get only (by design)
+//   migrator         agent runs, workflow runs and the ACP channel: full;
+//                    every authoring resource: get only
+//   project-manager  get everything, no ACP channel
+// ---------------------------------------------------------------------------
+
+export const agenticAgentsWriteScopes = [
+  "agentic.agents:post",
+  "agentic.agents:put",
+  "agentic.agents:delete",
+];
+
+export const agenticSkillsWriteScopes = [
+  "agentic.skills:post",
+  "agentic.skills:put",
+  "agentic.skills:delete",
+];
+
+export const agenticSkillCollectionsWriteScopes = [
+  "agentic.skillcollections:post",
+  "agentic.skillcollections:put",
+  "agentic.skillcollections:delete",
+];
+
+export const agenticWorkflowsWriteScopes = [
+  "agentic.workflows:post",
+  "agentic.workflows:put",
+  "agentic.workflows:delete",
+];
+
+export const agenticAgentRunsCreateScopes = ["agentic.agentruns:post"];
+
+export const agenticWorkflowRunsCreateScopes = ["agentic.workflowruns:post"];
+
+/**
+ * Opening a run's live ACP session: the hub mints the WebSocket nonce under
+ * this scope, so without it the transcript cannot be watched at all.
+ */
+export const agenticAcpScopes = ["agentic.agentruns.acp:post"];
+
+/**
+ * Intervening in a live turn (steer, stop). The hub has one bit for the
+ * whole bidirectional channel today; tackle2-hub#1116 is where watch and
+ * steer split, and this is the constant that moves when it does.
+ */
+export const agenticSteerScopes = agenticAcpScopes;
