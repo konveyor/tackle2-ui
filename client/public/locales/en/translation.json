@@ -1564,6 +1564,12 @@
       "startedWithFailures": "Started {{succeeded}} of {{total}} runs; {{failed}} failed",
       "viewRuns": "View runs"
     },
+    "archetypeRun": {
+      "action": "Run agent workflow",
+      "title": "Run agent workflow",
+      "noApplicationsTitle": "No applications in this archetype",
+      "noApplicationsBody": "Archetype \"{{archetype}}\" has no matching applications, so there is nothing to run a workflow against."
+    },
     "gateways": {
       "description": "LLM endpoints the agents run against: one provider and model per gateway. Gateways are managed cluster-side; this view is read-only.",
       "emptyTitle": "No gateways",
