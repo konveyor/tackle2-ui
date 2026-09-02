@@ -1,7 +1,7 @@
 {
   "bookserver-app": {
     "repoType": "Git",
-    "sourceRepo": "https://github.com/ibraginsky/book-server"
+    "sourceRepo": "https://github.com/ibragins/book-server"
   },
   "daytrader-app": {
     "repoType": "Git",
@@ -71,7 +71,7 @@
   },
   "java-example-app": {
     "repoType": "Git",
-    "sourceRepo": "https://github.com/ibraginsky/book-server"
+    "sourceRepo": "https://github.com/ibragins/book-server"
   },
   "tackle-testapp-public": {
     "repoType": "Git",
