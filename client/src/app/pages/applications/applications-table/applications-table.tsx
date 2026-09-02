@@ -819,13 +819,14 @@ export const ApplicationsTable: FC = () => {
         ),
         // Only offered where an agentic backend is configured — see
         // AGENTIC_ENABLED. The harness clones from each application's Hub
-        // record, so a selection with no repository anywhere can't run.
+        // record, so every selected application must be a valid target
+        // (have a repository) for the bulk run to be enabled.
         isAgenticEnabled && agentWorkflowRunAccess && (
           <DropdownItem
             key="run-agent-workflow-bulk"
             isDisabled={
               selectedRows.length < 1 ||
-              !selectedRows.some((app) => app.repository?.url)
+              !selectedRows.every((app) => app.repository?.url)
             }
             onClick={() => setBulkRunApplications(selectedRows)}
           >
@@ -1284,15 +1285,17 @@ export const ApplicationsTable: FC = () => {
                                       application,
                                     ]),
                                 },
-                              // The harness clones from the Hub record, so
-                              // an application with no repository can't run.
+                              // Hidden without the agentic feature or run
+                              // access; shown-but-disabled when the application
+                              // has no repository (the harness clones from the
+                              // Hub record, so there is nothing to run against).
                               isAgenticEnabled &&
-                                agentWorkflowRunAccess &&
-                                !!application.repository?.url && {
+                                agentWorkflowRunAccess && {
                                   title: t("actions.runAgentWorkflow"),
                                   itemKey: "runAgentWorkflow",
                                   onClick: () =>
                                     setRunForApplication(application),
+                                  isDisabled: !application.repository?.url,
                                 },
                             ],
                             [
@@ -1388,9 +1391,16 @@ export const ApplicationsTable: FC = () => {
         <CreateWorkflowRunModal
           application={runForApplication}
           onClose={() => setRunForApplication(null)}
-          onCreated={(runName) => {
+          onCreated={() => {
+            // Land on the runs list pre-filtered to this application rather
+            // than the run detail page — the run object may not be readable
+            // yet at this point, so a direct detail push can 404 (mirrors the
+            // bulk onStarted approach).
+            const launchedRunsPath = workflowRunsPath({
+              application: [runForApplication.name],
+            });
             setRunForApplication(null);
-            history.push(formatPath(Paths.workflowRunDetails, { runName }));
+            history.push(launchedRunsPath);
           }}
         />
       )}
