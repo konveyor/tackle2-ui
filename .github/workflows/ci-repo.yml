@@ -23,6 +23,7 @@ on:
 permissions:
   contents: read
   pull-requests: read # required for tj-actions/changed-files
+
 concurrency:
   group: ci-repo-${{ github.event_name }}-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
@@ -40,6 +41,7 @@ jobs:
         with:
           ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Lookup builder image from the project's Dockerfile
         id: grepBuilder
@@ -140,6 +142,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.checkout_ref }}
+          persist-credentials: false
 
       - name: Verify package-lock.json
         run: ./scripts/verify_lock.mjs
@@ -183,10 +186,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.checkout_ref }}
+          persist-credentials: false
 
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v7
         with:
+          check-latest: true
           node-version: ${{ matrix.node-version }}
           cache: "npm"
 
