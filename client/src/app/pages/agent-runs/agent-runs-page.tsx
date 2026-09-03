@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
   Button,
+  ButtonVariant,
   Content,
   EmptyState,
   EmptyStateBody,
@@ -11,6 +12,7 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -21,26 +23,38 @@ import type { AgentRun, AgentRunPhase } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { useNotifications } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useFetchAgentRuns } from "@app/queries/agent-runs";
+import {
+  useDeleteAgentRunsMutation,
+  useFetchAgentRuns,
+} from "@app/queries/agent-runs";
 import { useFetchApplications } from "@app/queries/applications";
-import { agenticAgentRunsCreateScopes } from "@app/scopes";
+import {
+  agenticAgentRunsCreateScopes,
+  agenticAgentRunsDeleteScopes,
+} from "@app/scopes";
 import {
   formatAge,
   formatDuration,
   runApplicationDisplayName,
 } from "@app/utils/agentic";
-import { formatPath } from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { CreateRunModal } from "./components/CreateRunModal";
 import { PhaseLabel } from "./components/PhaseLabel";
+import { explanatoryCondition } from "./components/RunConditionSummary";
 
 import "./agent-runs.css";
 
@@ -50,6 +64,9 @@ interface AgentRunRow {
   agent: string;
   application: string;
   phase?: AgentRunPhase;
+  reason?: string;
+  message?: string;
+  isBroken: boolean;
   created: string;
   durationSeconds?: number;
 }
@@ -68,25 +85,34 @@ const RUN_PHASES: AgentRunPhase[] = [
 const AgentRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
+  const { pushNotification } = useNotifications();
   const { agentRuns, isLoading, fetchError } = useFetchAgentRuns();
   const { data: applications } = useFetchApplications();
   // Every hub role can list runs; creating one is admin/architect/migrator
   // (tackle2-hub#1119).
   const canCreate = useHasSomeScopes(agenticAgentRunsCreateScopes);
+  const canDelete = useHasSomeScopes(agenticAgentRunsDeleteScopes);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string[] | null>(null);
 
   const rows = useMemo<AgentRunRow[]>(() => {
     const applicationsById = new Map(
       applications.map((app) => [String(app.id), app])
     );
-    return agentRuns.map((run: AgentRun) => ({
-      name: run.metadata.name ?? "",
-      agent: run.spec.agentRef,
-      application: runApplicationDisplayName(run, applicationsById),
-      phase: run.status?.phase,
-      created: run.metadata.creationTimestamp ?? "",
-      durationSeconds: run.status?.duration,
-    }));
+    return agentRuns.map((run: AgentRun) => {
+      const condition = explanatoryCondition(run.status?.conditions);
+      return {
+        name: run.metadata.name ?? "",
+        agent: run.spec.agentRef,
+        application: runApplicationDisplayName(run, applicationsById),
+        phase: run.status?.phase,
+        reason: condition?.reason,
+        message: condition?.message,
+        isBroken: run.status?.phase === "Failed" || condition !== undefined,
+        created: run.metadata.creationTimestamp ?? "",
+        durationSeconds: run.status?.duration,
+      };
+    });
   }, [agentRuns, applications]);
 
   const applicationOptions = useMemo(
@@ -109,12 +135,14 @@ const AgentRunsPage: React.FC = () => {
       agent: t("terms.agent"),
       application: t("terms.application"),
       phase: t("terms.phase"),
+      reason: t("terms.reason"),
       age: t("terms.age"),
       duration: t("terms.duration"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
+    isSelectionEnabled: canDelete,
     filterCategories: [
       {
         categoryKey: "name",
@@ -150,6 +178,15 @@ const AgentRunsPage: React.FC = () => {
           "...",
         matcher: (filter, row) => row.phase === filter,
       },
+      {
+        categoryKey: "health",
+        title: t("terms.status"),
+        type: FilterType.multiselect,
+        selectOptions: [
+          { value: "broken", label: t("agentic.agentRuns.brokenRuns") },
+        ],
+        getItemValue: (row) => (row.isBroken ? "broken" : ""),
+      },
     ],
     sortableColumns: ["name", "agent", "application", "age"],
     getSortValues: (row) => ({
@@ -167,10 +204,12 @@ const AgentRunsPage: React.FC = () => {
   });
 
   const {
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
+      toolbarBulkExpanderProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -180,6 +219,41 @@ const AgentRunsPage: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
+
+  const {
+    selectedItems,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    isEqual: (a: AgentRunRow, b: AgentRunRow) => a.name === b.name,
+    items: rows,
+    filteredItems,
+    currentPageItems,
+  });
+
+  const terminalFilteredItems = (filteredItems ?? rows).filter(
+    (row) => row.phase === "Succeeded" || row.phase === "Failed"
+  );
+  const activeDeleteCount =
+    deleteTarget?.filter(
+      (name) =>
+        rows.find((row) => row.name === name)?.phase === "Pending" ||
+        rows.find((row) => row.name === name)?.phase === "Running"
+    ).length ?? 0;
+
+  const deleteMutation = useDeleteAgentRunsMutation(
+    (names) => {
+      setDeleteTarget(null);
+      toolbarBulkSelectorProps.onSelectNone();
+      pushNotification({
+        title: t("agentic.agentRuns.deleteSuccess", { count: names.length }),
+        variant: "success",
+      });
+    },
+    (err) => {
+      setDeleteTarget(null);
+      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
+    }
+  );
 
   const openRun = (name: string) => {
     history.push(formatPath(DevPaths.agentRunDetails, { runName: name }));
@@ -199,7 +273,45 @@ const AgentRunsPage: React.FC = () => {
         >
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
+              {canDelete && (
+                <>
+                  <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
+                  <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+                </>
+              )}
               <FilterToolbar {...filterToolbarProps} />
+              {canDelete && (
+                <ToolbarGroup variant="action-group">
+                  <ToolbarItem>
+                    <Button
+                      variant="secondary"
+                      isDanger
+                      isDisabled={selectedItems.length === 0}
+                      onClick={() =>
+                        setDeleteTarget(selectedItems.map((row) => row.name))
+                      }
+                    >
+                      {t("agentic.agentRuns.deleteSelected")}
+                    </Button>
+                  </ToolbarItem>
+                  <ToolbarItem>
+                    <Button
+                      variant="link"
+                      isDanger
+                      isDisabled={terminalFilteredItems.length === 0}
+                      onClick={() =>
+                        setDeleteTarget(
+                          terminalFilteredItems.map((row) => row.name)
+                        )
+                      }
+                    >
+                      {t("agentic.agentRuns.clearTerminalWithCount", {
+                        count: terminalFilteredItems.length,
+                      })}
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              )}
               {canCreate && (
                 <ToolbarGroup variant="action-group">
                   <ToolbarItem>
@@ -230,6 +342,7 @@ const AgentRunsPage: React.FC = () => {
                   <Th {...getThProps({ columnKey: "agent" })} />
                   <Th {...getThProps({ columnKey: "application" })} />
                   <Th {...getThProps({ columnKey: "phase" })} />
+                  <Th {...getThProps({ columnKey: "reason" })} />
                   <Th {...getThProps({ columnKey: "age" })} />
                   <Th {...getThProps({ columnKey: "duration" })} />
                 </TableHeaderContentWithControls>
@@ -265,6 +378,9 @@ const AgentRunsPage: React.FC = () => {
                   <Tr key={row.name} {...getTrProps({ item: row })}>
                     <TableRowContentWithControls
                       {...tableControls}
+                      getSelectCheckboxTdProps={
+                        canDelete ? getSelectCheckboxTdProps : undefined
+                      }
                       item={row}
                       rowIndex={rowIndex}
                     >
@@ -285,6 +401,19 @@ const AgentRunsPage: React.FC = () => {
                       </Td>
                       <Td {...getTdProps({ columnKey: "phase" })}>
                         <PhaseLabel phase={row.phase} />
+                      </Td>
+                      <Td {...getTdProps({ columnKey: "reason" })}>
+                        {row.reason ? (
+                          row.message ? (
+                            <Tooltip content={row.message}>
+                              <span>{row.reason}</span>
+                            </Tooltip>
+                          ) : (
+                            row.reason
+                          )
+                        ) : (
+                          "-"
+                        )}
                       </Td>
                       <Td {...getTdProps({ columnKey: "age" })}>
                         {formatAge(row.created)}
@@ -310,6 +439,40 @@ const AgentRunsPage: React.FC = () => {
           }}
         />
       )}
+
+      <ConfirmDialog
+        title={t("agentic.agentRuns.deleteTitle", {
+          count: deleteTarget?.length ?? 0,
+        })}
+        titleIconVariant="warning"
+        isOpen={deleteTarget !== null}
+        message={
+          <>
+            <Content component="p">
+              {t("agentic.agentRuns.deleteMessage", {
+                count: deleteTarget?.length ?? 0,
+              })}
+            </Content>
+            {activeDeleteCount > 0 && (
+              <Content component="p">
+                {t("agentic.agentRuns.activeDeleteWarning", {
+                  count: activeDeleteCount,
+                })}
+              </Content>
+            )}
+            <Content component="p">{t("dialog.message.delete")}</Content>
+          </>
+        }
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        inProgress={deleteMutation.isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget?.length) deleteMutation.mutate(deleteTarget);
+        }}
+      />
     </>
   );
 };
