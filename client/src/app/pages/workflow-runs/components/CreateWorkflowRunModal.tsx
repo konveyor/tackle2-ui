@@ -6,6 +6,7 @@ import {
   Form,
   FormGroup,
   FormHelperText,
+  FormSection,
   FormSelect,
   FormSelectOption,
   HelperText,
@@ -75,10 +76,9 @@ function isSelectable(pb: AgentWorkflow): boolean {
 /**
  * UNION of the stage Agents' declared params, in stage order. First
  * declaration wins the description/type/default (later defaults fill a
- * hole); required anywhere means required. Params forward wholesale to
- * every stage's AgentRun, so only params declared by EVERY stage agent
- * (see stagesMissingParam) are settable — the rest render disabled and
- * are never submitted (the shim rejects them with a 400 anyway).
+ * hole); required anywhere means required. The workflow controller filters
+ * this union per stage, so a parameter may legitimately apply to only some
+ * stage Agents.
  */
 function mergeParams(agents: AgentResource[]): AgentParam[] {
   const merged = new Map<string, AgentParam>();
@@ -96,17 +96,6 @@ function mergeParams(agents: AgentResource[]): AgentParam[] {
     }
   }
   return [...merged.values()];
-}
-
-/** Names of the stage agents that do NOT declare the given param. */
-function stagesMissingParam(
-  agents: AgentResource[],
-  name: string,
-  unnamedLabel: string
-): string[] {
-  return agents
-    .filter((a) => !(a.spec.params ?? []).some((q) => q.name === name))
-    .map((a) => a.metadata.name ?? unnamedLabel);
 }
 
 function defaultsFor(params: AgentParam[]): Record<string, string> {
@@ -241,17 +230,21 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     setAgentsError(null);
   }
 
-  // Fetch the selected workflow's stage Agents — their declared params (as
-  // a union) are the run's form. Params reset to the union's defaults.
+  const workflowParamsKey = JSON.stringify(selected?.spec.params ?? []);
+
+  // Fetch the selected workflow's stage Agents. Their declared params form
+  // the agent-scoped section; the workflow's declarations form the separate
+  // workflow-scoped section written to params.json.
   useEffect(() => {
     if (!workflowName) return;
     let disposed = false;
     const refs = stageRefsKey ? stageRefsKey.split(",") : [];
+    const workflowParams: AgentParam[] = JSON.parse(workflowParamsKey);
     Promise.all(refs.map((ref) => getAgent(ref)))
       .then((list) => {
         if (disposed) return;
         setStageAgents(list);
-        const defaults = defaultsFor(mergeParams(list));
+        const defaults = defaultsFor([...workflowParams, ...mergeParams(list)]);
         const shared = sharedGateways(list);
         // Apply the earlier run's values once, and only on its own
         // workflow — a prefill whose workflow is gone seeds a different
@@ -284,7 +277,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     return () => {
       disposed = true;
     };
-  }, [workflowName, stageRefsKey, initialPrefill]);
+  }, [workflowName, stageRefsKey, workflowParamsKey, initialPrefill]);
 
   const prefillWorkflowMissing =
     !!initialPrefill &&
@@ -298,14 +291,10 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     selected && !selectedReady ? workflowReadyCondition(selected) : undefined;
 
   const gatewayRefs = sharedGateways(stageAgents ?? []);
-  const mergedParams = mergeParams(stageAgents ?? []);
-  // Only params declared by EVERY stage agent can be sent (params forward
-  // wholesale to each stage); the rest render disabled below.
+  const agentParams = mergeParams(stageAgents ?? []);
+  const workflowParams = selected?.spec.params ?? [];
+  const allParams = [...workflowParams, ...agentParams];
   const unnamedLabel = t("agentic.workflowRuns.unnamed");
-  const universalParams = mergedParams.filter(
-    (p) =>
-      stagesMissingParam(stageAgents ?? [], p.name, unnamedLabel).length === 0
-  );
   const application =
     fixedApplication ??
     applications.find((a) => applicationLabelValue(a) === applicationId);
@@ -314,10 +303,10 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   const repoMissing =
     !!application && applicationRunBlocker(application) !== undefined;
 
-  const missingRequired = universalParams.filter(
+  const missingRequired = allParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
   );
-  const paramsInvalid = universalParams.some(
+  const paramsInvalid = allParams.some(
     (p) => paramValueInvalidReason(p, paramValues[p.name] ?? "") !== undefined
   );
   // Mirror the shim's validation: with an application, the shared target
@@ -338,22 +327,22 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
   const submit = () => {
     if (!selected || !canCreate) return;
     setSubmitError(null);
-    // Send only universal params (the shim 400s params not declared by
-    // every stage agent). Omit a value only when it is empty, or when it
-    // equals the merged default AND every stage agent's declaration
-    // carries that same default — a value that some stage would default
-    // differently must be sent even if it matches the merged default.
+    // The controller routes each supplied value to the workflow scope and
+    // only the stage Agents that declare it. Omit a shared default only when
+    // every declaration with this name agrees on that default.
     const params: Record<string, string> = {};
-    for (const p of universalParams) {
+    for (const p of allParams) {
       const v = (paramValues[p.name] ?? "").trim();
       if (!v) continue;
-      const uniformDefault =
-        p.default !== undefined &&
-        (stageAgents ?? []).every((a) =>
-          (a.spec.params ?? []).some(
-            (q) => q.name === p.name && q.default === p.default
-          )
-        );
+      const declarations = [
+        ...workflowParams.filter((q) => q.name === p.name),
+        ...(stageAgents ?? []).flatMap((a) =>
+          (a.spec.params ?? []).filter((q) => q.name === p.name)
+        ),
+      ];
+      const uniformDefault = declarations.every(
+        (q) => q.default !== undefined && q.default === p.default
+      );
       if (uniformDefault && v === (p.default ?? "").trim()) continue;
       params[p.name] = v;
     }
@@ -614,56 +603,103 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
               </FormGroup>
             )}
 
-            {mergedParams.map((p) => {
-              const missingStages = stagesMissingParam(
-                stageAgents ?? [],
-                p.name,
-                unnamedLabel
-              );
-              const partial = missingStages.length > 0;
-              const helper = paramHelperText(p);
-              const invalidReason = partial
-                ? undefined
-                : paramValueInvalidReason(p, paramValues[p.name] ?? "");
-              return (
-                <FormGroup
-                  key={p.name}
-                  label={p.name}
-                  isRequired={!partial && p.required}
-                  fieldId={`pb-param-${p.name}`}
-                >
-                  <ParamValueField
-                    id={`pb-param-${p.name}`}
-                    param={p}
-                    value={paramValues[p.name] ?? ""}
-                    isDisabled={partial}
-                    onChange={(v) =>
-                      setParamValues((prev) => ({ ...prev, [p.name]: v }))
-                    }
-                  />
-                  {(partial || helper || invalidReason) && (
-                    <FormHelperText>
-                      <HelperText>
-                        {partial && (
-                          <HelperTextItem variant="warning">
-                            {t("agentic.workflowRuns.paramNotDeclared", {
-                              count: missingStages.length,
-                              stages: missingStages.join(", "),
+            {workflowParams.length > 0 && (
+              <FormSection title={t("agentic.workflowRuns.workflowParameters")}>
+                {workflowParams.map((p) => {
+                  const helper = paramHelperText(p);
+                  const invalidReason = paramValueInvalidReason(
+                    p,
+                    paramValues[p.name] ?? ""
+                  );
+                  return (
+                    <FormGroup
+                      key={p.name}
+                      label={p.name}
+                      isRequired={p.required}
+                      fieldId={`workflow-param-${p.name}`}
+                    >
+                      <ParamValueField
+                        id={`workflow-param-${p.name}`}
+                        param={p}
+                        value={paramValues[p.name] ?? ""}
+                        onChange={(v) =>
+                          setParamValues((prev) => ({
+                            ...prev,
+                            [p.name]: v,
+                          }))
+                        }
+                      />
+                      {(helper || invalidReason) && (
+                        <FormHelperText>
+                          <HelperText>
+                            {invalidReason && (
+                              <HelperTextItem variant="error">
+                                {invalidReason}
+                              </HelperTextItem>
+                            )}
+                            {helper && (
+                              <HelperTextItem>{helper}</HelperTextItem>
+                            )}
+                          </HelperText>
+                        </FormHelperText>
+                      )}
+                    </FormGroup>
+                  );
+                })}
+              </FormSection>
+            )}
+
+            {agentParams.length > 0 && (
+              <FormSection title={t("agentic.workflowRuns.agentParameters")}>
+                {agentParams.map((p) => {
+                  const declaringStages = (stageAgents ?? [])
+                    .filter((a) =>
+                      (a.spec.params ?? []).some((q) => q.name === p.name)
+                    )
+                    .map((a) => a.metadata.name ?? unnamedLabel);
+                  const helper = paramHelperText(p);
+                  const invalidReason = paramValueInvalidReason(
+                    p,
+                    paramValues[p.name] ?? ""
+                  );
+                  return (
+                    <FormGroup
+                      key={p.name}
+                      label={p.name}
+                      isRequired={p.required}
+                      fieldId={`agent-param-${p.name}`}
+                    >
+                      <ParamValueField
+                        id={`agent-param-${p.name}`}
+                        param={p}
+                        value={paramValues[p.name] ?? ""}
+                        onChange={(v) =>
+                          setParamValues((prev) => ({
+                            ...prev,
+                            [p.name]: v,
+                          }))
+                        }
+                      />
+                      <FormHelperText>
+                        <HelperText>
+                          <HelperTextItem>
+                            {t("agentic.workflowRuns.paramStages", {
+                              stages: declaringStages.join(", "),
                             })}
                           </HelperTextItem>
-                        )}
-                        {invalidReason && (
-                          <HelperTextItem variant="error">
-                            {invalidReason}
-                          </HelperTextItem>
-                        )}
-                        {helper && <HelperTextItem>{helper}</HelperTextItem>}
-                      </HelperText>
-                    </FormHelperText>
-                  )}
-                </FormGroup>
-              );
-            })}
+                          {invalidReason && (
+                            <HelperTextItem variant="error">
+                              {invalidReason}
+                            </HelperTextItem>
+                          )}
+                          {helper && <HelperTextItem>{helper}</HelperTextItem>}
+                        </HelperText>
+                      </FormHelperText>
+                    </FormGroup>
+                  );
+                })}
+              </FormSection>
+            )}
           </Form>
         )}
       </ModalBody>

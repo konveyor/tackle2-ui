@@ -20,7 +20,11 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 
-import type { AgentResource, AgentRun } from "@app/api/agentic/contract";
+import type {
+  AgentResource,
+  AgentRun,
+  ExecutionMode,
+} from "@app/api/agentic/contract";
 import {
   APPLICATION_LABEL,
   CREDENTIAL_SOURCES_ANNOTATION,
@@ -36,7 +40,11 @@ import {
   GatewayPicker,
   defaultGatewayFor,
 } from "@app/pages/agent-runs/components/GatewayPicker";
-import { paramHelperText } from "@app/pages/agent-runs/components/ParamFields";
+import {
+  ParamValueField,
+  paramHelperText,
+  paramValueInvalidReason,
+} from "@app/pages/agent-runs/components/ParamFields";
 import { RunSkillsSummary } from "@app/pages/agent-runs/components/RunSkillsSummary";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
@@ -131,6 +139,9 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     () => prefill?.metadata.labels?.[APPLICATION_LABEL] ?? ""
   );
   const [gateway, setGateway] = useState<string | undefined>(undefined);
+  const [mode, setMode] = useState<ExecutionMode>(
+    () => prefill?.spec.execution?.mode ?? "auto"
+  );
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [instructions, setInstructions] = useState(
     () => prefill?.spec.instructions ?? ""
@@ -261,6 +272,9 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const missingRequired = userParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
   );
+  const paramsInvalid = userParams.some(
+    (p) => paramValueInvalidReason(p, paramValues[p.name] ?? "") !== undefined
+  );
   const missingApplication = needsApplication && !application;
   const unresolvable = application
     ? platformParams.filter(
@@ -279,6 +293,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const canCreate =
     !!selected &&
     missingRequired.length === 0 &&
+    !paramsInvalid &&
     !missingApplication &&
     !branchInvalid &&
     unresolvable.length === 0 &&
@@ -313,6 +328,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       targetBranch:
         needsApplication && application ? targetBranch.trim() : undefined,
       gateway,
+      mode,
     });
   };
 
@@ -436,6 +452,43 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
               onChange={setGateway}
             />
 
+            <FormGroup
+              label={t("agentic.createRun.executionMode")}
+              fieldId="create-run-execution-mode"
+            >
+              <FormSelect
+                id="create-run-execution-mode"
+                value={mode}
+                onChange={(_e, value) => setMode(value as ExecutionMode)}
+              >
+                <FormSelectOption
+                  value="auto"
+                  label={t("agentic.createRun.executionModeAuto")}
+                />
+                <FormSelectOption
+                  value="approve"
+                  label={t("agentic.createRun.executionModeApprove")}
+                />
+              </FormSelect>
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem>
+                    {t("agentic.createRun.executionModeHelper")}
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            </FormGroup>
+
+            {mode === "approve" && (
+              <Alert
+                variant="warning"
+                isInline
+                title={t("agentic.createRun.executionModeApproveWarningTitle")}
+              >
+                {t("agentic.createRun.executionModeApproveWarningBody")}
+              </Alert>
+            )}
+
             {!fixedApplication && needsApplication && applicationsError && (
               <Alert
                 variant="danger"
@@ -558,6 +611,10 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
 
             {userParams.map((p) => {
               const helper = paramHelperText(p);
+              const invalidReason = paramValueInvalidReason(
+                p,
+                paramValues[p.name] ?? ""
+              );
               return (
                 <FormGroup
                   key={p.name}
@@ -565,18 +622,23 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   isRequired={p.required}
                   fieldId={`param-${p.name}`}
                 >
-                  <TextInput
+                  <ParamValueField
                     id={`param-${p.name}`}
-                    isRequired={p.required}
+                    param={p}
                     value={paramValues[p.name] ?? ""}
-                    onChange={(_e, v) =>
+                    onChange={(v) =>
                       setParamValues((prev) => ({ ...prev, [p.name]: v }))
                     }
                   />
-                  {helper && (
+                  {(helper || invalidReason) && (
                     <FormHelperText>
                       <HelperText>
-                        <HelperTextItem>{helper}</HelperTextItem>
+                        {invalidReason && (
+                          <HelperTextItem variant="error">
+                            {invalidReason}
+                          </HelperTextItem>
+                        )}
+                        {helper && <HelperTextItem>{helper}</HelperTextItem>}
                       </HelperText>
                     </FormHelperText>
                   )}
