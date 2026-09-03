@@ -3,7 +3,12 @@ import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type { AgentRun } from "@app/api/agentic/contract";
-import { createAgentRun, getAgentRun, getAgentRuns } from "@app/api/rest";
+import {
+  createAgentRun,
+  deleteAgentRun,
+  getAgentRun,
+  getAgentRuns,
+} from "@app/api/rest";
 
 export const AGENT_RUNS_QUERY_KEY = "agentRuns";
 export const AGENT_RUN_QUERY_KEY = "agentRun";
@@ -62,5 +67,23 @@ export const useCreateAgentRunMutation = (
       queryClient.invalidateQueries({ queryKey: [AGENT_RUNS_QUERY_KEY] });
     },
     onError,
+  });
+};
+
+export const useDeleteAgentRunsMutation = (
+  onSuccess: (names: string[]) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (names: string[]) =>
+      Promise.all(names.map((name) => deleteAgentRun(name))),
+    onSuccess: (_, names) => onSuccess(names),
+    onError,
+    // Promise.all can reject after another request has already succeeded, so
+    // refresh on both success and failure to reflect the server's real state.
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: [AGENT_RUNS_QUERY_KEY] }),
   });
 };

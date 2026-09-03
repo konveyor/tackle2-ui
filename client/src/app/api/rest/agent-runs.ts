@@ -36,6 +36,11 @@ export const getAgentRun = (name: string): Promise<AgentRun> =>
     .get<AgentRun>(`${AGENT_RUNS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
+export const deleteAgentRun = (name: string): Promise<void> =>
+  axios
+    .delete(`${AGENT_RUNS}/${encodeURIComponent(name)}`)
+    .then(() => undefined);
+
 const paramList = (params?: Record<string, string>) =>
   params && Object.keys(params).length > 0
     ? Object.entries(params).map(([name, value]) => ({ name, value }))
