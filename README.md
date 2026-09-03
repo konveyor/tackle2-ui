@@ -124,6 +124,8 @@ The React and Patternfly based UI is composed of web pages served by an http ser
 
   Both default to `false` in production and to `true` under `npm run start:dev`. See
   [ARCHITECTURE.md](ARCHITECTURE.md#agentic-console) for what each flag gates.
+  See [Agentic run parameters and supervision](docs/agentic-run-parameters.md)
+  for parameter YAML examples, runtime delivery, and Approval mode safety.
 
 ### Running the UI outside the cluster
 
