@@ -4,12 +4,14 @@
 #
 # Image info: https://catalog.redhat.com/en/software/containers/ubi10/nodejs-22/677d3d3e5fdd0fab2f7ad136
 # Red Hat Container Catalog: https://catalog.redhat.com/en/search?searchType=containers
+# Red Hat Hardened Images:   https://images.redhat.com
 # Relevant PRs:
 #   - https://github.com/konveyor/tackle2-ui/pull/1746
 #   - https://github.com/konveyor/tackle2-ui/pull/1781
 
 # Builder image
-FROM registry.access.redhat.com/ubi10/nodejs-22:1788329773 AS builder
+# ── Stage 1: Build the React client ──────────────────────────────────────────
+FROM registry.access.redhat.com/ubi10/nodejs-22:1788329773 AS client-builder
 
 USER 1001
 COPY --chown=1001 . .
@@ -21,15 +23,26 @@ RUN \
   npm run build && \
   npm run dist
 
-# Runner image
-FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:1788245087
+# ── Stage 2: Compile the Go entrypoint binary ─────────────────────────────────
+# Uses the Red Hat Hardened Images Go builder which includes the Go toolchain.
+FROM registry.access.redhat.com/hi/go:latest-builder AS entrypoint-builder
 
-# Add ps package to allow liveness probe for k8s cluster
-# Add tar package to allow copying files with kubectl scp
-USER 0
-RUN microdnf -y install tar procps-ng && microdnf clean all
+COPY container/entrypoint/ /src/
+WORKDIR /src
+# CGO_ENABLED=0 produces a fully-static binary that runs in the distroless
+# hi/caddy runtime image without any shared-library dependencies.
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /entrypoint .
 
-USER 1001
+# ── Stage 3: Distroless Caddy runtime ────────────────────────────────────────
+# hi/caddy:2.11 is a Red Hat Hardened Image — minimal, no shell, no package
+# manager, near-zero CVE state.  See https://images.redhat.com for details.
+FROM registry.access.redhat.com/hi/caddy:2.11
+
+COPY --from=client-builder     /opt/app-root/src/dist /srv
+COPY --from=entrypoint-builder /entrypoint            /usr/local/bin/entrypoint
+COPY container/caddy/Caddyfile.prod                   /etc/caddy/Caddyfile
+COPY container/caddy/proxy-routes.caddy               /etc/caddy/proxy-routes.caddy
+COPY container/caddy/env.json.tmpl                    /etc/caddy/env.json.tmpl
 
 LABEL name="konveyor/tackle2-ui" \
       description="Konveyor - User Interface" \
@@ -42,7 +55,7 @@ LABEL name="konveyor/tackle2-ui" \
       com.redhat.component="konveyor-tackle2-ui-container" \
       io.k8s.display-name="tackle2-ui" \
       io.k8s.description="Konveyor - User Interface" \
-      io.openshift.tags="operator,konveyor,ui,nodejs" \
+      io.openshift.tags="operator,konveyor,ui,caddy" \
       org.opencontainers.image.title="tackle2-ui" \
       org.opencontainers.image.description="Konveyor - User Interface" \
       org.opencontainers.image.url="https://konveyor.io" \
@@ -51,9 +64,4 @@ LABEL name="konveyor/tackle2-ui" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.vendor="Konveyor"
 
-COPY --from=builder /opt/app-root/src/dist /opt/app-root/dist/
-
-ENV DEBUG=1
-
-WORKDIR /opt/app-root/dist
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint"]
