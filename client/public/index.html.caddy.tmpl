@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <!-- Branding values below are injected at build time by HtmlWebpackPlugin. -->
+    <title><%= brandingTitle %></title>
+    <meta name="description" content="<%= brandingDescription %>" />
+    <meta id="appName" name="application-name" content="<%= brandingName %>" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="version" content="2.0.0" />
+    <link rel="manifest" href="manifest.json" />
+    <base href="/" />
+    <script>
+      /*
+       * window._env is populated at runtime (production) or baked in at compile
+       * time (development).
+       *
+       * Production: Caddy processes this file as a Go template.  The
+       * `httpInclude "/.env"` template expression makes an internal sub-request to the
+       * /.env endpoint (caddy/env.json, also processed as a template) and embeds
+       * the resulting JSON object directly.  Caddy's httpInclude returns a
+       * template.HTML value which bypasses re-escaping so the raw JSON lands in
+       * the script block as-is.
+       *
+       * Development: rspack.dev.mts replaces this expression with an inlined JSON
+       * object literal at compile time, mirroring what Caddy does at runtime.
+       *
+       * See client/src/app/env.ts for the consumer and /.env for the source data.
+       */
+      window._env = JSON.parse(`{{httpInclude "/.env"}}`);
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root" style="height: 100%"></div>
+  </body>
+</html>

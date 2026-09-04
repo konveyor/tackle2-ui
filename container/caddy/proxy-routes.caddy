@@ -1,0 +1,108 @@
+# Shared API proxy routes for tackle2-ui.
+#
+# Import this file in Caddyfile.dev and Caddyfile.prod to bring the (api_routes)
+# snippet into scope:
+#
+#   import /etc/caddy/proxy-routes.caddy
+#
+# Environment variables consumed by this snippet:
+#   TACKLE_HUB_URL      - Hub API / OIDC / Kai upstream  (default: http://localhost:9002)
+#   KAI_LLM_PROXY_URL   - LLM proxy upstream             (default: http://localhost:9003)
+#   KEYCLOAK_SERVER_URL - Legacy Keycloak upstream        (default: http://localhost:9004)
+
+(api_routes) {
+	# RFC 7239 Forwarded header.
+	# Set it on the request when an upstream proxy (e.g. OpenShift HAProxy) has
+	# not already set it.  In Caddy the '?' modifier only works on response
+	# headers; for request headers we use a named matcher + request_header.
+	@noForwardedHeader not header Forwarded *
+	request_header @noForwardedHeader Forwarded "for={http.request.remote.host};host={http.request.host};proto={http.request.scheme}"
+
+	# /.env -- client environment configuration as JSON.
+	# Caddy processes env.json.tmpl as a Go template (substituting {{env "VAR"}} at
+	# request time) and returns the result as application/json.
+	# Used by the Cypress uiEnvironmentConfig command and inlined into index.html
+	# via {{httpInclude "/.env"}} in the Caddy templates directive.
+	handle /.env {
+		root * /etc/caddy
+		rewrite * /env.json.tmpl
+		route {
+			templates {
+				mime application/json
+			}
+			header Content-Type application/json
+			file_server {
+				browse off
+			}
+		}
+	}
+
+	# /auth -- Legacy Keycloak proxy.
+	# Caddy sets X-Forwarded-For, X-Forwarded-Proto, and X-Forwarded-Host
+	# automatically; only X-Real-IP needs to be set explicitly.
+	handle /auth/* {
+		reverse_proxy {$KEYCLOAK_SERVER_URL:http://localhost:9004} {
+			header_up X-Real-IP {http.request.remote.host}
+		}
+	}
+
+	# /oidc -- Hub OIDC discovery / token endpoints.
+	handle /oidc/* {
+		reverse_proxy {$TACKLE_HUB_URL:http://localhost:9002}
+	}
+
+	# /hub -- Hub API.
+	# WebSocket upgrade (used by /hub/agentic/ ACP connections) is automatic in Caddy.
+	# Strips the /hub prefix before forwarding:  /hub/foo  →  /foo
+	#
+	# The 401 handling is split by Accept header to preserve client-side token refresh:
+	#   - JSON API requests (Accept: application/json) receive the raw 401 so that
+	#     react-oidc-context can handle token expiry automatically.
+	#   - Non-JSON requests (direct browser navigation to /hub/*) are redirected to /
+	#     as a UX safety net, matching the former Express redirectIfUnauthorized behaviour.
+	@hubJsonRequest {
+		path /hub/*
+		header Accept *application/json*
+	}
+	handle @hubJsonRequest {
+		uri strip_prefix /hub
+		reverse_proxy {$TACKLE_HUB_URL:http://localhost:9002}
+	}
+	handle /hub/* {
+		uri strip_prefix /hub
+		reverse_proxy {$TACKLE_HUB_URL:http://localhost:9002} {
+			@browser401 status 401
+			handle_response @browser401 {
+				redir / 302
+			}
+		}
+	}
+
+	# /kai -- Kai analysis service.
+	# Rewrites /kai/* to /services/kai/*:  /kai/foo  →  /services/kai/foo
+	# Same 401 split as /hub above.
+	@kaiJsonRequest {
+		path /kai/*
+		header Accept *application/json*
+	}
+	handle @kaiJsonRequest {
+		rewrite * /services{uri}
+		reverse_proxy {$TACKLE_HUB_URL:http://localhost:9002}
+	}
+	handle /kai/* {
+		rewrite * /services{uri}
+		reverse_proxy {$TACKLE_HUB_URL:http://localhost:9002} {
+			@browser401 status 401
+			handle_response @browser401 {
+				redir / 302
+			}
+		}
+	}
+
+	# /llm-proxy -- LLM proxy service.
+	# Strips the /llm-proxy prefix:  /llm-proxy/foo  →  /foo
+	handle /llm-proxy/* {
+		uri strip_prefix /llm-proxy
+		reverse_proxy {$KAI_LLM_PROXY_URL:http://localhost:9003}
+	}
+}
