@@ -67,7 +67,7 @@
     "rimraf": "^6.1.3",
     "rollup": "^4.63.0",
     "rollup-plugin-copy": "^3.5.0",
-    "typescript": "~5.9.3",
+    "typescript": "~7.0.2",
     "typescript-eslint": "^8.68.0",
     "wait-on": "^9.1.0"
   },
