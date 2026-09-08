@@ -37,7 +37,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-IMAGE="registry.access.redhat.com/hi/caddy:2.11-builder"
+
+# Derive the runtime image from the last unnamed FROM line in the Dockerfile
+# (same technique used by the unit-test CI workflow for the builder image).
+IMAGE=$(grep -i '^FROM ' "$PROJECT_ROOT/Dockerfile" | grep -iv ' as ' | tail -1 | sed -e 's/^FROM //i')
+echo "Using image: $IMAGE"
 
 # ── Defaults ────────────────────────────────────────────────────────────────
 MODE="dev"
@@ -100,7 +104,6 @@ if [[ "$OS" == "Darwin" ]]; then
     )
 
     echo "OS: macOS — publishing :${PORT}, using host.containers.internal for upstream hosts"
-    echo "Visit: http://localhost:${PORT}"
 else
     # Linux (and anything else): --network=host makes the container share the
     # host network stack; no URL translation needed.
