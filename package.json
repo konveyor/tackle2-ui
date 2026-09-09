@@ -77,7 +77,8 @@
     "axios": "^1.18.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "http-proxy-middleware": "~4.1.1"
+    "http-proxy-middleware": "~4.1.1",
+    "qs": "^6.16.0"
   },
   "overrides": {
     "mocha": {
