@@ -89,7 +89,6 @@ const useFetchReportAll_ = <UI extends WithUiId<API>, API>(
   params: HubRequestParams,
   refetchInterval: number | false
 ): AnalysisQueryResults<UI> => {
-  // eslint-disable-next-line @tanstack/query/exhaustive-deps -- queryFn is uniquely identified by queryKey
   const { data, isLoading, error, refetch } = useQuery({
     enabled,
     queryKey: [queryKey, params],
@@ -155,7 +154,6 @@ const useFetchReportApplication_ = <UI extends WithUiId<API>, API>(
   params: HubRequestParams = {},
   refetchInterval: number | false = false
 ): AnalysisQueryResults<UI> => {
-  // eslint-disable-next-line @tanstack/query/exhaustive-deps -- queryFn is uniquely identified by queryKey
   const { data, isLoading, error, refetch } = useQuery({
     enabled: applicationId !== undefined,
     queryKey: [queryKey, applicationId, params],
@@ -207,7 +205,6 @@ const useFetchReport_Apps = <API>(
   params: HubRequestParams,
   refetchInterval: number | false
 ): AnalysisQueryResults<API> => {
-  // eslint-disable-next-line @tanstack/query/exhaustive-deps -- queryFn is uniquely identified by queryKey
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [queryKey, params],
     queryFn: () => queryFn(params),
