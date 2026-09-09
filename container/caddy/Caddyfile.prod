@@ -1,0 +1,62 @@
+# Production Caddyfile for tackle2-ui.
+# Loaded from /etc/caddy/Caddyfile inside the registry.access.redhat.com/hi/caddy:2.11 container.
+#
+# Required env vars (validated by the Go entrypoint before Caddy starts):
+#   TACKLE_HUB_URL    - Hub API upstream URL
+#   OIDC_ISSUER       - OIDC issuer URL (required unless AUTH_REQUIRED=false)
+#   OIDC_CLIENT_ID    - OIDC client ID  (required unless AUTH_REQUIRED=false)
+#
+# Optional env vars:
+#   PORT              - Listen port (default: 8080)
+#   KAI_LLM_PROXY_URL - LLM proxy upstream URL
+#   KEYCLOAK_SERVER_URL - Legacy Keycloak upstream URL
+#
+# Runtime ClientEnv vars injected into index.html via Caddy templates:
+#   NODE_ENV, VERSION, MOCK, DEVTOOLS, UI_INGRESS_PROXY_BODY_SIZE,
+#   RWX_SUPPORTED, AUTH_REQUIRED, AGENTIC_ENABLED, AGENTIC_STEER_ENABLED,
+#   OIDC_CLIENT_ID
+#
+# CA certificates: the Go entrypoint assembles Kubernetes service-account CAs
+# into a bundle and sets SSL_CERT_FILE.  Caddy (Go TLS) picks this up
+# automatically for all upstream TLS connections — no Caddyfile config needed.
+{
+	# TLS is terminated at the ingress / load balancer — disable auto HTTPS.
+	auto_https off
+
+	# Disable configuration autosave
+	persist_config off
+
+	# Disable the admin endpoint and the `caddy reload` command
+	admin off
+}
+
+import /etc/caddy/proxy-routes.caddy
+
+:{$PORT:8080} {
+	import api_routes
+
+	# Serve the pre-built SPA from /srv (populated by the Dockerfile COPY step).
+	root * /srv
+
+	# Everything not matched by api_routes (handle /.env, handle /hub/*, etc.)
+	# is served as SPA content.  Wrapping these directives in a catch-all
+	# `handle` block ensures they are mutually exclusive with the more-specific
+	# `handle` blocks imported from api_routes.  Without this, Caddy's implicit
+	# directive ordering runs `try_files` before `handle`, which rewrites the
+	# httpInclude "/.env" virtual sub-request to /index.html (because /srv/.env
+	# doesn't exist), causing a template recursion cycle.
+	handle {
+		# Process index.html as a Go template to inject runtime environment variables.
+		# Only index.html is templated; all other assets (JS, CSS, fonts) are served
+		# as static files.
+		templates /index.html
+
+		# SPA routing: fall back to index.html for client-side routes that don't
+		# correspond to a real file (React Router handles them in the browser).
+		try_files {path} /index.html
+
+		file_server {
+			precompressed br gzip
+		}
+	}
+}

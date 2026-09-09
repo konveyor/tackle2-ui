@@ -13,13 +13,13 @@
     "clean:all": "npm run clean && rimraf ./node_modules ./**/node_modules/",
     "prepare": "husky",
     "postinstall": "npm run build -w common",
-    "dist": "rimraf ./dist && copyfiles -e 'node_modules/**' entrypoint.sh '**/package.json' '*/dist/**/*' ./dist",
+    "dist": "rimraf ./dist && copyfiles-ng -e '**/node_modules/**' -u 2 'client/dist/**/*' ./dist",
     "build": "npm run build -ws --if-present",
     "start:dev:common": "npm run start:dev -w common",
-    "start:dev:server": "wait-on -l -d 500 common/dist/index.mjs && npm run start:dev -w server",
     "start:dev:client": "wait-on -l -d 500 common/dist/index.mjs && npm run start:dev -w client",
-    "start:dev": "concurrently -n port-forward,common,server,client -c 'white.bold.inverse,green.bold.inverse,teal,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:server' 'npm:start:dev:client'",
-    "start": "npm run build -w common -w client && npm run start -w server",
+    "start:dev:proxy": "scripts/run-proxy.sh --dev",
+    "start:dev": "concurrently -n port-forward,common,proxy,client -c 'white.bold.inverse,green.bold.inverse,magenta.bold.inverse,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:proxy' 'npm:start:dev:client'",
+    "start": "npm run build -w common -w client && scripts/run-proxy.sh --prod",
     "test": "npm run test -ws --if-present --",
     "test:e2e": "npm run test:e2e -ws --if-present --",
     "format": "scripts/prettier-w.sh --ignore-unknown --write . && npm run format -ws --if-present",
@@ -33,7 +33,6 @@
   },
   "workspaces": [
     "common",
-    "server",
     "client",
     "cypress"
   ],
@@ -42,17 +41,15 @@
     "npm": "^9.5.0 || ^10.5.2 || >=11"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-run": "^3.1.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@rollup/plugin-virtual": "^3.0.2",
     "@tanstack/eslint-plugin-query": "~5.101.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.20.1",
     "concurrently": "^10.0.5",
-    "copyfiles": "^2.4.1",
+    "copyfiles-ng": "^2.4.7",
+    "ejs": "^3.1.10",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
@@ -72,10 +69,7 @@
     "wait-on": "^9.1.0"
   },
   "dependencies": {
-    "axios": "^1.18.1",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "http-proxy-middleware": "~4.1.1"
+    "axios": "^1.18.1"
   },
   "overrides": {
     "mocha": {

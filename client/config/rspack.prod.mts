@@ -1,17 +1,8 @@
-import fs from "fs";
-import { fileURLToPath } from "node:url";
-import path from "path";
-
 import { rspack } from "@rspack/core";
 import type { Configuration } from "@rspack/core";
-import HtmlWebpackPlugin from "html-webpack-plugin";
 import { merge } from "rspack-merge";
 
-import commonRspackConfiguration, { brandingPath } from "./rspack.common.mjs";
-
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingPath, "favicon.ico");
+import commonRspackConfiguration from "./rspack.common.mjs";
 
 const config = merge(commonRspackConfiguration, {
   mode: "production",
@@ -35,23 +26,6 @@ const config = merge(commonRspackConfiguration, {
   plugins: [
     new rspack.EnvironmentPlugin({
       NODE_ENV: "production",
-    }),
-
-    // index.html.ejs is served at runtime by Express which injects `_env`
-    new HtmlWebpackPlugin({
-      filename: "index.html.ejs",
-      templateContent: fs.readFileSync(
-        pathTo("../public/index.html.ejs"),
-        "utf-8"
-      ),
-      favicon: faviconPath,
-      minify: {
-        collapseWhitespace: false,
-        keepClosingSlash: true,
-        minifyJS: true,
-        removeEmptyAttributes: true,
-        removeRedundantAttributes: true,
-      },
     }),
   ],
 } as Configuration);

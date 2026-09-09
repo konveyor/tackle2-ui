@@ -33,8 +33,8 @@ declare global {
       ): void;
 
       /**
-       * Look for the UI's `window._env` data on the application's page, decode it, and
-       * provide the data as a Chainable response.
+       * Fetch the UI's client environment configuration from the /.env endpoint
+       * and return it as a Chainable.
        */
       uiEnvironmentConfig(): Cypress.Chainable<object>;
     }
@@ -57,16 +57,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("uiEnvironmentConfig", () =>
-  cy.request("/").then<object>((resp) => {
+  // The /.env endpoint is served by Caddy (production) or the rspack dev server
+  // proxy.  In both cases it returns the ClientEnv fields as a JSON object —
+  // the same data that Caddy inlines into index.html via {{httpInclude "/.env"}}.
+  cy.request("/.env").then<object>((resp) => {
     expect(resp.status).to.eq(200);
-
-    cy.log("Looking for _env in UI's index.html");
-    const htmlBody = resp.body;
-    const windowEnv = htmlBody.match(/window\._env\s*=\s*"(.*?)"/);
-    expect(windowEnv, "Find _env in index.html").to.not.be.null;
-
-    const env = JSON.parse(atob(windowEnv[1]));
-    cy.log("window._env: ", JSON.stringify(env));
-    return cy.wrap(env);
+    cy.log("/.env: ", JSON.stringify(resp.body));
+    return cy.wrap(resp.body);
   })
 );

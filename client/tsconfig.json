@@ -32,7 +32,8 @@
 
     "paths": {
       "@app/*": ["src/app/*"],
-      "@mocks/*": ["src/mocks/*"]
+      "@mocks/*": ["src/mocks/*"],
+      "@env/*": ["src/env/*"]
     }
   },
 

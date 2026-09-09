@@ -1,0 +1,39 @@
+# Development Caddyfile for tackle2-ui.
+#
+# Run from the project root with:
+#   podman run --rm --network=host --env-host \
+#     -v ./caddy:/etc/caddy:ro,z \
+#     registry.access.redhat.com/hi/caddy:2.11-builder \
+#     caddy run --config /etc/caddy/Caddyfile.dev --watch
+#
+# This is wired into `npm run start:dev` automatically — see package.json.
+#
+# Network topology (Linux, --network=host):
+#   :9000 — this Caddy instance (entry point for the developer)
+#   :9001 — rspack dev server (SPA + HMR)
+#   :9002 — kubectl port-forward → Hub API
+#   :9003 — kubectl port-forward → LLM proxy
+#   :9004 — kubectl port-forward → Keycloak
+#
+# macOS (Podman machine): --network=host binds to the VM, not the Mac.
+# Set DEV_SERVER_HOST=host.containers.internal and override upstream URLs as
+# needed (e.g. TACKLE_HUB_URL=http://host.containers.internal:9002).
+{
+	# Disable automatic HTTPS — dev uses plain HTTP on localhost.
+	auto_https off
+
+	# Disable configuration autosave
+	persist_config off
+
+	# Disable the admin endpoint and the `caddy reload` command
+	admin off
+}
+
+import /etc/caddy/proxy-routes.caddy
+
+:{$PORT:9000} {
+	import api_routes
+
+	# Forward everything else to the rspack dev server (SPA + Hot Module Replacement).
+	reverse_proxy {$DEV_SERVER_HOST:localhost}:9001
+}

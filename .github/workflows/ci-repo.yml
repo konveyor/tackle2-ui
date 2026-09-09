@@ -46,7 +46,9 @@ jobs:
       - name: Lookup builder image from the project's Dockerfile
         id: grepBuilder
         run: |
-          builder=$(grep -i 'as builder' Dockerfile | sed -e 's/^from \(.*\) as builder$/\1/i')
+          # The Dockerfile uses a multi-stage build; target the client-builder stage
+          # (Node.js) which is the image the unit-test matrix job runs inside.
+          builder=$(grep -i 'as client-builder' Dockerfile | sed -e 's/^from \(.*\) as client-builder$/\1/i')
           echo "builder=$builder" >> "$GITHUB_OUTPUT"
 
       - name: Did only docs and hacks change?

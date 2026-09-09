@@ -22,7 +22,7 @@ updates:
     commit-message:
       prefix: ":ghost: "
 
-  # All npm workspace dependencies (root, client, server, common, cypress)
+  # All npm workspace dependencies (root, client, common, cypress)
   # Uses a single root entry so dependabot can update the shared package-lock.json
   - package-ecosystem: "npm"
     directory: "/"
@@ -126,8 +126,3 @@ updates:
           - "@types/jest"
           - "ts-jest"
           - "@testing-library/*"
-
-      "server-dependencies":
-        patterns:
-          - "cookie"
-          - "http-terminator"
