@@ -1583,6 +1583,13 @@
       "unverifiableAlertTitle_one": "{{names}} cannot pass the controller's verification",
       "unverifiableAlertTitle_other": "{{count}} gateways cannot pass the controller's verification: {{names}}",
       "unverifiableAlertBody": "The controller verifies a gateway by probing GET /v1/models on its endpoint, which the native aws-bedrock and gcp-vertex-ai APIs do not serve, so these gateways never become Ready and every Agent that references them stays Not Ready — runs are blocked behind that hold even with valid credentials. Tracked as <issue>agentic-controller#167</issue>."
+    },
+    "fetchError": {
+      "title": "Unable to load agentic resources",
+      "rbacTitle": "The Hub cannot read agentic resources",
+      "rbacHint": "The Hub's ServiceAccount was denied by Kubernetes RBAC. The Hub reads Agents, Gateways, AgentRuns and their credential Secrets from its own namespace only, so they must be created there, and the tackle-hub ServiceAccount needs a Role granting access to konveyor.io resources in that namespace.",
+      "serverSaid": "Server response:",
+      "retry": "Retry"
     }
   }
 }

@@ -1,3 +1,5 @@
+import { AxiosError } from "axios";
+
 import type {
   AgentResource,
   AgentWorkflow,
@@ -8,6 +10,7 @@ import {
   invalidTargetBranchReason,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 /** kubectl-style compact age: 45s, 12m, 3h, 2d. */
 export function formatAge(creationTimestamp?: string): string {
@@ -216,4 +219,22 @@ export function partitionByRunEligibility<T extends RunnableApplication>(
     else eligible.push(application);
   }
   return { eligible, excluded };
+}
+
+// ------------------------------------------------------------ fetch errors
+
+/**
+ * True when a Hub `/hub/agentic/*` request failed because the Hub's own
+ * ServiceAccount was denied by Kubernetes RBAC. The Hub reads agentic CRs from
+ * its own namespace only, so this fires when the resources (or the Role that
+ * grants `konveyor.io` access) were created somewhere else — the message looks
+ * like `agents.konveyor.io is forbidden: User "system:serviceaccount:...:tackle-hub"
+ * cannot list resource "agents" in API group "konveyor.io" in the namespace "..."`.
+ */
+export function isAgenticRbacError(error: unknown): boolean {
+  if (!(error instanceof AxiosError)) return false;
+  const status = error.response?.status;
+  if (status !== 500 && status !== 403) return false;
+  const message = getAxiosErrorMessage(error);
+  return /forbidden/i.test(message) && /konveyor\.io/.test(message);
 }

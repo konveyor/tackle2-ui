@@ -23,8 +23,8 @@ import { DevPaths } from "@app/Paths";
 import type { AgentRunPhase } from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { PageHeader } from "@app/components/PageHeader";
-import { StateError } from "@app/components/StateError";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { RunConditionSummary } from "@app/pages/agent-runs/components/RunConditionSummary";
@@ -110,7 +110,7 @@ const WorkflowRunDetailPage: React.FC = () => {
               />
             </Alert>
           ) : (
-            <StateError />
+            <AgenticFetchError error={fetchError} />
           )}
         </PageSection>
       </>

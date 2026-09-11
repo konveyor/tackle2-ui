@@ -12,6 +12,10 @@ import {
   getAgents,
   updateAgent,
 } from "@app/api/rest";
+import {
+  AGENTIC_QUERY_RETRY,
+  pollUnlessErrored,
+} from "@app/queries/agentic-polling";
 
 export const AGENTS_QUERY_KEY = "agents";
 
@@ -22,7 +26,9 @@ export const useFetchAgents = (
     queryKey: [AGENTS_QUERY_KEY],
     queryFn: getAgents,
     onError: (error: AxiosError) => console.log(error),
-    refetchInterval,
+    retry: AGENTIC_QUERY_RETRY,
+    refetchInterval: (_data, query) =>
+      pollUnlessErrored(query, refetchInterval),
   });
 
   return {

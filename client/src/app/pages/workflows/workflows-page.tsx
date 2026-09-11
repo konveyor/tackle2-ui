@@ -27,11 +27,11 @@ import {
 import { DevPaths } from "@app/Paths";
 import type { AgentWorkflow } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useNotifications } from "@app/components/NotificationsContext";
-import { StateError } from "@app/components/StateError";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import { CreateWorkflowRunModal } from "@app/pages/workflow-runs/components/CreateWorkflowRunModal";
 import {
@@ -58,7 +58,7 @@ const WorkflowsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = useNotifications();
-  const { workflows, isLoading, fetchError } = useFetchWorkflows();
+  const { workflows, isLoading, fetchError, refetch } = useFetchWorkflows();
   // Authoring is admin/architect; running one is also a migrator's
   // (tackle2-hub#1119). Hide what would 403.
   const canWrite = useHasSomeScopes(agenticWorkflowsWriteScopes);
@@ -121,7 +121,7 @@ const WorkflowsPage: React.FC = () => {
           )}
 
           {fetchError ? (
-            <StateError />
+            <AgenticFetchError error={fetchError} onRetry={refetch} />
           ) : sortedWorkflows.length === 0 ? (
             <EmptyState
               headingLevel="h2"
