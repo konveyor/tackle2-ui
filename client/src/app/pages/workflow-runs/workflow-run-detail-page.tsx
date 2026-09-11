@@ -20,14 +20,19 @@ import { RedoIcon } from "@patternfly/react-icons";
 
 import type { WorkflowRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
-import type { AgentRunPhase } from "@app/api/agentic/contract";
+import type {
+  AgentRunPhase,
+  AgentWorkflowRunStageStatus,
+} from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
 import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { PageHeader } from "@app/components/PageHeader";
 import { BranchPanel } from "@app/pages/agent-runs/components/BranchPanel";
+import { ChatPanel } from "@app/pages/agent-runs/components/ChatPanel";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { RunConditionSummary } from "@app/pages/agent-runs/components/RunConditionSummary";
+import { useFetchAgentRun } from "@app/queries/agent-runs";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchWorkflowRun } from "@app/queries/workflow-runs";
 import { agenticWorkflowRunsCreateScopes } from "@app/scopes";
@@ -61,11 +66,35 @@ function stepVariant(phase?: AgentRunPhase) {
   }
 }
 
+/** The child AgentRun whose ACP viewer belongs on the workflow page. */
+function liveStageOf(
+  stages: AgentWorkflowRunStageStatus[],
+  currentStage?: string
+): AgentWorkflowRunStageStatus | undefined {
+  const current = stages.find((stage) => stage.name === currentStage);
+  return current?.phase === "Running" && current.agentRunName
+    ? current
+    : stages.find((stage) => stage.phase === "Running" && !!stage.agentRunName);
+}
+
 const WorkflowRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { runName } = useParams<WorkflowRunDetailsRoute>();
   const { workflowRun, isLoading, fetchError } = useFetchWorkflowRun(runName);
+  const workflowFinished = isTerminalPhase(workflowRun?.status?.phase);
+  const liveStage = workflowFinished
+    ? undefined
+    : liveStageOf(
+        workflowRun?.status?.stages ?? [],
+        workflowRun?.status?.currentStage
+      );
+  const liveRunName = liveStage?.agentRunName ?? "";
+  const {
+    agentRun: liveAgentRun,
+    isLoading: liveRunLoading,
+    fetchError: liveRunFetchError,
+  } = useFetchAgentRun(liveRunName);
   // "Run again": the spec is immutable and the hub has no delete, so a
   // prefilled create is the one re-run shape there is.
   const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
@@ -123,7 +152,7 @@ const WorkflowRunDetailPage: React.FC = () => {
   const application = applications.find((a) =>
     runBelongsToApplication(workflowRun, a.id)
   );
-  const finished = isTerminalPhase(workflowRun.status?.phase);
+  const finished = workflowFinished;
 
   return (
     <>
@@ -255,6 +284,52 @@ const WorkflowRunDetailPage: React.FC = () => {
           />
         )}
       </PageSection>
+      {liveStage && (
+        <PageSection
+          isFilled
+          hasBodyWrapper={false}
+          className="run-detail-chat-section"
+          padding={{ default: "padding" }}
+        >
+          <Alert
+            variant="warning"
+            isInline
+            title={t("agentic.workflowRuns.approvalViewerTitle")}
+            style={{ marginBottom: "1rem" }}
+          >
+            {t("agentic.workflowRuns.approvalViewerBody", {
+              stage: liveStage.name,
+            })}
+          </Alert>
+          {liveRunFetchError && !liveAgentRun && (
+            <Alert
+              variant="danger"
+              isInline
+              title={t("agentic.workflowRuns.liveStageLoadFailed")}
+            >
+              {liveRunFetchError instanceof Error
+                ? liveRunFetchError.message
+                : String(liveRunFetchError)}
+            </Alert>
+          )}
+          {liveRunLoading && !liveAgentRun && (
+            <Bullseye>
+              <Spinner
+                aria-label={t("agentic.workflowRuns.loadingLiveStage")}
+              />
+            </Bullseye>
+          )}
+          {liveAgentRun && (
+            <ChatPanel
+              key={liveRunName}
+              runName={liveRunName}
+              status={liveAgentRun.status}
+              agentRef={liveAgentRun.spec.agentRef}
+              targetBranch={coordinates.targetBranch}
+            />
+          )}
+        </PageSection>
+      )}
       {rerunOpen && (
         <CreateWorkflowRunModal
           prefill={workflowRun}
