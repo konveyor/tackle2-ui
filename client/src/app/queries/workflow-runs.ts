@@ -8,6 +8,10 @@ import {
   getWorkflowRun,
   getWorkflowRuns,
 } from "@app/api/rest";
+import {
+  AGENTIC_QUERY_RETRY,
+  pollUnlessErrored,
+} from "@app/queries/agentic-polling";
 
 export const WORKFLOW_RUNS_QUERY_KEY = "workflowRuns";
 export const WORKFLOW_RUN_QUERY_KEY = "workflowRun";
@@ -19,7 +23,9 @@ export const useFetchWorkflowRuns = (
     queryKey: [WORKFLOW_RUNS_QUERY_KEY],
     queryFn: getWorkflowRuns,
     onError: (error: AxiosError) => console.log(error),
-    refetchInterval,
+    retry: AGENTIC_QUERY_RETRY,
+    refetchInterval: (_data, query) =>
+      pollUnlessErrored(query, refetchInterval),
     // Runs mutate server-side while the user is elsewhere — keep polling
     // even when the tab is hidden so the page is current on return.
     refetchIntervalInBackground: true,
@@ -41,7 +47,9 @@ export const useFetchWorkflowRun = (
     queryKey: [WORKFLOW_RUN_QUERY_KEY, name],
     queryFn: () => getWorkflowRun(name),
     onError: (error: AxiosError) => console.log(error),
-    refetchInterval,
+    retry: AGENTIC_QUERY_RETRY,
+    refetchInterval: (_data, query) =>
+      pollUnlessErrored(query, refetchInterval),
     refetchIntervalInBackground: true,
     enabled: !!name,
   });

@@ -25,11 +25,11 @@ import {
 
 import type { AgentResource } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useNotifications } from "@app/components/NotificationsContext";
-import { StateError } from "@app/components/StateError";
 import {
   ReadyLabel,
   skillCount,
@@ -104,7 +104,7 @@ const AgentsPage: React.FC = () => {
           )}
 
           {fetchError ? (
-            <StateError />
+            <AgenticFetchError error={fetchError} onRetry={refetch} />
           ) : sortedAgents.length === 0 ? (
             <EmptyState
               headingLevel="h2"

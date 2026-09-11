@@ -19,6 +19,7 @@ import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { DevPaths } from "@app/Paths";
 import type { AgentRun, AgentRunPhase } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -68,7 +69,7 @@ const RUN_PHASES: AgentRunPhase[] = [
 const AgentRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { agentRuns, isLoading, fetchError } = useFetchAgentRuns();
+  const { agentRuns, isLoading, fetchError, refetch } = useFetchAgentRuns();
   const { data: applications } = useFetchApplications();
   // Every hub role can list runs; creating one is admin/architect/migrator
   // (tackle2-hub#1119).
@@ -236,8 +237,10 @@ const AgentRunsPage: React.FC = () => {
               </Tr>
             </Thead>
             <ConditionalTableBody
-              isLoading={isLoading}
               isError={!!fetchError}
+              errorEmptyState={
+                <AgenticFetchError error={fetchError} onRetry={refetch} />
+              }
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState

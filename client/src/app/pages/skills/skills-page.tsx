@@ -26,11 +26,11 @@ import {
 
 import type { SkillCard, SkillCollection } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useNotifications } from "@app/components/NotificationsContext";
-import { StateError } from "@app/components/StateError";
 import { ReadyLabel } from "@app/pages/agent-runs/components/ReadyLabel";
 import { useFetchAgents } from "@app/queries/agents";
 import {
@@ -112,11 +112,13 @@ const SkillsPage: React.FC = () => {
     skillCards,
     isLoading: cardsLoading,
     fetchError: cardsError,
+    refetch: refetchCards,
   } = useFetchSkillCards();
   const {
     skillCollections,
     isLoading: collectionsLoading,
     fetchError: collectionsError,
+    refetch: refetchCollections,
   } = useFetchSkillCollections();
   // Only for the drawers' "Referenced by" section.
   const { agents } = useFetchAgents();
@@ -260,7 +262,7 @@ const SkillsPage: React.FC = () => {
           )}
 
           {cardsError ? (
-            <StateError />
+            <AgenticFetchError error={cardsError} onRetry={refetchCards} />
           ) : sortedCards.length === 0 ? (
             <EmptyState
               headingLevel="h3"
@@ -419,7 +421,10 @@ const SkillsPage: React.FC = () => {
           )}
 
           {collectionsError ? (
-            <StateError />
+            <AgenticFetchError
+              error={collectionsError}
+              onRetry={refetchCollections}
+            />
           ) : sortedCollections.length === 0 ? (
             <EmptyState
               headingLevel="h3"

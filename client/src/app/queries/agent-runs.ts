@@ -4,6 +4,10 @@ import { AxiosError } from "axios";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type { AgentRun } from "@app/api/agentic/contract";
 import { createAgentRun, getAgentRun, getAgentRuns } from "@app/api/rest";
+import {
+  AGENTIC_QUERY_RETRY,
+  pollUnlessErrored,
+} from "@app/queries/agentic-polling";
 
 export const AGENT_RUNS_QUERY_KEY = "agentRuns";
 export const AGENT_RUN_QUERY_KEY = "agentRun";
@@ -15,7 +19,9 @@ export const useFetchAgentRuns = (
     queryKey: [AGENT_RUNS_QUERY_KEY],
     queryFn: getAgentRuns,
     onError: (error: AxiosError) => console.log(error),
-    refetchInterval,
+    retry: AGENTIC_QUERY_RETRY,
+    refetchInterval: (_data, query) =>
+      pollUnlessErrored(query, refetchInterval),
     // Runs mutate server-side while the user is elsewhere — keep polling
     // even when the tab is hidden so the page is current on return.
     refetchIntervalInBackground: true,
@@ -37,7 +43,9 @@ export const useFetchAgentRun = (
     queryKey: [AGENT_RUN_QUERY_KEY, name],
     queryFn: () => getAgentRun(name),
     onError: (error: AxiosError) => console.log(error),
-    refetchInterval,
+    retry: AGENTIC_QUERY_RETRY,
+    refetchInterval: (_data, query) =>
+      pollUnlessErrored(query, refetchInterval),
     refetchIntervalInBackground: true,
     enabled: !!name,
   });

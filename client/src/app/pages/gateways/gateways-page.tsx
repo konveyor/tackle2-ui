@@ -13,9 +13,9 @@ import { CubesIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import type { Gateway } from "@app/api/agentic/contract";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { StateError } from "@app/components/StateError";
 import {
   ReadyLabel,
   readyCondition,
@@ -53,7 +53,7 @@ export function isHeldByVerification(gateway: Gateway): boolean {
 
 const GatewaysPage: React.FC = () => {
   const { t } = useTranslation();
-  const { gateways, isLoading, fetchError } = useFetchGateways();
+  const { gateways, isLoading, fetchError, refetch } = useFetchGateways();
 
   const sorted = [...gateways].sort((a, b) =>
     (a.metadata.name ?? "").localeCompare(b.metadata.name ?? "")
@@ -99,7 +99,7 @@ const GatewaysPage: React.FC = () => {
           )}
 
           {fetchError ? (
-            <StateError />
+            <AgenticFetchError error={fetchError} onRetry={refetch} />
           ) : sorted.length === 0 ? (
             <EmptyState
               headingLevel="h2"

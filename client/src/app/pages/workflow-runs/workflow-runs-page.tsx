@@ -22,6 +22,7 @@ import type {
   AgentWorkflowRunPhase,
 } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -79,7 +80,8 @@ const RUN_PHASES: AgentWorkflowRunPhase[] = [
 const WorkflowRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { workflowRuns, isLoading, fetchError } = useFetchWorkflowRuns();
+  const { workflowRuns, isLoading, fetchError, refetch } =
+    useFetchWorkflowRuns();
   const { data: applications } = useFetchApplications();
   // Every hub role can list runs; creating one is admin/architect/migrator
   // (tackle2-hub#1119).
@@ -267,8 +269,10 @@ const WorkflowRunsPage: React.FC = () => {
               </Tr>
             </Thead>
             <ConditionalTableBody
-              isLoading={isLoading}
               isError={!!fetchError}
+              errorEmptyState={
+                <AgenticFetchError error={fetchError} onRetry={refetch} />
+              }
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState

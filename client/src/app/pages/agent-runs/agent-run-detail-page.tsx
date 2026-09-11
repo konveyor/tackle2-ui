@@ -21,8 +21,8 @@ import type { AgentRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
+import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { PageHeader } from "@app/components/PageHeader";
-import { StateError } from "@app/components/StateError";
 import { useFetchAgentRun } from "@app/queries/agent-runs";
 import { useFetchAgents } from "@app/queries/agents";
 import { useFetchApplications } from "@app/queries/applications";
@@ -115,7 +115,7 @@ const AgentRunDetailPage: React.FC = () => {
               />
             </Alert>
           ) : (
-            <StateError />
+            <AgenticFetchError error={fetchError} />
           )}
         </PageSection>
       </>
