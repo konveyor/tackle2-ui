@@ -2,7 +2,7 @@
  * Contract types + helpers for the konveyor.io/v1alpha1 agent surface.
  *
  * Source of truth: github.com/konveyor/agentic-controller api/v1alpha1/*.go
- * (main @ 059b6f60 — post-#100 Gateway rename, post-#80 Workflow rename).
+ * (main @ 22fee493 — post-#169 parameter delivery and execution controls).
  * Browser-safe: no node builtins, no kube client.
  */
 
@@ -51,6 +51,22 @@ export interface AgentRunParam {
   value: string;
 }
 
+export type ExecutionMode = "auto" | "approve";
+
+export interface ExecutionLimits {
+  maxTurns?: number;
+  maxCost?: string;
+}
+
+export interface ExecutionSpec extends ExecutionLimits {
+  mode?: ExecutionMode;
+}
+
+export interface GitConfig {
+  userName: string;
+  userEmail: string;
+}
+
 export interface AgentRunSpec {
   agentRef: string;
   params?: AgentRunParam[];
@@ -61,6 +77,9 @@ export interface AgentRunSpec {
    * required when it declares several (validation fails fast otherwise).
    */
   gateway?: string;
+  /** Resolved supervision mode and optional budget overrides. */
+  execution?: ExecutionSpec;
+  gitConfig?: GitConfig;
   env?: EnvVar[];
   envFrom?: EnvFromSource[];
 }
@@ -110,6 +129,9 @@ export interface AgentResourceSpec {
   image: string;
   prompt?: string;
   params?: AgentParam[];
+  gitConfig?: GitConfig;
+  /** Default budget limits. Mode is selected per invocation. */
+  execution?: ExecutionLimits;
   gateways?: { ref: string }[];
   skillCards?: { ref: string }[];
   skillCollections?: { ref: string }[];
@@ -330,11 +352,14 @@ export interface AgentWorkflowStage {
   name: string;
   agentRef: string;
   instructions?: string;
+  execution?: ExecutionSpec;
 }
 
 export interface AgentWorkflowSpec {
   guide?: string;
   stages: AgentWorkflowStage[];
+  /** Workflow-scoped declarations rendered under params.json.workflow. */
+  params?: AgentParam[];
 }
 
 export interface AgentWorkflow {
@@ -357,6 +382,9 @@ export interface AgentWorkflowRunStageStatus {
   name: string;
   phase?: AgentRunPhase;
   agentRunName?: string;
+  agentRef?: string;
+  instructions?: string;
+  execution?: ExecutionSpec;
 }
 
 export interface AgentWorkflowRunStatus {
@@ -364,6 +392,9 @@ export interface AgentWorkflowRunStatus {
   observedGeneration?: number;
   currentStage?: string;
   stages?: AgentWorkflowRunStageStatus[];
+  guide?: string;
+  /** Snapshotted workflow parameter declarations. */
+  params?: AgentParam[];
   startTime?: string;
   completionTime?: string;
   conditions?: Condition[];
@@ -450,6 +481,8 @@ export interface CreateRunInput {
   targetBranch?: string;
   /** Gateway name; omit to let the controller default (single-gateway Agent). */
   gateway?: string;
+  /** Invocation supervision mode; defaults to auto in the controller. */
+  mode?: ExecutionMode;
 }
 
 export interface CreateWorkflowRunInput {
