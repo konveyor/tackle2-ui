@@ -182,6 +182,7 @@ export const agenticWorkflowsWriteScopes = [
 ];
 
 export const agenticAgentRunsCreateScopes = ["agentic.agentruns:post"];
+export const agenticAgentRunsDeleteScopes = ["agentic.agentruns:delete"];
 
 export const agenticWorkflowRunsCreateScopes = ["agentic.workflowruns:post"];
 
