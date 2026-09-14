@@ -67,6 +67,7 @@ import {
 import { getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
 import { useHasSomeScopes } from "@app/auth";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { explanatoryCondition } from "@app/pages/agent-runs/components/RunConditionSummary";
 import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
@@ -1036,6 +1037,7 @@ export function ChatPanel({
     }
   })();
 
+  const parked = explanatoryCondition(status?.conditions);
   const notice = (() => {
     switch (view.kind) {
       case "waiting":
@@ -1046,6 +1048,15 @@ export function ChatPanel({
         }
         if (!acpReady && phase === "Running") {
           return t("agentic.chat.waitingForAcpCondition", { phase });
+        }
+        // A parked run (AgentNotReady, InvalidParams, ...) says why in
+        // its conditions; repeat that here so the reason is in the panel
+        // the viewer is looking at, not only in the header.
+        if (parked) {
+          return t("agentic.chat.waitingForSandboxReason", {
+            phase: phase ?? "Pending",
+            detail: parked.message || parked.reason,
+          });
         }
         return t("agentic.chat.waitingForSandbox", {
           phase: phase ?? "Pending",
