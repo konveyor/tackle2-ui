@@ -1328,6 +1328,7 @@
       "paramType": "type: {{type}}",
       "paramDefault": "default: {{value}}",
       "notReady": "NotReady",
+      "agentNotReadyTitle": "Agent {{name}} is not ready — a run created now would wait until it is",
       "skillsHeading": "Skills this agent brings",
       "noSkills": "No skills — the agent runs on its prompt alone.",
       "skillNotFound": "not found",

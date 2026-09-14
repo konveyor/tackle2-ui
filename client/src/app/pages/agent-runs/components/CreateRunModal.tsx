@@ -45,6 +45,7 @@ import {
   paramHelperText,
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
+import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
 import { RunSkillsSummary } from "@app/pages/agent-runs/components/RunSkillsSummary";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
@@ -103,6 +104,19 @@ function paramsOf(run: AgentRun | undefined): Record<string, string> {
   const values: Record<string, string> = {};
   for (const p of run?.spec.params ?? []) values[p.name] = p.value;
   return values;
+}
+
+/**
+ * Selectable unless the controller has EXPLICITLY marked the agent not
+ * ready (image pull failure, missing gateway, invalid skill, ...). No
+ * status yet — controller catching up or not running — fails open, as the
+ * workflow modal does. The controller does not reject a run against a
+ * not-Ready Agent: it parks it on Succeeded=Unknown/AgentNotReady with no
+ * sandbox, so a run created now would sit Pending until someone fixed the
+ * Agent.
+ */
+function isSelectable(agent: AgentResource): boolean {
+  return readyCondition(agent.status?.conditions)?.status !== "False";
 }
 
 interface CreateRunModalProps {
@@ -187,11 +201,15 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   // Seed the agent select + param/gateway defaults once the list arrives —
   // a render-phase adjustment (not an effect) so the settled state is
   // committed in one pass. A prefill seeds its own agent (when it still
-  // exists) with the earlier run's values over the agent's defaults.
+  // exists, even when it is no longer Ready — the alert below says why) with
+  // the earlier run's values over the agent's defaults; otherwise the first
+  // Ready agent.
   const prefillAgent = prefill?.spec.agentRef;
   const seedAgent =
     !agentName && agents.length > 0
-      ? (agents.find((a) => a.metadata.name === prefillAgent) ?? agents[0])
+      ? (agents.find((a) => a.metadata.name === prefillAgent) ??
+        agents.find(isSelectable) ??
+        agents[0])
       : undefined;
   if (seedAgent?.metadata.name) {
     const isPrefillAgent = seedAgent.metadata.name === prefillAgent;
@@ -228,6 +246,11 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const submitting = createRunMutation.isLoading;
 
   const selected = agents.find((a) => a.metadata.name === agentName);
+  const selectedReady = selected ? isSelectable(selected) : false;
+  const notReady =
+    selected && !selectedReady
+      ? readyCondition(selected.status?.conditions)
+      : undefined;
 
   const selectAgent = (name: string) => {
     const agent = agents.find((a) => a.metadata.name === name);
@@ -292,6 +315,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     !!application && (!targetBranch.trim() || branchBlocker !== undefined);
   const canCreate =
     !!selected &&
+    selectedReady &&
     missingRequired.length === 0 &&
     !paramsInvalid &&
     !missingApplication &&
@@ -412,7 +436,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   <FormSelectOption
                     key={a.metadata.name}
                     value={a.metadata.name}
-                    label={a.metadata.name ?? t("agentic.createRun.unnamed")}
+                    label={
+                      (a.metadata.name ?? t("agentic.createRun.unnamed")) +
+                      (isSelectable(a)
+                        ? ""
+                        : ` ${t("agentic.workflowRuns.notReadySuffix")}`)
+                    }
+                    isDisabled={!isSelectable(a)}
                   />
                 ))}
               </FormSelect>
@@ -426,6 +456,19 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 </FormHelperText>
               )}
             </FormGroup>
+
+            {notReady && (
+              <Alert
+                variant="warning"
+                isInline
+                title={t("agentic.createRun.agentNotReadyTitle", {
+                  name: selected?.metadata.name,
+                })}
+              >
+                {notReady.reason ?? t("agentic.createRun.notReady")}
+                {notReady.message ? ` — ${notReady.message}` : ""}
+              </Alert>
+            )}
 
             {selected && (
               <FormGroup
