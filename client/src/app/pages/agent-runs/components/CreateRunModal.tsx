@@ -39,6 +39,7 @@ import type { Application } from "@app/api/models";
 import {
   GatewayPicker,
   defaultGatewayFor,
+  gatewayRequiredFor,
 } from "@app/pages/agent-runs/components/GatewayPicker";
 import {
   ParamValueField,
@@ -214,10 +215,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   if (seedAgent?.metadata.name) {
     const isPrefillAgent = seedAgent.metadata.name === prefillAgent;
     const gatewayRefs = seedAgent.spec.gateways ?? [];
+    // An Agent that declares no gateways accepts any, so the earlier run's
+    // choice carries over as-is; a declared list must still contain it.
     const prefillGateway =
       isPrefillAgent &&
       prefill?.spec.gateway &&
-      gatewayRefs.some((g) => g.ref === prefill.spec.gateway)
+      (gatewayRefs.length === 0 ||
+        gatewayRefs.some((g) => g.ref === prefill.spec.gateway))
         ? prefill.spec.gateway
         : undefined;
     setAgentName(seedAgent.metadata.name);
@@ -225,7 +229,10 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       ...defaultsFor(seedAgent),
       ...(isPrefillAgent ? paramsOf(prefill) : {}),
     });
-    setGateway(prefillGateway ?? defaultGatewayFor(gatewayRefs));
+    setGateway(
+      prefillGateway ??
+        defaultGatewayFor(gatewayRefs, gatewayRequiredFor(seedAgent))
+    );
   }
   const prefillAgentMissing =
     !!prefillAgent &&
@@ -256,7 +263,14 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     const agent = agents.find((a) => a.metadata.name === name);
     setAgentName(name);
     setParamValues(defaultsFor(agent));
-    setGateway(defaultGatewayFor(agent?.spec.gateways ?? []));
+    setGateway(
+      agent
+        ? defaultGatewayFor(
+            agent.spec.gateways ?? [],
+            gatewayRequiredFor(agent)
+          )
+        : undefined
+    );
   };
 
   const paramSources = parseSourcesAnnotation(selected);
@@ -313,10 +327,18 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       : undefined;
   const branchInvalid =
     !!application && (!targetBranch.trim() || branchBlocker !== undefined);
+  // The controller rejects a run that omits its gateway unless the Agent
+  // declares exactly one (validateGateway): none declared means any
+  // cluster Gateway is allowed but one must be named; several means pick.
+  const gatewayRefs = selected?.spec.gateways ?? [];
+  const gatewayUnconstrained = !!selected && gatewayRefs.length === 0;
+  const gatewayRequired = !!selected && gatewayRequiredFor(selected);
+  const gatewayMissing = gatewayRequired && !gateway;
   const canCreate =
     !!selected &&
     selectedReady &&
     missingRequired.length === 0 &&
+    !gatewayMissing &&
     !paramsInvalid &&
     !missingApplication &&
     !branchInvalid &&
@@ -489,7 +511,9 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
             )}
 
             <GatewayPicker
-              gatewayRefs={selected?.spec.gateways ?? []}
+              gatewayRefs={gatewayRefs}
+              unconstrained={gatewayUnconstrained}
+              required={gatewayRequired}
               gateways={gateways}
               value={gateway}
               onChange={setGateway}
