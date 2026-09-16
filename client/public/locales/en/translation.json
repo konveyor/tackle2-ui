@@ -1162,7 +1162,7 @@
     "agentRuns": {
       "createRun": "Create run",
       "deleteSelected": "Delete selected",
-      "clearTerminalWithCount": "Clear terminal ({{count}})",
+      "deleteFinishedWithCount": "Delete finished ({{count}})",
       "deleteTitle_one": "Delete {{count}} agent run?",
       "deleteTitle_other": "Delete {{count}} agent runs?",
       "deleteMessage_one": "Deleting this agent run also removes its owned sandbox, pod, ConfigMaps, and Secrets.",
@@ -1173,7 +1173,7 @@
       "deleteSuccess_other": "{{count}} agent runs were successfully deleted.",
       "brokenRuns": "Broken runs",
       "emptyTitle": "No agent runs",
-      "emptyBody": "No AgentRun resources found. Create one to get started.",
+      "emptyBody": "Agent runs execute an agent against an application. Create a run to get started.",
       "seededCount_one": "Seeded {{count}} resource",
       "seededCount_other": "Seeded {{count}} resources",
       "alreadyExisted": "({{count}} already existed)"
@@ -1400,7 +1400,7 @@
     "workflowRuns": {
       "create": "Create workflow run",
       "emptyTitle": "No workflow runs",
-      "emptyBody": "No AgentWorkflowRun resources found. Create one against an AgentWorkflow; each stage runs as its own AgentRun, in order.",
+      "emptyBody": "Workflow runs execute the stages of a workflow in order, each as its own agent run. Create a workflow run to get started.",
       "loadingRun": "Loading workflow run",
       "notFoundTitle": "Workflow run not found",
       "notFoundBody": "The workflow run <strong>{{name}}</strong> was not found. It may have been deleted.",

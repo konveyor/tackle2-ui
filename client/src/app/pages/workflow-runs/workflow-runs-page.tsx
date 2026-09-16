@@ -4,15 +4,12 @@ import { Link, useHistory } from "react-router-dom";
 import {
   Button,
   Content,
-  EmptyState,
-  EmptyStateBody,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
@@ -26,6 +23,7 @@ import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
@@ -275,23 +273,10 @@ const WorkflowRunsPage: React.FC = () => {
               }
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState
-                  headingLevel="h2"
-                  icon={CubesIcon}
-                  titleText={t("agentic.workflowRuns.emptyTitle")}
-                >
-                  <EmptyStateBody>
-                    {t("agentic.workflowRuns.emptyBody")}
-                  </EmptyStateBody>
-                  {canCreate && (
-                    <Button
-                      variant="primary"
-                      onClick={() => setIsCreateOpen(true)}
-                    >
-                      {t("agentic.workflowRuns.create")}
-                    </Button>
-                  )}
-                </EmptyState>
+                <NoDataEmptyState
+                  title={t("agentic.workflowRuns.emptyTitle")}
+                  description={t("agentic.workflowRuns.emptyBody")}
+                />
               }
               numRenderedColumns={numRenderedColumns}
             >
