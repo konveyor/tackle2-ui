@@ -36,6 +36,7 @@ import { getAgent } from "@app/api/rest";
 import {
   GatewayPicker,
   defaultGatewayFor,
+  gatewayRequiredFor,
 } from "@app/pages/agent-runs/components/GatewayPicker";
 import {
   ParamValueField,
@@ -107,16 +108,35 @@ function defaultsFor(params: AgentParam[]): Record<string, string> {
 }
 
 /**
- * Gateways declared by EVERY stage agent — the run's one gateway propagates
- * to every stage, so a gateway missing from any stage agent's list fails
- * that stage. Stage order is preserved from the first agent's declaration.
+ * Gateways accepted by EVERY stage agent — the run's one gateway propagates
+ * to every stage, so a gateway missing from a stage agent's list fails that
+ * stage. An agent that declares no gateways accepts any, so it does not
+ * narrow the set. Stage order is preserved from the first declaring agent.
  */
 function sharedGateways(agents: AgentResource[]): { ref: string }[] {
-  if (agents.length === 0) return [];
-  const [first, ...rest] = agents;
+  const declaring = agents.filter((a) => (a.spec.gateways ?? []).length > 0);
+  if (declaring.length === 0) return [];
+  const [first, ...rest] = declaring;
   return (first!.spec.gateways ?? []).filter(({ ref }) =>
     rest.every((a) => (a.spec.gateways ?? []).some((g) => g.ref === ref))
   );
+}
+
+/** No stage agent declares a gateway: any cluster Gateway may be named. */
+function unconstrainedGateways(agents: AgentResource[]): boolean {
+  return (
+    agents.length > 0 &&
+    agents.every((a) => (a.spec.gateways ?? []).length === 0)
+  );
+}
+
+/**
+ * A run that omits its gateway leaves each stage to the controller's
+ * default, which exists only for an agent declaring exactly one — so any
+ * stage agent declaring none or several makes the choice mandatory.
+ */
+function gatewayRequiredForStages(agents: AgentResource[]): boolean {
+  return agents.some(gatewayRequiredFor);
 }
 
 interface CreateWorkflowRunModalProps {
@@ -246,6 +266,8 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
         setStageAgents(list);
         const defaults = defaultsFor([...workflowParams, ...mergeParams(list)]);
         const shared = sharedGateways(list);
+        const unconstrained = unconstrainedGateways(list);
+        const required = gatewayRequiredForStages(list);
         // Apply the earlier run's values once, and only on its own
         // workflow — a prefill whose workflow is gone seeds a different
         // one and must not carry its inputs there.
@@ -262,13 +284,14 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
           setParamValues(values);
           setGateway(
             initialPrefill.spec.gateway &&
-              shared.some((g) => g.ref === initialPrefill.spec.gateway)
+              (unconstrained ||
+                shared.some((g) => g.ref === initialPrefill.spec.gateway))
               ? initialPrefill.spec.gateway
-              : defaultGatewayFor(shared)
+              : defaultGatewayFor(shared, required)
           );
         } else {
           setParamValues(defaults);
-          setGateway(defaultGatewayFor(shared));
+          setGateway(defaultGatewayFor(shared, required));
         }
       })
       .catch((err) => {
@@ -291,6 +314,9 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     selected && !selectedReady ? workflowReadyCondition(selected) : undefined;
 
   const gatewayRefs = sharedGateways(stageAgents ?? []);
+  const gatewayUnconstrained = unconstrainedGateways(stageAgents ?? []);
+  const gatewayRequired = gatewayRequiredForStages(stageAgents ?? []);
+  const gatewayMissing = gatewayRequired && !gateway;
   const agentParams = mergeParams(stageAgents ?? []);
   const workflowParams = selected?.spec.params ?? [];
   const allParams = [...workflowParams, ...agentParams];
@@ -319,6 +345,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     selectedReady &&
     stageAgents !== null &&
     missingRequired.length === 0 &&
+    !gatewayMissing &&
     !paramsInvalid &&
     !branchInvalid &&
     !repoMissing &&
@@ -500,6 +527,8 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
 
             <GatewayPicker
               gatewayRefs={gatewayRefs}
+              unconstrained={gatewayUnconstrained}
+              required={gatewayRequired}
               gateways={gateways}
               value={gateway}
               onChange={setGateway}

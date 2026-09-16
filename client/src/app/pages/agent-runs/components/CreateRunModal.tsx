@@ -39,12 +39,14 @@ import type { Application } from "@app/api/models";
 import {
   GatewayPicker,
   defaultGatewayFor,
+  gatewayRequiredFor,
 } from "@app/pages/agent-runs/components/GatewayPicker";
 import {
   ParamValueField,
   paramHelperText,
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
+import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
 import { RunSkillsSummary } from "@app/pages/agent-runs/components/RunSkillsSummary";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
@@ -103,6 +105,19 @@ function paramsOf(run: AgentRun | undefined): Record<string, string> {
   const values: Record<string, string> = {};
   for (const p of run?.spec.params ?? []) values[p.name] = p.value;
   return values;
+}
+
+/**
+ * Selectable unless the controller has EXPLICITLY marked the agent not
+ * ready (image pull failure, missing gateway, invalid skill, ...). No
+ * status yet — controller catching up or not running — fails open, as the
+ * workflow modal does. The controller does not reject a run against a
+ * not-Ready Agent: it parks it on Succeeded=Unknown/AgentNotReady with no
+ * sandbox, so a run created now would sit Pending until someone fixed the
+ * Agent.
+ */
+function isSelectable(agent: AgentResource): boolean {
+  return readyCondition(agent.status?.conditions)?.status !== "False";
 }
 
 interface CreateRunModalProps {
@@ -187,19 +202,26 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   // Seed the agent select + param/gateway defaults once the list arrives —
   // a render-phase adjustment (not an effect) so the settled state is
   // committed in one pass. A prefill seeds its own agent (when it still
-  // exists) with the earlier run's values over the agent's defaults.
+  // exists, even when it is no longer Ready — the alert below says why) with
+  // the earlier run's values over the agent's defaults; otherwise the first
+  // Ready agent.
   const prefillAgent = prefill?.spec.agentRef;
   const seedAgent =
     !agentName && agents.length > 0
-      ? (agents.find((a) => a.metadata.name === prefillAgent) ?? agents[0])
+      ? (agents.find((a) => a.metadata.name === prefillAgent) ??
+        agents.find(isSelectable) ??
+        agents[0])
       : undefined;
   if (seedAgent?.metadata.name) {
     const isPrefillAgent = seedAgent.metadata.name === prefillAgent;
     const gatewayRefs = seedAgent.spec.gateways ?? [];
+    // An Agent that declares no gateways accepts any, so the earlier run's
+    // choice carries over as-is; a declared list must still contain it.
     const prefillGateway =
       isPrefillAgent &&
       prefill?.spec.gateway &&
-      gatewayRefs.some((g) => g.ref === prefill.spec.gateway)
+      (gatewayRefs.length === 0 ||
+        gatewayRefs.some((g) => g.ref === prefill.spec.gateway))
         ? prefill.spec.gateway
         : undefined;
     setAgentName(seedAgent.metadata.name);
@@ -207,7 +229,10 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       ...defaultsFor(seedAgent),
       ...(isPrefillAgent ? paramsOf(prefill) : {}),
     });
-    setGateway(prefillGateway ?? defaultGatewayFor(gatewayRefs));
+    setGateway(
+      prefillGateway ??
+        defaultGatewayFor(gatewayRefs, gatewayRequiredFor(seedAgent))
+    );
   }
   const prefillAgentMissing =
     !!prefillAgent &&
@@ -228,12 +253,24 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const submitting = createRunMutation.isLoading;
 
   const selected = agents.find((a) => a.metadata.name === agentName);
+  const selectedReady = selected ? isSelectable(selected) : false;
+  const notReady =
+    selected && !selectedReady
+      ? readyCondition(selected.status?.conditions)
+      : undefined;
 
   const selectAgent = (name: string) => {
     const agent = agents.find((a) => a.metadata.name === name);
     setAgentName(name);
     setParamValues(defaultsFor(agent));
-    setGateway(defaultGatewayFor(agent?.spec.gateways ?? []));
+    setGateway(
+      agent
+        ? defaultGatewayFor(
+            agent.spec.gateways ?? [],
+            gatewayRequiredFor(agent)
+          )
+        : undefined
+    );
   };
 
   const paramSources = parseSourcesAnnotation(selected);
@@ -290,9 +327,18 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       : undefined;
   const branchInvalid =
     !!application && (!targetBranch.trim() || branchBlocker !== undefined);
+  // The controller rejects a run that omits its gateway unless the Agent
+  // declares exactly one (validateGateway): none declared means any
+  // cluster Gateway is allowed but one must be named; several means pick.
+  const gatewayRefs = selected?.spec.gateways ?? [];
+  const gatewayUnconstrained = !!selected && gatewayRefs.length === 0;
+  const gatewayRequired = !!selected && gatewayRequiredFor(selected);
+  const gatewayMissing = gatewayRequired && !gateway;
   const canCreate =
     !!selected &&
+    selectedReady &&
     missingRequired.length === 0 &&
+    !gatewayMissing &&
     !paramsInvalid &&
     !missingApplication &&
     !branchInvalid &&
@@ -412,7 +458,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                   <FormSelectOption
                     key={a.metadata.name}
                     value={a.metadata.name}
-                    label={a.metadata.name ?? t("agentic.createRun.unnamed")}
+                    label={
+                      (a.metadata.name ?? t("agentic.createRun.unnamed")) +
+                      (isSelectable(a)
+                        ? ""
+                        : ` ${t("agentic.workflowRuns.notReadySuffix")}`)
+                    }
+                    isDisabled={!isSelectable(a)}
                   />
                 ))}
               </FormSelect>
@@ -426,6 +478,19 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 </FormHelperText>
               )}
             </FormGroup>
+
+            {notReady && (
+              <Alert
+                variant="warning"
+                isInline
+                title={t("agentic.createRun.agentNotReadyTitle", {
+                  name: selected?.metadata.name,
+                })}
+              >
+                {notReady.reason ?? t("agentic.createRun.notReady")}
+                {notReady.message ? ` — ${notReady.message}` : ""}
+              </Alert>
+            )}
 
             {selected && (
               <FormGroup
@@ -446,7 +511,9 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
             )}
 
             <GatewayPicker
-              gatewayRefs={selected?.spec.gateways ?? []}
+              gatewayRefs={gatewayRefs}
+              unconstrained={gatewayUnconstrained}
+              required={gatewayRequired}
               gateways={gateways}
               value={gateway}
               onChange={setGateway}

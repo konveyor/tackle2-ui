@@ -72,9 +72,11 @@ export interface AgentRunSpec {
   params?: AgentRunParam[];
   instructions?: string;
   /**
-   * Name of a Gateway from the Agent's gateways list. Optional when the
-   * Agent declares exactly one gateway (the controller defaults to it);
-   * required when it declares several (validation fails fast otherwise).
+   * Name of a Gateway. The Agent's gateways list is a presence-gated
+   * constraint (agentic-controller#215): when it names gateways this must
+   * be one of them; when it is empty any Gateway is accepted. Optional only
+   * when the Agent declares exactly one (the controller defaults to it) —
+   * required when it declares none or several (validation fails fast).
    */
   gateway?: string;
   /** Resolved supervision mode and optional budget overrides. */
@@ -160,6 +162,12 @@ export interface AgentResourceSpec {
   gitConfig?: GitConfig;
   /** Default budget limits. Mode is selected per invocation. */
   execution?: ExecutionLimits;
+  /**
+   * Presence-gated: a non-empty list restricts runs to these; an empty or
+   * omitted list constrains nothing and the Agent is still Ready, with the
+   * GatewayConfigured condition False/NoGatewaysDeclared so the UI can say
+   * a run must name its own gateway (agentic-controller#215).
+   */
   gateways?: { ref: string }[];
   skillCards?: { ref: string }[];
   skillCollections?: { ref: string }[];
