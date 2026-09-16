@@ -151,6 +151,7 @@ const AgentRunDetailPage: React.FC = () => {
               <RunConditionSummary
                 conditions={agentRun.status?.conditions}
                 phase={agentRun.status?.phase}
+                terminationData={agentRun.status?.terminationData}
               />
             </span>
           }

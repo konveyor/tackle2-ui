@@ -96,6 +96,33 @@ export interface AgentRunSpec {
  */
 export const ACP_READY_CONDITION = "ACPReady";
 
+/**
+ * What the Konveyor migration harness writes to /dev/termination-log
+ * (agentic-controller harness/cmd/migration-harness/outcome.go). The
+ * controller copies the agent container's termination message verbatim to
+ * `AgentRunStatus.terminationData` when it is a JSON object and never
+ * interprets it (ADR 0011/0018). Another harness may write a different
+ * object, so every field is optional and worth type-checking before use.
+ */
+export interface HarnessTerminationData {
+  exitCode?: number;
+  /** "succeeded" | "failed" | "limitReached" */
+  outcome?: string;
+  /** "maxTurns" | "maxCost" */
+  limitReached?: string;
+  /**
+   * The only free-text field: the ACP stop reason ("end_turn", …), or why
+   * the stage failed ("final push: …").
+   */
+  stopReason?: string;
+  usage?: {
+    turnsUsed?: number;
+    contextUsed?: number;
+    contextSize?: number;
+    cost?: number;
+  };
+}
+
 export interface AgentRunStatus {
   phase?: AgentRunPhase;
   observedGeneration?: number;
@@ -105,6 +132,7 @@ export interface AgentRunStatus {
   duration?: number;
   secretKeyRef?: { name: string };
   conditions?: Condition[];
+  terminationData?: HarnessTerminationData;
 }
 
 export interface AgentRun {
