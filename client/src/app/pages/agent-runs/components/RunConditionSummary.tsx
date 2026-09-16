@@ -2,10 +2,14 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Label, Tooltip } from "@patternfly/react-core";
 
-import type { Condition } from "@app/api/agentic/contract";
+import type {
+  Condition,
+  HarnessTerminationData,
+} from "@app/api/agentic/contract";
 
 const SUCCEEDED_CONDITION = "Succeeded";
 const READY_CONDITION = "Ready";
+const FAILED_REASON = "Failed";
 
 /**
  * Reasons that describe healthy progress rather than a problem: a run
@@ -44,6 +48,32 @@ export function explanatoryCondition(
 }
 
 /**
+ * The message to show for the explanatory condition. When a run fails
+ * (Succeeded=False, reason Failed) the controller copies the agent
+ * container's whole termination message into the condition, and the
+ * Konveyor harness writes that as JSON (agentic-controller#189) whose
+ * `stopReason` is the readable part. Every other message is shown as is:
+ * plain text (agentic-controller#143), the controller's own LimitReached
+ * text, or JSON from a harness with a different schema.
+ */
+export function explanatoryMessage(
+  condition?: Condition,
+  terminationData?: HarnessTerminationData
+): string | undefined {
+  const stopReason = terminationData?.stopReason;
+  if (
+    condition?.type === SUCCEEDED_CONDITION &&
+    condition.status === "False" &&
+    condition.reason === FAILED_REASON &&
+    typeof stopReason === "string" &&
+    stopReason.trim() !== ""
+  ) {
+    return stopReason;
+  }
+  return condition?.message;
+}
+
+/**
  * Reason + message beside a run's phase. Renders nothing while the run
  * is progressing normally, so the phase label alone is the healthy state;
  * a reason that merely repeats the phase ("Failed" next to Failed) is
@@ -52,16 +82,20 @@ export function explanatoryCondition(
 export function RunConditionSummary({
   conditions,
   phase,
+  terminationData,
 }: {
   conditions?: Condition[];
   /** The phase shown beside this summary, so the reason can skip echoing it. */
   phase?: string;
+  /** An AgentRun's `status.terminationData`, for a failed run's stop reason. */
+  terminationData?: HarnessTerminationData;
 }) {
   const { t } = useTranslation();
   const condition = explanatoryCondition(conditions);
   if (!condition) return null;
+  const message = explanatoryMessage(condition, terminationData);
   const showReason = !!condition.reason && condition.reason !== phase;
-  if (!showReason && !condition.message) return null;
+  if (!showReason && !message) return null;
   const since = condition.lastTransitionTime
     ? t("agentic.runDetail.conditionSince", {
         time: new Date(condition.lastTransitionTime).toLocaleString(),
@@ -85,9 +119,7 @@ export function RunConditionSummary({
           </Label>
         </Tooltip>
       )}
-      {condition.message && (
-        <span className="run-condition-message">{condition.message}</span>
-      )}
+      {message && <span className="run-condition-message">{message}</span>}
     </span>
   );
 }

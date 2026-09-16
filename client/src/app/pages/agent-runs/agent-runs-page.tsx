@@ -55,7 +55,10 @@ import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { CreateRunModal } from "./components/CreateRunModal";
 import { PhaseLabel } from "./components/PhaseLabel";
-import { explanatoryCondition } from "./components/RunConditionSummary";
+import {
+  explanatoryCondition,
+  explanatoryMessage,
+} from "./components/RunConditionSummary";
 
 import "./agent-runs.css";
 
@@ -108,7 +111,7 @@ const AgentRunsPage: React.FC = () => {
         application: runApplicationDisplayName(run, applicationsById),
         phase: run.status?.phase,
         reason: condition?.reason,
-        message: condition?.message,
+        message: explanatoryMessage(condition, run.status?.terminationData),
         isBroken: run.status?.phase === "Failed" || condition !== undefined,
         created: run.metadata.creationTimestamp ?? "",
         durationSeconds: run.status?.duration,
