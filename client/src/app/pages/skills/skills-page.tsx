@@ -43,7 +43,7 @@ import {
   agenticSkillCollectionsWriteScopes,
   agenticSkillsWriteScopes,
 } from "@app/scopes";
-import { formatAge } from "@app/utils/agentic";
+import { formatAge, operatorManagedActionProps } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { SkillCardDetailDrawer } from "./components/SkillCardDetailDrawer";
@@ -370,10 +370,18 @@ const SkillsPage: React.FC = () => {
                                   {
                                     title: t("actions.edit"),
                                     onClick: () => setCardModalTarget(card),
+                                    ...operatorManagedActionProps(
+                                      card,
+                                      t("agentic.operatorManagedTooltip")
+                                    ),
                                   },
                                   {
                                     title: t("actions.delete"),
                                     onClick: () => setDeleteCardTarget(name),
+                                    ...operatorManagedActionProps(
+                                      card,
+                                      t("agentic.operatorManagedTooltip")
+                                    ),
                                   },
                                 ]
                               : []),
@@ -522,11 +530,19 @@ const SkillsPage: React.FC = () => {
                                     title: t("actions.edit"),
                                     onClick: () =>
                                       setCollectionModalTarget(col),
+                                    ...operatorManagedActionProps(
+                                      col,
+                                      t("agentic.operatorManagedTooltip")
+                                    ),
                                   },
                                   {
                                     title: t("actions.delete"),
                                     onClick: () =>
                                       setDeleteCollectionTarget(name),
+                                    ...operatorManagedActionProps(
+                                      col,
+                                      t("agentic.operatorManagedTooltip")
+                                    ),
                                   },
                                 ]
                               : []),
