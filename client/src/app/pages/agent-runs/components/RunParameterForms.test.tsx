@@ -107,6 +107,34 @@ describe("structured run parameter forms", () => {
     });
   });
 
+  it("leaves ask_user off unless the creator opts in", async () => {
+    render(<CreateRunModal onClose={jest.fn()} onCreated={jest.fn()} />);
+    // A required param: the form will not submit without it.
+    fireEvent.change(
+      await screen.findByRole("spinbutton", { name: /attempts/i }),
+      { target: { value: "3" } }
+    );
+
+    const ask = screen.getByRole("checkbox", {
+      name: "agentic.createRun.askUser",
+    });
+    expect(ask).not.toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: "actions.create" }));
+    await waitFor(() =>
+      expect(mockCreateAgentRun).toHaveBeenLastCalledWith(
+        expect.objectContaining({ askUser: false })
+      )
+    );
+
+    fireEvent.click(ask);
+    fireEvent.click(screen.getByRole("button", { name: "actions.create" }));
+    await waitFor(() =>
+      expect(mockCreateAgentRun).toHaveBeenLastCalledWith(
+        expect.objectContaining({ askUser: true })
+      )
+    );
+  });
+
   it("renders typed Agent params and submits approve mode", async () => {
     render(<CreateRunModal onClose={jest.fn()} onCreated={jest.fn()} />);
 

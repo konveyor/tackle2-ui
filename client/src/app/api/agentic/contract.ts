@@ -60,6 +60,9 @@ export interface ExecutionLimits {
 
 export interface ExecutionSpec extends ExecutionLimits {
   mode?: ExecutionMode;
+  /** The agent may stop and ask attached viewers a question; an unanswered
+   * one fails the run. Opt-in (agentic-controller#242). */
+  askUser?: boolean;
 }
 
 export interface GitConfig {
@@ -519,6 +522,9 @@ export interface CreateRunInput {
   gateway?: string;
   /** Invocation supervision mode; defaults to auto in the controller. */
   mode?: ExecutionMode;
+  /** Give the agent the ask_user tool; omitted (off) unless the creator
+   * says they will be watching. */
+  askUser?: boolean;
 }
 
 export interface CreateWorkflowRunInput {

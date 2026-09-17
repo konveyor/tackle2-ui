@@ -1321,6 +1321,8 @@
       "gatewayRequiredHelper": "This agent declares several gateways, so the run must name one — the controller will not choose for you.",
       "gatewayUnconstrainedHelper": "No gateway is declared, so any Ready gateway in the cluster may be used — the run must name one; the controller will not choose for you.",
       "gatewayNoneAvailable": "No gateways exist in the cluster. A run needs one, and gateways are managed cluster-side.",
+      "askUser": "Let the agent ask me questions",
+      "askUserHelper": "The agent can stop and ask you to decide something. Stay on the run's details page: a question nobody answers within a few minutes fails the run.",
       "executionMode": "Supervision mode",
       "executionModeAuto": "Automatic — approve tool calls",
       "executionModeApprove": "Approval required — ask before tool calls",

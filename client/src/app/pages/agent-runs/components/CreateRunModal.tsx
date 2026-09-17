@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
+  Checkbox,
   Form,
   FormGroup,
   FormHelperText,
@@ -157,6 +158,9 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const [mode, setMode] = useState<ExecutionMode>(
     () => prefill?.spec.execution?.mode ?? "auto"
   );
+  // Off unless asked for, even on a re-run of a run that had it: an
+  // unanswered question fails the run, so every run opts in on its own.
+  const [askUser, setAskUser] = useState(false);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [instructions, setInstructions] = useState(
     () => prefill?.spec.instructions ?? ""
@@ -375,6 +379,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
         needsApplication && application ? targetBranch.trim() : undefined,
       gateway,
       mode,
+      askUser,
     });
   };
 
@@ -555,6 +560,16 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 {t("agentic.createRun.executionModeApproveWarningBody")}
               </Alert>
             )}
+
+            <FormGroup fieldId="create-run-ask-user">
+              <Checkbox
+                id="create-run-ask-user"
+                label={t("agentic.createRun.askUser")}
+                description={t("agentic.createRun.askUserHelper")}
+                isChecked={askUser}
+                onChange={(_e, checked) => setAskUser(checked)}
+              />
+            </FormGroup>
 
             {!fixedApplication && needsApplication && applicationsError && (
               <Alert

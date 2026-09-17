@@ -32,6 +32,20 @@ describe("agentic run request serialization", () => {
     });
   });
 
+  it("sends askUser only when the creator opted in", async () => {
+    await createAgentRun({ agentRef: "migrate", mode: "auto", askUser: true });
+    expect(mockedAxios.post).toHaveBeenLastCalledWith(expect.any(String), {
+      metadata: { generateName: "ui-" },
+      spec: { agentRef: "migrate", execution: { mode: "auto", askUser: true } },
+    });
+
+    await createAgentRun({ agentRef: "migrate", mode: "auto", askUser: false });
+    expect(mockedAxios.post).toHaveBeenLastCalledWith(expect.any(String), {
+      metadata: { generateName: "ui-" },
+      spec: { agentRef: "migrate", execution: { mode: "auto" } },
+    });
+  });
+
   it("preserves workflow run parameter names for controller-side routing", async () => {
     await createWorkflowRun({
       workflowRef: "migrate-app",
