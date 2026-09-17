@@ -36,7 +36,11 @@ import {
 } from "@app/pages/agent-runs/components/ReadyLabel";
 import { useDeleteAgentMutation, useFetchAgents } from "@app/queries/agents";
 import { agenticAgentsWriteScopes } from "@app/scopes";
-import { formatAge } from "@app/utils/agentic";
+import {
+  formatAge,
+  isOperatorManaged,
+  operatorManagedActionProps,
+} from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { AgentDesignerModal } from "./components/AgentDesignerModal";
@@ -152,6 +156,14 @@ const AgentsPage: React.FC = () => {
                         `${t("terms.skillCollection").toLowerCase()}: ${s.ref}`
                     ) ?? []),
                   ];
+                  // The operator owns its curated defaults: offer a
+                  // read-only view of one instead of an edit that reverts,
+                  // and no delete at all (it would be re-created).
+                  const managed = isOperatorManaged(agent);
+                  const deleteProps = operatorManagedActionProps(
+                    agent,
+                    t("agentic.operatorManagedTooltip")
+                  );
                   return (
                     <Tr key={name}>
                       <Td dataLabel={t("terms.name")}>{name}</Td>
@@ -191,12 +203,15 @@ const AgentsPage: React.FC = () => {
                           <ActionsColumn
                             items={[
                               {
-                                title: t("actions.edit"),
+                                title: managed
+                                  ? t("actions.view")
+                                  : t("actions.edit"),
                                 onClick: () => setDesignerTarget(agent),
                               },
                               {
                                 title: t("actions.delete"),
                                 onClick: () => setDeleteTarget(name),
+                                ...deleteProps,
                               },
                             ]}
                           />
