@@ -1353,6 +1353,8 @@
       "params": "Params",
       "ready": "Ready",
       "editAgentTitle": "Edit agent: {{name}}",
+      "viewAgentTitle": "Agent: {{name}}",
+      "operatorManagedTitle": "Managed by the operator",
       "nameHelper": "DNS-1123 subdomain: lowercase alphanumeric, hyphens, dots",
       "customImagePlaceholder": "quay.io/org/image:tag",
       "prompt": "Prompt",
@@ -1373,6 +1375,7 @@
       "paramFieldAriaLabel": "Parameter {{row}} {{field}}",
       "removeParameterNamed": "Remove parameter {{name}}"
     },
+    "operatorManagedTooltip": "This default is managed by the operator, which reverts any change. Create your own copy to customize it.",
     "emptyStateSeedHint": "Default agents, skills, and workflows are seeded on the cluster by an administrator.",
     "workflows": {
       "createWorkflow": "Create workflow",
@@ -1382,6 +1385,8 @@
       "ready": "Ready",
       "zeroStages": "0 stages",
       "editWorkflowTitle": "Edit workflow: {{name}}",
+      "viewWorkflowTitle": "Workflow: {{name}}",
+      "operatorManagedTitle": "Managed by the operator",
       "createFailed": "Create failed",
       "updateFailed": "Update failed",
       "nameHelper": "Lowercase alphanumeric, dots, and hyphens (e.g. my-migration-workflow)",

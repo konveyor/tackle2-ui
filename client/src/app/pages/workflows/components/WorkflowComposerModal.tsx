@@ -45,6 +45,7 @@ import {
   useCreateWorkflowMutation,
   useUpdateWorkflowMutation,
 } from "@app/queries/workflows";
+import { isOperatorManaged } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface StageFormData {
@@ -111,6 +112,10 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const isEdit = !!existing;
+  // The operator re-applies its curated defaults on every reconcile, so a
+  // save here would silently revert. Open those read-only: the composer is
+  // the only place to read a workflow's guide and stage instructions.
+  const isReadOnly = !!existing && isOperatorManaged(existing);
   const { agents } = useFetchAgents();
 
   const [name, setName] = useState(existing?.metadata.name ?? "");
@@ -229,12 +234,24 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
     >
       <ModalHeader
         title={
-          isEdit
-            ? t("agentic.workflows.editWorkflowTitle", { name })
-            : t("agentic.workflows.createWorkflow")
+          isReadOnly
+            ? t("agentic.workflows.viewWorkflowTitle", { name })
+            : isEdit
+              ? t("agentic.workflows.editWorkflowTitle", { name })
+              : t("agentic.workflows.createWorkflow")
         }
       />
       <ModalBody>
+        {isReadOnly && (
+          <Alert
+            variant="info"
+            isInline
+            title={t("agentic.workflows.operatorManagedTitle")}
+            style={{ marginBottom: "1rem" }}
+          >
+            {t("agentic.operatorManagedTooltip")}
+          </Alert>
+        )}
         {submitError && (
           <Alert
             variant="danger"
@@ -283,6 +300,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
             <TextArea
               id="pb-guide"
               value={guide}
+              isDisabled={isReadOnly}
               onChange={(_e, v) => setGuide(v)}
               rows={3}
               resizeOrientation="vertical"
@@ -333,7 +351,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
                       <Button
                         variant="plain"
                         aria-label={t("agentic.workflows.moveStageUp")}
-                        isDisabled={index === 0}
+                        isDisabled={isReadOnly || index === 0}
                         onClick={() => moveStage(index, -1)}
                         size="sm"
                       >
@@ -342,7 +360,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
                       <Button
                         variant="plain"
                         aria-label={t("agentic.workflows.moveStageDown")}
-                        isDisabled={index === stages.length - 1}
+                        isDisabled={isReadOnly || index === stages.length - 1}
                         onClick={() => moveStage(index, 1)}
                         size="sm"
                       >
@@ -352,6 +370,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
                         variant="plain"
                         aria-label={t("agentic.workflows.removeStage")}
                         isDanger
+                        isDisabled={isReadOnly}
                         onClick={() => removeStage(stage.key)}
                         size="sm"
                       >
@@ -374,6 +393,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
                     id={`stage-name-${stage.key}`}
                     isRequired
                     value={stage.name}
+                    isDisabled={isReadOnly}
                     onChange={(_e, v) => updateStage(stage.key, { name: v })}
                     validated={
                       stage.name.length === 0
@@ -402,6 +422,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
                   <FormSelect
                     id={`stage-agent-${stage.key}`}
                     value={resolveAgentRef(stage.agentRef)}
+                    isDisabled={isReadOnly}
                     onChange={(_e, v) =>
                       updateStage(stage.key, { agentRef: v })
                     }
@@ -432,6 +453,7 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
                   <TextArea
                     id={`stage-instructions-${stage.key}`}
                     value={stage.instructions}
+                    isDisabled={isReadOnly}
                     onChange={(_e, v) =>
                       updateStage(stage.key, { instructions: v })
                     }
@@ -444,22 +466,29 @@ export const WorkflowComposerModal: React.FC<WorkflowComposerModalProps> = ({
             </Card>
           ))}
 
-          <Button variant="link" icon={<PlusCircleIcon />} onClick={addStage}>
+          <Button
+            variant="link"
+            icon={<PlusCircleIcon />}
+            isDisabled={isReadOnly}
+            onClick={addStage}
+          >
             {t("agentic.workflows.addStage")}
           </Button>
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button
-          variant="primary"
-          isDisabled={!canSubmit}
-          isLoading={submitting}
-          onClick={submit}
-        >
-          {isEdit ? t("actions.save") : t("actions.create")}
-        </Button>
+        {!isReadOnly && (
+          <Button
+            variant="primary"
+            isDisabled={!canSubmit}
+            isLoading={submitting}
+            onClick={submit}
+          >
+            {isEdit ? t("actions.save") : t("actions.create")}
+          </Button>
+        )}
         <Button variant="link" isDisabled={submitting} onClick={onClose}>
-          {t("actions.cancel")}
+          {isReadOnly ? t("actions.close") : t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

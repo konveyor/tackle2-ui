@@ -191,6 +191,15 @@ export interface AgentResource {
  */
 export const MANAGED_LABEL = "konveyor.io/managed";
 
+/**
+ * Marker the operator's curated defaults carry (set at the source in
+ * agentic-controller config/defaults/). The operator re-applies those objects
+ * with a forced server-side apply on every reconcile and prunes by this
+ * label, so an edit made here reverts and a delete is re-created.
+ */
+export const MANAGED_BY_LABEL = "app.kubernetes.io/managed-by";
+export const OPERATOR_DEFAULTS_MANAGER = "agentic-controller-defaults";
+
 /** Stamped on runs at create so per-application views are a label selector. */
 export const APPLICATION_LABEL = "konveyor.io/application";
 
