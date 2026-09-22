@@ -84,6 +84,13 @@ jest.mock("@app/queries/agentic-catalog", () => ({
   useFetchGateways: () => ({ gateways: [] }),
 }));
 
+// The create-run modal resolves the credential the run would push with.
+// These agents declare no application, so nothing renders from it — the mock
+// only keeps useQuery out of a provider-less render.
+jest.mock("@app/queries/identities", () => ({
+  useFetchIdentities: () => ({ identities: [], isSuccess: true }),
+}));
+
 jest.mock("@app/queries/skills", () => ({
   useFetchSkillCards: () => ({
     skillCards: [],
