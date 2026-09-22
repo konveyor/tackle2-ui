@@ -7,6 +7,7 @@ import type {
   AgentRun,
   AgentWorkflowRun,
   AgentWorkflowRunPhase,
+  ExecutionSpec,
 } from "@app/api/agentic/contract";
 
 import WorkflowRunDetailPage from "./workflow-run-detail-page";
@@ -47,7 +48,8 @@ jest.mock("@app/pages/agent-runs/components/ChatPanel", () => ({
 const workflowRun = (
   phase: AgentWorkflowRunPhase,
   stagePhase: "Pending" | "Running" | "Succeeded" | "Failed",
-  agentRunName?: string
+  agentRunName?: string,
+  stageExecution?: ExecutionSpec
 ): AgentWorkflowRun => ({
   metadata: {
     name: "workflow-run",
@@ -60,7 +62,14 @@ const workflowRun = (
   status: {
     phase,
     currentStage: "plan",
-    stages: [{ name: "plan", phase: stagePhase, agentRunName }],
+    stages: [
+      {
+        name: "plan",
+        phase: stagePhase,
+        agentRunName,
+        execution: stageExecution,
+      },
+    ],
   },
 });
 
@@ -97,8 +106,12 @@ describe("workflow live-stage viewer", () => {
     );
 
     expect(mockUseFetchAgentRun).toHaveBeenCalledWith("ui-plan");
+    // Auto mode (no `execution`): a neutral note, never the approval warning.
     expect(
-      screen.getByText("agentic.workflowRuns.approvalViewerTitle")
+      screen.queryByText("agentic.workflowRuns.approvalViewerTitle")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("agentic.workflowRuns.autoModeViewerNote")
     ).toBeInTheDocument();
     expect(screen.getByTestId("chat-panel")).toBeInTheDocument();
     expect(mockChatPanel).toHaveBeenCalledWith(
@@ -109,6 +122,60 @@ describe("workflow live-stage viewer", () => {
         targetBranch: "migration/demo",
       })
     );
+  });
+
+  it("warns about approvals when the live AgentRun is in approve mode", () => {
+    mockUseFetchWorkflowRun.mockReturnValue({
+      workflowRun: workflowRun("Running", "Running", "ui-plan"),
+      isLoading: false,
+      fetchError: null,
+    });
+    mockUseFetchAgentRun.mockReturnValue({
+      agentRun: {
+        ...agentRun,
+        spec: { agentRef: "planner", execution: { mode: "approve" } },
+      },
+      isLoading: false,
+      fetchError: null,
+    });
+
+    render(
+      <MemoryRouter>
+        <WorkflowRunDetailPage />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByText("agentic.workflowRuns.approvalViewerTitle")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("agentic.workflowRuns.autoModeViewerNote")
+    ).not.toBeInTheDocument();
+  });
+
+  it("warns from the stage's own execution before the AgentRun loads", () => {
+    mockUseFetchWorkflowRun.mockReturnValue({
+      workflowRun: workflowRun("Running", "Running", "ui-plan", {
+        mode: "approve",
+      }),
+      isLoading: false,
+      fetchError: null,
+    });
+    mockUseFetchAgentRun.mockReturnValue({
+      agentRun: undefined,
+      isLoading: true,
+      fetchError: null,
+    });
+
+    render(
+      <MemoryRouter>
+        <WorkflowRunDetailPage />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByText("agentic.workflowRuns.approvalViewerTitle")
+    ).toBeInTheDocument();
   });
 
   it("does not mount a viewer after the workflow finishes", () => {
