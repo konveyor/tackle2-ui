@@ -239,8 +239,6 @@ describe(["@ci"], "UI Sanity Tests", () => {
       application.selectApplicationRow();
       cy.url().then((currentUrl) => {
         const id = getApplicationID(currentUrl);
-        cy.log(`Current URL: ${currentUrl}`);
-        cy.log(`Extracted ID: ${id}`);
         if (id == null || id <= 0) {
           throw new Error(
             `Failed to extract a valid application ID from URL: ${currentUrl}`
@@ -248,12 +246,14 @@ describe(["@ci"], "UI Sanity Tests", () => {
         }
         seedAnalysisData(id);
       });
+
       application.verifyEffort(
         this.analysisData["imported_data_for_ci_test"]["effort"]
       );
       application.validateIssues(
         this.analysisData["imported_data_for_ci_test"]["issues"]
       );
+
       application.delete();
     });
 
