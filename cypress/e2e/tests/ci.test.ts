@@ -194,20 +194,21 @@ describe(["@ci"], "UI Sanity Tests", () => {
 
   it("Application assessment, review, analyze and validate efforts and issues", function () {
     // Intercept all hub API calls to track authentication and 401 errors
+    // Using console.log instead of cy.log to avoid promise callback issues
     cy.intercept("/hub/**", (req) => {
-      cy.log(`🔍 API REQUEST: ${req.method} ${req.url}`);
-      cy.log(
-        `🔍 AUTH HEADER: ${req.headers.authorization ? "Present (" + req.headers.authorization.substring(0, 20) + "...)" : "MISSING!"}`
+      console.log(`🔍 API REQUEST: ${req.method} ${req.url}`);
+      console.log(
+        `🔍 AUTH HEADER: ${req.headers.authorization ? "Present" : "MISSING!"}`
       );
 
       req.continue((res) => {
         if (res.statusCode === 401) {
-          cy.log(`❌ 401 UNAUTHORIZED: ${req.method} ${req.url}`);
-          cy.log(`❌ Response: ${JSON.stringify(res.body).substring(0, 200)}`);
+          console.log(`❌ 401 UNAUTHORIZED: ${req.method} ${req.url}`);
+          console.log(`❌ Response:`, res.body);
         } else if (res.statusCode >= 400) {
-          cy.log(`⚠️ ERROR ${res.statusCode}: ${req.method} ${req.url}`);
+          console.log(`⚠️ ERROR ${res.statusCode}: ${req.method} ${req.url}`);
         } else {
-          cy.log(`✅ SUCCESS ${res.statusCode}: ${req.method} ${req.url}`);
+          console.log(`✅ SUCCESS ${res.statusCode}: ${req.method} ${req.url}`);
         }
       });
     }).as("hubApiCalls");

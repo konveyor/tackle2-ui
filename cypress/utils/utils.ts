@@ -2127,10 +2127,15 @@ export function seedAnalysisData(applicationId: number): void {
   const password = Cypress.env("pass");
 
   cy.log(
-    `seedAnalysisData: hostname=${hostname}, username=${username}, applicationId=${applicationId}`
+    `🔍 seedAnalysisData START: hostname=${hostname}, username=${username}, applicationId=${applicationId}`
   );
 
   const command = `cd fixtures && chmod +x analysis.sh && ./analysis.sh ${applicationId}`;
+  cy.log(`🔍 seedAnalysisData: Executing command: ${command}`);
+  cy.log(
+    `🔍 seedAnalysisData: Environment - HOST=${hostname}, HUB_USER=${username}`
+  );
+
   cy.exec(command, {
     env: {
       HOST: String(hostname),
@@ -2141,16 +2146,22 @@ export function seedAnalysisData(applicationId: number): void {
     failOnNonZeroExit: false,
   }).then((result) => {
     // Log full details for debugging
-    cy.log(`Exit code: ${result.exitCode ?? "n/a"}`);
-    cy.log(`stderr: ${result.stderr ?? "n/a"}`);
-    cy.log(`stdout: ${result.stdout ?? "n/a"}`);
+    cy.log(`🔍 seedAnalysisData: Exit code: ${result.exitCode ?? "n/a"}`);
+    cy.log(`🔍 seedAnalysisData: stderr: ${result.stderr ?? "n/a"}`);
+    cy.log(
+      `🔍 seedAnalysisData: stdout (first 500 chars): ${(result.stdout ?? "n/a").substring(0, 500)}`
+    );
 
     // Check for success first - the script outputs "Analysis: created." on success
     const isSuccess = result.stdout.includes("Analysis: created.");
+    cy.log(
+      `🔍 seedAnalysisData: isSuccess=${isSuccess}, exitCode=${result.exitCode}`
+    );
+
     if (!isSuccess || result.exitCode !== 0) {
       // Provide detailed error context for debugging
       const errorContext = [
-        `seedAnalysisData failed for applicationId: ${applicationId}`,
+        `❌ seedAnalysisData FAILED for applicationId: ${applicationId}`,
         `Exit code: ${result.exitCode}`,
         `stdout: ${result.stdout}`,
         `stderr: ${result.stderr}`,
@@ -2158,8 +2169,13 @@ export function seedAnalysisData(applicationId: number): void {
         `username: ${username}`,
       ].join("\n");
 
+      cy.log(errorContext);
       throw new Error(errorContext);
     }
+
+    cy.log(
+      `✅ seedAnalysisData SUCCESS: Analysis created for application ${applicationId}`
+    );
 
     expect(result.exitCode, "analysis.sh should exit with code 0").to.eq(0);
     expect(result.stderr, "analysis.sh should not output any errors").to.eq("");
