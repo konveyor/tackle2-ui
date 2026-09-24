@@ -40,6 +40,7 @@ jobs:
       install_konveyor_version: ${{ steps.params.outputs.install_konveyor_version }}
       build_checkout_ref: ${{ steps.params.outputs.build_checkout_ref }}
       test_from_checkout_ref: ${{ steps.params.outputs.test_from_checkout_ref }}
+      e2e_test_tags: ${{ steps.params.outputs.e2e_test_tags }}
     steps:
       - name: Determine branch-specific parameters
         id: params
@@ -77,6 +78,23 @@ jobs:
           echo "bundle_image=$BUNDLE" >> "$GITHUB_OUTPUT"
           echo "install_konveyor_version=$TARGET" >> "$GITHUB_OUTPUT"
           echo "build_checkout_ref=$CHECKOUT" >> "$GITHUB_OUTPUT"
+          # The agentic leg needs actions from konveyor/operator, checked out
+          # at $TARGET. They are on main and from release-0.11 on, so older
+          # release branches would run a leg that can never resolve them.
+          TAGS='"@tier0","@ci,@tier2_A","@tier2_B","@tier3_A","@tier3_B","@tier3_C","@tier3_D","@tier3_E","@tier3_F"'
+          AGENTIC=false
+          if [[ "$TARGET" == "main" ]]; then
+            AGENTIC=true
+          elif [[ "$TARGET" == release-* ]]; then
+            OLDEST=$(printf '%s\n%s\n' "${TARGET#release-}" "0.11" | sort -V | head -1)
+            if [[ "$OLDEST" == "0.11" ]]; then
+              AGENTIC=true
+            fi
+          fi
+          if [[ "$AGENTIC" == "true" ]]; then
+            TAGS="\"@agentic\",$TAGS"
+          fi
+          echo "e2e_test_tags=[$TAGS]" >> "$GITHUB_OUTPUT"
           echo "test_from_checkout_ref=$TEST_FROM_CHECKOUT_REF" >> "$GITHUB_OUTPUT"
 
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
@@ -121,19 +139,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_tags:
-          - "@tier0"
-          - "@ci,@tier2_A"
-          - "@tier2_B"
-          - "@tier3_A"
-          - "@tier3_B"
-          - "@tier3_C"
-          - "@tier3_D"
-          - "@tier3_E"
-          - "@tier3_F"
+        # From determine-branch-params, which adds the @agentic leg on main
+        # only. It runs on every PR there, so a broken agentic flow fails the
+        # PR, as its own leg rather than a tag bolted onto an existing tier -
+        # the extra setup stays confined and a failure points at the agentic
+        # console rather than at whichever tier was carrying it.
+        test_tags: ${{ fromJSON(needs.determine-branch-params.outputs.e2e_test_tags) }}
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}
+      agentic: ${{ matrix.test_tags == '@agentic' }}
       feature_auth_required: false
       install_konveyor_version: ${{ needs.determine-branch-params.outputs.install_konveyor_version }}
       bundle_image: ${{ needs.determine-branch-params.outputs.bundle_image }}
