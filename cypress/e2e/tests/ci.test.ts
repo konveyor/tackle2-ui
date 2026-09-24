@@ -193,81 +193,17 @@ describe(["@ci"], "UI Sanity Tests", () => {
   });
 
   it("Application assessment, review, analyze and validate efforts and issues", function () {
-    // Intercept all hub API calls to track authentication and 401 errors
-    // Using console.log instead of cy.log to avoid promise callback issues
-    cy.intercept("/hub/**", (req) => {
-      console.log(`🔍 API REQUEST: ${req.method} ${req.url}`);
-      console.log(
-        `🔍 AUTH HEADER: ${req.headers.authorization ? "Present" : "MISSING!"}`
-      );
-
-      req.continue((res) => {
-        if (res.statusCode === 401) {
-          console.log(`❌ 401 UNAUTHORIZED: ${req.method} ${req.url}`);
-          console.log(`❌ Response:`, res.body);
-        } else if (res.statusCode >= 400) {
-          console.log(`⚠️ ERROR ${res.statusCode}: ${req.method} ${req.url}`);
-        } else {
-          console.log(`✅ SUCCESS ${res.statusCode}: ${req.method} ${req.url}`);
-        }
-      });
-    }).as("hubApiCalls");
-
-    // Handle transient 401 errors during analysis polling in resource-constrained environments
-    // These occur in Konflux containers but don't affect the actual test functionality
-    let caught401 = false;
-    const last401Url = "";
-    cy.on("uncaught:exception", (err) => {
-      if (
-        err.message.includes("401") ||
-        err.message.includes("Request failed with status code 401")
-      ) {
-        cy.log(
-          "⚠️ Caught 401 error during analysis - this is expected in Konflux"
-        );
-        cy.log(`⚠️ Error details: ${err.message}`);
-        cy.log(`⚠️ Stack: ${err.stack?.substring(0, 500)}`);
-        caught401 = true;
-        return false; // Don't fail the test
-      }
-      return true; // Let other errors fail normally
-    });
-
-    // Check authentication state before starting
-    cy.log("🔍 DEBUG: Checking authentication state");
-    cy.getCookie("keycloak-session").then((cookie) => {
-      cy.log(
-        `🔍 DEBUG: Keycloak session cookie: ${cookie ? "Present (expires: " + new Date(cookie.expiry * 1000).toISOString() + ")" : "MISSING!"}`
-      );
-    });
-
-    getAuthHeaders().then((headers) => {
-      cy.log(
-        `🔍 DEBUG: Auth headers obtained: ${JSON.stringify(Object.keys(headers))}`
-      );
-      if (headers.Authorization || headers.authorization) {
-        const authHeader = headers.Authorization || headers.authorization;
-        cy.log(
-          `🔍 DEBUG: Authorization header type: ${authHeader.substring(0, 20)}...`
-        );
-      }
-    });
-
     AssessmentQuestionnaire.deleteAllQuestionnaires();
     AssessmentQuestionnaire.enable(legacyPathfinder);
 
     // Create stakeholder via API — it's only needed as assessment input
     stakeholders = [];
     getAuthHeaders().then((headers) => {
-      cy.log(`🔍 DEBUG: Creating stakeholder with auth headers`);
       Stakeholders.createViaApi(
         data.getEmail(),
         data.getFullName(),
         headers
-      ).then((s) => {
-        cy.log(`🔍 DEBUG: Stakeholder created successfully`);
-        stakeholders.push(s);
-      });
+      ).then((s) => stakeholders.push(s));
     });
 
     cy.then(() => {
@@ -292,56 +228,31 @@ describe(["@ci"], "UI Sanity Tests", () => {
       // TO DO - Uncomment once bug https://issues.redhat.com/browse/MTA-5794 is fixed.
       // application.validateReviewFields();
 
-      cy.log("🔍 DEBUG: Starting analysis - checking auth before analyze()");
-      cy.getCookie("keycloak-session").then((cookie) => {
-        cy.log(
-          `🔍 DEBUG: Auth cookie before analyze: ${cookie ? "Valid (expires: " + new Date(cookie.expiry * 1000).toISOString() + ")" : "EXPIRED/MISSING!"}`
-        );
-      });
-
       application.analyze();
-      cy.log("🔍 DEBUG: Analysis submitted, waiting for alert");
-
       checkSuccessAlert(
         infoAlertMessage,
         `Submitted for analysis`,
         false,
         CI_ALERT_TIMEOUT
       );
-      cy.log("🔍 DEBUG: Analysis submission alert confirmed");
 
       application.selectApplicationRow();
       cy.url().then((currentUrl) => {
         const id = getApplicationID(currentUrl);
-        cy.log(`🔍 DEBUG: Current URL: ${currentUrl}`);
-        cy.log(`🔍 DEBUG: Extracted Application ID: ${id}`);
         if (id == null || id <= 0) {
           throw new Error(
             `Failed to extract a valid application ID from URL: ${currentUrl}`
           );
         }
-        cy.log(`🔍 DEBUG: Calling seedAnalysisData for application ID: ${id}`);
         seedAnalysisData(id);
-        cy.log(`✅ DEBUG: seedAnalysisData completed for ID: ${id}`);
       });
 
-      cy.log(`🔍 DEBUG: Starting effort verification`);
-      cy.log(
-        `🔍 DEBUG: Expected effort: ${this.analysisData["imported_data_for_ci_test"]["effort"]}`
-      );
       application.verifyEffort(
         this.analysisData["imported_data_for_ci_test"]["effort"]
-      );
-      cy.log(`✅ DEBUG: Effort verification completed`);
-
-      cy.log(`🔍 DEBUG: Starting issue validation`);
-      cy.log(
-        `🔍 DEBUG: Expected issues count: ${this.analysisData["imported_data_for_ci_test"]["issues"]?.length || 0}`
       );
       application.validateIssues(
         this.analysisData["imported_data_for_ci_test"]["issues"]
       );
-      cy.log(`✅ DEBUG: Issue validation completed`);
 
       application.delete();
     });
