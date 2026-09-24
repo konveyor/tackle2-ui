@@ -194,18 +194,20 @@ describe(["@ci"], "UI Sanity Tests", () => {
 
   it("Application assessment, review, analyze and validate efforts and issues", function () {
     // Handle transient 401 errors during analysis polling in resource-constrained environments
+    // These occur in Konflux containers but don't affect the actual test functionality
+    let caught401 = false;
     cy.on("uncaught:exception", (err) => {
-      // Don't fail test on 401 errors - these can happen in Konflux containers
-      // during analysis task polling due to timing/resource constraints
       if (
         err.message.includes("401") ||
         err.message.includes("Request failed with status code 401")
       ) {
-        cy.log("Caught 401 error during analysis - continuing test");
-        return false;
+        cy.log(
+          "⚠️ Caught 401 error during analysis - this is expected in Konflux"
+        );
+        caught401 = true;
+        return false; // Don't fail the test
       }
-      // Let other errors fail the test
-      return true;
+      return true; // Let other errors fail normally
     });
 
     AssessmentQuestionnaire.deleteAllQuestionnaires();
@@ -254,21 +256,36 @@ describe(["@ci"], "UI Sanity Tests", () => {
       application.selectApplicationRow();
       cy.url().then((currentUrl) => {
         const id = getApplicationID(currentUrl);
-        cy.log(`Current URL: ${currentUrl}`);
-        cy.log(`Extracted ID: ${id}`);
+        cy.log(`🔍 DEBUG: Current URL: ${currentUrl}`);
+        cy.log(`🔍 DEBUG: Extracted Application ID: ${id}`);
         if (id == null || id <= 0) {
           throw new Error(
             `Failed to extract a valid application ID from URL: ${currentUrl}`
           );
         }
+        cy.log(`🔍 DEBUG: Calling seedAnalysisData for application ID: ${id}`);
         seedAnalysisData(id);
+        cy.log(`✅ DEBUG: seedAnalysisData completed for ID: ${id}`);
       });
+
+      cy.log(`🔍 DEBUG: Starting effort verification`);
+      cy.log(
+        `🔍 DEBUG: Expected effort: ${this.analysisData["imported_data_for_ci_test"]["effort"]}`
+      );
       application.verifyEffort(
         this.analysisData["imported_data_for_ci_test"]["effort"]
+      );
+      cy.log(`✅ DEBUG: Effort verification completed`);
+
+      cy.log(`🔍 DEBUG: Starting issue validation`);
+      cy.log(
+        `🔍 DEBUG: Expected issues count: ${this.analysisData["imported_data_for_ci_test"]["issues"]?.length || 0}`
       );
       application.validateIssues(
         this.analysisData["imported_data_for_ci_test"]["issues"]
       );
+      cy.log(`✅ DEBUG: Issue validation completed`);
+
       application.delete();
     });
 
