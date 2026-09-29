@@ -5,6 +5,8 @@ on:
     branches:
       - "main"
       - "release-*"
+      # TEMPORARY: Trigger on feature branch for testing
+      - "update_operator_versionfor_release010"
 
   pull_request:
     paths-ignore:
@@ -64,31 +66,18 @@ jobs:
           #       from different refs, this var will need to be updated.
           TEST_FROM_CHECKOUT_REF="${CHECKOUT}"
 
-          # Map target branch to operator version and bundle image tag
-          # For release branches, use the corresponding release tag instead of the branch
-          # to get proper versioning instead of development placeholder (99.0.0)
+          # Map target branch to image tag (main -> latest, release-X.Y -> release-X.Y)
           if [[ "$TARGET" == "main" ]]; then
             IMAGE_TAG="latest"
-            OPERATOR_VERSION="main"
-          elif [[ "$TARGET" == "release-0.10" ]]; then
-            # MTA 8.2 corresponds to operator v0.10.0-beta.1
-            IMAGE_TAG="v0.10.0-beta.1"
-            OPERATOR_VERSION="v0.10.0-beta.1"
-          elif [[ "$TARGET" == "release-0.11" ]]; then
-            # MTA 8.3 corresponds to operator v0.11.0-beta.1
-            IMAGE_TAG="v0.11.0-beta.1"
-            OPERATOR_VERSION="v0.11.0-beta.1"
           else
-            # For other release branches, use the branch name
             IMAGE_TAG="$TARGET"
-            OPERATOR_VERSION="$TARGET"
           fi
 
           BUNDLE="quay.io/konveyor/tackle2-operator-bundle:${IMAGE_TAG}"
 
           echo "target_branch=$TARGET" >> "$GITHUB_OUTPUT"
           echo "bundle_image=$BUNDLE" >> "$GITHUB_OUTPUT"
-          echo "install_konveyor_version=$OPERATOR_VERSION" >> "$GITHUB_OUTPUT"
+          echo "install_konveyor_version=$TARGET" >> "$GITHUB_OUTPUT"
           echo "build_checkout_ref=$CHECKOUT" >> "$GITHUB_OUTPUT"
           echo "test_from_checkout_ref=$TEST_FROM_CHECKOUT_REF" >> "$GITHUB_OUTPUT"
 
@@ -97,7 +86,7 @@ jobs:
             - target_branch: \`$TARGET\`
             - build_checkout_ref: \`$CHECKOUT\`
             - test_from_checkout_ref: \`$TEST_FROM_CHECKOUT_REF\`
-            - install_konveyor_version: \`$OPERATOR_VERSION\`
+            - install_konveyor_version: \`$TARGET\`
             - bundle_image: \`$BUNDLE\`
           EOF
 
@@ -135,15 +124,18 @@ jobs:
       fail-fast: false
       matrix:
         test_tags:
-          - "@tier0"
-          - "@ci,@tier2_A"
-          - "@tier2_B"
-          - "@tier3_A"
-          - "@tier3_B"
-          - "@tier3_C"
-          - "@tier3_D"
-          - "@tier3_E"
-          - "@tier3_F"
+          # TEMPORARY: Only run version check test to verify MTA version
+          # TODO: Revert this to run all tiers after version is confirmed
+          - "@version-check"
+          # - "@tier0"
+          # - "@ci,@tier2_A"
+          # - "@tier2_B"
+          # - "@tier3_A"
+          # - "@tier3_B"
+          # - "@tier3_C"
+          # - "@tier3_D"
+          # - "@tier3_E"
+          # - "@tier3_F"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}
