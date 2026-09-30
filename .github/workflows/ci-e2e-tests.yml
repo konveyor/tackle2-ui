@@ -64,18 +64,28 @@ jobs:
           #       from different refs, this var will need to be updated.
           TEST_FROM_CHECKOUT_REF="${CHECKOUT}"
 
-          # Map target branch to image tag (main -> latest, release-X.Y -> release-X.Y)
+          # Map target branch to operator version and bundle image tag
+          # For release branches, use the corresponding release tag instead of the branch
           if [[ "$TARGET" == "main" ]]; then
             IMAGE_TAG="latest"
+            OPERATOR_VERSION="main"
+          elif [[ "$TARGET" == "release-0.10" ]]; then
+            IMAGE_TAG="v0.10.0-beta.1"
+            OPERATOR_VERSION="v0.10.0-beta.1"
+          elif [[ "$TARGET" == "release-0.11" ]]; then
+            IMAGE_TAG="v0.11.0-beta.1"
+            OPERATOR_VERSION="v0.11.0-beta.1"
           else
+            # For other release branches, use the branch name
             IMAGE_TAG="$TARGET"
+            OPERATOR_VERSION="$TARGET"
           fi
 
           BUNDLE="quay.io/konveyor/tackle2-operator-bundle:${IMAGE_TAG}"
 
           echo "target_branch=$TARGET" >> "$GITHUB_OUTPUT"
           echo "bundle_image=$BUNDLE" >> "$GITHUB_OUTPUT"
-          echo "install_konveyor_version=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "install_konveyor_version=$OPERATOR_VERSION" >> "$GITHUB_OUTPUT"
           echo "build_checkout_ref=$CHECKOUT" >> "$GITHUB_OUTPUT"
           echo "test_from_checkout_ref=$TEST_FROM_CHECKOUT_REF" >> "$GITHUB_OUTPUT"
 
@@ -84,7 +94,7 @@ jobs:
             - target_branch: \`$TARGET\`
             - build_checkout_ref: \`$CHECKOUT\`
             - test_from_checkout_ref: \`$TEST_FROM_CHECKOUT_REF\`
-            - install_konveyor_version: \`$TARGET\`
+            - install_konveyor_version: \`$OPERATOR_VERSION\`
             - bundle_image: \`$BUNDLE\`
           EOF
 
