@@ -5,8 +5,6 @@ on:
     branches:
       - "main"
       - "release-*"
-      # TEMPORARY: Trigger on feature branch for testing
-      - "update_operator_versionfor_release010"
 
   pull_request:
     paths-ignore:
@@ -68,7 +66,6 @@ jobs:
 
           # Map target branch to operator version and bundle image tag
           # For release branches, use the corresponding release tag instead of the branch
-          # to get proper versioning instead of development placeholder (99.0.0)
           if [[ "$TARGET" == "main" ]]; then
             IMAGE_TAG="latest"
             OPERATOR_VERSION="main"
@@ -137,17 +134,15 @@ jobs:
       fail-fast: false
       matrix:
         test_tags:
-          # TEMPORARY: Only run @tier3_A to test target-profile-crud.test.ts
-          # TODO: Revert to all tiers after testing
+          - "@tier0"
+          - "@ci,@tier2_A"
+          - "@tier2_B"
           - "@tier3_A"
-          # - "@tier0"
-          # - "@ci,@tier2_A"
-          # - "@tier2_B"
-          # - "@tier3_B"
-          # - "@tier3_C"
-          # - "@tier3_D"
-          # - "@tier3_E"
-          # - "@tier3_F"
+          - "@tier3_B"
+          - "@tier3_C"
+          - "@tier3_D"
+          - "@tier3_E"
+          - "@tier3_F"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}
