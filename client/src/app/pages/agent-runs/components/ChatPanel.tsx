@@ -33,6 +33,8 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import {
+  AngleDownIcon,
+  AngleRightIcon,
   BookOpenIcon,
   CheckCircleIcon,
   CodeBranchIcon,
@@ -217,8 +219,10 @@ interface ActiveRun {
  * (agentic-controller#115: maxTurns via GOOSE_MAX_TURNS, maxCost).
  */
 interface RunUsage {
-  /** Tokens occupying the context window right now. */
-  used: number;
+  /** Tokens occupying the context window right now. Absent until the
+   * provider reports a real figure -- goose on Bedrock only ever says 0,
+   * which in the header read as a measurement. */
+  used?: number;
   contextLimit?: number;
   /** Accumulated over the session. */
   inputTokens?: number;
@@ -229,8 +233,6 @@ interface RunUsage {
    * reports no accumulated figure. */
   summedCost?: number;
   currency?: string;
-  /** Model responses so far — what maxTurns counts. */
-  turns: number;
 }
 
 /** State of the dial itself; only meaningful while the run is dialable. */
@@ -326,13 +328,12 @@ const num = (v: unknown): number | undefined =>
  * cost.{amount,currency}. `message_usage` is one per model response.
  */
 function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
-  const base: RunUsage = prev ?? { used: 0, turns: 0 };
+  const base: RunUsage = prev ?? {};
   if (u.sessionUpdate === "message_usage") {
     const usage = isRecord(u.usage) ? u.usage : {};
     const cost = num(usage.cost);
     return {
       ...base,
-      turns: base.turns + 1,
       summedCost:
         cost === undefined ? base.summedCost : (base.summedCost ?? 0) + cost,
     };
@@ -340,7 +341,9 @@ function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
   const cost = isRecord(u.cost) ? u.cost : undefined;
   return {
     ...base,
-    used: num(u.used) ?? base.used,
+    // A context that has held a prompt is never empty: 0 is a provider that
+    // does not meter occupancy (goose on Bedrock), not a reading.
+    used: num(u.used) || base.used,
     contextLimit: num(u.contextLimit) ?? num(u.size) ?? base.contextLimit,
     inputTokens: num(u.accumulatedInputTokens) ?? base.inputTokens,
     outputTokens: num(u.accumulatedOutputTokens) ?? base.outputTokens,
@@ -1037,6 +1040,12 @@ export function ChatPanel({
     }
   })();
 
+  // The plan is pinned above the transcript, not a message in it: the
+  // harness rewrites it in place all run long, and as the first item of an
+  // auto-scrolling list it was off screen for nearly all of that.
+  const plan = items.findLast((it): it is PlanItem => it.kind === "plan");
+  const transcript = plan ? items.filter((it) => it.kind !== "plan") : items;
+
   const parked = explanatoryCondition(status?.conditions);
   const notice = (() => {
     switch (view.kind) {
@@ -1125,6 +1134,7 @@ export function ChatPanel({
           </Tooltip>
         </ChatbotHeaderActions>
       </ChatbotHeader>
+      {plan && <PinnedPlan entries={plan.entries} />}
       <ChatbotContent>
         {/* No enableSmartScroll: useChatAutoScroll is the sole authority on
             scroll position, and MessageBox's version reports reader intent
@@ -1134,7 +1144,7 @@ export function ChatPanel({
           onScrollToBottomClick={pinToBottom}
           ariaLabel={t("agentic.chat.title")}
         >
-          {items.map((item) => (
+          {transcript.map((item) => (
             <ChatItemView
               key={item.id}
               item={item}
@@ -1366,39 +1376,48 @@ function formatCost(amount: number, currency?: string): string {
 }
 
 /**
- * Context occupancy, turns and cost in the chat header — the counters the
- * run limits are measured in, so a viewer can see a run approaching one.
+ * Context occupancy and cost in the chat header. Turns are deliberately not
+ * here: the harness's plan rung carries the count maxTurns is measured in
+ * ("turn 17 of 200"), and a second tally of the responses this connection
+ * happened to see disagrees with it after any late attach or reconnect.
  */
 function UsageBadge({ usage }: { usage: RunUsage }) {
   const { t } = useTranslation();
   const cost = usage.cost ?? usage.summedCost;
   const costText = cost === undefined ? null : formatCost(cost, usage.currency);
-  const parts = [
-    usage.contextLimit
-      ? `${compactNumber.format(usage.used)} / ${compactNumber.format(usage.contextLimit)}`
-      : compactNumber.format(usage.used),
-    usage.turns > 0
-      ? t("agentic.chat.usageTurns", { count: usage.turns })
-      : null,
-    costText,
-  ].filter(Boolean);
-  const percent = usage.contextLimit
-    ? Math.round((usage.used / usage.contextLimit) * 100)
-    : undefined;
+  const { used, contextLimit } = usage;
+  const limitText = contextLimit ? compactNumber.format(contextLimit) : null;
+  const contextText =
+    used === undefined
+      ? limitText && t("agentic.chat.usageChipLimit", { limit: limitText })
+      : limitText
+        ? t("agentic.chat.usageChipContext", {
+            used: compactNumber.format(used),
+            limit: limitText,
+          })
+        : t("agentic.chat.usageChipUsed", { used: compactNumber.format(used) });
+  const parts = [contextText, costText].filter(Boolean);
+  if (parts.length === 0) return null;
   return (
     <Tooltip
       content={
         <div>
           <div>
-            {usage.contextLimit
-              ? t("agentic.chat.usageContext", {
-                  used: usage.used.toLocaleString(),
-                  limit: usage.contextLimit.toLocaleString(),
-                  percent,
-                })
-              : t("agentic.chat.usageContextUnbounded", {
-                  used: usage.used.toLocaleString(),
-                })}
+            {used === undefined
+              ? contextLimit
+                ? t("agentic.chat.usageContextUnreported", {
+                    limit: contextLimit.toLocaleString(),
+                  })
+                : null
+              : contextLimit
+                ? t("agentic.chat.usageContext", {
+                    used: used.toLocaleString(),
+                    limit: contextLimit.toLocaleString(),
+                    percent: Math.round((used / contextLimit) * 100),
+                  })
+                : t("agentic.chat.usageContextUnbounded", {
+                    used: used.toLocaleString(),
+                  })}
           </div>
           {usage.inputTokens !== undefined &&
             usage.outputTokens !== undefined && (
@@ -1409,12 +1428,6 @@ function UsageBadge({ usage }: { usage: RunUsage }) {
                 })}
               </div>
             )}
-          {usage.turns > 0 && (
-            <div>
-              {t("agentic.chat.usageTurns", { count: usage.turns })} —{" "}
-              {t("agentic.chat.usageTurnsHint")}
-            </div>
-          )}
           {costText && (
             <div>{t("agentic.chat.usageCost", { amount: costText })}</div>
           )}
@@ -1637,6 +1650,59 @@ function PlanEntryIcon({ status }: { status: string }) {
   );
 }
 
+/**
+ * The agent's task ladder, pinned between the header and the transcript.
+ * Collapsed, it is one line: how far along, and the rung in progress.
+ */
+function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(true);
+  const done = entries.filter((e) => e.status === "completed").length;
+  const current =
+    entries.find((e) => e.status === "in_progress") ??
+    entries.find((e) => e.status !== "completed") ??
+    entries[entries.length - 1];
+  return (
+    <div className="chat-plan">
+      <button
+        type="button"
+        className="chat-plan-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? (
+          <AngleDownIcon aria-hidden="true" />
+        ) : (
+          <AngleRightIcon aria-hidden="true" />
+        )}
+        <span className="chat-plan-title">{t("agentic.chat.plan")}</span>
+        <span className="chat-plan-progress">
+          {t("agentic.chat.planProgress", { done, total: entries.length })}
+        </span>
+        {!open && current && (
+          <span className="chat-plan-current">
+            <PlanEntryIcon status={current.status} />
+            <span className="chat-plan-current-text">{current.content}</span>
+          </span>
+        )}
+      </button>
+      {open &&
+        entries.map((e, idx) => (
+          <div key={idx} className="chat-plan-entry">
+            <PlanEntryIcon status={e.status} />
+            <span
+              className={
+                e.status === "completed" ? "chat-plan-done" : undefined
+              }
+            >
+              {e.content}
+            </span>
+          </div>
+        ))}
+    </div>
+  );
+}
+
 function ChatItemView({
   item,
   botName,
@@ -1750,23 +1816,8 @@ function ChatItemView({
       );
     }
     case "plan":
-      return (
-        <div className="chat-plan">
-          <div className="chat-plan-title">{t("agentic.chat.plan")}</div>
-          {item.entries.map((e, idx) => (
-            <div key={idx} className="chat-plan-entry">
-              <PlanEntryIcon status={e.status} />
-              <span
-                className={
-                  e.status === "completed" ? "chat-plan-done" : undefined
-                }
-              >
-                {e.content}
-              </span>
-            </div>
-          ))}
-        </div>
-      );
+      // Rendered by PinnedPlan, outside the transcript.
+      return null;
     case "notice":
       return <MessageDivider content={item.text} />;
     case "status":

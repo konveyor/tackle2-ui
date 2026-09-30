@@ -122,21 +122,53 @@
   white-space: nowrap;
 }
 
+/* Pinned between the chat header and the transcript (ChatPanel PinnedPlan):
+   a flex child of the chatbot column, so it never scrolls away. */
 .chat-plan {
-  align-self: stretch;
-  border: 1px solid var(--pf-t--global--border--color--default, #ececec);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  flex: 0 0 auto;
+  max-height: 40%;
+  overflow-y: auto;
+  padding: 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #ececec);
+  background: var(--pf-t--global--background--color--primary--default, #fff);
+}
+.chat-plan-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
 }
 .chat-plan-title {
   font-weight: 600;
-  margin-bottom: 0.25rem;
+}
+.chat-plan-progress {
+  color: var(--pf-t--global--text--color--subtle, #6a6e73);
+  white-space: nowrap;
+}
+.chat-plan-current {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.chat-plan-current-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .chat-plan-entry {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  margin-top: 0.25rem;
 }
 .chat-plan-done {
   color: var(--pf-t--global--text--color--subtle, #6a6e73);
