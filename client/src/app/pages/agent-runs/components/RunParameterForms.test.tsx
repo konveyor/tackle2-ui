@@ -141,6 +141,50 @@ describe("structured run parameter forms", () => {
     );
   });
 
+  it("opts a run into askUser and warns that an unanswered question fails it", async () => {
+    render(<CreateRunModal onClose={jest.fn()} onCreated={jest.fn()} />);
+
+    const attempts = await screen.findByRole("spinbutton", {
+      name: /attempts/i,
+    });
+    fireEvent.change(attempts, { target: { value: "3" } });
+    const askUser = screen.getByRole("checkbox", {
+      name: /agentic\.createRun\.askUser/,
+    });
+    expect(askUser).not.toBeChecked();
+    expect(
+      screen.queryByText("agentic.createRun.askUserWarningTitle")
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(askUser);
+    expect(
+      screen.getByText("agentic.createRun.askUserWarningTitle")
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "actions.create" }));
+
+    await waitFor(() =>
+      expect(mockCreateAgentRun).toHaveBeenCalledWith(
+        expect.objectContaining({ agentRef: "standalone", askUser: true })
+      )
+    );
+  });
+
+  it("leaves askUser out of the payload when not opted in", async () => {
+    render(<CreateRunModal onClose={jest.fn()} onCreated={jest.fn()} />);
+
+    const attempts = await screen.findByRole("spinbutton", {
+      name: /attempts/i,
+    });
+    fireEvent.change(attempts, { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "actions.create" }));
+
+    await waitFor(() => expect(mockCreateAgentRun).toHaveBeenCalled());
+    expect(mockCreateAgentRun.mock.calls[0][0]).not.toHaveProperty(
+      "askUser",
+      true
+    );
+  });
+
   it("separates workflow params and submits stage-specific Agent params", async () => {
     render(
       <CreateWorkflowRunModal onClose={jest.fn()} onCreated={jest.fn()} />
