@@ -20,6 +20,7 @@ import { unique } from "radash";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  ButtonVariant,
   Content,
   Gallery,
   Modal,
@@ -35,6 +36,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Target } from "@app/api/models";
 import { useHasSomeScopes } from "@app/auth";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -75,6 +77,9 @@ export const MigrationTargets: FC = () => {
   };
 
   const [activeTarget, setActiveTarget] = useState<Target | null>(null);
+
+  // Delete confirmation modal
+  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
 
   const onDeleteTargetSuccess = (id: number) => {
     pushNotification({
@@ -304,8 +309,7 @@ export const MigrationTargets: FC = () => {
                   onDelete={
                     targetsWriteAccess
                       ? () => {
-                          // TODO: Add a delete confirmation modal.
-                          deleteTarget(target.id);
+                          setTargetToDelete(target);
                         }
                       : undefined
                   }
@@ -324,6 +328,27 @@ export const MigrationTargets: FC = () => {
           </SortableContext>
         </DndContext>
       </PageSection>
+
+      <ConfirmDialog
+        title={t("dialog.title.deleteWithName", {
+          what: t("terms.customTarget").toLowerCase(),
+          name: targetToDelete?.name,
+        })}
+        titleIconVariant={"warning"}
+        isOpen={targetToDelete !== null}
+        message={t("dialog.message.delete")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setTargetToDelete(null)}
+        onClose={() => setTargetToDelete(null)}
+        onConfirm={() => {
+          if (targetToDelete) {
+            deleteTarget(targetToDelete.id);
+          }
+          setTargetToDelete(null);
+        }}
+      />
 
       <Modal
         id="create-edit-custom-target-modal"
