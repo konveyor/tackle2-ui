@@ -3,6 +3,7 @@ import {
   clickByText,
   clickJs,
   clickWithinByText,
+  confirm,
   inputText,
   selectUserPerspective,
   submitForm,
@@ -115,6 +116,7 @@ export class CustomMigrationTarget {
   public delete() {
     this.expandActionsMenu();
     cy.contains(button, deleteAction).click();
+    confirm();
   }
 
   public static fillName(name: string) {
