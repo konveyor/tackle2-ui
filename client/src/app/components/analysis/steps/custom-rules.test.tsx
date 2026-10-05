@@ -38,11 +38,16 @@ describe("CustomRules step", () => {
     const filter = screen.getByLabelText("terms.name filter");
     fireEvent.change(filter, { target: { value: "alpha" } });
     expect((filter as HTMLInputElement).value).toBe("alpha");
+    fireEvent.keyDown(filter, { key: "Enter", code: "Enter" });
+    expect(screen.queryByText("alpha.yaml")).not.toBeNull();
+    expect(screen.queryByText("beta.yaml")).toBeNull();
 
     fireEvent.click(screen.getByRole("tab", { name: "Repository" }));
     fireEvent.click(screen.getByRole("tab", { name: "Manual" }));
 
     const filterAfter = screen.getByLabelText("terms.name filter");
     expect((filterAfter as HTMLInputElement).value).toBe("alpha");
+    expect(screen.queryByText("alpha.yaml")).not.toBeNull();
+    expect(screen.queryByText("beta.yaml")).toBeNull();
   });
 });
