@@ -13,8 +13,7 @@ jest.mock("@app/queries/identities", () => ({
 const makeFile = (fileName: string): UploadFile => ({
   fileName,
   fullFile: new File(["x"], fileName),
-  loadResult: "success",
-  loadPercentage: 100,
+  uploadProgress: 100,
   responseID: 1,
   status: "uploaded",
 });
