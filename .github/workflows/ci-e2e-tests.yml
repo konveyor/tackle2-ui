@@ -17,6 +17,8 @@ on:
       - "main"
       - "release-*"
 
+  merge_group:
+
   workflow_call:
     inputs:
       checkout_ref:
@@ -32,6 +34,66 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should-test: ${{ steps.check-changes.outputs.should-test }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.checkout_ref }}
+          fetch-depth: 0
+
+      - name: Did only docs and hacks change?
+        id: docs-and-hacks-only
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v46
+        with:
+          files: |
+            docs/**
+            hack/**
+            **/*.md
+            **/*.mdc
+            .coderabbit.yaml
+
+      - name: Check what types of changes have been made
+        id: check-changes
+        env:
+          IS_PR: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
+          ONLY_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.only_modified }}
+        run: |
+          # should-test: Skip e2e tests if changes are exclusively to docs/hacks/markdown
+          SHOULD_TEST=$(
+            if [[ $IS_PR == true ]] && [[ $ONLY_DOCS_HACKS == true ]]; then
+              echo "false"
+            else
+              echo "true"
+            fi
+          )
+
+          echo "is-pr=$IS_PR" >> "$GITHUB_OUTPUT"
+          echo "changes_only_docs_hacks=${ONLY_DOCS_HACKS:-false}" >> "$GITHUB_OUTPUT"
+          echo "should-test=$SHOULD_TEST" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize findings
+        env:
+          ONLY_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.only_modified }}
+          MODIFIED_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.all_modified_files }}
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Change Detection Findings
+            - The action is PR/merge_group triggered? \`${{ steps.check-changes.outputs.is-pr }}\`
+            - Changes are only to docs and hacks? \`${{ steps.check-changes.outputs.changes_only_docs_hacks }}\`
+            - Should the e2e test jobs run? \`${{ steps.check-changes.outputs.should-test }}\`
+          EOF
+
+          if [[ $ONLY_DOCS_HACKS == true ]] && [[ -n "$MODIFIED_DOCS_HACKS" ]]; then
+            echo "## Modified files that do not impact e2e tests" >> "$GITHUB_STEP_SUMMARY"
+            for file in ${MODIFIED_DOCS_HACKS}; do
+              echo "  - \`$file\`" >> "$GITHUB_STEP_SUMMARY"
+            done
+          fi
+
   determine-branch-params:
     runs-on: ubuntu-latest
     outputs:
@@ -101,7 +163,10 @@ jobs:
           EOF
 
   build-and-upload-test-ui-image:
-    needs: determine-branch-params
+    needs:
+      - check-changes
+      - determine-branch-params
+    if: ${{ needs.check-changes.outputs.should-test == 'true' }}
     runs-on: ubuntu-latest
     outputs:
       IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
@@ -126,8 +191,10 @@ jobs:
 
   run-e2e-tests:
     needs:
+      - check-changes
       - determine-branch-params
       - build-and-upload-test-ui-image
+    if: ${{ !cancelled() && !failure() && needs.check-changes.outputs.should-test == 'true' }}
     secrets: inherit
 
     strategy:
