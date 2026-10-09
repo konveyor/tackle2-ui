@@ -124,39 +124,41 @@ export const TabReportsContent: React.FC<{
 
                 <DescriptionListTerm>Download</DescriptionListTerm>
                 <DescriptionListDescription>
-                  <Tooltip
-                    content={
-                      enableDownloadSetting.data
-                        ? "Click to download TAR file with HTML static analysis report"
-                        : "Download TAR file with HTML static analysis report is disabled by administrator"
-                    }
-                    position="top"
-                  >
-                    <DownloadButton
-                      application={application}
-                      mimeType={MimeType.TAR}
-                      isDownloadEnabled={enableDownloadSetting.data}
+                  <span style={{ whiteSpace: "nowrap" }}>
+                    <Tooltip
+                      content={
+                        enableDownloadSetting.data
+                          ? "Click to download TAR file with HTML static analysis report"
+                          : "Download TAR file with HTML static analysis report is disabled by administrator"
+                      }
+                      position="top"
                     >
-                      HTML
-                    </DownloadButton>
-                  </Tooltip>
-                  {" | "}
-                  <Tooltip
-                    content={
-                      enableDownloadSetting.data
-                        ? "Click to download YAML file with static analysis report"
-                        : "Download YAML file with static analysis report is disabled by administrator"
-                    }
-                    position="top"
-                  >
-                    <DownloadButton
-                      application={application}
-                      mimeType={MimeType.YAML}
-                      isDownloadEnabled={enableDownloadSetting.data}
+                      <DownloadButton
+                        application={application}
+                        mimeType={MimeType.TAR}
+                        isDownloadEnabled={enableDownloadSetting.data}
+                      >
+                        HTML
+                      </DownloadButton>
+                    </Tooltip>
+                    {" | "}
+                    <Tooltip
+                      content={
+                        enableDownloadSetting.data
+                          ? "Click to download YAML file with static analysis report"
+                          : "Download YAML file with static analysis report is disabled by administrator"
+                      }
+                      position="top"
                     >
-                      YAML
-                    </DownloadButton>
-                  </Tooltip>
+                      <DownloadButton
+                        application={application}
+                        mimeType={MimeType.YAML}
+                        isDownloadEnabled={enableDownloadSetting.data}
+                      >
+                        YAML
+                      </DownloadButton>
+                    </Tooltip>
+                  </span>
                 </DescriptionListDescription>
               </DescriptionListGroup>
             </DescriptionList>
