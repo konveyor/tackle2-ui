@@ -197,12 +197,52 @@ jobs:
           jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
           jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
 
-      - name: Emulator request log
+      - name: Agentic failure diagnostics
         if: ${{ failure() && inputs.agentic }}
-        # The setup action dumps this if setup fails; this covers the run
-        # failing afterwards, which is when it matters most. The sandbox pod is
-        # gone by the time anyone reads the failure, so the emulator's record
-        # of what was asked and which tools were offered is all that survives.
+        # The setup action dumps the emulator log if setup fails; this covers
+        # the run failing afterwards, which is when it matters most. The
+        # sandbox pod is gone by the time anyone reads the failure, so
+        # whatever survives has to be collected from the API server.
+        #
+        # The emulator's record alone is not enough: a run that dies during
+        # session creation never reaches the model, so the emulator log reads
+        # exactly like a run that was never started. Everything below is here
+        # to tell those two apart.
         run: |
-          kubectl -n konveyor-tackle logs deployment/llemulator --tail=400 || true
+          echo "::group::AgentRuns (summary)"
           kubectl -n konveyor-tackle get agentruns.konveyor.io -o wide || true
+          echo "::endgroup::"
+
+          # Conditions and status.terminationData.stopReason say why the run
+          # ended. This is the one that answers "what actually went wrong".
+          echo "::group::AgentRuns (full status)"
+          kubectl -n konveyor-tackle get agentruns.konveyor.io -o yaml || true
+          echo "::endgroup::"
+
+          # Covers the failures that happen before the first model call:
+          # image pull, CRD missing, the sandbox refusing to start.
+          echo "::group::Recent events"
+          kubectl -n konveyor-tackle get events \
+            --sort-by=.lastTimestamp 2>/dev/null | tail -60 || true
+          echo "::endgroup::"
+
+          echo "::group::Pods"
+          kubectl -n konveyor-tackle get pods -o wide || true
+          echo "::endgroup::"
+
+          # Best effort: the sandbox is usually torn down already, but when a
+          # run fails fast enough the pod is sometimes still around, and its
+          # harness log is the only place the ACP handshake is visible.
+          echo "::group::Sandbox / harness logs (best effort)"
+          for p in $(kubectl -n konveyor-tackle get pods \
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' \
+            2>/dev/null | grep -E '^(ui-|agent-|sandbox-)' || true); do
+            echo "--- $p"
+            kubectl -n konveyor-tackle logs "$p" --all-containers \
+              --tail=200 --prefix 2>&1 | tail -200 || true
+          done
+          echo "::endgroup::"
+
+          echo "::group::Emulator request log"
+          kubectl -n konveyor-tackle logs deployment/llemulator --tail=400 || true
+          echo "::endgroup::"
