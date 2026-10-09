@@ -32,6 +32,31 @@ describe("agentic run request serialization", () => {
     });
   });
 
+  it("sends askUser alongside the supervision mode in execution", async () => {
+    await createAgentRun({
+      agentRef: "migrate",
+      mode: "approve",
+      askUser: true,
+    });
+
+    expect(mockedAxios.post).toHaveBeenCalledWith(expect.any(String), {
+      metadata: { generateName: "ui-" },
+      spec: {
+        agentRef: "migrate",
+        execution: { mode: "approve", askUser: true },
+      },
+    });
+  });
+
+  it("omits askUser from execution unless the run opts in", async () => {
+    await createAgentRun({ agentRef: "migrate", mode: "auto", askUser: false });
+
+    const body = mockedAxios.post.mock.calls[0][1] as {
+      spec: { execution?: Record<string, unknown> };
+    };
+    expect(body.spec.execution).toEqual({ mode: "auto" });
+  });
+
   it("preserves workflow run parameter names for controller-side routing", async () => {
     await createWorkflowRun({
       workflowRef: "migrate-app",
