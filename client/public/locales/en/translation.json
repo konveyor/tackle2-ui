@@ -1218,8 +1218,6 @@
       "disconnectedShort": "Disconnected",
       "failedShort": "Connection failed",
       "session": "session {{sessionId}}",
-      "runAlreadyFinished": "Run already finished ({{phase}}) — chat unavailable.",
-      "finishedNoTranscript": "The live transcript is only available while the run is active. Results are on the target branch.",
       "runFinishedLive": "run finished ({{phase}}) — transcript is read-only",
       "disconnectedFromAgent": "Disconnected from the agent",
       "disconnectedBody": "The connection dropped repeatedly. The agent may be restarting — reconnect when it settles.",
@@ -1287,7 +1285,23 @@
       "usageTurnsHint": "model responses so far — the count the run's maxTurns limit applies to",
       "usageCost": "Cost so far: {{amount}}",
       "harnessStep": "Harness: {{title}}",
-      "waitingForAcpCondition": "The run is {{phase}} but the controller reports no ACPReady condition; the console dials only on that signal (agentic-controller#160)."
+      "waitingForAcpCondition": "The run is {{phase}} but the controller reports no ACPReady condition; the console dials only on that signal (agentic-controller#160).",
+      "ending": "Finishing",
+      "endingSession": "the agent session ended — checking the run's status…",
+      "sessionEndedDivider": "the agent session ended — waiting for the final status…",
+      "sessionEndedTitle": "The agent session ended",
+      "sessionEndedBody": "The run's agent has stopped. Waiting for the controller to report its final status…",
+      "runFinishedTitle": "Run finished ({{phase}})",
+      "finishedTranscriptHint": "The live transcript is only available while the run is active.",
+      "finishedPushHint": "Any commits the agent made are on the target branch — a run that produced no commits pushes nothing, so the branch may not exist.",
+      "runFailedTitle": "The run failed",
+      "failureReasonUnknown": "The controller recorded no reason. Check the run's sandbox pod logs for details.",
+      "failureDetail": "Reported reason: {{reason}}",
+      "runFailedNoPushTitle": "The agent could not push to the repository",
+      "runFailedNoPushBody": "The run's final push was rejected: the application's repository has no source credential with write access attached, so the agent could read the code but could not push its branch. Nothing reached the target branch. Attach a credential with write access, then run the agent again.",
+      "manageCredentials": "Manage credentials",
+      "failureUsageTurns_one": "{{count}} turn used",
+      "failureUsageTurns_other": "{{count}} turns used"
     },
     "createRun": {
       "title": "Create run",
@@ -1343,7 +1357,15 @@
       "collectionSkills_other": "{{count}} skills",
       "collectionEnumerated": "enumerated image",
       "rerunTitle": "Run again: {{name}}",
-      "prefillAgentMissing": "The earlier run's agent \"{{name}}\" no longer exists — pick another agent."
+      "prefillAgentMissing": "The earlier run's agent \"{{name}}\" no longer exists — pick another agent.",
+      "credentialResolvedApplication": "This run will push as <strong>{{name}}</strong> — the source credential attached to this application.",
+      "credentialResolvedDefault": "This run will push as <strong>{{name}}</strong> — the default source credential. Nothing is attached to this application, so the default is what the harness falls back to.",
+      "credentialMissingTitle": "{{name}} has no source credential — this run will not be able to push",
+      "credentialMissingBody": "No source credential is attached to this application, and no credential is marked as the source default. The agent can read the repository and do its work, but the final push is denied and the run fails at the very end. Create a source credential in <admin>Administration › Credentials</admin>, then attach it to this application with its <apps>Manage credentials</apps> action.",
+      "credentialUnattachedTitle_one": "Credential <strong>{{names}}</strong> exists but is not attached to {{name}}",
+      "credentialUnattachedTitle_other": "Source credentials exist (<strong>{{names}}</strong>) but none is attached to {{name}}",
+      "credentialUnattachedBody_one": "The harness uses the credential attached to the application, or failing that the one marked as the source default — this credential is neither, so the agent can read the repository but will not be able to push its branch. Attach it with the application's <apps>Manage credentials</apps> action, or mark it as the default in <admin>Administration › Credentials</admin>.",
+      "credentialUnattachedBody_other": "The harness uses the credential attached to the application, or failing that the one marked as the source default — none of these is either, so the agent can read the repository but will not be able to push its branch. Attach one with the application's <apps>Manage credentials</apps> action, or mark one as the default in <admin>Administration › Credentials</admin>."
     },
     "agents": {
       "createAgent": "Create agent",
@@ -1453,7 +1475,8 @@
       "paramNotDeclared_one": "not declared by stage {{stages}} — cannot be set on a workflow run (params forward to every stage)",
       "paramNotDeclared_other": "not declared by stages {{stages}} — cannot be set on a workflow run (params forward to every stage)",
       "rerunTitle": "Run again: {{name}}",
-      "prefillWorkflowMissing": "The earlier run's workflow \"{{name}}\" no longer exists — pick another workflow."
+      "prefillWorkflowMissing": "The earlier run's workflow \"{{name}}\" no longer exists — pick another workflow.",
+      "autoModeViewerNote": "Connected to the active {{stage}} stage. Tool calls are approved automatically in auto mode."
     },
     "skills": {
       "createSkillCard": "Create skill card",
