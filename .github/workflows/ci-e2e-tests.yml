@@ -59,19 +59,17 @@ jobs:
       - name: Check what types of changes have been made
         id: check-changes
         env:
-          IS_PR: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
           ONLY_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.only_modified }}
         run: |
           # should-test: Skip e2e tests if changes are exclusively to docs/hacks/markdown
           SHOULD_TEST=$(
-            if [[ $IS_PR == true ]] && [[ $ONLY_DOCS_HACKS == true ]]; then
+            if [[ $ONLY_DOCS_HACKS == true ]]; then
               echo "false"
             else
               echo "true"
             fi
           )
 
-          echo "is-pr=$IS_PR" >> "$GITHUB_OUTPUT"
           echo "changes_only_docs_hacks=${ONLY_DOCS_HACKS:-false}" >> "$GITHUB_OUTPUT"
           echo "should-test=$SHOULD_TEST" >> "$GITHUB_OUTPUT"
 
@@ -82,7 +80,6 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Change Detection Findings
-            - The action is PR/merge_group triggered? \`${{ steps.check-changes.outputs.is-pr }}\`
             - Changes are only to docs and hacks? \`${{ steps.check-changes.outputs.changes_only_docs_hacks }}\`
             - Should the e2e test jobs run? \`${{ steps.check-changes.outputs.should-test }}\`
           EOF
