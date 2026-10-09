@@ -7,12 +7,6 @@ on:
       - "release-*"
 
   pull_request:
-    paths-ignore:
-      - "docs/**"
-      - "hack/**"
-      - "**/*.md"
-      - "**/*.mdc"
-      - ".coderabbit.yaml"
     branches:
       - "main"
       - "release-*"
@@ -92,6 +86,9 @@ jobs:
           fi
 
   determine-branch-params:
+    needs:
+      - check-changes
+    if: ${{ needs.check-changes.outputs.should-test == 'true' }}
     runs-on: ubuntu-latest
     outputs:
       target_branch: ${{ steps.params.outputs.target_branch }}
