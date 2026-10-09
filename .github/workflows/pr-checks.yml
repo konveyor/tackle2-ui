@@ -3,9 +3,11 @@ name: PR Checks
 on:
   pull_request_target:
     types: [opened, edited, reopened, synchronize]
+  merge_group:
 
 jobs:
   verify:
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-latest
     name: Verify PR contents
     steps:
