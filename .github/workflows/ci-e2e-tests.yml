@@ -101,6 +101,16 @@ jobs:
               AGENTIC=true
             fi
           fi
+          # Held back, and nothing above is wrong: konveyor/agentic-controller#248
+          # made the harness pre-flight git write access and hard-fail on a
+          # 401/403 from receive-pack. The seeded e2e application has no source
+          # credential and tackle-testapp-public is not anonymously pushable, so
+          # every run dies at the probe before the agent does any work. That is a
+          # fixture gap in konveyor/operator - which is where the seeding lives -
+          # rather than anything this repo can fix, and until it is fixed the leg
+          # can only ever be red. Delete this one line to put the leg back; #3671
+          # tracks that, and the fixture work it waits on.
+          AGENTIC=false
           if [[ "$AGENTIC" == "true" ]]; then
             TAGS="\"@agentic\",$TAGS"
           fi
