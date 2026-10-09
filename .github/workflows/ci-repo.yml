@@ -11,6 +11,8 @@ on:
       - "main"
       - "release-*"
 
+  merge_group:
+
   workflow_dispatch:
 
   workflow_call:
