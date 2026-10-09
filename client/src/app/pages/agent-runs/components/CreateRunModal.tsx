@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
   Alert,
   Button,
+  Checkbox,
   Form,
   FormGroup,
   FormHelperText,
@@ -159,6 +160,9 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [mode, setMode] = useState<ExecutionMode>(
     () => prefill?.spec.execution?.mode ?? "auto"
+  );
+  const [askUser, setAskUser] = useState<boolean>(
+    () => prefill?.spec.execution?.askUser ?? false
   );
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [instructions, setInstructions] = useState(
@@ -390,6 +394,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
         needsApplication && application ? targetBranch.trim() : undefined,
       gateway,
       mode,
+      askUser: askUser || undefined,
     });
   };
 
@@ -568,6 +573,26 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 title={t("agentic.createRun.executionModeApproveWarningTitle")}
               >
                 {t("agentic.createRun.executionModeApproveWarningBody")}
+              </Alert>
+            )}
+
+            <FormGroup fieldId="create-run-ask-user">
+              <Checkbox
+                id="create-run-ask-user"
+                label={t("agentic.createRun.askUser")}
+                description={t("agentic.createRun.askUserHelper")}
+                isChecked={askUser}
+                onChange={(_e, checked) => setAskUser(checked)}
+              />
+            </FormGroup>
+
+            {askUser && (
+              <Alert
+                variant="warning"
+                isInline
+                title={t("agentic.createRun.askUserWarningTitle")}
+              >
+                {t("agentic.createRun.askUserWarningBody")}
               </Alert>
             )}
 
