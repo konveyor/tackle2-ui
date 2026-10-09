@@ -53,11 +53,13 @@ jobs:
       - name: Check what types of changes have been made
         id: check-changes
         env:
+          EVENT_NAME: ${{ github.event_name }}
           ONLY_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.only_modified }}
         run: |
-          # should-test: Skip e2e tests if changes are exclusively to docs/hacks/markdown
+          # should-test: Skip e2e tests for pull_request and merge_group events with exclusively
+          # docs/hacks changes. For push and workflow_call, always run tests regardless of what changed.
           SHOULD_TEST=$(
-            if [[ $ONLY_DOCS_HACKS == true ]]; then
+            if [[ $EVENT_NAME == "pull_request" || $EVENT_NAME == "merge_group" ]] && [[ $ONLY_DOCS_HACKS == true ]]; then
               echo "false"
             else
               echo "true"
