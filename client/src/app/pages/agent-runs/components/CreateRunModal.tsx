@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -20,6 +21,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 
+import { AdminPaths, DevPaths } from "@app/Paths";
 import type {
   AgentResource,
   AgentRun,
@@ -36,6 +38,7 @@ import {
   parseSourcesAnnotation,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
+import { useEffectiveSourceCredential } from "@app/hooks/useEffectiveSourceCredential";
 import {
   GatewayPicker,
   defaultGatewayFor,
@@ -305,6 +308,18 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const application =
     fixedApplication ??
     applications.find((a) => applicationLabelValue(a) === applicationId);
+
+  // Which credential the harness will actually push with — its own two
+  // lookups, run here so the creator learns before the run instead of from
+  // "authentication required: No anonymous write access" at the final push
+  // (konveyor/tackle2-ui#3616). Deliberately NOT a gate on Create: a
+  // read-only token resolves here just as happily as a writable one, so the
+  // check would block honest users without catching the case it claims to.
+  // Enforcement belongs in the harness pre-flight
+  // (konveyor/agentic-controller#247); this is a warning.
+  const sourceCredential = useEffectiveSourceCredential(
+    needsApplication ? application : undefined
+  );
 
   const missingRequired = userParams.filter(
     (p) => p.required && !(paramValues[p.name] ?? "").trim()
@@ -637,6 +652,69 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 </FormHelperText>
               </FormGroup>
             )}
+
+            {needsApplication &&
+              application &&
+              !sourceCredential.isUnknown &&
+              (sourceCredential.resolved ? (
+                <HelperText>
+                  <HelperTextItem>
+                    <Trans
+                      i18nKey={
+                        sourceCredential.resolved.origin === "application"
+                          ? "agentic.createRun.credentialResolvedApplication"
+                          : "agentic.createRun.credentialResolvedDefault"
+                      }
+                      values={{ name: sourceCredential.resolved.name }}
+                    />
+                  </HelperTextItem>
+                </HelperText>
+              ) : sourceCredential.candidates.length > 0 ? (
+                // The reporter's case: the credential was created but never
+                // linked and never made default, so the harness resolved
+                // nothing. Name it — the fix is one click away.
+                <Alert
+                  variant="warning"
+                  isInline
+                  title={
+                    <Trans
+                      i18nKey="agentic.createRun.credentialUnattachedTitle"
+                      count={sourceCredential.candidates.length}
+                      values={{
+                        names: sourceCredential.candidates
+                          .map((c) => c.name)
+                          .join(", "),
+                        name: application.name,
+                      }}
+                    />
+                  }
+                >
+                  <Trans
+                    i18nKey="agentic.createRun.credentialUnattachedBody"
+                    count={sourceCredential.candidates.length}
+                    components={{
+                      apps: <Link to={DevPaths.applications} />,
+                      admin: <Link to={AdminPaths.identities} />,
+                    }}
+                  />
+                </Alert>
+              ) : (
+                <Alert
+                  variant="warning"
+                  isInline
+                  title={t("agentic.createRun.credentialMissingTitle", {
+                    name: application.name,
+                  })}
+                >
+                  <Trans
+                    i18nKey="agentic.createRun.credentialMissingBody"
+                    components={{
+                      apps: <Link to={DevPaths.applications} />,
+                      admin: <Link to={AdminPaths.identities} />,
+                    }}
+                  />
+                </Alert>
+              ))}
 
             {needsApplication && unresolvable.length > 0 && (
               <Alert
