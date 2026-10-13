@@ -84,6 +84,13 @@ jest.mock("@app/queries/agentic-catalog", () => ({
   useFetchGateways: () => ({ gateways: [] }),
 }));
 
+// The create-run modal resolves the credential the run would push with.
+// These agents declare no application, so nothing renders from it — the mock
+// only keeps useQuery out of a provider-less render.
+jest.mock("@app/queries/identities", () => ({
+  useFetchIdentities: () => ({ identities: [], isSuccess: true }),
+}));
+
 jest.mock("@app/queries/skills", () => ({
   useFetchSkillCards: () => ({
     skillCards: [],
@@ -138,6 +145,50 @@ describe("structured run parameter forms", () => {
           params: { attempts: "3", dry_run: "true" },
         })
       )
+    );
+  });
+
+  it("opts a run into askUser and warns that an unanswered question fails it", async () => {
+    render(<CreateRunModal onClose={jest.fn()} onCreated={jest.fn()} />);
+
+    const attempts = await screen.findByRole("spinbutton", {
+      name: /attempts/i,
+    });
+    fireEvent.change(attempts, { target: { value: "3" } });
+    const askUser = screen.getByRole("checkbox", {
+      name: /agentic\.createRun\.askUser/,
+    });
+    expect(askUser).not.toBeChecked();
+    expect(
+      screen.queryByText("agentic.createRun.askUserWarningTitle")
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(askUser);
+    expect(
+      screen.getByText("agentic.createRun.askUserWarningTitle")
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "actions.create" }));
+
+    await waitFor(() =>
+      expect(mockCreateAgentRun).toHaveBeenCalledWith(
+        expect.objectContaining({ agentRef: "standalone", askUser: true })
+      )
+    );
+  });
+
+  it("leaves askUser out of the payload when not opted in", async () => {
+    render(<CreateRunModal onClose={jest.fn()} onCreated={jest.fn()} />);
+
+    const attempts = await screen.findByRole("spinbutton", {
+      name: /attempts/i,
+    });
+    fireEvent.change(attempts, { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "actions.create" }));
+
+    await waitFor(() => expect(mockCreateAgentRun).toHaveBeenCalled());
+    expect(mockCreateAgentRun.mock.calls[0][0]).not.toHaveProperty(
+      "askUser",
+      true
     );
   });
 

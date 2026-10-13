@@ -21,8 +21,10 @@ import { RedoIcon } from "@patternfly/react-icons";
 import type { WorkflowRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type {
+  AgentRun,
   AgentRunPhase,
   AgentWorkflowRunStageStatus,
+  ExecutionMode,
 } from "@app/api/agentic/contract";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
@@ -77,6 +79,26 @@ function liveStageOf(
     : stages.find((stage) => stage.phase === "Running" && !!stage.agentRunName);
 }
 
+/**
+ * Supervision mode the live stage actually runs under. The controller
+ * resolves the workflow stage's `execution` into the stage's own AgentRun
+ * spec, so that AgentRun is the authoritative value; the stage status is
+ * the fallback while the AgentRun is still loading. Absent or unrecognized
+ * means `auto`, matching the create-run modal's
+ * `prefill?.spec.execution?.mode ?? "auto"`.
+ *
+ * Tool-call approval is the only viewer-required condition today. If
+ * `execution.askUser` ever reaches the stage spec it needs its own notice
+ * (an unanswered question fails the run) — a separate check, not this one.
+ */
+function resolveExecutionMode(
+  stage?: AgentWorkflowRunStageStatus,
+  agentRun?: AgentRun
+): ExecutionMode {
+  const mode = agentRun?.spec.execution?.mode ?? stage?.execution?.mode;
+  return mode === "approve" ? "approve" : "auto";
+}
+
 const WorkflowRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
@@ -95,6 +117,7 @@ const WorkflowRunDetailPage: React.FC = () => {
     isLoading: liveRunLoading,
     fetchError: liveRunFetchError,
   } = useFetchAgentRun(liveRunName);
+  const liveStageMode = resolveExecutionMode(liveStage, liveAgentRun);
   // "Run again": the spec is immutable and the hub has no delete, so a
   // prefilled create is the one re-run shape there is.
   const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
@@ -291,16 +314,28 @@ const WorkflowRunDetailPage: React.FC = () => {
           className="run-detail-chat-section"
           padding={{ default: "padding" }}
         >
-          <Alert
-            variant="warning"
-            isInline
-            title={t("agentic.workflowRuns.approvalViewerTitle")}
-            style={{ marginBottom: "1rem" }}
-          >
-            {t("agentic.workflowRuns.approvalViewerBody", {
-              stage: liveStage.name,
-            })}
-          </Alert>
+          {liveStageMode === "approve" ? (
+            <Alert
+              variant="warning"
+              isInline
+              title={t("agentic.workflowRuns.approvalViewerTitle")}
+              style={{ marginBottom: "1rem" }}
+            >
+              {t("agentic.workflowRuns.approvalViewerBody", {
+                stage: liveStage.name,
+              })}
+            </Alert>
+          ) : (
+            <Alert
+              variant="info"
+              isInline
+              isPlain
+              title={t("agentic.workflowRuns.autoModeViewerNote", {
+                stage: liveStage.name,
+              })}
+              style={{ marginBottom: "1rem" }}
+            />
+          )}
           {liveRunFetchError && !liveAgentRun && (
             <Alert
               variant="danger"

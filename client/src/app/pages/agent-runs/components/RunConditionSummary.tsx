@@ -1,11 +1,13 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Label, Tooltip } from "@patternfly/react-core";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import type {
   Condition,
   HarnessTerminationData,
 } from "@app/api/agentic/contract";
+import { unwrapStopReason } from "@app/pages/agent-runs/runOutcome";
 
 const SUCCEEDED_CONDITION = "Succeeded";
 const READY_CONDITION = "Ready";
@@ -70,14 +72,19 @@ export function explanatoryMessage(
   ) {
     return stopReason;
   }
-  return condition?.message;
+  // The controller may have copied a termination log the console has no
+  // `terminationData` for (an older controller, or a list row): dig the
+  // stop reason out rather than showing the viewer raw JSON.
+  return unwrapStopReason(condition?.message) ?? condition?.message;
 }
 
 /**
  * Reason + message beside a run's phase. Renders nothing while the run
  * is progressing normally, so the phase label alone is the healthy state;
  * a reason that merely repeats the phase ("Failed" next to Failed) is
- * left out and only its message is shown.
+ * left out and the label carries the message instead -- dropping the label
+ * with the reason left a failure as unstyled inline text, which reads as
+ * "Failed, no reason given" (konveyor/tackle2-ui#3614).
  */
 export function RunConditionSummary({
   conditions,
@@ -96,6 +103,9 @@ export function RunConditionSummary({
   const message = explanatoryMessage(condition, terminationData);
   const showReason = !!condition.reason && condition.reason !== phase;
   if (!showReason && !message) return null;
+  const failed = condition.status === "False";
+  const icon = failed ? <ExclamationCircleIcon /> : undefined;
+  const color = failed ? "red" : "orange";
   const since = condition.lastTransitionTime
     ? t("agentic.runDetail.conditionSince", {
         time: new Date(condition.lastTransitionTime).toLocaleString(),
@@ -103,7 +113,7 @@ export function RunConditionSummary({
     : "";
   return (
     <span className="run-condition-summary">
-      {showReason && (
+      {showReason ? (
         <Tooltip
           content={t("agentic.runDetail.conditionTooltip", {
             type: condition.type,
@@ -111,15 +121,21 @@ export function RunConditionSummary({
             since,
           })}
         >
-          <Label
-            isCompact
-            color={condition.status === "False" ? "red" : "orange"}
-          >
+          <Label isCompact color={color} icon={icon}>
             {condition.reason}
           </Label>
         </Tooltip>
+      ) : (
+        // The reason only echoes the phase, so the message carries the
+        // label: unstyled, it read as no reason at all. PF shows the whole
+        // text in a tooltip of its own once it truncates.
+        <Label isCompact color={color} icon={icon} textMaxWidth="60ch">
+          {message}
+        </Label>
       )}
-      {message && <span className="run-condition-message">{message}</span>}
+      {showReason && message && (
+        <span className="run-condition-message">{message}</span>
+      )}
     </span>
   );
 }

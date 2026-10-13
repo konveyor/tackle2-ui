@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   Chatbot,
   ChatbotAlert,
@@ -33,6 +35,8 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import {
+  AngleDownIcon,
+  AngleRightIcon,
   BookOpenIcon,
   CheckCircleIcon,
   CodeBranchIcon,
@@ -47,6 +51,7 @@ import {
 } from "@patternfly/react-icons";
 
 import { isAgenticSteerEnabled } from "@app/Constants";
+import { AdminPaths } from "@app/Paths";
 import { AcpSession, acpErrorInfo } from "@app/api/agentic/acp";
 import type {
   AcpSessionCallbacks,
@@ -59,15 +64,28 @@ import type {
   SteerResult,
   ToolCallDiff,
 } from "@app/api/agentic/acp";
-import type { AgentRunPhase, AgentRunStatus } from "@app/api/agentic/contract";
+import type {
+  AgentRunPhase,
+  AgentRunStatus,
+  HarnessTerminationData,
+} from "@app/api/agentic/contract";
 import {
   ACP_READY_CONDITION,
   isTerminalPhase,
+  sleep,
 } from "@app/api/agentic/contract";
-import { getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
+import { getAgentRun, getAgenticAcpUrl, mintAcpNonce } from "@app/api/rest";
 import { useHasSomeScopes } from "@app/auth";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { explanatoryCondition } from "@app/pages/agent-runs/components/RunConditionSummary";
+import {
+  explanatoryCondition,
+  explanatoryMessage,
+} from "@app/pages/agent-runs/components/RunConditionSummary";
+import {
+  failureStopReason,
+  isGitWriteAccessFailure,
+} from "@app/pages/agent-runs/runOutcome";
+import { AGENT_RUN_QUERY_KEY } from "@app/queries/agent-runs";
 import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
@@ -217,8 +235,10 @@ interface ActiveRun {
  * (agentic-controller#115: maxTurns via GOOSE_MAX_TURNS, maxCost).
  */
 interface RunUsage {
-  /** Tokens occupying the context window right now. */
-  used: number;
+  /** Tokens occupying the context window right now. Absent until the
+   * provider reports a real figure -- goose on Bedrock only ever says 0,
+   * which in the header read as a measurement. */
+  used?: number;
   contextLimit?: number;
   /** Accumulated over the session. */
   inputTokens?: number;
@@ -229,8 +249,6 @@ interface RunUsage {
    * reports no accumulated figure. */
   summedCost?: number;
   currency?: string;
-  /** Model responses so far — what maxTurns counts. */
-  turns: number;
 }
 
 /** State of the dial itself; only meaningful while the run is dialable. */
@@ -240,6 +258,8 @@ type ConnState =
   | { kind: "connected"; sessionId: string }
   /** Connection dropped on a live run; an automatic re-dial is underway. */
   | { kind: "reconnecting" }
+  /** The session closed and the run's own status is being checked. */
+  | { kind: "ending" }
   /** Auto-reconnect budget exhausted; waiting for a manual reconnect. */
   | { kind: "disconnected" }
   | { kind: "failed"; message: string };
@@ -258,6 +278,34 @@ type ChatView =
 /** Auto-reconnects allowed inside DROP_WINDOW_MS before going manual. */
 const MAX_DROPS_IN_WINDOW = 5;
 const DROP_WINDOW_MS = 10 * 60_000;
+
+/**
+ * How long a session close is given to turn out to be the end of the run
+ * before it is treated as a dropped connection: the sandbox pod exits a
+ * moment before the controller writes the terminal phase.
+ */
+const END_CHECK_TRIES = 3;
+const END_CHECK_DELAY_MS = 2_000;
+
+/** ACPReady reason once the run is over and its endpoint is gone. */
+const ACP_FINISHED_REASON = "Finished";
+
+/**
+ * Does the run's own status say it has ended? Asked when the ACP session
+ * closes, so that the normal end of a run is not shown as a connection
+ * problem (konveyor/tackle2-ui#3617). A failed lookup is not an answer --
+ * the caller keeps its "connection dropped" path.
+ */
+async function runHasEnded(name: string): Promise<boolean> {
+  try {
+    const status = (await getAgentRun(name)).status;
+    if (isTerminalPhase(status?.phase)) return true;
+    const acp = status?.conditions?.find((c) => c.type === ACP_READY_CONDITION);
+    return acp?.status === "False" && acp.reason === ACP_FINISHED_REASON;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * One dial. The controller's ACPReady condition (agentic-controller#160)
@@ -326,13 +374,12 @@ const num = (v: unknown): number | undefined =>
  * cost.{amount,currency}. `message_usage` is one per model response.
  */
 function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
-  const base: RunUsage = prev ?? { used: 0, turns: 0 };
+  const base: RunUsage = prev ?? {};
   if (u.sessionUpdate === "message_usage") {
     const usage = isRecord(u.usage) ? u.usage : {};
     const cost = num(usage.cost);
     return {
       ...base,
-      turns: base.turns + 1,
       summedCost:
         cost === undefined ? base.summedCost : (base.summedCost ?? 0) + cost,
     };
@@ -340,7 +387,9 @@ function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
   const cost = isRecord(u.cost) ? u.cost : undefined;
   return {
     ...base,
-    used: num(u.used) ?? base.used,
+    // A context that has held a prompt is never empty: 0 is a provider that
+    // does not meter occupancy (goose on Bedrock), not a reading.
+    used: num(u.used) || base.used,
     contextLimit: num(u.contextLimit) ?? num(u.size) ?? base.contextLimit,
     inputTokens: num(u.accumulatedInputTokens) ?? base.inputTokens,
     outputTokens: num(u.accumulatedOutputTokens) ?? base.outputTokens,
@@ -571,8 +620,14 @@ export function ChatPanel({
   // say so. Steering rides the same bit until tackle2-hub#1116 splits it.
   const canOpenSession = useHasSomeScopes(agenticAcpScopes);
   const canIntervene = useHasSomeScopes(agenticSteerScopes);
+  const queryClient = useQueryClient();
   const phase = status?.phase;
-  const finished = isTerminalPhase(phase);
+  // The ACP session closing is how the end of a run looks from inside the
+  // panel, and it arrives before the page's poll observes the terminal
+  // phase. Latched here so that window is a finished run rather than a
+  // dropped connection (konveyor/tackle2-ui#3617).
+  const [sessionEnded, setSessionEnded] = useState(false);
+  const finished = isTerminalPhase(phase) || sessionEnded;
   // ACPReady is the one signal to dial on: phase=Running fires when the
   // sandbox pod runs, before the agent listens, and every controller in
   // service reports the condition (agentic-controller#160) — the dial
@@ -833,8 +888,7 @@ export function ChatPanel({
     const live = () => !abort.signal.aborted;
     let localSession: AcpSession | null = null;
 
-    // Drop on a live run: auto-reconnect (bounded), else surface it. A run
-    // that just finished shows as finished as soon as the poll catches up.
+    // Drop on a live run: auto-reconnect (bounded), else surface it.
     const handleDrop = () => {
       setSession(null);
       const now = Date.now();
@@ -847,6 +901,38 @@ export function ChatPanel({
       }
       setConn({ kind: "reconnecting" });
       setAttempt((a) => a + 1); // rerun this effect; session/load replays
+    };
+
+    // The agent's ACP endpoint dies with the sandbox pod, so a close is
+    // also what the end of a run looks like -- including a successful one.
+    // Ask the run before calling it a drop, and give the controller a few
+    // seconds to write the terminal phase; until it answers the panel holds
+    // the transcript under a neutral notice instead of an error one
+    // (konveyor/tackle2-ui#3617).
+    const handleClosed = async () => {
+      setSession(null);
+      if (!live()) return;
+      setConn({ kind: "ending" });
+      try {
+        for (let i = 0; i < END_CHECK_TRIES; i++) {
+          if (i > 0) await sleep(END_CHECK_DELAY_MS, abort.signal);
+          if (!live()) return;
+          if (await runHasEnded(runName)) {
+            if (!live()) return;
+            setSessionEnded(true);
+            // The page's poll owns the phase; pull it forward so the header
+            // and this panel agree without waiting for the next tick.
+            void queryClient.invalidateQueries({
+              queryKey: [AGENT_RUN_QUERY_KEY, runName],
+            });
+            return;
+          }
+        }
+      } catch {
+        // The panel is going away (the sleep aborted) -- `live()` below
+        // keeps this from touching state either way.
+      }
+      if (live()) handleDrop();
     };
 
     const connect = async () => {
@@ -865,9 +951,7 @@ export function ChatPanel({
         },
       });
       sessionRef.current = localSession;
-      localSession.onClosed(() => {
-        if (live()) handleDrop();
-      });
+      localSession.onClosed(() => void handleClosed());
       // Prefer resuming the previous session after a drop -- the agent
       // replays its history as session/update notifications.
       let sessionId: string;
@@ -905,6 +989,7 @@ export function ChatPanel({
     runName,
     dialable,
     attempt,
+    queryClient,
     handleUpdate,
     handlePermission,
     handleElicitation,
@@ -1037,6 +1122,12 @@ export function ChatPanel({
     }
   })();
 
+  // The plan is pinned above the transcript, not a message in it: the
+  // harness rewrites it in place all run long, and as the first item of an
+  // auto-scrolling list it was off screen for nearly all of that.
+  const plan = items.findLast((it): it is PlanItem => it.kind === "plan");
+  const transcript = plan ? items.filter((it) => it.kind !== "plan") : items;
+
   const parked = explanatoryCondition(status?.conditions);
   const notice = (() => {
     switch (view.kind) {
@@ -1065,6 +1156,8 @@ export function ChatPanel({
         return t("agentic.chat.startingAcp");
       case "reconnecting":
         return t("agentic.chat.reconnectingToAgent");
+      case "ending":
+        return t("agentic.chat.endingSession");
       default:
         return null;
     }
@@ -1125,6 +1218,7 @@ export function ChatPanel({
           </Tooltip>
         </ChatbotHeaderActions>
       </ChatbotHeader>
+      {plan && <PinnedPlan entries={plan.entries} />}
       <ChatbotContent>
         {/* No enableSmartScroll: useChatAutoScroll is the sole authority on
             scroll position, and MessageBox's version reports reader intent
@@ -1134,7 +1228,7 @@ export function ChatPanel({
           onScrollToBottomClick={pinToBottom}
           ariaLabel={t("agentic.chat.title")}
         >
-          {items.map((item) => (
+          {transcript.map((item) => (
             <ChatItemView
               key={item.id}
               item={item}
@@ -1197,19 +1291,24 @@ export function ChatPanel({
               {t("agentic.chat.connectionFailedHint")}
             </ChatbotAlert>
           )}
-          {view.kind === "finished" &&
-            (items.length > 0 ? (
-              <MessageDivider
-                content={t("agentic.chat.runFinishedLive", { phase })}
+          {view.kind === "finished" && (
+            <>
+              {items.length > 0 && (
+                <MessageDivider
+                  content={
+                    isTerminalPhase(phase)
+                      ? t("agentic.chat.runFinishedLive", { phase })
+                      : t("agentic.chat.sessionEndedDivider")
+                  }
+                />
+              )}
+              <FinishedNotice
+                phase={phase}
+                status={status}
+                hasTranscript={items.length > 0}
               />
-            ) : (
-              <ChatbotAlert
-                variant="info"
-                title={t("agentic.chat.runAlreadyFinished", { phase })}
-              >
-                {t("agentic.chat.finishedNoTranscript")}
-              </ChatbotAlert>
-            ))}
+            </>
+          )}
         </MessageBox>
       </ChatbotContent>
       {/* Steering (and stopping a turn) is an intervention — hidden unless
@@ -1366,39 +1465,48 @@ function formatCost(amount: number, currency?: string): string {
 }
 
 /**
- * Context occupancy, turns and cost in the chat header — the counters the
- * run limits are measured in, so a viewer can see a run approaching one.
+ * Context occupancy and cost in the chat header. Turns are deliberately not
+ * here: the harness's plan rung carries the count maxTurns is measured in
+ * ("turn 17 of 200"), and a second tally of the responses this connection
+ * happened to see disagrees with it after any late attach or reconnect.
  */
 function UsageBadge({ usage }: { usage: RunUsage }) {
   const { t } = useTranslation();
   const cost = usage.cost ?? usage.summedCost;
   const costText = cost === undefined ? null : formatCost(cost, usage.currency);
-  const parts = [
-    usage.contextLimit
-      ? `${compactNumber.format(usage.used)} / ${compactNumber.format(usage.contextLimit)}`
-      : compactNumber.format(usage.used),
-    usage.turns > 0
-      ? t("agentic.chat.usageTurns", { count: usage.turns })
-      : null,
-    costText,
-  ].filter(Boolean);
-  const percent = usage.contextLimit
-    ? Math.round((usage.used / usage.contextLimit) * 100)
-    : undefined;
+  const { used, contextLimit } = usage;
+  const limitText = contextLimit ? compactNumber.format(contextLimit) : null;
+  const contextText =
+    used === undefined
+      ? limitText && t("agentic.chat.usageChipLimit", { limit: limitText })
+      : limitText
+        ? t("agentic.chat.usageChipContext", {
+            used: compactNumber.format(used),
+            limit: limitText,
+          })
+        : t("agentic.chat.usageChipUsed", { used: compactNumber.format(used) });
+  const parts = [contextText, costText].filter(Boolean);
+  if (parts.length === 0) return null;
   return (
     <Tooltip
       content={
         <div>
           <div>
-            {usage.contextLimit
-              ? t("agentic.chat.usageContext", {
-                  used: usage.used.toLocaleString(),
-                  limit: usage.contextLimit.toLocaleString(),
-                  percent,
-                })
-              : t("agentic.chat.usageContextUnbounded", {
-                  used: usage.used.toLocaleString(),
-                })}
+            {used === undefined
+              ? contextLimit
+                ? t("agentic.chat.usageContextUnreported", {
+                    limit: contextLimit.toLocaleString(),
+                  })
+                : null
+              : contextLimit
+                ? t("agentic.chat.usageContext", {
+                    used: used.toLocaleString(),
+                    limit: contextLimit.toLocaleString(),
+                    percent: Math.round((used / contextLimit) * 100),
+                  })
+                : t("agentic.chat.usageContextUnbounded", {
+                    used: used.toLocaleString(),
+                  })}
           </div>
           {usage.inputTokens !== undefined &&
             usage.outputTokens !== undefined && (
@@ -1409,12 +1517,6 @@ function UsageBadge({ usage }: { usage: RunUsage }) {
                 })}
               </div>
             )}
-          {usage.turns > 0 && (
-            <div>
-              {t("agentic.chat.usageTurns", { count: usage.turns })} —{" "}
-              {t("agentic.chat.usageTurnsHint")}
-            </div>
-          )}
           {costText && (
             <div>{t("agentic.chat.usageCost", { amount: costText })}</div>
           )}
@@ -1430,6 +1532,124 @@ function UsageBadge({ usage }: { usage: RunUsage }) {
         {parts.join(" · ")}
       </Label>
     </Tooltip>
+  );
+}
+
+// ---------------------------------------------------------- finished run
+
+/**
+ * Turns and context the harness reports spending before the run ended --
+ * the measure of whether the agent did any work before it failed.
+ */
+function TerminationUsage({
+  usage,
+}: {
+  usage?: HarnessTerminationData["usage"];
+}) {
+  const { t } = useTranslation();
+  const turns = usage?.turnsUsed;
+  const used = usage?.contextUsed;
+  const size = usage?.contextSize;
+  const parts = [
+    typeof turns === "number"
+      ? t("agentic.chat.failureUsageTurns", { count: turns })
+      : null,
+    typeof used !== "number"
+      ? null
+      : size
+        ? t("agentic.chat.usageContext", {
+            used: used.toLocaleString(),
+            limit: size.toLocaleString(),
+            percent: Math.round((used / size) * 100),
+          })
+        : t("agentic.chat.usageContextUnbounded", {
+            used: used.toLocaleString(),
+          }),
+  ].filter(Boolean);
+  if (parts.length === 0) return null;
+  return <div className="chat-meta">{parts.join(" · ")}</div>;
+}
+
+/**
+ * What the panel says once the run is over. The phase sets the tone: a
+ * failed run's reason is the whole point of the panel at that moment and
+ * has to stay on screen rather than flash past (konveyor/tackle2-ui#3614,
+ * #3615), and no terminal state may claim the results are on the target
+ * branch -- the push is exactly what can have failed, and a run that
+ * produced no commits pushes nothing (#3617).
+ */
+function FinishedNotice({
+  phase,
+  status,
+  hasTranscript,
+}: {
+  phase?: AgentRunPhase;
+  status?: AgentRunStatus;
+  hasTranscript: boolean;
+}) {
+  const { t } = useTranslation();
+  const terminationData = status?.terminationData;
+
+  // The session closed but the poll has not confirmed the phase yet: say
+  // the run ended, claim nothing about how.
+  if (!isTerminalPhase(phase)) {
+    return hasTranscript ? null : (
+      <ChatbotAlert variant="info" title={t("agentic.chat.sessionEndedTitle")}>
+        {t("agentic.chat.sessionEndedBody")}
+      </ChatbotAlert>
+    );
+  }
+
+  if (phase === "Failed") {
+    // stopReason is the harness's own sentence; the explanatory condition
+    // covers a controller-side failure (and a harness that reported none).
+    const reason =
+      failureStopReason(terminationData) ??
+      explanatoryMessage(
+        explanatoryCondition(status?.conditions),
+        terminationData
+      );
+    const noWriteAccess = isGitWriteAccessFailure(reason);
+    return (
+      <ChatbotAlert
+        variant="danger"
+        title={
+          noWriteAccess
+            ? t("agentic.chat.runFailedNoPushTitle")
+            : t("agentic.chat.runFailedTitle")
+        }
+      >
+        {noWriteAccess ? (
+          <>
+            <div>{t("agentic.chat.runFailedNoPushBody")}</div>
+            <div>
+              <Link to={AdminPaths.identities}>
+                {t("agentic.chat.manageCredentials")}
+              </Link>
+            </div>
+            {reason && (
+              <div className="chat-meta">
+                {t("agentic.chat.failureDetail", { reason })}
+              </div>
+            )}
+          </>
+        ) : (
+          <div>{reason || t("agentic.chat.failureReasonUnknown")}</div>
+        )}
+        <TerminationUsage usage={terminationData?.usage} />
+      </ChatbotAlert>
+    );
+  }
+
+  return (
+    <ChatbotAlert
+      variant={phase === "Succeeded" ? "success" : "info"}
+      title={t("agentic.chat.runFinishedTitle", { phase })}
+    >
+      {!hasTranscript && <div>{t("agentic.chat.finishedTranscriptHint")}</div>}
+      <div>{t("agentic.chat.finishedPushHint")}</div>
+      <TerminationUsage usage={terminationData?.usage} />
+    </ChatbotAlert>
   );
 }
 
@@ -1449,6 +1669,12 @@ function ConnBadge({ view, phase }: { view: ChatView; phase?: AgentRunPhase }) {
       return (
         <Label isCompact color="blue" icon={<Spinner size="sm" />}>
           {t("agentic.chat.connecting")}
+        </Label>
+      );
+    case "ending":
+      return (
+        <Label isCompact color="grey" icon={<Spinner size="sm" />}>
+          {t("agentic.chat.ending")}
         </Label>
       );
     case "connected":
@@ -1637,6 +1863,59 @@ function PlanEntryIcon({ status }: { status: string }) {
   );
 }
 
+/**
+ * The agent's task ladder, pinned between the header and the transcript.
+ * Collapsed, it is one line: how far along, and the rung in progress.
+ */
+function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(true);
+  const done = entries.filter((e) => e.status === "completed").length;
+  const current =
+    entries.find((e) => e.status === "in_progress") ??
+    entries.find((e) => e.status !== "completed") ??
+    entries[entries.length - 1];
+  return (
+    <div className="chat-plan">
+      <button
+        type="button"
+        className="chat-plan-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? (
+          <AngleDownIcon aria-hidden="true" />
+        ) : (
+          <AngleRightIcon aria-hidden="true" />
+        )}
+        <span className="chat-plan-title">{t("agentic.chat.plan")}</span>
+        <span className="chat-plan-progress">
+          {t("agentic.chat.planProgress", { done, total: entries.length })}
+        </span>
+        {!open && current && (
+          <span className="chat-plan-current">
+            <PlanEntryIcon status={current.status} />
+            <span className="chat-plan-current-text">{current.content}</span>
+          </span>
+        )}
+      </button>
+      {open &&
+        entries.map((e, idx) => (
+          <div key={idx} className="chat-plan-entry">
+            <PlanEntryIcon status={e.status} />
+            <span
+              className={
+                e.status === "completed" ? "chat-plan-done" : undefined
+              }
+            >
+              {e.content}
+            </span>
+          </div>
+        ))}
+    </div>
+  );
+}
+
 function ChatItemView({
   item,
   botName,
@@ -1750,23 +2029,8 @@ function ChatItemView({
       );
     }
     case "plan":
-      return (
-        <div className="chat-plan">
-          <div className="chat-plan-title">{t("agentic.chat.plan")}</div>
-          {item.entries.map((e, idx) => (
-            <div key={idx} className="chat-plan-entry">
-              <PlanEntryIcon status={e.status} />
-              <span
-                className={
-                  e.status === "completed" ? "chat-plan-done" : undefined
-                }
-              >
-                {e.content}
-              </span>
-            </div>
-          ))}
-        </div>
-      );
+      // Rendered by PinnedPlan, outside the transcript.
+      return null;
     case "notice":
       return <MessageDivider content={item.text} />;
     case "status":

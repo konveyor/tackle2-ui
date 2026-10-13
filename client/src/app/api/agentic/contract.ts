@@ -60,6 +60,13 @@ export interface ExecutionLimits {
 
 export interface ExecutionSpec extends ExecutionLimits {
   mode?: ExecutionMode;
+  /**
+   * Gives the agent the ask_user tool: it may stop mid-turn and put a
+   * question to the viewers attached to the run (agentic-controller ADR
+   * 0017, #242). An unanswered question fails the run, so this is off by
+   * default and should be set only for a run somebody will be watching.
+   */
+  askUser?: boolean;
 }
 
 export interface GitConfig {
@@ -519,6 +526,8 @@ export interface CreateRunInput {
   gateway?: string;
   /** Invocation supervision mode; defaults to auto in the controller. */
   mode?: ExecutionMode;
+  /** Let the agent ask the viewer questions (spec.execution.askUser). */
+  askUser?: boolean;
 }
 
 export interface CreateWorkflowRunInput {

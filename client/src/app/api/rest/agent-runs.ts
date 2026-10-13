@@ -76,7 +76,14 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
           ? { instructions: input.instructions }
           : {}),
         ...(input.gateway ? { gateway: input.gateway } : {}),
-        ...(input.mode ? { execution: { mode: input.mode } } : {}),
+        ...(input.mode || input.askUser
+          ? {
+              execution: {
+                ...(input.mode ? { mode: input.mode } : {}),
+                ...(input.askUser ? { askUser: true } : {}),
+              },
+            }
+          : {}),
         ...appContextEnv(input.applicationRef, input.targetBranch),
       },
     })
