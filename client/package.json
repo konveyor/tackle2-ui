@@ -39,7 +39,7 @@
     "file-saver": "^2.0.5",
     "git-url-parse": "^16.1.0",
     "i18next": "^26.4.0",
-    "i18next-http-backend": "^4.0.1",
+    "i18next-http-backend": "^4.0.2",
     "immer": "^10.2.0",
     "js-yaml": "^4.3.2",
     "jwt-decode": "^4.0.0",
