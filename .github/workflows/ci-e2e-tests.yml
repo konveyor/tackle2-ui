@@ -223,17 +223,44 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     name: e2e-tests
-    needs: [check-changes, run-e2e-tests]
+    needs:
+      - check-changes
+      - determine-branch-params
+      - build-and-upload-test-ui-image
+      - run-e2e-tests
     steps:
       - name: Check test results
+        env:
+          SHOULD_TEST: ${{ needs.check-changes.outputs.should-test }}
+          RESULT_CHECK: ${{ needs.check-changes.result }}
+          RESULT_PARAMS: ${{ needs.determine-branch-params.result }}
+          RESULT_BUILD: ${{ needs.build-and-upload-test-ui-image.result }}
+          RESULT_TESTS: ${{ needs.run-e2e-tests.result }}
         run: |
-          if [[ "${{ needs.check-changes.outputs.should-test }}" == "false" ]]; then
+          # check-changes must always succeed
+          if [[ "$RESULT_CHECK" != "success" ]]; then
+            echo "::error::check-changes result: $RESULT_CHECK"
+            exit 1
+          fi
+
+          # When should-test is false, remaining jobs are expected to be skipped
+          if [[ "$SHOULD_TEST" == "false" ]]; then
             echo "Tests skipped (docs-only changes)"
             exit 0
           fi
-          if [[ "${{ needs.run-e2e-tests.result }}" == "success" || "${{ needs.run-e2e-tests.result }}" == "skipped" ]]; then
-            echo "Tests passed or were skipped"
-            exit 0
+
+          # When should-test is true, all downstream jobs must succeed
+          FAILED=false
+          for result_var in RESULT_PARAMS RESULT_BUILD RESULT_TESTS; do
+            result="${!result_var}"
+            if [[ "$result" != "success" ]]; then
+              echo "::error::${result_var} = ${result}"
+              FAILED=true
+            fi
+          done
+
+          if [[ "$FAILED" == "true" ]]; then
+            exit 1
           fi
-          echo "Tests failed: ${{ needs.run-e2e-tests.result }}"
-          exit 1
+
+          echo "All e2e tests passed"
