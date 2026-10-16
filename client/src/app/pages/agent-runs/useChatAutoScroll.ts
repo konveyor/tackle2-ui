@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import type { MessageBoxHandle } from "@patternfly/chatbot";
 
@@ -68,6 +68,12 @@ export function useChatAutoScroll(): {
   messageBoxRef: RefObject<MessageBoxHandle | null>;
   /** Follow the tail again (sending a message, jump-to-bottom). */
   pinToBottom: () => void;
+  /**
+   * The newest output is below the fold -- the reader scrolled up, or new
+   * content arrived while they were up there. What the jump-to-latest
+   * button is for; it has nothing to do otherwise.
+   */
+  tailHidden: boolean;
 } {
   const messageBoxRef = useRef<MessageBoxHandle | null>(null);
   const scrollerRef = useRef<HTMLElement | null>(null);
@@ -77,6 +83,11 @@ export function useChatAutoScroll(): {
   const awayUntilRef = useRef(0);
   const wiredBoxRef = useRef<HTMLElement | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
+  // Mirror of "the tail is off-screen" for render. Kept in a ref too: the
+  // DOM-driven callbacks below run far more often than renders and must not
+  // set state on every scroll event or streamed chunk.
+  const [tailHidden, setTailHidden] = useState(false);
+  const tailHiddenRef = useRef(false);
 
   const getScroller = useCallback((): HTMLElement | null => {
     const cached = scrollerRef.current;
@@ -93,11 +104,19 @@ export function useChatAutoScroll(): {
     scroller.scrollTop = scroller.scrollHeight;
   }, []);
 
+  const syncTailHidden = useCallback((scroller: HTMLElement | null) => {
+    const hidden = !!scroller && !atBottom(scroller);
+    if (hidden === tailHiddenRef.current) return;
+    tailHiddenRef.current = hidden;
+    setTailHidden(hidden);
+  }, []);
+
   const pinToBottom = useCallback(() => {
     pinnedRef.current = true;
     const scroller = getScroller();
     if (scroller) pin(scroller);
-  }, [getScroller, pin]);
+    syncTailHidden(scroller);
+  }, [getScroller, pin, syncTailHidden]);
 
   const attach = useCallback(() => {
     const box = messageBoxRef.current;
@@ -110,6 +129,10 @@ export function useChatAutoScroll(): {
     const follow = () => {
       const scroller = getScroller();
       if (scroller && pinnedRef.current && !draggingRef.current) pin(scroller);
+      // Content that grew out of view while the reader is up the transcript
+      // is what the jump button announces, so re-read it here too: growth
+      // moves the tail away without firing a scroll event.
+      syncTailHidden(scroller);
     };
 
     // Input that scrolls away from the tail releases the pin ...
@@ -152,6 +175,9 @@ export function useChatAutoScroll(): {
     const onScroll = (event: Event) => {
       const scroller = event.target as HTMLElement | null;
       if (!scroller?.scrollHeight) return;
+      // Nested scrollers (tool output, the pinned plan) also reach this
+      // listener; only the transcript's own position drives the button.
+      if (scroller === getScroller()) syncTailHidden(scroller);
       if (Date.now() < awayUntilRef.current) return;
       if (atBottom(scroller)) pinnedRef.current = true;
     };
@@ -194,7 +220,7 @@ export function useChatAutoScroll(): {
     // A freshly (re)mounted box starts at the top; land on the tail if we
     // were following it.
     follow();
-  }, [getScroller, pin]);
+  }, [getScroller, pin, syncTailHidden]);
 
   // Wire on mount; re-wire whenever the panel re-renders with a new box
   // (attach is idempotent for the same element). Detach on unmount.
@@ -203,5 +229,5 @@ export function useChatAutoScroll(): {
   });
   useEffect(() => () => cleanupRef.current?.(), []);
 
-  return { messageBoxRef, pinToBottom };
+  return { messageBoxRef, pinToBottom, tailHidden };
 }
