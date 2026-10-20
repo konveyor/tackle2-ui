@@ -12,11 +12,18 @@
 
    Filling the section beats a fixed height: the details above expand and
    collapse, so any hard number either pushes the message bar past the fold
-   or leaves the transcript needlessly short. The floor keeps the chat
-   usable when the details are expanded -- the page scrolls at that point. */
+   or leaves the transcript needlessly short.
+
+   The floor is a viewport, less the masthead and the run details' last
+   couple of lines. That is what makes the panel "open up" as the page is
+   scrolled: the details above scroll away and the transcript -- already
+   that tall -- ends up filling the screen, with the newest output (it is
+   bottom-pinned) landing right at the fold. The absolute floor keeps it
+   usable on a short window, where the page scrolls instead. */
 .run-detail-chat-section .agent-run-chatbot {
   flex: 1 1 auto;
-  min-height: 24rem;
+  min-height: max(26rem, calc(100vh - 11rem));
+  min-height: max(26rem, calc(100dvh - 11rem));
   border: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
   border-radius: 8px;
 }
@@ -123,10 +130,12 @@
 }
 
 /* Pinned between the chat header and the transcript (ChatPanel PinnedPlan):
-   a flex child of the chatbot column, so it never scrolls away. */
+   a flex child of the chatbot column, so it never scrolls away. The cap is
+   a share of the panel up to a hard ceiling -- on a tall panel 40% is a lot
+   of room for a plan that scrolls perfectly well in less. */
 .chat-plan {
   flex: 0 0 auto;
-  max-height: 40%;
+  max-height: min(40%, 12rem);
   overflow-y: auto;
   padding: 0.5rem 1.5rem;
   border-bottom: 1px solid var(--pf-t--global--border--color--default, #ececec);
@@ -264,6 +273,25 @@
 }
 .chat-steer-footer .pf-chatbot__footnote {
   padding: 0;
+}
+
+/* Jump to latest (ChatPanel). PF's own pair of jump buttons is an
+   unlabelled arrow parked at 75% of the width, offered whether or not it
+   has anywhere to go -- and "back to top" is not a thing a live tail
+   needs. Hidden (PF sets those rules with !important), replaced by one
+   labelled pill centred over the transcript, rendered only while the
+   newest output is below the fold. */
+.agent-run-chatbot .pf-chatbot__jump {
+  display: none !important;
+}
+.agent-run-chatbot .chat-jump-latest {
+  position: absolute;
+  inset-block-end: 1rem;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  z-index: var(--pf-t--global--z-index--md, 300);
+  border-radius: var(--pf-t--global--border--radius--pill, 999px);
+  box-shadow: var(--pf-t--global--box-shadow--md);
 }
 
 /* Expanded transcript: PF's fullscreen mode pins the chatbot over the

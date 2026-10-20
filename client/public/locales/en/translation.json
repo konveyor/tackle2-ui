@@ -1234,6 +1234,7 @@
       "askClosedElsewhere": "closed — timed out or answered elsewhere",
       "askDeclined": "declined — the agent was told no answer was given",
       "askHint": "The agent is waiting on this and cannot continue until someone answers (or the question times out).",
+      "jumpToLatest": "Jump to latest",
       "expand": "Expand the transcript to full screen",
       "collapse": "Exit full screen (Esc)",
       "viewer": "Viewer",
