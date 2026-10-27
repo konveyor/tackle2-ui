@@ -1,5 +1,6 @@
 import type { PlanRungMeta } from "@app/api/agentic/acp";
 import { PLAN_META_KEY } from "@app/api/agentic/acp";
+import { formatDuration } from "@app/utils/agentic";
 
 /** One rung of the harness's task ladder, as the chat panel holds it. */
 export interface PlanEntry {
@@ -14,6 +15,11 @@ export interface PlanEntry {
    * cannot know — so every field is read as optional.
    */
   meta: PlanRungMeta;
+  /**
+   * When this rung entered its current status, as this viewer saw it
+   * happen. Absent until it does: see `timeRungs`.
+   */
+  since?: number;
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -70,6 +76,45 @@ export function planEntries(raw: unknown): PlanEntry[] {
       meta: planRungMeta(e),
     }))
     .filter((e) => e.content !== "");
+}
+
+/**
+ * Carry each rung's "in this status since" stamp across a ladder rewrite,
+ * restamping only the rungs whose status actually changed.
+ *
+ * A rung is stamped only on a transition this viewer watched happen. The
+ * ladder carries no timestamps of its own, so a rung already in progress
+ * when the panel attached has no honest start time, and timing it from the
+ * attach would tell someone who joined a two-hour run that the step began
+ * seconds ago. Unknown stays unknown.
+ *
+ * Rungs are matched by position: the harness publishes the same ladder, in
+ * the same order, for the whole run.
+ */
+export function timeRungs(
+  prev: PlanEntry[],
+  next: PlanEntry[],
+  now: number = Date.now()
+): PlanEntry[] {
+  return next.map((e, i) => {
+    const was = prev[i];
+    if (!was) return e;
+    return { ...e, since: was.status === e.status ? was.since : now };
+  });
+}
+
+/**
+ * How long the rung in progress has been in progress, or null. Only a rung
+ * still running is timed: for a finished one the stamp says when it
+ * stopped, which is not its duration, and reading it as one would show a
+ * completed step counting upwards forever.
+ */
+export function rungElapsed(
+  entry: PlanEntry,
+  now: number = Date.now()
+): string | null {
+  if (entry.status !== "in_progress" || entry.since === undefined) return null;
+  return formatDuration(Math.max(0, Math.round((now - entry.since) / 1000)));
 }
 
 /**

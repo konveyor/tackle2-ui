@@ -83,13 +83,19 @@ import {
   explanatoryMessage,
 } from "@app/pages/agent-runs/components/RunConditionSummary";
 import type { PlanEntry } from "@app/pages/agent-runs/planLadder";
-import { planEntries, planTurns } from "@app/pages/agent-runs/planLadder";
+import {
+  planEntries,
+  planTurns,
+  rungElapsed,
+  timeRungs,
+} from "@app/pages/agent-runs/planLadder";
 import {
   failureStopReason,
   isGitWriteAccessFailure,
 } from "@app/pages/agent-runs/runOutcome";
 import { AGENT_RUN_QUERY_KEY } from "@app/queries/agent-runs";
 import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
+import { formatDuration } from "@app/utils/agentic";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
@@ -332,6 +338,29 @@ async function dialAcp(opts: {
   return session;
 }
 
+/**
+ * How long a wait has to last before the notice starts reporting its age.
+ * A sandbox pulling the agent image routinely takes tens of seconds, and a
+ * stopwatch on that is noise; what a viewer needs a number for is the wait
+ * that has gone past normal.
+ */
+const WAITING_PATIENCE_MS = 30_000;
+
+/**
+ * Re-render once a second while `active`, so a live elapsed time advances
+ * instead of freezing at whatever it read when the last update arrived. The
+ * interval exists only while something is being timed, so a finished run
+ * costs nothing.
+ */
+function useSecondTick(active: boolean): void {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+}
+
 // -------------------------------------------------- session/update mapping
 
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
@@ -453,7 +482,10 @@ function reduceUpdate(
       for (let i = items.length - 1; i >= 0; i--) {
         const it = items[i];
         if (it && it.kind === "plan") {
-          const next: PlanItem = { ...it, entries };
+          const next: PlanItem = {
+            ...it,
+            entries: timeRungs(it.entries, entries),
+          };
           return [...items.slice(0, i), next, ...items.slice(i + 1)];
         }
       }
@@ -1121,29 +1153,54 @@ export function ChatPanel({
   const turns = plan && planTurns(plan.entries);
 
   const parked = explanatoryCondition(status?.conditions);
+
+  // A waiting notice with no clock reads the same at five seconds as at
+  // five minutes, so the one question it raises -- is this stuck? -- is the
+  // one it cannot answer. Time it, and say so once the wait is longer than
+  // a sandbox normally takes to come up; below that a duration is just
+  // noise on a run that is starting perfectly normally.
+  const [waitingSince, setWaitingSince] = useState<number | null>(null);
+  useEffect(() => {
+    setWaitingSince(view.kind === "waiting" ? Date.now() : null);
+  }, [view.kind]);
+  useSecondTick(waitingSince !== null);
+  const waited =
+    waitingSince !== null && Date.now() - waitingSince >= WAITING_PATIENCE_MS
+      ? formatDuration(Math.round((Date.now() - waitingSince) / 1000))
+      : null;
+
   const notice = (() => {
     switch (view.kind) {
-      case "waiting":
-        if (acpReady && phase === "Running") {
-          return t("agentic.chat.waitingForAcp", {
-            detail: acpReady.message || acpReady.reason || "",
-          });
-        }
-        if (!acpReady && phase === "Running") {
-          return t("agentic.chat.waitingForAcpCondition", { phase });
-        }
-        // A parked run (AgentNotReady, InvalidParams, ...) says why in
-        // its conditions; repeat that here so the reason is in the panel
-        // the viewer is looking at, not only in the header.
-        if (parked) {
-          return t("agentic.chat.waitingForSandboxReason", {
+      case "waiting": {
+        const detail = (() => {
+          if (acpReady && phase === "Running") {
+            return t("agentic.chat.waitingForAcp", {
+              detail: acpReady.message || acpReady.reason || "",
+            });
+          }
+          if (!acpReady && phase === "Running") {
+            return t("agentic.chat.waitingForAcpCondition", { phase });
+          }
+          // A parked run (AgentNotReady, InvalidParams, ...) says why in
+          // its conditions; repeat that here so the reason is in the panel
+          // the viewer is looking at, not only in the header.
+          if (parked) {
+            return t("agentic.chat.waitingForSandboxReason", {
+              phase: phase ?? "Pending",
+              detail: parked.message || parked.reason,
+            });
+          }
+          return t("agentic.chat.waitingForSandbox", {
             phase: phase ?? "Pending",
-            detail: parked.message || parked.reason,
           });
-        }
-        return t("agentic.chat.waitingForSandbox", {
-          phase: phase ?? "Pending",
-        });
+        })();
+        // The duration is measured from when this panel started waiting,
+        // not from when the run was created: a viewer who opened the page
+        // late must not be told the run has only just begun.
+        return waited
+          ? t("agentic.chat.stillWaiting", { detail, duration: waited })
+          : detail;
+      }
       case "connecting":
         return t("agentic.chat.startingAcp");
       case "reconnecting":
@@ -1887,6 +1944,18 @@ function PlanEntryIcon({ status }: { status: string }) {
   );
 }
 
+/** How long the rung in progress has been running; nothing when unknown. */
+function RungElapsed({ entry }: { entry: PlanEntry }) {
+  const { t } = useTranslation();
+  const elapsed = rungElapsed(entry);
+  if (!elapsed) return null;
+  return (
+    <span className="chat-plan-elapsed">
+      {t("agentic.chat.planElapsed", { duration: elapsed })}
+    </span>
+  );
+}
+
 /**
  * The agent's task ladder, pinned between the header and the transcript.
  * Collapsed, it is one line: how far along, and the rung in progress.
@@ -1899,6 +1968,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
     entries.find((e) => e.status === "in_progress") ??
     entries.find((e) => e.status !== "completed") ??
     entries[entries.length - 1];
+  useSecondTick(entries.some((e) => rungElapsed(e) !== null));
   return (
     <div className="chat-plan">
       <button
@@ -1920,6 +1990,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
           <span className="chat-plan-current">
             <PlanEntryIcon status={current.status} />
             <span className="chat-plan-current-text">{current.content}</span>
+            <RungElapsed entry={current} />
           </span>
         )}
       </button>
@@ -1934,6 +2005,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
             >
               {e.content}
             </span>
+            <RungElapsed entry={e} />
           </div>
         ))}
     </div>
