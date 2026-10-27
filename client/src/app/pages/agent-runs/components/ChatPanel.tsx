@@ -84,7 +84,13 @@ import {
   explanatoryMessage,
 } from "@app/pages/agent-runs/components/RunConditionSummary";
 import type { PlanEntry } from "@app/pages/agent-runs/planLadder";
-import { planEntries, planTurns } from "@app/pages/agent-runs/planLadder";
+import {
+  elapsedSince,
+  planEntries,
+  planTurns,
+  rungElapsed,
+  timeRungs,
+} from "@app/pages/agent-runs/planLadder";
 import {
   failureStopReason,
   isGitWriteAccessFailure,
@@ -333,6 +339,57 @@ async function dialAcp(opts: {
   return session;
 }
 
+/**
+ * How long a wait has to last before the notice starts reporting its age.
+ * A sandbox pulling the agent image routinely takes tens of seconds, and a
+ * stopwatch on that is noise; what a viewer needs a number for is the wait
+ * that has gone past normal.
+ */
+const WAITING_PATIENCE_MS = 30_000;
+
+/**
+ * Re-render once a second while `active`, so a live elapsed time advances
+ * instead of freezing at whatever it read when the last update arrived. The
+ * interval exists only while something is being timed, so a finished run
+ * costs nothing.
+ */
+function useSecondTick(active: boolean): void {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+}
+
+/**
+ * How long the panel has been waiting for a sandbox, or null while that
+ * number would say nothing.
+ *
+ * A waiting notice with no clock reads the same at five seconds as at five
+ * minutes, so the one question it raises -- is this stuck? -- is the one it
+ * cannot answer. The duration appears only once the wait has gone past what
+ * a sandbox normally takes to come up; below that it is a stopwatch on a run
+ * that is starting perfectly normally.
+ */
+function useWaited(view: ChatView): string | null {
+  const waiting = view.kind === "waiting";
+  const [waited, setWaited] = useState<string | null>(null);
+  useEffect(() => {
+    if (!waiting) return;
+    const since = Date.now();
+    const id = window.setInterval(
+      () => setWaited(elapsedSince(since, WAITING_PATIENCE_MS)),
+      1000
+    );
+    return () => {
+      window.clearInterval(id);
+      setWaited(null);
+    };
+  }, [waiting]);
+  return waited;
+}
+
 // -------------------------------------------------- session/update mapping
 
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
@@ -454,7 +511,10 @@ function reduceUpdate(
       for (let i = items.length - 1; i >= 0; i--) {
         const it = items[i];
         if (it && it.kind === "plan") {
-          const next: PlanItem = { ...it, entries };
+          const next: PlanItem = {
+            ...it,
+            entries: timeRungs(it.entries, entries),
+          };
           return [...items.slice(0, i), next, ...items.slice(i + 1)];
         }
       }
@@ -1122,29 +1182,41 @@ export function ChatPanel({
   const turns = plan && planTurns(plan.entries);
 
   const parked = explanatoryCondition(status?.conditions);
+
+  const waited = useWaited(view);
+
   const notice = (() => {
     switch (view.kind) {
-      case "waiting":
-        if (acpReady && phase === "Running") {
-          return t("agentic.chat.waitingForAcp", {
-            detail: acpReady.message || acpReady.reason || "",
-          });
-        }
-        if (!acpReady && phase === "Running") {
-          return t("agentic.chat.waitingForAcpCondition", { phase });
-        }
-        // A parked run (AgentNotReady, InvalidParams, ...) says why in
-        // its conditions; repeat that here so the reason is in the panel
-        // the viewer is looking at, not only in the header.
-        if (parked) {
-          return t("agentic.chat.waitingForSandboxReason", {
+      case "waiting": {
+        const detail = (() => {
+          if (acpReady && phase === "Running") {
+            return t("agentic.chat.waitingForAcp", {
+              detail: acpReady.message || acpReady.reason || "",
+            });
+          }
+          if (!acpReady && phase === "Running") {
+            return t("agentic.chat.waitingForAcpCondition", { phase });
+          }
+          // A parked run (AgentNotReady, InvalidParams, ...) says why in
+          // its conditions; repeat that here so the reason is in the panel
+          // the viewer is looking at, not only in the header.
+          if (parked) {
+            return t("agentic.chat.waitingForSandboxReason", {
+              phase: phase ?? "Pending",
+              detail: parked.message || parked.reason,
+            });
+          }
+          return t("agentic.chat.waitingForSandbox", {
             phase: phase ?? "Pending",
-            detail: parked.message || parked.reason,
           });
-        }
-        return t("agentic.chat.waitingForSandbox", {
-          phase: phase ?? "Pending",
-        });
+        })();
+        // The duration is measured from when this panel started waiting,
+        // not from when the run was created: a viewer who opened the page
+        // late must not be told the run has only just begun.
+        return waited
+          ? t("agentic.chat.stillWaiting", { detail, duration: waited })
+          : detail;
+      }
       case "connecting":
         return t("agentic.chat.startingAcp");
       case "reconnecting":
@@ -1213,7 +1285,12 @@ export function ChatPanel({
           </Tooltip>
         </ChatbotHeaderActions>
       </ChatbotHeader>
-      {plan && <PinnedPlan entries={plan.entries} />}
+      {plan && (
+        <PinnedPlan
+          entries={plan.entries}
+          finished={view.kind === "finished"}
+        />
+      )}
       <ChatbotContent>
         {/* No enableSmartScroll: useChatAutoScroll is the sole authority on
             scroll position, and MessageBox's version reports reader intent
@@ -1903,10 +1980,40 @@ function PlanEntryIcon({ status }: { status: string }) {
 }
 
 /**
+ * How long the rung in progress has been running; nothing when unknown, and
+ * nothing once the run is over. A run can end on a rung the harness never
+ * marked finished -- a failed final push is one such path -- and a clock
+ * still counting up beside a finished-run notice is reporting a step that
+ * stopped minutes ago.
+ */
+function RungElapsed({
+  entry,
+  finished,
+}: {
+  entry: PlanEntry;
+  finished: boolean;
+}) {
+  const { t } = useTranslation();
+  const elapsed = finished ? null : rungElapsed(entry);
+  if (!elapsed) return null;
+  return (
+    <span className="chat-plan-elapsed">
+      {t("agentic.chat.planElapsed", { duration: elapsed })}
+    </span>
+  );
+}
+
+/**
  * The agent's task ladder, pinned between the header and the transcript.
  * Collapsed, it is one line: how far along, and the rung in progress.
  */
-function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
+function PinnedPlan({
+  entries,
+  finished,
+}: {
+  entries: PlanEntry[];
+  finished: boolean;
+}) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const done = entries.filter((e) => e.status === "completed").length;
@@ -1914,6 +2021,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
     entries.find((e) => e.status === "in_progress") ??
     entries.find((e) => e.status !== "completed") ??
     entries[entries.length - 1];
+  useSecondTick(!finished && entries.some((e) => rungElapsed(e) !== null));
   return (
     <div className="chat-plan">
       <button
@@ -1935,6 +2043,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
           <span className="chat-plan-current">
             <PlanEntryIcon status={current.status} />
             <span className="chat-plan-current-text">{current.content}</span>
+            <RungElapsed entry={current} finished={finished} />
           </span>
         )}
       </button>
@@ -1949,6 +2058,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
             >
               {e.content}
             </span>
+            <RungElapsed entry={e} finished={finished} />
           </div>
         ))}
     </div>
