@@ -54,6 +54,53 @@ export const GOOSE_UPDATE_METHOD = "_goose/unstable/session/update";
 export type SessionUpdate = { sessionUpdate: string; [k: string]: unknown };
 
 /**
+ * Key the harness publishes a plan entry's facts under, inside the entry's
+ * `_meta` (agentic-controller#268). ACP reserves the root of a specification
+ * type for future protocol versions — "implementations MUST NOT add any
+ * custom fields at the root of a type that's part of the specification" — so
+ * an implementation's own fields go in `_meta`, under a reverse-DNS key.
+ */
+export const PLAN_META_KEY = "konveyor.io/plan";
+
+/**
+ * What a plan entry says, as data rather than as the sentence in `content`.
+ * The harness builds both renderings from the same values, so they agree;
+ * this one does not have to be parsed back out of prose.
+ *
+ * Every field is optional in the same two ways: an older harness publishes
+ * no `_meta` at all, and any harness omits what this run cannot know. Absent
+ * is therefore "unknown", which is not "zero" — a run whose base commit was
+ * never recorded omits `commits` rather than claiming none were pushed.
+ */
+export interface PlanRungMeta {
+  /** Which rung this is: "prep" | "task" | "push". */
+  rung?: string;
+  /** prep: repository short name, and the branch the run works on. */
+  repo?: string;
+  branch?: string;
+  /** prep: static analysis findings handed to the agent. */
+  insights?: number;
+  /** task: the stage instructions, excerpted; or, when nobody wrote any,
+   * the run's declared `goal` instead. Never both. */
+  task?: string;
+  goal?: string;
+  /** task: position in the workflow. Absent on a standalone run. */
+  stage?: number;
+  stageCount?: number;
+  /** task: the model the agent is running on, as a display name. */
+  model?: string;
+  /** task: turns taken, and the ceiling they are counted against. The
+   * harness is the only authority on both — a viewer that counts the
+   * responses it happened to see disagrees after any late attach. */
+  turnsUsed?: number;
+  maxTurns?: number;
+  /** push: pushes that moved the remote, and commits this run put on the
+   * branch. */
+  pushes?: number;
+  commits?: number;
+}
+
+/**
  * A file modification from a ToolCallContent {type:"diff"} block
  * (standard ACP shape: path + oldText/newText; oldText null = new file).
  */

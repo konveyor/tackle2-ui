@@ -60,6 +60,7 @@ import type {
   ElicitationRequest,
   PermissionOutcome,
   PermissionRequest,
+  PlanRungMeta,
   SessionUpdate,
   SteerResult,
   ToolCallDiff,
@@ -81,6 +82,8 @@ import {
   explanatoryCondition,
   explanatoryMessage,
 } from "@app/pages/agent-runs/components/RunConditionSummary";
+import type { PlanEntry } from "@app/pages/agent-runs/planLadder";
+import { planEntries, planTurns } from "@app/pages/agent-runs/planLadder";
 import {
   failureStopReason,
   isGitWriteAccessFailure,
@@ -148,10 +151,6 @@ interface ToolItem {
   detail: string;
   /** The call's rawInput as announced (e.g. load_skill's `{name}`), if any. */
   input?: Record<string, unknown>;
-}
-interface PlanEntry {
-  content: string;
-  status: string;
 }
 /** The agent's task ladder; each plan update replaces the previous one. */
 interface PlanItem {
@@ -448,15 +447,7 @@ function reduceUpdate(
       ];
     }
     case "plan": {
-      const entries: PlanEntry[] = Array.isArray(u.entries)
-        ? u.entries
-            .filter(isRecord)
-            .map((e) => ({
-              content: str(e.content),
-              status: str(e.status) || "pending",
-            }))
-            .filter((e) => e.content)
-        : [];
+      const entries = planEntries(u.entries);
       if (entries.length === 0) return items;
       // Each plan update carries the whole ladder -- replace in place.
       for (let i = items.length - 1; i >= 0; i--) {
@@ -1127,6 +1118,7 @@ export function ChatPanel({
   // auto-scrolling list it was off screen for nearly all of that.
   const plan = items.findLast((it): it is PlanItem => it.kind === "plan");
   const transcript = plan ? items.filter((it) => it.kind !== "plan") : items;
+  const turns = plan && planTurns(plan.entries);
 
   const parked = explanatoryCondition(status?.conditions);
   const notice = (() => {
@@ -1181,7 +1173,9 @@ export function ChatPanel({
           </ChatbotHeaderTitle>
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
-          {usage && <UsageBadge usage={usage} />}
+          {(usage || turns) && (
+            <UsageBadge usage={usage ?? {}} turns={turns ?? undefined} />
+          )}
           {targetBranch &&
             (targetBranchUrl ? (
               <Button
@@ -1465,17 +1459,37 @@ function formatCost(amount: number, currency?: string): string {
 }
 
 /**
- * Context occupancy and cost in the chat header. Turns are deliberately not
- * here: the harness's plan rung carries the count maxTurns is measured in
- * ("turn 17 of 200"), and a second tally of the responses this connection
- * happened to see disagrees with it after any late attach or reconnect.
+ * Turns, context occupancy and cost — the run's whole spend on one header
+ * line, in the three units the run limits are set in.
+ *
+ * The turn count is the harness's, taken from the task rung's published
+ * fields (agentic-controller#268) and never tallied here. This connection
+ * only sees the responses that arrived while it was attached, so counting
+ * them gives a late viewer a smaller number than the one maxTurns is
+ * actually measured against — and the plan rung sitting directly below the
+ * header would be saying the other one.
  */
-function UsageBadge({ usage }: { usage: RunUsage }) {
+function UsageBadge({
+  usage,
+  turns,
+}: {
+  usage: RunUsage;
+  turns?: Pick<PlanRungMeta, "turnsUsed" | "maxTurns">;
+}) {
   const { t } = useTranslation();
   const cost = usage.cost ?? usage.summedCost;
   const costText = cost === undefined ? null : formatCost(cost, usage.currency);
   const { used, contextLimit } = usage;
   const limitText = contextLimit ? compactNumber.format(contextLimit) : null;
+  const turnsText =
+    turns?.turnsUsed === undefined
+      ? null
+      : turns.maxTurns
+        ? t("agentic.chat.usageChipTurnOf", {
+            turn: turns.turnsUsed,
+            max: turns.maxTurns,
+          })
+        : t("agentic.chat.usageChipTurn", { turn: turns.turnsUsed });
   const contextText =
     used === undefined
       ? limitText && t("agentic.chat.usageChipLimit", { limit: limitText })
@@ -1485,12 +1499,22 @@ function UsageBadge({ usage }: { usage: RunUsage }) {
             limit: limitText,
           })
         : t("agentic.chat.usageChipUsed", { used: compactNumber.format(used) });
-  const parts = [contextText, costText].filter(Boolean);
+  const parts = [turnsText, contextText, costText].filter(Boolean);
   if (parts.length === 0) return null;
   return (
     <Tooltip
       content={
         <div>
+          {turns?.turnsUsed !== undefined && (
+            <div>
+              {turns.maxTurns
+                ? t("agentic.chat.usageTurnsOf", {
+                    turn: turns.turnsUsed,
+                    max: turns.maxTurns,
+                  })
+                : t("agentic.chat.usageTurns", { turn: turns.turnsUsed })}
+            </div>
+          )}
           <div>
             {used === undefined
               ? contextLimit
