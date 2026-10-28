@@ -60,6 +60,7 @@ import type {
   ElicitationRequest,
   PermissionOutcome,
   PermissionRequest,
+  PlanRungMeta,
   SessionUpdate,
   SteerResult,
   ToolCallDiff,
@@ -81,12 +82,20 @@ import {
   explanatoryCondition,
   explanatoryMessage,
 } from "@app/pages/agent-runs/components/RunConditionSummary";
+import type { PlanEntry } from "@app/pages/agent-runs/planLadder";
+import {
+  planEntries,
+  planTurns,
+  rungElapsed,
+  timeRungs,
+} from "@app/pages/agent-runs/planLadder";
 import {
   failureStopReason,
   isGitWriteAccessFailure,
 } from "@app/pages/agent-runs/runOutcome";
 import { AGENT_RUN_QUERY_KEY } from "@app/queries/agent-runs";
 import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
+import { formatDuration } from "@app/utils/agentic";
 
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
@@ -148,10 +157,6 @@ interface ToolItem {
   detail: string;
   /** The call's rawInput as announced (e.g. load_skill's `{name}`), if any. */
   input?: Record<string, unknown>;
-}
-interface PlanEntry {
-  content: string;
-  status: string;
 }
 /** The agent's task ladder; each plan update replaces the previous one. */
 interface PlanItem {
@@ -333,6 +338,29 @@ async function dialAcp(opts: {
   return session;
 }
 
+/**
+ * How long a wait has to last before the notice starts reporting its age.
+ * A sandbox pulling the agent image routinely takes tens of seconds, and a
+ * stopwatch on that is noise; what a viewer needs a number for is the wait
+ * that has gone past normal.
+ */
+const WAITING_PATIENCE_MS = 30_000;
+
+/**
+ * Re-render once a second while `active`, so a live elapsed time advances
+ * instead of freezing at whatever it read when the last update arrived. The
+ * interval exists only while something is being timed, so a finished run
+ * costs nothing.
+ */
+function useSecondTick(active: boolean): void {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+}
+
 // -------------------------------------------------- session/update mapping
 
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
@@ -448,21 +476,16 @@ function reduceUpdate(
       ];
     }
     case "plan": {
-      const entries: PlanEntry[] = Array.isArray(u.entries)
-        ? u.entries
-            .filter(isRecord)
-            .map((e) => ({
-              content: str(e.content),
-              status: str(e.status) || "pending",
-            }))
-            .filter((e) => e.content)
-        : [];
+      const entries = planEntries(u.entries);
       if (entries.length === 0) return items;
       // Each plan update carries the whole ladder -- replace in place.
       for (let i = items.length - 1; i >= 0; i--) {
         const it = items[i];
         if (it && it.kind === "plan") {
-          const next: PlanItem = { ...it, entries };
+          const next: PlanItem = {
+            ...it,
+            entries: timeRungs(it.entries, entries),
+          };
           return [...items.slice(0, i), next, ...items.slice(i + 1)];
         }
       }
@@ -1127,31 +1150,57 @@ export function ChatPanel({
   // auto-scrolling list it was off screen for nearly all of that.
   const plan = items.findLast((it): it is PlanItem => it.kind === "plan");
   const transcript = plan ? items.filter((it) => it.kind !== "plan") : items;
+  const turns = plan && planTurns(plan.entries);
 
   const parked = explanatoryCondition(status?.conditions);
+
+  // A waiting notice with no clock reads the same at five seconds as at
+  // five minutes, so the one question it raises -- is this stuck? -- is the
+  // one it cannot answer. Time it, and say so once the wait is longer than
+  // a sandbox normally takes to come up; below that a duration is just
+  // noise on a run that is starting perfectly normally.
+  const [waitingSince, setWaitingSince] = useState<number | null>(null);
+  useEffect(() => {
+    setWaitingSince(view.kind === "waiting" ? Date.now() : null);
+  }, [view.kind]);
+  useSecondTick(waitingSince !== null);
+  const waited =
+    waitingSince !== null && Date.now() - waitingSince >= WAITING_PATIENCE_MS
+      ? formatDuration(Math.round((Date.now() - waitingSince) / 1000))
+      : null;
+
   const notice = (() => {
     switch (view.kind) {
-      case "waiting":
-        if (acpReady && phase === "Running") {
-          return t("agentic.chat.waitingForAcp", {
-            detail: acpReady.message || acpReady.reason || "",
-          });
-        }
-        if (!acpReady && phase === "Running") {
-          return t("agentic.chat.waitingForAcpCondition", { phase });
-        }
-        // A parked run (AgentNotReady, InvalidParams, ...) says why in
-        // its conditions; repeat that here so the reason is in the panel
-        // the viewer is looking at, not only in the header.
-        if (parked) {
-          return t("agentic.chat.waitingForSandboxReason", {
+      case "waiting": {
+        const detail = (() => {
+          if (acpReady && phase === "Running") {
+            return t("agentic.chat.waitingForAcp", {
+              detail: acpReady.message || acpReady.reason || "",
+            });
+          }
+          if (!acpReady && phase === "Running") {
+            return t("agentic.chat.waitingForAcpCondition", { phase });
+          }
+          // A parked run (AgentNotReady, InvalidParams, ...) says why in
+          // its conditions; repeat that here so the reason is in the panel
+          // the viewer is looking at, not only in the header.
+          if (parked) {
+            return t("agentic.chat.waitingForSandboxReason", {
+              phase: phase ?? "Pending",
+              detail: parked.message || parked.reason,
+            });
+          }
+          return t("agentic.chat.waitingForSandbox", {
             phase: phase ?? "Pending",
-            detail: parked.message || parked.reason,
           });
-        }
-        return t("agentic.chat.waitingForSandbox", {
-          phase: phase ?? "Pending",
-        });
+        })();
+        // The duration is measured from when this panel started waiting,
+        // not from when the run was created: a viewer who opened the page
+        // late must not be told the run has only just begun.
+        return waited
+          ? t("agentic.chat.stillWaiting", { detail, duration: waited })
+          : detail;
+      }
       case "connecting":
         return t("agentic.chat.startingAcp");
       case "reconnecting":
@@ -1181,7 +1230,9 @@ export function ChatPanel({
           </ChatbotHeaderTitle>
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
-          {usage && <UsageBadge usage={usage} />}
+          {(usage || turns) && (
+            <UsageBadge usage={usage ?? {}} turns={turns ?? undefined} />
+          )}
           {targetBranch &&
             (targetBranchUrl ? (
               <Button
@@ -1465,17 +1516,37 @@ function formatCost(amount: number, currency?: string): string {
 }
 
 /**
- * Context occupancy and cost in the chat header. Turns are deliberately not
- * here: the harness's plan rung carries the count maxTurns is measured in
- * ("turn 17 of 200"), and a second tally of the responses this connection
- * happened to see disagrees with it after any late attach or reconnect.
+ * Turns, context occupancy and cost — the run's whole spend on one header
+ * line, in the three units the run limits are set in.
+ *
+ * The turn count is the harness's, taken from the task rung's published
+ * fields (agentic-controller#268) and never tallied here. This connection
+ * only sees the responses that arrived while it was attached, so counting
+ * them gives a late viewer a smaller number than the one maxTurns is
+ * actually measured against — and the plan rung sitting directly below the
+ * header would be saying the other one.
  */
-function UsageBadge({ usage }: { usage: RunUsage }) {
+function UsageBadge({
+  usage,
+  turns,
+}: {
+  usage: RunUsage;
+  turns?: Pick<PlanRungMeta, "turnsUsed" | "maxTurns">;
+}) {
   const { t } = useTranslation();
   const cost = usage.cost ?? usage.summedCost;
   const costText = cost === undefined ? null : formatCost(cost, usage.currency);
   const { used, contextLimit } = usage;
   const limitText = contextLimit ? compactNumber.format(contextLimit) : null;
+  const turnsText =
+    turns?.turnsUsed === undefined
+      ? null
+      : turns.maxTurns
+        ? t("agentic.chat.usageChipTurnOf", {
+            turn: turns.turnsUsed,
+            max: turns.maxTurns,
+          })
+        : t("agentic.chat.usageChipTurn", { turn: turns.turnsUsed });
   const contextText =
     used === undefined
       ? limitText && t("agentic.chat.usageChipLimit", { limit: limitText })
@@ -1485,12 +1556,22 @@ function UsageBadge({ usage }: { usage: RunUsage }) {
             limit: limitText,
           })
         : t("agentic.chat.usageChipUsed", { used: compactNumber.format(used) });
-  const parts = [contextText, costText].filter(Boolean);
+  const parts = [turnsText, contextText, costText].filter(Boolean);
   if (parts.length === 0) return null;
   return (
     <Tooltip
       content={
         <div>
+          {turns?.turnsUsed !== undefined && (
+            <div>
+              {turns.maxTurns
+                ? t("agentic.chat.usageTurnsOf", {
+                    turn: turns.turnsUsed,
+                    max: turns.maxTurns,
+                  })
+                : t("agentic.chat.usageTurns", { turn: turns.turnsUsed })}
+            </div>
+          )}
           <div>
             {used === undefined
               ? contextLimit
@@ -1863,6 +1944,18 @@ function PlanEntryIcon({ status }: { status: string }) {
   );
 }
 
+/** How long the rung in progress has been running; nothing when unknown. */
+function RungElapsed({ entry }: { entry: PlanEntry }) {
+  const { t } = useTranslation();
+  const elapsed = rungElapsed(entry);
+  if (!elapsed) return null;
+  return (
+    <span className="chat-plan-elapsed">
+      {t("agentic.chat.planElapsed", { duration: elapsed })}
+    </span>
+  );
+}
+
 /**
  * The agent's task ladder, pinned between the header and the transcript.
  * Collapsed, it is one line: how far along, and the rung in progress.
@@ -1875,6 +1968,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
     entries.find((e) => e.status === "in_progress") ??
     entries.find((e) => e.status !== "completed") ??
     entries[entries.length - 1];
+  useSecondTick(entries.some((e) => rungElapsed(e) !== null));
   return (
     <div className="chat-plan">
       <button
@@ -1896,6 +1990,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
           <span className="chat-plan-current">
             <PlanEntryIcon status={current.status} />
             <span className="chat-plan-current-text">{current.content}</span>
+            <RungElapsed entry={current} />
           </span>
         )}
       </button>
@@ -1910,6 +2005,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
             >
               {e.content}
             </span>
+            <RungElapsed entry={e} />
           </div>
         ))}
     </div>
