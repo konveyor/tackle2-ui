@@ -5,6 +5,7 @@ import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import type { AgentWorkflowRun } from "@app/api/agentic/contract";
 import {
   createWorkflowRun,
+  deleteWorkflowRun,
   getWorkflowRun,
   getWorkflowRuns,
 } from "@app/api/rest";
@@ -74,5 +75,23 @@ export const useCreateWorkflowRunMutation = (
       queryClient.invalidateQueries({ queryKey: [WORKFLOW_RUNS_QUERY_KEY] });
     },
     onError,
+  });
+};
+
+export const useDeleteWorkflowRunsMutation = (
+  onSuccess: (names: string[]) => void,
+  onError: (err: AxiosError) => void
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (names: string[]) =>
+      Promise.all(names.map((name) => deleteWorkflowRun(name))),
+    onSuccess: (_, names) => onSuccess(names),
+    onError,
+    // Promise.all can reject after another request has already succeeded, so
+    // refresh on both success and failure to reflect the server's real state.
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: [WORKFLOW_RUNS_QUERY_KEY] }),
   });
 };

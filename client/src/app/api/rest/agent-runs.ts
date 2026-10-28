@@ -268,6 +268,11 @@ export const getWorkflowRun = (name: string): Promise<AgentWorkflowRun> =>
     .get<AgentWorkflowRun>(`${WORKFLOW_RUNS}/${encodeURIComponent(name)}`)
     .then(({ data }) => data);
 
+export const deleteWorkflowRun = (name: string): Promise<void> =>
+  axios
+    .delete(`${WORKFLOW_RUNS}/${encodeURIComponent(name)}`)
+    .then(() => undefined);
+
 // AgentWorkflowRun["spec"] in contract.ts has neither `targetBranch` nor
 // `instructions` (only workflowRef/gateway/params/env/envFrom) — per the
 // Step 2 rule both CreateWorkflowRunInput fields are dropped here, not just
