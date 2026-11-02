@@ -2,12 +2,15 @@ import { useMemo } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { object, string } from "yup";
+import { number, object, string } from "yup";
 
 import {
   Application,
+  IdentityRole,
   JsonDocument,
+  ManagedIdentityRole,
   New,
+  RefWithRole,
   Repository,
   TagRef,
 } from "@app/api/models";
@@ -32,6 +35,7 @@ export interface FormValues {
   owner: string | null;
   contributors: string[];
   source: Repository<RepositoryKind>;
+  sourceCredentials: number | null;
   group: string;
   artifact: string;
   version: string;
@@ -45,6 +49,19 @@ export interface ApplicationFormProps {
   application: Application | null;
   data: ReturnType<typeof useApplicationFormData>;
 }
+
+/**
+ * Replace the identity in the "source" role while retaining every other identity
+ * already associated with the application (the form only manages the source role).
+ */
+export const withSourceIdentity = (
+  existing: RefWithRole<IdentityRole>[] | undefined,
+  source: RefWithRole<ManagedIdentityRole> | undefined
+): RefWithRole<IdentityRole>[] | undefined => {
+  const others = existing?.filter(({ role }) => role !== "source") ?? [];
+  const updated = source ? [...others, source] : others;
+  return updated.length > 0 ? updated : undefined;
+};
 
 const getBinaryInitialValue = (
   application: Application | null,
@@ -82,6 +99,7 @@ export const useApplicationForm = ({
     createApplication,
     updateApplication,
     platformFromName,
+    sourceCredentialsToRef,
   },
 }: ApplicationFormProps) => {
   const { t } = useTranslation();
@@ -123,6 +141,7 @@ export const useApplicationForm = ({
 
       // source code fields
       source: yupRepositoryFields({ t, allowEmptyKind: true }),
+      sourceCredentials: number().nullable(),
 
       // binary fields
       group: string()
@@ -206,6 +225,9 @@ export const useApplicationForm = ({
         branch: application?.repository?.branch || "",
         path: application?.repository?.path || "",
       },
+      sourceCredentials:
+        application?.identities?.find(({ role }) => role === "source")?.id ??
+        null,
       group: getBinaryInitialValue(application, "group"),
       artifact: getBinaryInitialValue(application, "artifact"),
       version: getBinaryInitialValue(application, "version"),
@@ -277,8 +299,12 @@ export const useApplicationForm = ({
           },
         }),
 
+      identities: withSourceIdentity(
+        application?.identities,
+        sourceCredentialsToRef(formValues.sourceCredentials)
+      ),
+
       // Values not editable on the form but still need to be passed through
-      identities: application?.identities ?? undefined,
       migrationWave: application?.migrationWave ?? null,
     };
 

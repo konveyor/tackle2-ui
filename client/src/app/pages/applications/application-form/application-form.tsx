@@ -44,7 +44,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = (props) => {
 };
 
 const hasSourceRepository = (application: DecoratedApplication | null) => {
-  return !!application?.repository?.kind && !!application?.repository?.url;
+  return (
+    (!!application?.repository?.kind && !!application?.repository?.url) ||
+    !!application?.identities?.some(({ role }) => role === "source")
+  );
 };
 
 const hasBinary = (application: DecoratedApplication | null) => {
@@ -68,6 +71,7 @@ const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
     businessServiceOptions,
     platformFromName,
     platformOptions,
+    sourceCredentialsOptions,
   },
   application,
 }) => {
@@ -234,6 +238,28 @@ const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             toggleIds={{
               type: "repo-type-toggle",
             }}
+          />
+          <HookFormPFGroupController
+            control={control}
+            name="sourceCredentials"
+            label={t("terms.sourceCredentials")}
+            fieldId="sourceCredentials"
+            helperText={t("credentials.default.applicationFormHelp")}
+            renderInput={({ field: { value, name, onChange } }) => (
+              <TypeaheadSelect
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.credential").toLowerCase(),
+                })}
+                toggleId="source-credentials-toggle"
+                toggleAriaLabel="Source credentials select dropdown toggle"
+                ariaLabel={name}
+                value={value?.toString()}
+                options={sourceCredentialsOptions}
+                onSelect={(selection) =>
+                  onChange(selection ? Number(selection) : null)
+                }
+              />
+            )}
           />
         </div>
       </ExpandableSection>
