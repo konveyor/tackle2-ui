@@ -51,12 +51,31 @@ export interface ApplicationFormProps {
 }
 
 /**
+ * Resolve the selected credential id to a ref.
+ *
+ * When the selection still matches the identity already on the application, reuse
+ * that ref instead of looking it up. Identities are fetched outside `isDataReady`,
+ * so the list may be empty because the request is still in flight or was refused --
+ * resolving to `undefined` there would silently drop the association on save.
+ */
+export const resolveSourceIdentity = (
+  selected: number | null,
+  existing: RefWithRole<IdentityRole> | undefined,
+  lookup: (id: number | null) => RefWithRole<ManagedIdentityRole> | undefined
+): RefWithRole<IdentityRole> | undefined => {
+  if (selected === null) {
+    return undefined;
+  }
+  return selected === existing?.id ? existing : lookup(selected);
+};
+
+/**
  * Replace the identity in the "source" role while retaining every other identity
  * already associated with the application (the form only manages the source role).
  */
 export const withSourceIdentity = (
   existing: RefWithRole<IdentityRole>[] | undefined,
-  source: RefWithRole<ManagedIdentityRole> | undefined
+  source: RefWithRole<IdentityRole> | undefined
 ): RefWithRole<IdentityRole>[] | undefined => {
   const others = existing?.filter(({ role }) => role !== "source") ?? [];
   const updated = source ? [...others, source] : others;
@@ -111,6 +130,11 @@ export const useApplicationForm = ({
   const nonManualTagRefs = useMemo(() => {
     return application?.tags?.filter((t) => (t?.source ?? "") !== "") ?? [];
   }, [application?.tags]);
+
+  const existingSourceIdentity = useMemo(
+    () => application?.identities?.find(({ role }) => role === "source"),
+    [application?.identities]
+  );
 
   const validationSchema = object().shape(
     {
@@ -225,9 +249,7 @@ export const useApplicationForm = ({
         branch: application?.repository?.branch || "",
         path: application?.repository?.path || "",
       },
-      sourceCredentials:
-        application?.identities?.find(({ role }) => role === "source")?.id ??
-        null,
+      sourceCredentials: existingSourceIdentity?.id ?? null,
       group: getBinaryInitialValue(application, "group"),
       artifact: getBinaryInitialValue(application, "artifact"),
       version: getBinaryInitialValue(application, "version"),
@@ -301,7 +323,11 @@ export const useApplicationForm = ({
 
       identities: withSourceIdentity(
         application?.identities,
-        sourceCredentialsToRef(formValues.sourceCredentials)
+        resolveSourceIdentity(
+          formValues.sourceCredentials,
+          existingSourceIdentity,
+          sourceCredentialsToRef
+        )
       ),
 
       // Values not editable on the form but still need to be passed through

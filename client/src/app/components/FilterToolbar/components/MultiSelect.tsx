@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Badge,
@@ -83,6 +83,15 @@ export const MultiSelect: FC<MultiSelectProps> = ({
   const [inputValue, setInputValue] = useState<string>(
     showSelectedInToggle ? selectedDisplayValue : ""
   );
+
+  // The toggle text is seeded once, so a consumer that renders before its options
+  // have loaded shows an empty toggle even though a value is selected. Re-sync it
+  // while the menu is closed; with the menu open the text is the user's filter.
+  useEffect(() => {
+    if (showSelectedInToggle && !isFilterDropdownOpen) {
+      setInputValue(selectedDisplayValue);
+    }
+  }, [showSelectedInToggle, isFilterDropdownOpen, selectedDisplayValue]);
 
   // extend "empty" search state: show all options if a value is selected
   const showAllOptions =
