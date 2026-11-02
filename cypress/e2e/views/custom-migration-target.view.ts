@@ -8,6 +8,7 @@ export const CustomMigrationTargetView = {
   helperText: "span[class*='helper-text']",
   descriptionInput: "#description",
   imageInput: "#custom-migration-target-upload-image-filename",
+  imageFileInput: 'input[type="file"][accept*="image/png"]',
   imageHelper: "#custom-migration-target-upload-image-helper",
   ruleInput: "input[accept*='text/yaml,.yml,.yaml']",
   ruleHelper: "h4[class*='alert__title']",

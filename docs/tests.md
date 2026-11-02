@@ -61,3 +61,5 @@ npm run test -w client -- --watch
 For end-to-end testing with Cypress, see [cypress/README.md](/cypress/README.md).
 
 E2E tests use page object models: `cypress/e2e/models/{domain}/{feature}.ts` encapsulates interactions. Shared selectors live in `cypress/e2e/views/`. Test specs are in `cypress/e2e/tests/`. Cypress test patterns rely on `data-ouia-component-id` (PatternFly OUIA) for stable selectors.
+
+Scope form inputs to the active dialog. For file uploads, select the file input by its accepted file types rather than relying on PatternFly's internal wrapper classes or sibling order.

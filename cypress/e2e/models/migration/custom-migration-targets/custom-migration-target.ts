@@ -124,8 +124,8 @@ export class CustomMigrationTarget {
   }
 
   public static uploadImage(imagePath: string) {
-    cy.get("div[class='pf-v6-c-file-upload__file-details']")
-      .next('input[type="file"]', { timeout: 2 * SEC })
+    cy.get('[role="dialog"]')
+      .find(CustomMigrationTargetView.imageFileInput)
       .selectFile(`fixtures/${imagePath}`, {
         timeout: 120 * SEC,
         force: true,
