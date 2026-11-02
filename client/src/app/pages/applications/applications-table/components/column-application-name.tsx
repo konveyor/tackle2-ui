@@ -1,7 +1,15 @@
+import "./column-application-name.css";
+
 import * as React from "react";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
-import { Icon, Popover, PopoverProps, Tooltip } from "@patternfly/react-core";
+import {
+  Alert,
+  Icon,
+  Popover,
+  PopoverProps,
+  Tooltip,
+} from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -108,51 +116,60 @@ export const ColumnApplicationName: React.FC<{
   const status = statusMap[application.tasksStatus];
   const StatusIcon = status.icon;
 
-  const bodyContent =
-    application.tasksStatus === "None" ? (
-      <></>
-    ) : (
-      <Table variant="compact" borders={false}>
-        <Thead>
-          <Tr>
-            <Td>Id</Td>
-            <Td>Kind</Td>
-            <Td>Started</Td>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {Object.entries(application.tasksByKind)
-            .sort((a, b) => universalComparator(a[0], b[0]))
-            .map(([kind, [task]]) => {
-              const startTime = dayjs(task.started ?? task.createTime);
-              return (
-                <Tr key={`popover-a${application.id}-k${kind}`}>
-                  <Td>{task.id}</Td>
-                  <Td>
-                    <IconWithLabel
-                      icon={<TaskStateIcon state={task.state} />}
-                      label={<Link to={linkToDetails(task)}>{kind}</Link>}
-                    />
-                  </Td>
-                  <Td>
-                    <Tooltip content={startTime.format("ll, LTS")}>
-                      <span>{startTime.fromNow()}</span>
-                    </Tooltip>
-                  </Td>
-                </Tr>
-              );
-            })}
-        </Tbody>
-      </Table>
-    );
+  const bodyContent = (
+    <div>
+      <Alert
+        title={status.headerText}
+        variant={status.popoverVariant}
+        customIcon={<StatusIcon />}
+        isInline
+        isPlain
+      />
+      {application.tasksStatus === "None" ? (
+        <></>
+      ) : (
+        <Table variant="compact" borders={false}>
+          <Thead>
+            <Tr>
+              <Td>Id</Td>
+              <Td>Kind</Td>
+              <Td>Started</Td>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {Object.entries(application.tasksByKind)
+              .sort((a, b) => universalComparator(a[0], b[0]))
+              .map(([kind, [task]]) => {
+                const startTime = dayjs(task.started ?? task.createTime);
+                return (
+                  <Tr key={`popover-a${application.id}-k${kind}`}>
+                    <Td>{task.id}</Td>
+                    <Td>
+                      <IconWithLabel
+                        icon={<TaskStateIcon state={task.state} />}
+                        label={<Link to={linkToDetails(task)}>{kind}</Link>}
+                      />
+                    </Td>
+                    <Td>
+                      <Tooltip content={startTime.format("ll, LTS")}>
+                        <span>{startTime.fromNow()}</span>
+                      </Tooltip>
+                    </Td>
+                  </Tr>
+                );
+              })}
+          </Tbody>
+        </Table>
+      )}
+    </div>
+  );
 
   return (
     <Popover
+      className="application-name-popover"
       triggerAction="hover"
       aria-label="application task information popover"
-      alertSeverityVariant={status.popoverVariant}
-      headerIcon={<StatusIcon />}
-      headerContent={status.headerText}
+      headerContent={application.name}
       hasAutoWidth
       bodyContent={bodyContent}
       footerContent={
