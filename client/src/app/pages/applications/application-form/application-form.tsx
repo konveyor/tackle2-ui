@@ -251,7 +251,7 @@ const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                   what: t("terms.credential").toLowerCase(),
                 })}
                 toggleId="source-credentials-toggle"
-                toggleAriaLabel="Source credentials select dropdown toggle"
+                toggleAriaLabel={t("terms.sourceCredentials")}
                 ariaLabel={name}
                 value={value?.toString()}
                 options={sourceCredentialsOptions}
