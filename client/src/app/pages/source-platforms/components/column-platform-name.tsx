@@ -187,7 +187,11 @@ export const ColumnPlatformName: React.FC<{
         </Link>
       }
     >
-      <IconWithLabel icon={<StatusIcon />} label={platform.name} />
+      <IconWithLabel
+        icon={<StatusIcon />}
+        label={platform.name}
+        truncateLabel
+      />
     </Popover>
   );
 };
