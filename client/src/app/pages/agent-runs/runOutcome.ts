@@ -1,4 +1,8 @@
-import type { HarnessTerminationData } from "@app/api/agentic/contract";
+import type {
+  Condition,
+  HarnessTerminationData,
+} from "@app/api/agentic/contract";
+import { VERIFIED_CONDITION, VERIFIED_REASON } from "@app/api/agentic/contract";
 
 /**
  * ACP stop reasons that only say how the agent's last turn ended, not that
@@ -73,4 +77,47 @@ export function isGitWriteAccessFailure(reason?: string): boolean {
   if (typeof reason !== "string") return false;
   const text = reason.toLowerCase();
   return GIT_WRITE_ACCESS_MARKERS.some((marker) => text.includes(marker));
+}
+
+// --------------------------------------------------------- verification
+
+/**
+ * What a run's `Verified` condition says, reduced to the four states the
+ * controller documents as a closed set (agentic-controller#302).
+ */
+export type VerifiedState = "passed" | "failed" | "notRun" | "notReported";
+
+export interface VerifiedVerdict {
+  state: VerifiedState;
+  /** The condition's message: why nothing ran, or which command failed. */
+  message?: string;
+}
+
+/**
+ * The run's verification verdict, or undefined when there is nothing to
+ * say — the condition is absent because the run has not finished, or the
+ * controller predates the condition entirely.
+ *
+ * `passed` is returned only for the one pairing that earns it,
+ * True + VerificationPassed. Anything else that claims to be true, and
+ * any reason outside the closed set, degrades to `notReported`: the
+ * console must never render an unmeasured run as verified.
+ */
+export function verifiedVerdict(
+  conditions?: Condition[]
+): VerifiedVerdict | undefined {
+  const condition = conditions?.find((c) => c.type === VERIFIED_CONDITION);
+  if (!condition) return undefined;
+
+  const message = condition.message?.trim() || undefined;
+  const { passed, failed, notRun } = VERIFIED_REASON;
+
+  if (condition.reason === passed) {
+    return condition.status === "True"
+      ? { state: "passed", message }
+      : { state: "notReported", message };
+  }
+  if (condition.reason === failed) return { state: "failed", message };
+  if (condition.reason === notRun) return { state: "notRun", message };
+  return { state: "notReported", message };
 }

@@ -16,7 +16,11 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { DevPaths } from "@app/Paths";
-import type { AgentRun, AgentRunPhase } from "@app/api/agentic/contract";
+import type {
+  AgentRun,
+  AgentRunPhase,
+  Condition,
+} from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
 import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -57,6 +61,7 @@ import {
   explanatoryCondition,
   explanatoryMessage,
 } from "./components/RunConditionSummary";
+import { VerifiedLabel } from "./components/VerifiedLabel";
 
 import "./agent-runs.css";
 
@@ -66,6 +71,8 @@ interface AgentRunRow {
   agent: string;
   application: string;
   phase?: AgentRunPhase;
+  /** Carried whole so the phase cell can read the Verified verdict. */
+  conditions?: Condition[];
   reason?: string;
   message?: string;
   isBroken: boolean;
@@ -108,6 +115,7 @@ const AgentRunsPage: React.FC = () => {
         agent: run.spec.agentRef,
         application: runApplicationDisplayName(run, applicationsById),
         phase: run.status?.phase,
+        conditions: run.status?.conditions,
         reason: condition?.reason,
         message: explanatoryMessage(condition, run.status?.terminationData),
         isBroken: run.status?.phase === "Failed" || condition !== undefined,
@@ -391,7 +399,8 @@ const AgentRunsPage: React.FC = () => {
                         {row.application || "-"}
                       </Td>
                       <Td {...getTdProps({ columnKey: "phase" })}>
-                        <PhaseLabel phase={row.phase} />
+                        <PhaseLabel phase={row.phase} />{" "}
+                        <VerifiedLabel conditions={row.conditions} />
                       </Td>
                       <Td {...getTdProps({ columnKey: "reason" })}>
                         {row.reason ? (
