@@ -1,4 +1,4 @@
-import { EditorLanguage } from "monaco-editor/esm/metadata";
+import type { Language } from "@patternfly/react-code-editor";
 
 export const LANGUAGES_BY_FILE_EXTENSION = {
   java: "java",
@@ -19,4 +19,4 @@ export const LANGUAGES_BY_FILE_EXTENSION = {
   rb: "ruby",
   sh: "shell",
   bash: "shell",
-} as const satisfies Record<string, EditorLanguage>;
+} as const satisfies Record<string, `${Language}`>;
