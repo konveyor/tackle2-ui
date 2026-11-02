@@ -85,12 +85,25 @@ export const useDeleteWorkflowRunsMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (names: string[]) =>
-      Promise.all(names.map((name) => deleteWorkflowRun(name))),
+    // Let every delete settle before reporting the batch. Promise.all rejects
+    // as soon as one request fails, which ran onError and the refetch while the
+    // rest were still in flight -- the page could report a failure, and refresh
+    // around it, while the server was still deleting the other runs.
+    mutationFn: async (names: string[]) => {
+      const results = await Promise.allSettled(
+        names.map((name) => deleteWorkflowRun(name))
+      );
+      const failure = results.find(
+        (result): result is PromiseRejectedResult =>
+          result.status === "rejected"
+      );
+      if (failure) {
+        throw failure.reason as AxiosError;
+      }
+    },
     onSuccess: (_, names) => onSuccess(names),
     onError,
-    // Promise.all can reject after another request has already succeeded, so
-    // refresh on both success and failure to reflect the server's real state.
+    // A partial failure still leaves the list stale, so refresh either way.
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: [WORKFLOW_RUNS_QUERY_KEY] }),
   });
