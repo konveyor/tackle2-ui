@@ -42,6 +42,13 @@ import {
 import type { Application } from "@app/api/models";
 import { useEffectiveSourceCredential } from "@app/hooks/useEffectiveSourceCredential";
 import {
+  EnvVarFields,
+  envRowsFromRun,
+  envRowsInvalid,
+  envRowsToSpec,
+} from "@app/pages/agent-runs/components/EnvVarFields";
+import type { EnvRow } from "@app/pages/agent-runs/components/EnvVarFields";
+import {
   GatewayPicker,
   defaultGatewayFor,
   gatewayRequiredFor,
@@ -179,6 +186,10 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
   const previousTargetBranch = runHubCoordinates(
     prefill?.spec.env
   ).targetBranch;
+  /** User-supplied env, seeded from the run this form was reopened from. */
+  const [envRows, setEnvRows] = useState<EnvRow[]>(() =>
+    envRowsFromRun(prefill?.spec.env)
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -371,6 +382,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     !paramsInvalid &&
     !missingApplication &&
     !branchInvalid &&
+    !envRowsInvalid(envRows) &&
     unresolvable.length === 0 &&
     !submitting;
 
@@ -405,6 +417,7 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
       gateway,
       mode,
       askUser: askUser || undefined,
+      env: envRowsToSpec(envRows),
     });
   };
 
@@ -843,6 +856,13 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                 resizeOrientation="vertical"
                 placeholder={t("agentic.createRun.instructionsPlaceholder")}
               />
+            </FormGroup>
+
+            <FormGroup
+              label={t("agentic.runEnv.heading")}
+              fieldId="create-run-env"
+            >
+              <EnvVarFields rows={envRows} onChange={setEnvRows} />
             </FormGroup>
           </Form>
         )}

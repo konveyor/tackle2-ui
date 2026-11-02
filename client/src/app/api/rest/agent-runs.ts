@@ -9,6 +9,7 @@ import type {
   AgentWorkflowSpec,
   CreateRunInput,
   CreateWorkflowRunInput,
+  EnvVar,
   Gateway,
   SkillCard,
   SkillCardSpec,
@@ -57,8 +58,19 @@ const runMetadata = (applicationRef?: string) => ({
 // split: the creating client owns APP_ID / TARGET_BRANCH, the hub owns
 // HUB_BASE_URL and the minted token Secret. The harness fail-fasts without
 // APP_ID, so this is load-bearing for every managed-agent run.
-const appContextEnv = (applicationRef?: string, targetBranch?: string) => {
+/**
+ * The run's environment: whatever the user supplied, with the Hub
+ * coordinates appended. Order matters — the coordinates go last so they
+ * win against a duplicate name, which the create forms already refuse
+ * but the API must not depend on them to.
+ */
+const runEnv = (
+  applicationRef?: string,
+  targetBranch?: string,
+  userEnv?: EnvVar[]
+) => {
   const env = [
+    ...(userEnv ?? []),
     ...(applicationRef ? [{ name: "APP_ID", value: applicationRef }] : []),
     ...(targetBranch ? [{ name: "TARGET_BRANCH", value: targetBranch }] : []),
   ];
@@ -84,7 +96,7 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
               },
             }
           : {}),
-        ...appContextEnv(input.applicationRef, input.targetBranch),
+        ...runEnv(input.applicationRef, input.targetBranch, input.env),
       },
     })
     .then(({ data }) => data);
@@ -288,7 +300,7 @@ export const createWorkflowRun = (
         workflowRef: input.workflowRef,
         ...(paramList(input.params) ? { params: paramList(input.params) } : {}),
         ...(input.gateway ? { gateway: input.gateway } : {}),
-        ...appContextEnv(input.applicationRef, input.targetBranch),
+        ...runEnv(input.applicationRef, input.targetBranch, input.env),
       },
     })
     .then(({ data }) => data);
