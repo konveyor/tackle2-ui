@@ -1,5 +1,9 @@
 import type { Language } from "@patternfly/react-code-editor";
 
+// Convert the string enum's values into a union of string literals so the map
+// accepts plain language IDs without requiring enum members such as Language.java.
+type EditorLanguageId = `${Language}`;
+
 export const LANGUAGES_BY_FILE_EXTENSION = {
   java: "java",
   go: "go",
@@ -19,4 +23,4 @@ export const LANGUAGES_BY_FILE_EXTENSION = {
   rb: "ruby",
   sh: "shell",
   bash: "shell",
-} as const satisfies Record<string, `${Language}`>;
+} as const satisfies Record<string, EditorLanguageId>;
