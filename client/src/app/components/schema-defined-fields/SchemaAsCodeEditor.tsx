@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as jsYaml from "js-yaml";
+import type * as Monaco from "monaco-editor";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import { EmptyState, EmptyStateVariant, Spinner } from "@patternfly/react-core";
@@ -118,11 +119,14 @@ export const SchemaAsCodeEditor = ({
         fontFamily: '"Red Hat Mono", "Courier New", Courier, monospace',
       }}
       onChange={handleCodeChange}
-      onEditorDidMount={(editor, monaco) => {
+      onEditorDidMount={(
+        editor,
+        monaco: Pick<typeof Monaco, "editor" | "json">
+      ) => {
         editorRef.current = editor as ControlledEditor;
         document.fonts?.ready?.then(() => monaco.editor.remeasureFonts());
         if (jsonSchema) {
-          monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+          monaco.json.jsonDefaults.setDiagnosticsOptions({
             validate: true,
             schemaValidation: "error",
             schemas: [

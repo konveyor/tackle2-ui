@@ -79,6 +79,14 @@ Filter components in `FilterToolbar/` handle both client-side and server-side (h
 
 Access control is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`, `businessservices:put`). The `ScopeGate` component or the `useHasSomeScopes` / `useHasAllScopes` hooks gate protected UI sections. Scope constants are grouped in `scopes.ts`; the role-to-scope mapping lives in `auth/roles-to-scopes.ts`.
 
+### Code editor
+
+`client/src/app/code-editor.tsx` configures the locally bundled Monaco editor for PatternFly. It uses Monaco's public ESM entry points and Rspack's native `new Worker(new URL(..., import.meta.url))` bundling, not `monaco-editor-webpack-plugin` or a CDN. Keep its language registrations aligned with `client/config/monacoConstants.ts` when adding file extensions. Language feature APIs are top-level namespaces (for example, `monaco.json.jsonDefaults`, not `monaco.languages.json`).
+
+The exact root-package alias in `client/config/rspack.common.mts` keeps Chatbot's lazy Monaco import on the application's installed editor, rather than its separate peer dependency. Public language and worker subpaths are left intact.
+
+After changing this integration, build the production client and open `/devtools/schema-defined` with `DEVTOOLS=on`. Check syntax highlighting, switch the document to JSON, and confirm that schema-invalid values receive diagnostics without worker-loading errors.
+
 ## READMEs
 
 For more info about working on the Tackle 2.x UI, check out these READMEs:
