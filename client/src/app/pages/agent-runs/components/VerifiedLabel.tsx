@@ -23,6 +23,7 @@ const LABEL: Record<
   passed: { color: "green", key: "agentic.verified.passed" },
   failed: { color: "red", key: "agentic.verified.failed" },
   notRun: { color: "orange", key: "agentic.verified.notRun" },
+  incomplete: { color: "orange", key: "agentic.verified.incomplete" },
   notReported: { color: "grey", key: "agentic.verified.notReported" },
 };
 

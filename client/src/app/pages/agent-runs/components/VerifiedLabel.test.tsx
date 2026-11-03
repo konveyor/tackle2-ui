@@ -37,6 +37,15 @@ describe("VerifiedLabel", () => {
     expect(screen.getByText("agentic.verified.notRun")).toBeInTheDocument();
   });
 
+  it("shows an incomplete measurement, which is also not a pass", () => {
+    render(
+      <VerifiedLabel
+        conditions={verified("False", VERIFIED_REASON.incomplete)}
+      />
+    );
+    expect(screen.getByText("agentic.verified.incomplete")).toBeInTheDocument();
+  });
+
   // Every run predates the measuring harness until it ships, so the list
   // would otherwise carry the same grey chip on every row.
   it("hides notReported by default and shows it when asked", () => {

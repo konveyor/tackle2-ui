@@ -1648,6 +1648,7 @@
       "passed": "Verified",
       "failed": "Verification failed",
       "notRun": "Not verified",
+      "incomplete": "Verification incomplete",
       "notReported": "Verification not reported",
       "evidenceHeading": "Verification",
       "atCommit": "Checked on commit",

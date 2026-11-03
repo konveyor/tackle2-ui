@@ -40,6 +40,18 @@ describe("verifiedVerdict", () => {
     expect(verdict?.state).toBe("notRun");
   });
 
+  // A measurement that started and could not finish is a definite
+  // non-pass, not an absent one: it must not share notRun's meaning.
+  it("keeps incomplete distinct from notRun", () => {
+    const verdict = verifiedVerdict(
+      verified("False", VERIFIED_REASON.incomplete, "step cap reached")
+    );
+    expect(verdict).toEqual({
+      state: "incomplete",
+      message: "step cap reached",
+    });
+  });
+
   it("reports an unreadable verdict as notReported", () => {
     expect(
       verifiedVerdict(verified("Unknown", VERIFIED_REASON.notReported))?.state

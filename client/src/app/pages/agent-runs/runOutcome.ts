@@ -85,7 +85,12 @@ export function isGitWriteAccessFailure(reason?: string): boolean {
  * What a run's `Verified` condition says, reduced to the four states the
  * controller documents as a closed set (agentic-controller#302).
  */
-export type VerifiedState = "passed" | "failed" | "notRun" | "notReported";
+export type VerifiedState =
+  | "passed"
+  | "failed"
+  | "notRun"
+  | "incomplete"
+  | "notReported";
 
 export interface VerifiedVerdict {
   state: VerifiedState;
@@ -110,7 +115,7 @@ export function verifiedVerdict(
   if (!condition) return undefined;
 
   const message = condition.message?.trim() || undefined;
-  const { passed, failed, notRun } = VERIFIED_REASON;
+  const { passed, failed, notRun, incomplete } = VERIFIED_REASON;
 
   if (condition.reason === passed) {
     return condition.status === "True"
@@ -119,5 +124,6 @@ export function verifiedVerdict(
   }
   if (condition.reason === failed) return { state: "failed", message };
   if (condition.reason === notRun) return { state: "notRun", message };
+  if (condition.reason === incomplete) return { state: "incomplete", message };
   return { state: "notReported", message };
 }

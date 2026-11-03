@@ -139,6 +139,14 @@ export const VERIFIED_REASON = {
    */
   notRun: "VerificationNotRun",
   /**
+   * The harness had commands to run and could not finish running them:
+   * the run was cancelled part way, a step cap left commands unrun, or
+   * the tree it could reach was not the commit being pushed. A definite
+   * non-pass, which is why it is its own reason rather than sharing
+   * notRun's "nothing to measure".
+   */
+  incomplete: "VerificationIncomplete",
+  /**
    * No verdict the controller could read: a harness predating #300, a
    * termination message lost or trimmed, or an unrecognised status. The
    * controller cannot say either way, which differs from the harness
