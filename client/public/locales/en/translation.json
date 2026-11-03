@@ -1650,6 +1650,7 @@
       "notRun": "Not verified",
       "notReported": "Verification not reported",
       "evidenceHeading": "Verification",
+      "atCommit": "Checked on commit",
       "tableLabel": "Verification commands and their exit codes",
       "colLabel": "Check",
       "colCommand": "Command",

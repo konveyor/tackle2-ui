@@ -198,9 +198,21 @@ export interface HarnessVerificationStep {
 }
 
 export interface HarnessVerification {
-  /** "passed" | "failed" | "notRun" */
+  /**
+   * "passed" | "failed" | "notRun" | "incomplete". `incomplete` means the
+   * measurement started and could not finish — a step cap, or a working
+   * tree that was not the commit being pushed. The harness treats it as a
+   * non-pass, as does this console.
+   */
   status?: string;
   reason?: string;
+  /**
+   * The commit the result describes: the tip of the branch being pushed,
+   * which the working tree was confirmed to match before any command ran.
+   * Empty when nothing was measured. Without it the record says a tree
+   * passed without saying which tree.
+   */
+  commit?: string;
   commands?: HarnessVerificationStep[];
 }
 

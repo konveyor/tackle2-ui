@@ -30,6 +30,17 @@ export const VerificationPanel: React.FC<{
       {verification.reason && (
         <Content component="p">{verification.reason}</Content>
       )}
+      {/*
+        Which tree the verdict describes. A result that does not name its
+        commit says a tree passed without saying which tree, and the branch
+        can have moved since.
+      */}
+      {verification.commit && (
+        <Content component="p">
+          {t("agentic.verified.atCommit")}{" "}
+          <code>{verification.commit.slice(0, 9)}</code>
+        </Content>
+      )}
       {commands.length > 0 && (
         <Table variant="compact" aria-label={t("agentic.verified.tableLabel")}>
           <Thead>
