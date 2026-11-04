@@ -12,7 +12,12 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type { Generator, New, Repository } from "@app/api/models";
+import type {
+  Generator,
+  JsonSchemaObject,
+  New,
+  Repository,
+} from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
@@ -32,8 +37,16 @@ import { matchItemsToRef } from "@app/utils/model-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { useGeneratorProviderList } from "../../useGeneratorProviderList";
-import { arrayToParameters, parametersToArray } from "../../utils";
+import {
+  GeneratorParameter,
+  PARAMETER_TYPES,
+  arrayToParameters,
+  parametersToArray,
+  parametersToSchema,
+  schemaToParameters,
+} from "../../utils";
 
+import { GeneratorFormParameters as GeneratorParametersSection } from "./generator-form-parameters";
 import { GeneratorFormRepository as GeneratorRepositorySection } from "./generator-form-repository";
 import { GeneratorFormValues as GeneratorValuesSection } from "./generator-form-values";
 
@@ -44,7 +57,7 @@ interface GeneratorFormValues {
   repository: Repository;
   credentials?: string;
   values?: Array<{ key: string; value: string }>;
-  params?: Array<{ key: string; value: string }>;
+  params?: GeneratorParameter[];
 }
 
 export interface GeneratorFormProps {
@@ -138,8 +151,13 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         ),
         params: yup.array().of(
           yup.object().shape({
-            key: yup.string().trim().required("A key is required"),
-            value: yup.string().trim().required("A value is required"),
+            name: yup.string().trim().required(t("validation.required")),
+            type: yup
+              .string()
+              .trim()
+              .required(t("validation.required"))
+              .oneOf(PARAMETER_TYPES),
+            default: yup.string().trim().required(t("validation.required")),
           })
         ),
       }),
@@ -165,7 +183,13 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             repository: generator.repository || EMPTY_REPOSITORY,
             credentials: generator?.identity?.name,
             values: parametersToArray(generator.values),
-            params: parametersToArray(generator.params),
+            params: schemaToParameters(
+              generator.params as unknown as JsonSchemaObject
+            ).map((p) => ({
+              name: p.name,
+              type: p.type,
+              default: p.default == null ? "" : String(p.default),
+            })),
           },
     [generator]
   );
@@ -197,7 +221,9 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         : undefined,
       identity: identityToRef(values.credentials),
       values: arrayToParameters(values.values),
-      params: arrayToParameters(values.params),
+      params: parametersToSchema(
+        values.params ?? []
+      ) as unknown as Generator["params"],
     };
 
     if (generator) {
@@ -258,9 +284,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         <GeneratorValuesSection />
 
         {/* Parameters section */}
-        {/* TODO: Restore with #2498
         <GeneratorParametersSection />
-        */}
 
         <ActionGroup>
           <Button
