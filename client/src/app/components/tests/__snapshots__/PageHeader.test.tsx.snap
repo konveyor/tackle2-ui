@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`PageHeader Renders without crashing 1`] = `
 {
@@ -14,7 +14,7 @@ exports[`PageHeader Renders without crashing 1`] = `
           <nav
             aria-label="Breadcrumb"
             class="pf-v6-c-breadcrumb"
-            data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
+            data-ouia-component-id="OUIA-Generated-Breadcrumb-:r1:"
             data-ouia-component-type="PF6/Breadcrumb"
             data-ouia-safe="true"
           >
@@ -56,14 +56,14 @@ exports[`PageHeader Renders without crashing 1`] = `
             >
               <div
                 class="pf-v6-c-content"
-                data-ouia-component-id="OUIA-Generated-Content-2"
+                data-ouia-component-id="OUIA-Generated-Content-:r3:"
                 data-ouia-component-type="PF6/Content"
                 data-ouia-safe="true"
                 data-pf-content="true"
               >
                 <h1
                   class="pf-v6-c-content--h1"
-                  data-ouia-component-id="OUIA-Generated-Content-4"
+                  data-ouia-component-id="OUIA-Generated-Content-:r5:"
                   data-ouia-component-type="PF6/Content"
                   data-ouia-safe="true"
                   data-pf-content="true"
@@ -77,7 +77,7 @@ exports[`PageHeader Renders without crashing 1`] = `
             >
               <button
                 class="pf-v6-c-button pf-m-primary"
-                data-ouia-component-id="OUIA-Generated-Button-primary-2"
+                data-ouia-component-id="OUIA-Generated-Button-primary-:r7:"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 type="button"
@@ -170,7 +170,7 @@ exports[`PageHeader Renders without crashing 1`] = `
         <nav
           aria-label="Breadcrumb"
           class="pf-v6-c-breadcrumb"
-          data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
+          data-ouia-component-id="OUIA-Generated-Breadcrumb-:r1:"
           data-ouia-component-type="PF6/Breadcrumb"
           data-ouia-safe="true"
         >
@@ -212,14 +212,14 @@ exports[`PageHeader Renders without crashing 1`] = `
           >
             <div
               class="pf-v6-c-content"
-              data-ouia-component-id="OUIA-Generated-Content-2"
+              data-ouia-component-id="OUIA-Generated-Content-:r3:"
               data-ouia-component-type="PF6/Content"
               data-ouia-safe="true"
               data-pf-content="true"
             >
               <h1
                 class="pf-v6-c-content--h1"
-                data-ouia-component-id="OUIA-Generated-Content-4"
+                data-ouia-component-id="OUIA-Generated-Content-:r5:"
                 data-ouia-component-type="PF6/Content"
                 data-ouia-safe="true"
                 data-pf-content="true"
@@ -233,7 +233,7 @@ exports[`PageHeader Renders without crashing 1`] = `
           >
             <button
               class="pf-v6-c-button pf-m-primary"
-              data-ouia-component-id="OUIA-Generated-Button-primary-2"
+              data-ouia-component-id="OUIA-Generated-Button-primary-:r7:"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               type="button"

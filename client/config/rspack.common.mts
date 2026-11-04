@@ -4,9 +4,6 @@ import path from "path";
 
 import { rspack } from "@rspack/core";
 import type { Configuration } from "@rspack/core";
-import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
-
-import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
@@ -97,13 +94,13 @@ const config: Configuration = {
         },
       ],
     }),
-    new MonacoWebpackPlugin({
-      filename: "monaco/[name].worker.js",
-      languages: Object.values(LANGUAGES_BY_FILE_EXTENSION),
-    }),
   ],
 
   resolve: {
+    alias: {
+      // Chatbot's lazy root import must use the application's Monaco instance.
+      "monaco-editor$": fileURLToPath(import.meta.resolve("monaco-editor")),
+    },
     extensions: [".js", ".ts", ".tsx", ".jsx"],
     tsConfig: {
       configFile: pathTo("../tsconfig.json"),
@@ -112,8 +109,6 @@ const config: Configuration = {
     fallback: { crypto: false, fs: false, path: false },
   },
 
-  // monaco-editor: ignore warnings from static code analysis, allow mocks without warning
-  ignoreWarnings: [/Critical dependency: require function is used in a way/],
   node: {
     __dirname: true,
     __filename: true,

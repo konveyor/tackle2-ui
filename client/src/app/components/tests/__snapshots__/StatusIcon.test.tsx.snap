@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`StatusIcon Renders without crashing 1`] = `
 {
@@ -8,9 +8,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
       <div
         class="pf-v6-l-flex pf-m-space-items-sm pf-m-nowrap"
       >
-        <div
-          class=""
-        >
+        <div>
           <span
             class="pf-v6-c-icon"
           >
@@ -21,9 +19,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
             </span>
           </span>
         </div>
-        <div
-          class=""
-        >
+        <div>
           terms.notStarted
         </div>
       </div>
@@ -33,9 +29,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
     <div
       class="pf-v6-l-flex pf-m-space-items-sm pf-m-nowrap"
     >
-      <div
-        class=""
-      >
+      <div>
         <span
           class="pf-v6-c-icon"
         >
@@ -46,9 +40,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
           </span>
         </span>
       </div>
-      <div
-        class=""
-      >
+      <div>
         terms.notStarted
       </div>
     </div>
