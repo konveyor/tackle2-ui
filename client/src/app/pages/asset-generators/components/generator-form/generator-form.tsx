@@ -41,6 +41,7 @@ import {
   GeneratorParameter,
   PARAMETER_TYPES,
   arrayToParameters,
+  defaultValueError,
   parametersToArray,
   parametersToSchema,
   schemaToParameters,
@@ -157,7 +158,21 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
               .trim()
               .required(t("validation.required"))
               .oneOf(PARAMETER_TYPES),
-            default: yup.string().trim().required(t("validation.required")),
+            default: yup
+              .string()
+              .trim()
+              .test({
+                name: "valid-default",
+                test: (value, ctx) => {
+                  const errorKey = defaultValueError(
+                    value ?? "",
+                    ctx.parent.type
+                  );
+                  return errorKey
+                    ? ctx.createError({ message: t(errorKey) })
+                    : true;
+                },
+              }),
           })
         ),
       }),

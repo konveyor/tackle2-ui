@@ -90,3 +90,28 @@ export const schemaToParameters = (
     default: property.default ?? "",
   }));
 };
+
+/**
+ * Validates a default value for a parameter. Returns an i18n key describing the
+ * problem, or null when the value is valid. A blank value is invalid (the value
+ * is required); a non-blank value must match the parameter type.
+ */
+export const defaultValueError = (
+  value: string,
+  type: ParameterType
+): string | null => {
+  const trimmed = value.trim();
+  if (trimmed === "") return "validation.required";
+  switch (type) {
+    case "integer":
+      return /^-?\d+$/.test(trimmed) ? null : "validation.mustBeInteger";
+    case "number":
+      return /^-?\d+(\.\d+)?$/.test(trimmed) ? null : "validation.mustBeNumber";
+    case "boolean":
+      return trimmed === "true" || trimmed === "false"
+        ? null
+        : "validation.mustBeBoolean";
+    default:
+      return null;
+  }
+};

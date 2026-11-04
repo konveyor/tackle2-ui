@@ -834,6 +834,8 @@
     "invalidFormat": "Invalid format",
     "invalidQuestionnaireYAML": "Invalid questionnaire YAML",
     "invalidValue": "Invalid value",
+    "mustBeBoolean": "Must be true or false",
+    "mustBeInteger": "Must be a whole number",
     "mustBeNumber": "Must be a number",
     "notOneOf": "Value is not a valid option.",
     "repositoryTypeRequired": "Repository type is required.",
