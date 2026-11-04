@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useState } from "react";
+import { FC, ReactNode, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Route, Switch, useHistory } from "react-router-dom";
 import {
@@ -22,6 +22,7 @@ import {
 import { useHasSomeScopes } from "@app/auth";
 import { adminViewScopes } from "@app/auth/roles-to-scopes";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import { useSessionStorage } from "@app/hooks/useStorage";
 
 import "./SidebarApp.css";
 
@@ -43,7 +44,14 @@ const PersonaDefinition = {
 type PersonaType = keyof typeof PersonaDefinition;
 
 export const SidebarApp: React.FC = () => {
-  const [lastPersona, setLastPersona] = useState<PersonaType>();
+  // Persisted so that routes shared by several perspectives (e.g. tasks,
+  // tokens) keep the user's perspective across a full page reload.
+  const [lastPersona, setLastPersona] = useSessionStorage<
+    PersonaType | undefined
+  >({
+    key: "sidebar-last-persona",
+    defaultValue: undefined,
+  });
   return (
     <Switch>
       {migrationRoutes.map(({ path, exact }, index) => (
