@@ -177,7 +177,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
               .string()
               .trim()
               .required(t("validation.required"))
-              .oneOf(PARAMETER_TYPES),
+              .oneOf([...PARAMETER_TYPES]),
             default: yup
               .string()
               .trim()

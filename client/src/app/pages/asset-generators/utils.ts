@@ -29,22 +29,26 @@ export const arrayToParameters = (
 };
 
 /**
+ * The supported parameter types. Single source of truth: `ParameterType` is
+ * derived from this list, so adding a type here updates both.
+ */
+export const PARAMETER_TYPES = [
+  "string",
+  "integer",
+  "number",
+  "boolean",
+] as const;
+
+export type ParameterType = (typeof PARAMETER_TYPES)[number];
+
+/**
  * A single generator parameter as edited in the authoring form.
  */
-export type ParameterType = "string" | "integer" | "number" | "boolean";
-
 export interface GeneratorParameter {
   name: string;
   type: ParameterType;
   default: string | number | boolean;
 }
-
-export const PARAMETER_TYPES: ParameterType[] = [
-  "string",
-  "integer",
-  "number",
-  "boolean",
-];
 
 const isSet = (value: unknown): boolean =>
   value !== undefined && value !== null && value !== "";
