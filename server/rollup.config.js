@@ -27,7 +27,7 @@ export default {
     json(),
     buildAndRun &&
       run({
-        execArgv: ["-r", "source-map-support/register"],
+        execArgv: ["--enable-source-maps"],
       }),
   ],
 };
