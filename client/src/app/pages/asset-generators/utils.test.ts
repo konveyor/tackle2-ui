@@ -1,6 +1,7 @@
 import {
   GeneratorParameter,
   defaultValueError,
+  isDuplicateParameterName,
   parametersToSchema,
   schemaToParameters,
 } from "./utils";
@@ -113,5 +114,28 @@ describe("defaultValueError", () => {
   it("rejects a blank value as required", () => {
     expect(defaultValueError("", "integer")).toBe("validation.required");
     expect(defaultValueError("   ", "boolean")).toBe("validation.required");
+  });
+});
+
+describe("isDuplicateParameterName", () => {
+  it("flags a name that appears more than once (after trimming)", () => {
+    const params = [
+      { name: "replicas" },
+      { name: " replicas " },
+      { name: "env" },
+    ];
+    expect(isDuplicateParameterName(params, "replicas")).toBe(true);
+    expect(isDuplicateParameterName(params, "env")).toBe(false);
+  });
+
+  it("is case-sensitive (object keys differ by case)", () => {
+    const params = [{ name: "Replicas" }, { name: "replicas" }];
+    expect(isDuplicateParameterName(params, "replicas")).toBe(false);
+  });
+
+  it("ignores blank names", () => {
+    expect(isDuplicateParameterName([{ name: "" }, { name: "" }], "")).toBe(
+      false
+    );
   });
 });

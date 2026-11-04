@@ -42,6 +42,7 @@ import {
   PARAMETER_TYPES,
   arrayToParameters,
   defaultValueError,
+  isDuplicateParameterName,
   parametersToArray,
   parametersToSchema,
   schemaToParameters,
@@ -152,7 +153,26 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         ),
         params: yup.array().of(
           yup.object().shape({
-            name: yup.string().trim().required(t("validation.required")),
+            name: yup
+              .string()
+              .trim()
+              .required(t("validation.required"))
+              .test({
+                name: "unique-parameter-name",
+                test: (value, ctx) => {
+                  const { from } = ctx as unknown as {
+                    from?: { value: { params?: GeneratorParameter[] } }[];
+                  };
+                  const params = from?.[1]?.value?.params ?? [];
+                  return isDuplicateParameterName(params, value ?? "")
+                    ? ctx.createError({
+                        message: t("validation.duplicateName", {
+                          type: t("terms.parameter").toLowerCase(),
+                        }),
+                      })
+                    : true;
+                },
+              }),
             type: yup
               .string()
               .trim()

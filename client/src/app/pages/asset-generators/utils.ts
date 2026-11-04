@@ -115,3 +115,17 @@ export const defaultValueError = (
       return null;
   }
 };
+
+/**
+ * True when `name` (trimmed) appears more than once in the parameter list.
+ * Comparison is case-sensitive to match JSON object-key semantics: duplicate
+ * names would collide into one property in parametersToSchema.
+ */
+export const isDuplicateParameterName = (
+  params: { name: string }[],
+  name: string
+): boolean => {
+  const target = name.trim();
+  if (target === "") return false;
+  return params.filter((p) => (p.name ?? "").trim() === target).length > 1;
+};
