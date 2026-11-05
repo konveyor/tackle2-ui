@@ -45,15 +45,15 @@ export const Controls: React.FC = () => {
 
   useEffect(() => {
     switch (location.pathname) {
-      case "/controls/stakeholders":
+      case Paths.controlsStakeholders:
         return setActiveTabKey(0);
-      case "/controls/stakeholder-groups":
+      case Paths.controlsStakeholderGroups:
         return setActiveTabKey(1);
-      case "/controls/job-functions":
+      case Paths.controlsJobFunctions:
         return setActiveTabKey(2);
-      case "/controls/business-services":
+      case Paths.controlsBusinessServices:
         return setActiveTabKey(3);
-      case "/controls/tags":
+      case Paths.controlsTags:
         return setActiveTabKey(4);
       default:
         return setActiveTabKey(0);
