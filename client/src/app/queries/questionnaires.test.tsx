@@ -26,19 +26,23 @@ describe("Questionnaire detail query", () => {
     );
 
     expect(queryClient.isFetching()).toBe(0);
+    expect(result.current.isFetching).toBe(false);
     expect(result.current.questionnaire).toBeUndefined();
     expect(request).not.toHaveBeenCalled();
 
     rerender({ id: "42" });
+    expect(result.current.isFetching).toBe(true);
     await waitFor(() =>
       expect(result.current.questionnaire?.name).toBe("Assessment")
     );
+    expect(result.current.isFetching).toBe(false);
     expect(request).toHaveBeenCalledWith("42");
     const requestCount = request.mock.calls.length;
 
     rerender({ id: undefined });
     await queryClient.invalidateQueries({ queryKey: ["questionnaireById"] });
     expect(queryClient.isFetching()).toBe(0);
+    expect(result.current.isFetching).toBe(false);
     expect(result.current.questionnaire).toBeUndefined();
     expect(request).toHaveBeenCalledTimes(requestCount);
     queryClient.clear();

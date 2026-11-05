@@ -72,7 +72,7 @@ export const useFetchQuestionnaireById = (
   id?: number | string,
   refetchInterval: number | false = false
 ) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isInitialLoading, error } = useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getQuestionnaireById(id),
@@ -83,7 +83,7 @@ export const useFetchQuestionnaireById = (
 
   return {
     questionnaire: data,
-    isFetching: isLoading,
+    isFetching: isInitialLoading,
     fetchError: error,
   };
 };
