@@ -172,8 +172,8 @@ export const SourcePlatforms: React.FC = () => {
   const clearFilters = () => {
     const currentPath = location.pathname;
     const newSearch = new URLSearchParams(location.search);
-    newSearch.delete("filters");
-    navigate(`${currentPath}`);
+    newSearch.delete(`${TablePersistenceKeyPrefix.platforms}:filters`);
+    navigate({ pathname: currentPath, search: newSearch.toString() });
     filterToolbarProps.setFilterValues({});
   };
 
