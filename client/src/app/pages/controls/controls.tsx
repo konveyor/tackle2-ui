@@ -106,7 +106,11 @@ export const Controls: React.FC = () => {
             <Route path="business-services" element={<BusinessServices />} />
             <Route path="tags" element={<Tags />} />
             <Route
-              path=""
+              index
+              element={<Navigate to={Paths.controlsStakeholders} replace />}
+            />
+            <Route
+              path="*"
               element={<Navigate to={Paths.controlsStakeholders} replace />}
             />
           </Routes>
