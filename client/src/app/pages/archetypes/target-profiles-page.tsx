@@ -55,7 +55,7 @@ const TargetProfilesPage: React.FC = () => {
     archetype,
     isFetching: isArchetypesFetching,
     fetchError,
-  } = useFetchArchetypeById(archetypeId!);
+  } = useFetchArchetypeById(archetypeId);
 
   const { addTargetProfile, updateTargetProfile, deleteTargetProfile } =
     useArchetypeMutations();
