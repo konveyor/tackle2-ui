@@ -354,9 +354,7 @@ const AgentRunDetailPage: React.FC = () => {
           onClose={() => setRerunOpen(false)}
           onCreated={(name) => {
             setRerunOpen(false);
-            navigate(
-              formatPath(DevPaths.agentRunDetails, { runName: name })
-            );
+            navigate(formatPath(DevPaths.agentRunDetails, { runName: name }));
           }}
         />
       )}
