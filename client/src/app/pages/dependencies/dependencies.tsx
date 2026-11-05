@@ -143,8 +143,8 @@ export const Dependencies: React.FC = () => {
   const clearFilters = () => {
     const currentPath = location.pathname;
     const newSearch = new URLSearchParams(location.search);
-    newSearch.delete("filters");
-    navigate(`${currentPath}`);
+    newSearch.delete(`${TablePersistenceKeyPrefix.dependencies}:filters`);
+    navigate({ pathname: currentPath, search: newSearch.toString() });
   };
 
   return (
