@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 import { Paths } from "@app/Paths";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
@@ -9,12 +9,46 @@ import { formatPath } from "@app/utils/utils";
 import { TaskDetailsBase } from "./TaskDetailsBase";
 
 export const TaskDetails = () => {
-  const { t } = useTranslation();
   const { taskId, attachmentId, applicationId } = useParams<
     "taskId" | "attachmentId" | "applicationId"
   >();
-  const currentPath = window.location.pathname;
-  const isFromApplication = currentPath.includes("application") ? true : false;
+  const fallbackPath =
+    applicationId === undefined ? Paths.tasks : Paths.applications;
+  if (taskId === undefined) {
+    return <Navigate to={fallbackPath} replace />;
+  }
+  const parsedTaskId = Number(taskId);
+  const parsedApplicationId =
+    applicationId === undefined ? undefined : Number(applicationId);
+  if (
+    !Number.isInteger(parsedTaskId) ||
+    parsedTaskId <= 0 ||
+    (parsedApplicationId !== undefined &&
+      (!Number.isInteger(parsedApplicationId) || parsedApplicationId <= 0))
+  ) {
+    return <Navigate to={fallbackPath} replace />;
+  }
+
+  return (
+    <TaskDetailsContent
+      taskId={parsedTaskId}
+      attachmentId={attachmentId}
+      applicationId={parsedApplicationId}
+    />
+  );
+};
+
+const TaskDetailsContent = ({
+  taskId,
+  attachmentId,
+  applicationId,
+}: {
+  taskId: number;
+  attachmentId?: string;
+  applicationId?: number;
+}) => {
+  const { t } = useTranslation();
+  const isFromApplication = applicationId !== undefined;
   const { application } = useFetchApplicationById(applicationId);
 
   const appName: string = application?.name ?? t("terms.unknown");
@@ -51,7 +85,7 @@ export const TaskDetails = () => {
           attachmentId,
         })
       }
-      taskId={Number(taskId)}
+      taskId={taskId}
       attachmentId={attachmentId}
     />
   );
