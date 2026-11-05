@@ -12,7 +12,7 @@ const AssessmentSummaryPage: React.FC = () => {
     assessment,
     isFetching: isFetchingAssessment,
     fetchError: fetchAssessmentError,
-  } = useFetchAssessmentById(assessmentId!);
+  } = useFetchAssessmentById(assessmentId);
 
   return (
     <QuestionnaireSummary
