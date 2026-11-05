@@ -37,15 +37,14 @@ import {
 import { InsightDetailDrawer } from "./insight-detail-drawer";
 
 export const AffectedApplicationsPage: React.FC = () => {
-  const routeParams = useParams<"ruleset" | "rule">();
-  if (routeParams.ruleset === undefined || routeParams.rule === undefined) {
+  const { ruleset, rule } = useParams<"ruleset" | "rule">();
+  const { pathname } = useLocation();
+  if (ruleset === undefined || rule === undefined) {
     return <Navigate to={Paths.insightsAllTab} replace />;
   }
-  let ruleset: string;
-  let rule: string;
   try {
-    ruleset = decodeURIComponent(routeParams.ruleset);
-    rule = decodeURIComponent(routeParams.rule);
+    // Validate raw encoding without decoding React Router's params a second time.
+    decodeURIComponent(pathname);
   } catch {
     return <Navigate to={Paths.insightsAllTab} replace />;
   }

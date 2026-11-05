@@ -2,7 +2,7 @@ import { rest } from "msw";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { Paths } from "@app/Paths";
-import { render, screen } from "@app/test-config/test-utils";
+import { render, screen, waitFor } from "@app/test-config/test-utils";
 import { server } from "@mocks/server";
 
 import { AffectedApplicationsPage } from "./affected-applications-page";
@@ -18,7 +18,6 @@ describe("Affected applications required issue filters", () => {
     "/missing",
     "/issues/all/%20/rule/affected-applications",
     "/issues/all/ruleset/%20/affected-applications",
-    "/issues/all/%25/rule/affected-applications",
     "/issues/all/ruleset/%E0%A4%A/affected-applications",
   ])(
     "redirects invalid params without an unfiltered request: %s",
@@ -48,6 +47,37 @@ describe("Affected applications required issue filters", () => {
         await screen.findByRole("heading", { name: "All issues" })
       ).toBeInTheDocument();
       expect(request).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each(["Progress 100%", "literal %20"])(
+    "preserves the decoded name %s in required API filters",
+    async (name) => {
+      const filters: string[] = [];
+      server.use(
+        rest.get("/hub/*", (req, res, ctx) => {
+          filters.push(...req.url.searchParams.getAll("filter"));
+          return res(ctx.json([]));
+        })
+      );
+      render(
+        <MemoryRouter
+          initialEntries={[
+            `/issues/all/${encodeURIComponent(name)}/${encodeURIComponent(name)}/affected-applications`,
+          ]}
+        >
+          <Routes>
+            <Route
+              path={Paths.issuesAllAffectedApplications}
+              element={<AffectedApplicationsPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      );
+      await waitFor(() => {
+        expect(filters.join(",")).toContain(`insight.ruleset="${name}"`);
+        expect(filters.join(",")).toContain(`insight.rule="${name}"`);
+      });
     }
   );
 });

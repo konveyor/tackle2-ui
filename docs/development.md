@@ -23,7 +23,7 @@ Our project utilizes [Hooks](https://reactjs.org/docs/hooks-intro.html) wherever
 - A route that renders descendant `Routes` needs a trailing `/*`, as with the Controls page.
 - Sidebar active styling belongs on PatternFly's `NavItem.isActive`.
 - Validate required numeric route IDs before mounting detail content and redirect invalid IDs to the corresponding list page. Keep optional attachment and application parameters optional, and do not skip hooks conditionally when validating parameters.
-- Reject missing, blank, or malformed encoded ruleset/rule parameters before querying affected applications.
+- Reject missing, blank, or malformed encoded ruleset/rule parameters before querying affected applications. React Router already decodes `useParams` values; validate encoding against the raw pathname without decoding those values again, so literal percent signs remain valid.
 - Disabled detail queries without an ID must report a non-loading state. Use React Query's `isInitialLoading`, rather than `isLoading`, for the initial-loading indicator.
 
 ## Styling components
