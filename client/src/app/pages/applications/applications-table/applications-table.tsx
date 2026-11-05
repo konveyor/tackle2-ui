@@ -890,27 +890,46 @@ export const ApplicationsTable: FC = () => {
   );
 
   const handleNavToAssessment = (application: DecoratedApplication) => {
-    if (application?.id) {
+    if (
+      application.id != null &&
+      Number.isInteger(application.id) &&
+      application.id > 0
+    ) {
       navigate(
         formatPath(Paths.applicationAssessmentActions, {
-          applicationId: application?.id,
+          applicationId: application.id,
         })
       );
     }
   };
 
   const handleNavToViewArchetypes = (application: DecoratedApplication) => {
-    if (application?.id && archetypeRefsToOverride?.length) {
+    const archetypeId = archetypeRefsToOverride?.[0]?.id;
+    if (
+      application.id != null &&
+      Number.isInteger(application.id) &&
+      application.id > 0 &&
+      archetypeId != null &&
+      Number.isInteger(archetypeId) &&
+      archetypeId > 0
+    ) {
       navigate(
         formatPath(Paths.viewArchetypes, {
-          applicationId: application?.id,
-          archetypeId: archetypeRefsToOverride[0].id,
+          applicationId: application.id,
+          archetypeId,
         })
       );
     }
   };
 
   const assessSelectedApp = async (application: DecoratedApplication) => {
+    if (
+      application.id == null ||
+      !Number.isInteger(application.id) ||
+      application.id <= 0
+    ) {
+      return;
+    }
     setApplicationToAssess(application);
 
     const archetypes = application.archetypes ?? [];
@@ -1648,11 +1667,17 @@ export const ApplicationsTable: FC = () => {
         onCancel={() => setAssessmentToEdit(null)}
         onClose={() => setAssessmentToEdit(null)}
         onConfirm={() => {
-          navigate(
-            formatPath(Paths.applicationsAssessment, {
-              assessmentId: assessmentToEdit?.id,
-            })
-          );
+          if (
+            assessmentToEdit?.id != null &&
+            Number.isInteger(assessmentToEdit.id) &&
+            assessmentToEdit.id > 0
+          ) {
+            navigate(
+              formatPath(Paths.applicationsAssessment, {
+                assessmentId: assessmentToEdit.id,
+              })
+            );
+          }
           setAssessmentToEdit(null);
         }}
       />
