@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Location } from "history";
-import { Link } from "react-router-dom";
+import { Link, type Location } from "react-router-dom";
 import { Button } from "@patternfly/react-core";
 
 import { UiAnalysisReportInsight } from "@app/api/models";

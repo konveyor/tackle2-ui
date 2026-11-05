@@ -1,4 +1,4 @@
-import { Location } from "history";
+import type { Location } from "react-router-dom";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { Paths } from "@app/Paths";
