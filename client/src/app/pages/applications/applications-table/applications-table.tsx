@@ -682,7 +682,7 @@ export const ApplicationsTable: FC = () => {
     const currentPath = location.pathname;
     const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    navigate(`${currentPath}`);
+    navigate({ pathname: currentPath, search: newSearch.toString() });
     filterToolbarProps.setFilterValues({});
   };
 
