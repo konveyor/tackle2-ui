@@ -7,10 +7,38 @@ import type {
 } from "@app/api/agentic/contract";
 import {
   APPLICATION_LABEL,
+  MANAGED_BY_LABEL,
+  OPERATOR_DEFAULTS_MANAGER,
   invalidTargetBranchReason,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+
+/**
+ * True for the operator's curated default content. The operator owns these
+ * objects and reverts any change on its next reconcile, so the UI offers no
+ * edit or delete for them — users create their own instead.
+ */
+export function isOperatorManaged(resource: {
+  metadata: { labels?: Record<string, string> };
+}): boolean {
+  return (
+    resource.metadata.labels?.[MANAGED_BY_LABEL] === OPERATOR_DEFAULTS_MANAGER
+  );
+}
+
+/**
+ * Spread into an edit/delete row action: disables it, with `tooltip` saying
+ * why, when the operator owns `resource`.
+ */
+export function operatorManagedActionProps(
+  resource: Parameters<typeof isOperatorManaged>[0],
+  tooltip: string
+): { isAriaDisabled?: boolean; tooltipProps?: { content: string } } {
+  return isOperatorManaged(resource)
+    ? { isAriaDisabled: true, tooltipProps: { content: tooltip } }
+    : {};
+}
 
 /** kubectl-style compact age: 45s, 12m, 3h, 2d. */
 export function formatAge(creationTimestamp?: string): string {
