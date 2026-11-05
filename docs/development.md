@@ -22,6 +22,7 @@ Our project utilizes [Hooks](https://reactjs.org/docs/hooks-intro.html) wherever
 - Route access checks remain in `RouteWrapper`, which waits for the auth session to load before checking scopes.
 - A route that renders descendant `Routes` needs a trailing `/*`, as with the Controls page.
 - Sidebar active styling belongs on PatternFly's `NavItem.isActive`.
+- Validate required numeric route IDs before mounting detail content and redirect invalid IDs to the corresponding list page. Keep optional attachment and application parameters optional, and do not skip hooks conditionally when validating parameters.
 
 ## Styling components
 
