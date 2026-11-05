@@ -55,9 +55,13 @@ const ViewArchetypes: React.FC = () => {
             <Link to={Paths.applications}>Applications</Link>
           </BreadcrumbItem>
           <BreadcrumbItem
-            to={formatPath(Paths.applicationAssessmentActions, {
-              applicationId: applicationId!,
-            })}
+            to={
+              applicationId !== undefined
+                ? formatPath(Paths.applicationAssessmentActions, {
+                    applicationId,
+                  })
+                : undefined
+            }
           >
             {application?.name}
           </BreadcrumbItem>
