@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +13,7 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar } from "@app/components/FilterToolbar";
@@ -36,11 +37,30 @@ import {
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 
 export const AffectedApplicationsPage: React.FC = () => {
-  const { t } = useTranslation();
-
   const routeParams = useParams<"ruleset" | "rule">();
-  const ruleset = decodeURIComponent(routeParams.ruleset ?? "");
-  const rule = decodeURIComponent(routeParams.rule ?? "");
+  if (routeParams.ruleset === undefined || routeParams.rule === undefined) {
+    return <Navigate to={Paths.issuesAllTab} replace />;
+  }
+  let ruleset: string;
+  let rule: string;
+  try {
+    ruleset = decodeURIComponent(routeParams.ruleset);
+    rule = decodeURIComponent(routeParams.rule);
+  } catch {
+    return <Navigate to={Paths.issuesAllTab} replace />;
+  }
+  if (!ruleset.trim() || !rule.trim()) {
+    return <Navigate to={Paths.issuesAllTab} replace />;
+  }
+
+  return <AffectedApplicationsContent ruleset={ruleset} rule={rule} />;
+};
+
+const AffectedApplicationsContent: React.FC<{
+  ruleset: string;
+  rule: string;
+}> = ({ ruleset, rule }) => {
+  const { t } = useTranslation();
   const issueTitle =
     new URLSearchParams(useLocation().search).get("issueTitle") ||
     "Active rule";
@@ -77,12 +97,12 @@ export const AffectedApplicationsPage: React.FC = () => {
         {
           field: "insight.ruleset",
           operator: "=",
-          value: ruleset || "",
+          value: ruleset,
         },
         {
           field: "insight.rule",
           operator: "=",
-          value: rule || "",
+          value: rule,
         },
       ],
       hubSortFieldKeys: {
