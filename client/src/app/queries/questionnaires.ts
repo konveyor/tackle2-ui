@@ -69,13 +69,15 @@ export const useDeleteQuestionnaireMutation = (
 };
 
 export const useFetchQuestionnaireById = (
-  id: number | string,
+  id?: number | string,
   refetchInterval: number | false = false
 ) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireById(id),
+    queryFn: () =>
+      id === undefined ? Promise.resolve(undefined) : getQuestionnaireById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: id !== undefined,
     refetchInterval,
   });
 

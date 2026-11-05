@@ -14,7 +14,7 @@ const QuestionnairePage: React.FC = () => {
     questionnaire,
     isFetching: isFetchingQuestionnaireById,
     fetchError: fetchQuestionnaireByIdError,
-  } = useFetchQuestionnaireById(questionnaireId!);
+  } = useFetchQuestionnaireById(questionnaireId);
 
   return (
     <QuestionnaireSummary
