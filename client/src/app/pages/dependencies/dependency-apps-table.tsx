@@ -160,8 +160,10 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   const clearFilters = () => {
     const currentPath = location.pathname;
     const newSearch = new URLSearchParams(location.search);
-    newSearch.delete("filters");
-    navigate(`${currentPath}`);
+    newSearch.delete(
+      `${TablePersistenceKeyPrefix.dependencyApplications}:filters`
+    );
+    navigate({ pathname: currentPath, search: newSearch.toString() });
   };
   return (
     <>
