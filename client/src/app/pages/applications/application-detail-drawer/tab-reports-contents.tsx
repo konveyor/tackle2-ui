@@ -58,15 +58,19 @@ export const TabReportsContent: React.FC<{
   const enableDownloadSetting = useSetting("download.html.enabled");
 
   const navigate = useNavigate();
-  const navigateToAnalysisDetails = () =>
-    application?.id &&
-    task?.id &&
+  const navigateToAnalysisDetails = () => {
+    const applicationId = application?.id;
+    const taskId = task?.id;
+    if (applicationId == null || applicationId <= 0) return;
+    if (taskId == null || taskId <= 0) return;
+
     navigate(
       formatPath(Paths.applicationsAnalysisDetails, {
-        applicationId: application?.id,
-        taskId: task?.id,
+        applicationId,
+        taskId,
       })
     );
+  };
 
   return (
     <>
