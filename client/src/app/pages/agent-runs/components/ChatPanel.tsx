@@ -35,6 +35,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import {
+  AngleDoubleDownIcon,
   AngleDownIcon,
   AngleRightIcon,
   BookOpenIcon,
@@ -673,7 +674,7 @@ export function ChatPanel({
   const runSessionRef = useRef<string | null>(null);
   const activeRunRef = useRef<ActiveRun | null | undefined>(undefined);
   const dropTimesRef = useRef<number[]>([]);
-  const { messageBoxRef, pinToBottom } = useChatAutoScroll();
+  const { messageBoxRef, pinToBottom, tailHidden } = useChatAutoScroll();
   const permissionResolvers = useRef(
     new Map<number, (o: PermissionOutcome) => void>()
   );
@@ -1310,6 +1311,20 @@ export function ChatPanel({
             </>
           )}
         </MessageBox>
+        {/* Replaces PF's two floating arrows (hidden in CSS): a live tail
+            has no use for "back to top", and an unlabelled arrow over the
+            transcript does not say that output is still arriving below. */}
+        {tailHidden && (
+          <Button
+            className="chat-jump-latest"
+            variant="secondary"
+            size="sm"
+            icon={<AngleDoubleDownIcon />}
+            onClick={pinToBottom}
+          >
+            {t("agentic.chat.jumpToLatest")}
+          </Button>
+        )}
       </ChatbotContent>
       {/* Steering (and stopping a turn) is an intervention — hidden unless
           the deployment opts in. Permission prompts stay answerable above:
