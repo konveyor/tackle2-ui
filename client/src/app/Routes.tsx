@@ -249,7 +249,10 @@ export const AppRoutes = () => {
               }
             />
           ))}
-          <Route path="*" element={<Navigate to="/applications" replace />} />
+          <Route
+            path="*"
+            element={<Navigate to={Paths.applications} replace />}
+          />
         </Routes>
       </ErrorBoundary>
     </Suspense>
