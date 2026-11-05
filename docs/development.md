@@ -16,6 +16,13 @@ Tackle2-ui can be developed using macOS(x86_64 only) or Linux environments.
 
 Our project utilizes [Hooks](https://reactjs.org/docs/hooks-intro.html) wherever possible as this pattern has been proven and settled on in the react community. The hooks pattern is highly testable and provides a clear way to reuse stateful logic without overcomplicating components with complex lifecycle methods. Overall, we have largely left class components behind and have adopted functional components / hooks as the way forward.
 
+### Routing
+
+- The client uses React Router 6. Define routes with `Routes` and `Route`'s `element` prop; use `Navigate` for redirects and `useNavigate` for imperative navigation.
+- Route access checks remain in `RouteWrapper`, which waits for the auth session to load before checking scopes.
+- A route that renders descendant `Routes` needs a trailing `/*`, as with the Controls page.
+- Sidebar active styling belongs on PatternFly's `NavItem.isActive`.
+
 ## Styling components
 
 For any custom styles, we use standard css with no preprocessors. If a custom style is needed, create a css file and import it within the component.

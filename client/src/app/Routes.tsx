@@ -220,7 +220,10 @@ export const AppRoutes = () => {
                 key={index}
                 path={path}
                 element={
-                  <RouteWrapper comp={comp} requiredScopes={migrationViewScopes} />
+                  <RouteWrapper
+                    comp={comp}
+                    requiredScopes={migrationViewScopes}
+                  />
                 }
               />
             )
@@ -239,7 +242,10 @@ export const AppRoutes = () => {
               key={index}
               path={path}
               element={
-                <RouteWrapper comp={comp} requiredScopes={migrationViewScopes} />
+                <RouteWrapper
+                  comp={comp}
+                  requiredScopes={migrationViewScopes}
+                />
               }
             />
           ))}
