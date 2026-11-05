@@ -206,7 +206,11 @@ const Archetypes: React.FC = () => {
     if (matchingAssessment) {
       setArchetypeToAssess(archetype);
     } else {
-      if (archetype?.id) {
+      if (
+        archetype.id != null &&
+        Number.isInteger(archetype.id) &&
+        archetype.id > 0
+      ) {
         navigate(
           formatPath(Paths.archetypeAssessmentActions, {
             archetypeId: archetype.id,
@@ -218,6 +222,13 @@ const Archetypes: React.FC = () => {
   };
 
   const reviewSelectedArchetype = (archetype: Archetype) => {
+    if (
+      archetype.id == null ||
+      !Number.isInteger(archetype.id) ||
+      archetype.id <= 0
+    ) {
+      return;
+    }
     if (archetype.review) {
       setReviewToEdit(archetype.id);
     } else {
@@ -439,15 +450,22 @@ const Archetypes: React.FC = () => {
                                     archetypeWriteAccess && {
                                       title: t("actions.manageTargetProfiles"),
                                       itemKey: "manageTargetProfiles",
-                                      onClick: () =>
-                                        navigate(
-                                          formatPath(
-                                            Paths.archetypeTargetProfiles,
-                                            {
-                                              archetypeId: archetype.id,
-                                            }
-                                          )
-                                        ),
+                                      onClick: () => {
+                                        if (
+                                          archetype.id != null &&
+                                          Number.isInteger(archetype.id) &&
+                                          archetype.id > 0
+                                        ) {
+                                          navigate(
+                                            formatPath(
+                                              Paths.archetypeTargetProfiles,
+                                              {
+                                                archetypeId: archetype.id,
+                                              }
+                                            )
+                                          );
+                                        }
+                                      },
                                     },
                                     archetypeWriteAccess && {
                                       title: t("actions.duplicate"),
@@ -683,7 +701,11 @@ const Archetypes: React.FC = () => {
         onCancel={() => setArchetypeToAssess(null)}
         onClose={() => setArchetypeToAssess(null)}
         onConfirm={() => {
-          if (archetypeToAssess) {
+          if (
+            archetypeToAssess?.id != null &&
+            Number.isInteger(archetypeToAssess.id) &&
+            archetypeToAssess.id > 0
+          ) {
             navigate(
               formatPath(Paths.archetypeAssessmentActions, {
                 archetypeId: archetypeToAssess.id,
@@ -708,11 +730,17 @@ const Archetypes: React.FC = () => {
         onCancel={() => setReviewToEdit(null)}
         onClose={() => setReviewToEdit(null)}
         onConfirm={() => {
-          navigate(
-            formatPath(Paths.archetypeReview, {
-              archetypeId: reviewToEdit,
-            })
-          );
+          if (
+            reviewToEdit != null &&
+            Number.isInteger(reviewToEdit) &&
+            reviewToEdit > 0
+          ) {
+            navigate(
+              formatPath(Paths.archetypeReview, {
+                archetypeId: reviewToEdit,
+              })
+            );
+          }
           setReviewToEdit(null);
         }}
       />
