@@ -18,7 +18,7 @@ const mockChatPanel = jest.fn();
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
-  useHistory: () => ({ push: jest.fn() }),
+  useNavigate: () => jest.fn(),
   useParams: () => ({ runName: "workflow-run" }),
 }));
 

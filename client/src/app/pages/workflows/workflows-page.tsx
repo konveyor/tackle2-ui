@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -60,7 +60,7 @@ function stagesSummary(workflow: AgentWorkflow): string | null {
 
 const WorkflowsPage: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = useNotifications();
   const { workflows, isLoading, fetchError, refetch } = useFetchWorkflows();
   // Authoring is admin/architect; running one is also a migrator's
@@ -241,7 +241,7 @@ const WorkflowsPage: React.FC = () => {
           onClose={() => setRunTarget(null)}
           onCreated={(runName) => {
             setRunTarget(null);
-            history.push(formatPath(DevPaths.workflowRunDetails, { runName }));
+            navigate(formatPath(DevPaths.workflowRunDetails, { runName }));
           }}
         />
       )}

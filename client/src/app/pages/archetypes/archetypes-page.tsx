@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -62,7 +62,8 @@ import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [openCreateArchetype, setOpenCreateArchetype] =
@@ -205,8 +206,12 @@ const Archetypes: React.FC = () => {
     if (matchingAssessment) {
       setArchetypeToAssess(archetype);
     } else {
-      if (archetype?.id) {
-        history.push(
+      if (
+        archetype.id != null &&
+        Number.isInteger(archetype.id) &&
+        archetype.id > 0
+      ) {
+        navigate(
           formatPath(Paths.archetypeAssessmentActions, {
             archetypeId: archetype.id,
           })
@@ -217,10 +222,17 @@ const Archetypes: React.FC = () => {
   };
 
   const reviewSelectedArchetype = (archetype: Archetype) => {
+    if (
+      archetype.id == null ||
+      !Number.isInteger(archetype.id) ||
+      archetype.id <= 0
+    ) {
+      return;
+    }
     if (archetype.review) {
       setReviewToEdit(archetype.id);
     } else {
-      history.push(
+      navigate(
         formatPath(Paths.archetypeReview, {
           archetypeId: archetype.id,
         })
@@ -236,10 +248,10 @@ const Archetypes: React.FC = () => {
   );
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
-    newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
+    newSearch.delete(`${TablePersistenceKeyPrefix.archetypes}:filters`);
+    navigate({ pathname: currentPath, search: newSearch.toString() });
     filterToolbarProps.setFilterValues({});
   };
 
@@ -438,15 +450,22 @@ const Archetypes: React.FC = () => {
                                     archetypeWriteAccess && {
                                       title: t("actions.manageTargetProfiles"),
                                       itemKey: "manageTargetProfiles",
-                                      onClick: () =>
-                                        history.push(
-                                          formatPath(
-                                            Paths.archetypeTargetProfiles,
-                                            {
-                                              archetypeId: archetype.id,
-                                            }
-                                          )
-                                        ),
+                                      onClick: () => {
+                                        if (
+                                          archetype.id != null &&
+                                          Number.isInteger(archetype.id) &&
+                                          archetype.id > 0
+                                        ) {
+                                          navigate(
+                                            formatPath(
+                                              Paths.archetypeTargetProfiles,
+                                              {
+                                                archetypeId: archetype.id,
+                                              }
+                                            )
+                                          );
+                                        }
+                                      },
                                     },
                                     archetypeWriteAccess && {
                                       title: t("actions.duplicate"),
@@ -559,7 +578,7 @@ const Archetypes: React.FC = () => {
               application: success.map(({ application }) => application.name),
               workflow: [workflowRef],
             });
-            if (success.length > 0) history.push(launchedRunsPath);
+            if (success.length > 0) navigate(launchedRunsPath);
             pushNotification({
               title:
                 failure.length === 0
@@ -682,8 +701,12 @@ const Archetypes: React.FC = () => {
         onCancel={() => setArchetypeToAssess(null)}
         onClose={() => setArchetypeToAssess(null)}
         onConfirm={() => {
-          if (archetypeToAssess) {
-            history.push(
+          if (
+            archetypeToAssess?.id != null &&
+            Number.isInteger(archetypeToAssess.id) &&
+            archetypeToAssess.id > 0
+          ) {
+            navigate(
               formatPath(Paths.archetypeAssessmentActions, {
                 archetypeId: archetypeToAssess.id,
               })
@@ -707,11 +730,17 @@ const Archetypes: React.FC = () => {
         onCancel={() => setReviewToEdit(null)}
         onClose={() => setReviewToEdit(null)}
         onConfirm={() => {
-          history.push(
-            formatPath(Paths.archetypeReview, {
-              archetypeId: reviewToEdit,
-            })
-          );
+          if (
+            reviewToEdit != null &&
+            Number.isInteger(reviewToEdit) &&
+            reviewToEdit > 0
+          ) {
+            navigate(
+              formatPath(Paths.archetypeReview, {
+                archetypeId: reviewToEdit,
+              })
+            );
+          }
           setReviewToEdit(null);
         }}
       />

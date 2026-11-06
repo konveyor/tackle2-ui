@@ -1,6 +1,12 @@
 import { FC, ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, Route, Switch, useHistory } from "react-router-dom";
+import {
+  NavLink,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   Nav,
   NavExpandable,
@@ -45,45 +51,40 @@ type PersonaType = keyof typeof PersonaDefinition;
 export const SidebarApp: React.FC = () => {
   const [lastPersona, setLastPersona] = useState<PersonaType>();
   return (
-    <Switch>
-      {migrationRoutes.map(({ path, exact }, index) => (
+    <Routes>
+      {migrationRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <MigrationSidebar setLastPersona={setLastPersona} />}
+          element={<MigrationSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {agenticRoutes.map(({ path, exact }, index) => (
+      {agenticRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <MigrationSidebar setLastPersona={setLastPersona} />}
+          element={<MigrationSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {administrationRoutes.map(({ path, exact }, index) => (
+      {administrationRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <AdminSidebar setLastPersona={setLastPersona} />}
+          element={<AdminSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {devtoolRoutes.map(({ path, exact }, index) => (
+      {devtoolRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <DevtoolSidebar setLastPersona={setLastPersona} />}
+          element={<DevtoolSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {universalRoutes.map(({ path, exact }, index) => (
+      {universalRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() =>
+          element={
             lastPersona === "ADMINISTRATION" ? (
               <AdminSidebar setLastPersona={setLastPersona} />
             ) : (
@@ -92,7 +93,7 @@ export const SidebarApp: React.FC = () => {
           }
         />
       ))}
-    </Switch>
+    </Routes>
   );
 };
 
@@ -113,7 +114,7 @@ const PersonaSidebar: FC<{
     isDevtoolsEnabled && "DEVTOOL",
   ].filter<PersonaType>(Boolean);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <PageSidebar>
       <div className="perspective">
@@ -130,7 +131,7 @@ const PersonaSidebar: FC<{
             const startPath =
               PersonaDefinition[value as PersonaType]?.startPath;
             if (value !== selectedPersona && startPath) {
-              history.push(startPath);
+              navigate(startPath);
             }
           }}
         />
@@ -144,12 +145,25 @@ const PersonaSidebar: FC<{
   );
 };
 
-const MigrationSidebar = ({
+const isNavItemActive = (locationPathname: string, toPathname: string) => {
+  const endSlashPosition =
+    toPathname !== "/" && toPathname.endsWith("/")
+      ? toPathname.length - 1
+      : toPathname.length;
+  return (
+    locationPathname === toPathname ||
+    (locationPathname.startsWith(toPathname) &&
+      locationPathname.charAt(endSlashPosition) === "/")
+  );
+};
+
+export const MigrationSidebar = ({
   setLastPersona,
 }: {
   setLastPersona: (persona: PersonaType) => void;
 }) => {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
 
   return (
     <PersonaSidebar selectedPersona="MIGRATION" setLastPersona={setLastPersona}>
@@ -160,21 +174,20 @@ const MigrationSidebar = ({
           groupId="migration-applications"
           isExpanded
         >
-          <NavItem>
-            <NavLink to={DevPaths.applications} activeClassName="pf-m-current">
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.applications)}>
+            <NavLink to={DevPaths.applications}>
               {t("sidebar.applicationInventory")}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.archetypes} activeClassName="pf-m-current">
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.archetypes)}>
+            <NavLink to={DevPaths.archetypes}>
               {t("sidebar.archetypes")}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              to={DevPaths.migrationWaves}
-              activeClassName="pf-m-current"
-            >
+          <NavItem
+            isActive={isNavItemActive(pathname, DevPaths.migrationWaves)}
+          >
+            <NavLink to={DevPaths.migrationWaves}>
               {t("sidebar.migrationWaves")}
             </NavLink>
           </NavItem>
@@ -185,26 +198,19 @@ const MigrationSidebar = ({
           groupId="migration-analysis-results"
           isExpanded
         >
-          <NavItem>
-            <NavLink to={DevPaths.reports} activeClassName="pf-m-current">
-              {t("sidebar.reports")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.reports)}>
+            <NavLink to={DevPaths.reports}>{t("sidebar.reports")}</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.issuesAllTab} activeClassName="pf-m-current">
-              {t("sidebar.issues")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.issues)}>
+            <NavLink to={DevPaths.issuesAllTab}>{t("sidebar.issues")}</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              to={DevPaths.insightsAllTab}
-              activeClassName="pf-m-current"
-            >
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.insights)}>
+            <NavLink to={DevPaths.insightsAllTab}>
               {t("sidebar.insights")}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.dependencies)}>
+            <NavLink to={DevPaths.dependencies}>
               {t("sidebar.dependencies")}
             </NavLink>
           </NavItem>
@@ -216,38 +222,31 @@ const MigrationSidebar = ({
             groupId="migration-agentic"
             isExpanded
           >
-            <NavItem>
-              <NavLink to={DevPaths.agentRuns} activeClassName="pf-m-current">
+            <NavItem isActive={isNavItemActive(pathname, DevPaths.agentRuns)}>
+              <NavLink to={DevPaths.agentRuns}>
                 {t("sidebar.agentRuns")}
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink to={DevPaths.agents} activeClassName="pf-m-current">
-                {t("sidebar.agents")}
-              </NavLink>
+            <NavItem isActive={isNavItemActive(pathname, DevPaths.agents)}>
+              <NavLink to={DevPaths.agents}>{t("sidebar.agents")}</NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink to={DevPaths.skills} activeClassName="pf-m-current">
-                {t("sidebar.skills")}
-              </NavLink>
+            <NavItem isActive={isNavItemActive(pathname, DevPaths.skills)}>
+              <NavLink to={DevPaths.skills}>{t("sidebar.skills")}</NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink to={DevPaths.workflows} activeClassName="pf-m-current">
+            <NavItem isActive={isNavItemActive(pathname, DevPaths.workflows)}>
+              <NavLink to={DevPaths.workflows}>
                 {t("sidebar.workflows")}
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink
-                to={DevPaths.workflowRuns}
-                activeClassName="pf-m-current"
-              >
+            <NavItem
+              isActive={isNavItemActive(pathname, DevPaths.workflowRuns)}
+            >
+              <NavLink to={DevPaths.workflowRuns}>
                 {t("sidebar.workflowRuns")}
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink to={DevPaths.gateways} activeClassName="pf-m-current">
-                {t("sidebar.gateways")}
-              </NavLink>
+            <NavItem isActive={isNavItemActive(pathname, DevPaths.gateways)}>
+              <NavLink to={DevPaths.gateways}>{t("sidebar.gateways")}</NavLink>
             </NavItem>
           </NavExpandable>
         )}
@@ -257,31 +256,25 @@ const MigrationSidebar = ({
           groupId="migration-configuration"
           isExpanded
         >
-          <NavItem>
-            <NavLink
-              to={DevPaths.analysisProfiles}
-              activeClassName="pf-m-current"
-            >
+          <NavItem
+            isActive={isNavItemActive(pathname, DevPaths.analysisProfiles)}
+          >
+            <NavLink to={DevPaths.analysisProfiles}>
               {t("sidebar.analysisProfiles")}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={DevPaths.controls} activeClassName="pf-m-current">
-              {t("sidebar.controls")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, DevPaths.controls)}>
+            <NavLink to={DevPaths.controls}>{t("sidebar.controls")}</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              to={DevPaths.migrationTargets}
-              activeClassName="pf-m-current"
-            >
+          <NavItem
+            isActive={isNavItemActive(pathname, DevPaths.migrationTargets)}
+          >
+            <NavLink to={DevPaths.migrationTargets}>
               {t("sidebar.customMigrationTargets")}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
-              {t("sidebar.tasks")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, UniversalPaths.tasks)}>
+            <NavLink to={UniversalPaths.tasks}>{t("sidebar.tasks")}</NavLink>
           </NavItem>
         </NavExpandable>
       </NavList>
@@ -295,21 +288,18 @@ const AdminSidebar = ({
   setLastPersona: (persona: PersonaType) => void;
 }) => {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   return (
     <PersonaSidebar
       selectedPersona="ADMINISTRATION"
       setLastPersona={setLastPersona}
     >
       <NavList title="Admin">
-        <NavItem>
-          <NavLink to={AdminPaths.general} activeClassName="pf-m-current">
-            {t("terms.general")}
-          </NavLink>
+        <NavItem isActive={isNavItemActive(pathname, AdminPaths.general)}>
+          <NavLink to={AdminPaths.general}>{t("terms.general")}</NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink to={AdminPaths.identities} activeClassName="pf-m-current">
-            {t("terms.credentials")}
-          </NavLink>
+        <NavItem isActive={isNavItemActive(pathname, AdminPaths.identities)}>
+          <NavLink to={AdminPaths.identities}>{t("terms.credentials")}</NavLink>
         </NavItem>
         <NavExpandable
           title="Repositories"
@@ -317,35 +307,24 @@ const AdminSidebar = ({
           groupId="admin-repos"
           isExpanded
         >
-          <NavItem>
-            <NavLink
-              to={AdminPaths.repositoriesGit}
-              activeClassName="pf-m-current"
-            >
-              Git
-            </NavLink>
+          <NavItem
+            isActive={isNavItemActive(pathname, AdminPaths.repositoriesGit)}
+          >
+            <NavLink to={AdminPaths.repositoriesGit}>Git</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              to={AdminPaths.repositoriesSvn}
-              activeClassName="pf-m-current"
-            >
-              Subversion
-            </NavLink>
+          <NavItem
+            isActive={isNavItemActive(pathname, AdminPaths.repositoriesSvn)}
+          >
+            <NavLink to={AdminPaths.repositoriesSvn}>Subversion</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              to={AdminPaths.repositoriesMvn}
-              activeClassName="pf-m-current"
-            >
-              Maven
-            </NavLink>
+          <NavItem
+            isActive={isNavItemActive(pathname, AdminPaths.repositoriesMvn)}
+          >
+            <NavLink to={AdminPaths.repositoriesMvn}>Maven</NavLink>
           </NavItem>
         </NavExpandable>
-        <NavItem>
-          <NavLink to={AdminPaths.proxies} activeClassName="pf-m-current">
-            Proxy
-          </NavLink>
+        <NavItem isActive={isNavItemActive(pathname, AdminPaths.proxies)}>
+          <NavLink to={AdminPaths.proxies}>Proxy</NavLink>
         </NavItem>
         <NavExpandable
           title="Issue management"
@@ -353,37 +332,31 @@ const AdminSidebar = ({
           groupId="admin-issue-management"
           isExpanded
         >
-          <NavItem>
-            <NavLink to={AdminPaths.jira} activeClassName="pf-m-current">
-              Jira
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, AdminPaths.jira)}>
+            <NavLink to={AdminPaths.jira}>Jira</NavLink>
           </NavItem>
         </NavExpandable>
-        <NavItem>
-          <NavLink to={AdminPaths.assessment} activeClassName="pf-m-current">
+        <NavItem isActive={isNavItemActive(pathname, AdminPaths.assessment)}>
+          <NavLink to={AdminPaths.assessment}>
             {t("terms.assessmentQuestionnaires")}
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink
-            to={AdminPaths.sourcePlatforms}
-            activeClassName="pf-m-current"
-          >
+        <NavItem
+          isActive={isNavItemActive(pathname, AdminPaths.sourcePlatforms)}
+        >
+          <NavLink to={AdminPaths.sourcePlatforms}>
             {t("terms.sourcePlatforms")}
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink
-            to={AdminPaths.assetGenerators}
-            activeClassName="pf-m-current"
-          >
+        <NavItem
+          isActive={isNavItemActive(pathname, AdminPaths.assetGenerators)}
+        >
+          <NavLink to={AdminPaths.assetGenerators}>
             {t("terms.generators")}
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
-            {t("sidebar.tasks")}
-          </NavLink>
+        <NavItem isActive={isNavItemActive(pathname, UniversalPaths.tasks)}>
+          <NavLink to={UniversalPaths.tasks}>{t("sidebar.tasks")}</NavLink>
         </NavItem>
         <NavExpandable
           title={t("sidebar.group.userManagement")}
@@ -391,25 +364,17 @@ const AdminSidebar = ({
           groupId="admin-user-management"
           isExpanded
         >
-          <NavItem>
-            <NavLink to={AdminPaths.users} activeClassName="pf-m-current">
-              {t("sidebar.users")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, AdminPaths.users)}>
+            <NavLink to={AdminPaths.users}>{t("sidebar.users")}</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={UniversalPaths.tokens} activeClassName="pf-m-current">
-              {t("sidebar.tokens")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, UniversalPaths.tokens)}>
+            <NavLink to={UniversalPaths.tokens}>{t("sidebar.tokens")}</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={AdminPaths.roles} activeClassName="pf-m-current">
-              {t("sidebar.roles")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, AdminPaths.roles)}>
+            <NavLink to={AdminPaths.roles}>{t("sidebar.roles")}</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink to={AdminPaths.scopes} activeClassName="pf-m-current">
-              {t("sidebar.scopes")}
-            </NavLink>
+          <NavItem isActive={isNavItemActive(pathname, AdminPaths.scopes)}>
+            <NavLink to={AdminPaths.scopes}>{t("sidebar.scopes")}</NavLink>
           </NavItem>
         </NavExpandable>
       </NavList>
@@ -423,17 +388,20 @@ const DevtoolSidebar = !isDevtoolsEnabled
       setLastPersona,
     }: {
       setLastPersona: (persona: PersonaType) => void;
-    }) => (
-      <PersonaSidebar selectedPersona="DEVTOOL" setLastPersona={setLastPersona}>
-        <NavList title="Devtool">
-          <NavItem>
-            <NavLink
-              to={DevtoolPaths.schemaDefined}
-              activeClassName="pf-m-current"
+    }) => {
+      const { pathname } = useLocation();
+      return (
+        <PersonaSidebar
+          selectedPersona="DEVTOOL"
+          setLastPersona={setLastPersona}
+        >
+          <NavList title="Devtool">
+            <NavItem
+              isActive={isNavItemActive(pathname, DevtoolPaths.schemaDefined)}
             >
-              SDF Playground
-            </NavLink>
-          </NavItem>
-        </NavList>
-      </PersonaSidebar>
-    );
+              <NavLink to={DevtoolPaths.schemaDefined}>SDF Playground</NavLink>
+            </NavItem>
+          </NavList>
+        </PersonaSidebar>
+      );
+    };

@@ -1,31 +1,31 @@
-import { BrowserRouter as Router } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 
-import { render } from "@app/test-config/test-utils";
+import { fireEvent, render, screen, within } from "@app/test-config/test-utils";
 
 import { HorizontalNav } from "../HorizontalNav";
 
 describe("HorizontalNav", () => {
-  it("Renders without crashing", () => {
-    const wrapper = render(
-      <Router>
+  it("keeps each destination inside its list item and updates the current link", () => {
+    render(
+      <MemoryRouter initialEntries={["/first/details"]}>
         <HorizontalNav
           navItems={[
-            {
-              title: "first",
-              path: "/first",
-            },
-            {
-              title: "second",
-              path: "/second",
-            },
-            {
-              title: "thrid",
-              path: "/thrid",
-            },
+            { title: "First", path: "/first" },
+            { title: "Second", path: "/second" },
           ]}
         />
-      </Router>
+      </MemoryRouter>
     );
-    expect(wrapper).toMatchSnapshot();
+
+    const [firstItem, secondItem] = screen.getAllByRole("listitem");
+    const firstLink = within(firstItem).getByRole("link", { name: "First" });
+    const secondLink = within(secondItem).getByRole("link", { name: "Second" });
+    expect(firstLink).toHaveAttribute("aria-current", "page");
+    expect(within(firstItem).queryByRole("button")).not.toBeInTheDocument();
+
+    fireEvent.click(secondLink);
+
+    expect(secondLink).toHaveAttribute("aria-current", "page");
+    expect(firstLink).not.toHaveAttribute("aria-current");
   });
 });

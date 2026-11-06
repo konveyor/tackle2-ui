@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import {
   ButtonVariant,
   Content,
@@ -32,9 +32,9 @@ export type InsightsTabPath =
 export const InsightsPage: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const history = useHistory();
-  const singleAppTabMatch = useRouteMatch(Paths.insightsSingleAppTab);
-  const singleAppSelectedMatch = useRouteMatch(Paths.insightsSingleAppSelected);
+  const navigate = useNavigate();
+  const singleAppTabMatch = useMatch(Paths.insightsSingleAppTab);
+  const singleAppSelectedMatch = useMatch(Paths.insightsSingleAppSelected);
 
   const activeTabPath =
     singleAppTabMatch || singleAppSelectedMatch
@@ -66,7 +66,7 @@ export const InsightsPage: React.FC = () => {
             if (pageHasFilters) {
               setNavConfirmPath(tabPath as InsightsTabPath);
             } else {
-              history.push(tabPath as InsightsTabPath);
+              navigate(tabPath as InsightsTabPath);
             }
           }}
         >
@@ -131,7 +131,7 @@ export const InsightsPage: React.FC = () => {
         cancelBtnLabel="Cancel"
         confirmBtnVariant={ButtonVariant.primary}
         onConfirm={() => {
-          history.push(navConfirmPath!);
+          navigate(navConfirmPath!);
           setNavConfirmPath(null);
         }}
         onCancel={() => setNavConfirmPath(null)}
