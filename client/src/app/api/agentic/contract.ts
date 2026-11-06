@@ -498,6 +498,40 @@ export const RUN_ENV = {
   TARGET_BRANCH: "TARGET_BRANCH",
 } as const;
 
+/**
+ * Names the Hub and harness own. A run carries them whatever the user
+ * types, so the create forms refuse them rather than letting someone
+ * shadow `TARGET_BRANCH` and quietly push somewhere else.
+ */
+export const RESERVED_RUN_ENV_NAMES: ReadonlySet<string> = new Set(
+  Object.values(RUN_ENV)
+);
+
+/** Why an environment variable name is not usable, or undefined if it is. */
+export type EnvNameProblem = "required" | "format" | "reserved" | "duplicate";
+
+/**
+ * POSIX-ish environment variable name. Kubernetes is laxer than this, but
+ * a name a shell cannot export is no use to the agent.
+ */
+const ENV_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * Validate one name against the reserved set and the other names in the
+ * same form. Returns a code, not a sentence: the caller translates.
+ */
+export function envNameProblem(
+  name: string,
+  otherNames: readonly string[] = []
+): EnvNameProblem | undefined {
+  const trimmed = name.trim();
+  if (!trimmed) return "required";
+  if (!ENV_NAME_PATTERN.test(trimmed)) return "format";
+  if (RESERVED_RUN_ENV_NAMES.has(trimmed)) return "reserved";
+  if (otherNames.some((other) => other.trim() === trimmed)) return "duplicate";
+  return undefined;
+}
+
 /** The Hub coordinates + branch a run was created with, from its spec.env. */
 export interface RunHubCoordinates {
   appId?: string;
@@ -531,6 +565,12 @@ export interface CreateRunInput {
   instructions?: string;
   applicationRef?: string;
   targetBranch?: string;
+  /**
+   * Extra environment for the sandbox container. Hub coordinates are
+   * added on top of these and win, so a reserved name here cannot
+   * displace them (see RESERVED_RUN_ENV_NAMES).
+   */
+  env?: EnvVar[];
   /** Gateway name; omit to let the controller default (single-gateway Agent). */
   gateway?: string;
   /** Invocation supervision mode; defaults to auto in the controller. */
@@ -545,6 +585,8 @@ export interface CreateWorkflowRunInput {
   instructions?: string;
   applicationRef?: string;
   targetBranch?: string;
+  /** Extra environment for every stage's sandbox; see CreateRunInput.env. */
+  env?: EnvVar[];
   /** Gateway name; omit to let the controller default (single-gateway Agent). */
   gateway?: string;
 }
