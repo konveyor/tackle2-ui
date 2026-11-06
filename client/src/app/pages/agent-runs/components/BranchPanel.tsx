@@ -16,8 +16,19 @@ import type { Application } from "@app/api/models";
 /** Frugal against the unauthenticated GitHub API rate limit (60/hr/IP). */
 const FEED_POLL_MS = 60_000;
 
-/** Files the stages write to the branch, by convention. */
-const STAGE_OUTPUT_PATHS = ["PLAN.md", ".konveyor/analysis.json"];
+/**
+ * Files the stages write to the branch, by convention. The catalog skills
+ * write the plan to `docs/plan.md` (catalog/skills/plan/SKILL.md: "You
+ * MUST write docs/plan.md"), not to a root `PLAN.md`, so the old path
+ * never resolved for a run using the shipped skills. `handoff.md` is how
+ * the stages hand work to each other and holds each stage's own account
+ * of its work, which makes it the first thing a reviewer opens.
+ */
+const STAGE_OUTPUT_PATHS = [
+  "docs/plan.md",
+  ".konveyor/handoff.md",
+  ".konveyor/analysis.json",
+];
 
 /** Auto-commit prefix the harness uses for progress commits. */
 const PROGRESS_PREFIX = "konveyor:";
