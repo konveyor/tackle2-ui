@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
   Button,
+  ButtonVariant,
   Content,
   PageSection,
   Toolbar,
@@ -22,26 +23,37 @@ import { useHasSomeScopes } from "@app/auth";
 import { AgenticFetchError } from "@app/components/AgenticFetchError";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { useNotifications } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { PhaseLabel } from "@app/pages/agent-runs/components/PhaseLabel";
 import { useFetchApplications } from "@app/queries/applications";
-import { useFetchWorkflowRuns } from "@app/queries/workflow-runs";
-import { agenticWorkflowRunsCreateScopes } from "@app/scopes";
+import {
+  useDeleteWorkflowRunsMutation,
+  useFetchWorkflowRuns,
+} from "@app/queries/workflow-runs";
+import {
+  agenticWorkflowRunsCreateScopes,
+  agenticWorkflowRunsDeleteScopes,
+} from "@app/scopes";
 import {
   formatAge,
   formatDuration,
   runApplicationDisplayName,
   workflowRunDuration,
 } from "@app/utils/agentic";
-import { formatPath } from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { CreateWorkflowRunModal } from "./components/CreateWorkflowRunModal";
 
@@ -78,13 +90,16 @@ const RUN_PHASES: AgentWorkflowRunPhase[] = [
 const WorkflowRunsPage: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
+  const { pushNotification } = useNotifications();
   const { workflowRuns, isLoading, fetchError, refetch } =
     useFetchWorkflowRuns();
   const { data: applications } = useFetchApplications();
   // Every hub role can list runs; creating one is admin/architect/migrator
   // (tackle2-hub#1119).
   const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
+  const canDelete = useHasSomeScopes(agenticWorkflowRunsDeleteScopes);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string[] | null>(null);
 
   const rows = useMemo<WorkflowRunRow[]>(() => {
     const applicationsById = new Map(
@@ -133,6 +148,7 @@ const WorkflowRunsPage: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
+    isSelectionEnabled: canDelete,
     filterCategories: [
       {
         categoryKey: "name",
@@ -197,10 +213,12 @@ const WorkflowRunsPage: React.FC = () => {
   });
 
   const {
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
+      toolbarBulkExpanderProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -210,6 +228,42 @@ const WorkflowRunsPage: React.FC = () => {
       getTdProps,
     },
   } = tableControls;
+
+  const {
+    selectedItems,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    isEqual: (a: WorkflowRunRow, b: WorkflowRunRow) => a.name === b.name,
+    items: rows,
+    filteredItems,
+    currentPageItems,
+  });
+
+  const terminalFilteredItems = (filteredItems ?? rows).filter(
+    (row) => row.phase === "Succeeded" || row.phase === "Failed"
+  );
+  const activeDeleteCount =
+    deleteTarget?.filter((name) => {
+      const phase = rows.find((row) => row.name === name)?.phase;
+      return phase === "Pending" || phase === "Running";
+    }).length ?? 0;
+
+  const deleteMutation = useDeleteWorkflowRunsMutation(
+    (names) => {
+      setDeleteTarget(null);
+      toolbarBulkSelectorProps.onSelectNone();
+      pushNotification({
+        title: t("agentic.workflowRuns.deleteSuccess", {
+          count: names.length,
+        }),
+        variant: "success",
+      });
+    },
+    (err) => {
+      setDeleteTarget(null);
+      pushNotification({ title: getAxiosErrorMessage(err), variant: "danger" });
+    }
+  );
 
   const openRun = (name: string) => {
     history.push(formatPath(DevPaths.workflowRunDetails, { runName: name }));
@@ -229,7 +283,45 @@ const WorkflowRunsPage: React.FC = () => {
         >
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
+              {canDelete && (
+                <>
+                  <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
+                  <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+                </>
+              )}
               <FilterToolbar {...filterToolbarProps} />
+              {canDelete && (
+                <ToolbarGroup variant="action-group">
+                  <ToolbarItem>
+                    <Button
+                      variant="secondary"
+                      isDanger
+                      isDisabled={selectedItems.length === 0}
+                      onClick={() =>
+                        setDeleteTarget(selectedItems.map((row) => row.name))
+                      }
+                    >
+                      {t("agentic.workflowRuns.deleteSelected")}
+                    </Button>
+                  </ToolbarItem>
+                  <ToolbarItem>
+                    <Button
+                      variant="link"
+                      isDanger
+                      isDisabled={terminalFilteredItems.length === 0}
+                      onClick={() =>
+                        setDeleteTarget(
+                          terminalFilteredItems.map((row) => row.name)
+                        )
+                      }
+                    >
+                      {t("agentic.workflowRuns.deleteFinishedWithCount", {
+                        count: terminalFilteredItems.length,
+                      })}
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              )}
               {canCreate && (
                 <ToolbarGroup variant="action-group">
                   <ToolbarItem>
@@ -285,6 +377,9 @@ const WorkflowRunsPage: React.FC = () => {
                   <Tr key={row.name} {...getTrProps({ item: row })}>
                     <TableRowContentWithControls
                       {...tableControls}
+                      getSelectCheckboxTdProps={
+                        canDelete ? getSelectCheckboxTdProps : undefined
+                      }
                       item={row}
                       rowIndex={rowIndex}
                     >
@@ -333,6 +428,40 @@ const WorkflowRunsPage: React.FC = () => {
           }}
         />
       )}
+
+      <ConfirmDialog
+        title={t("agentic.workflowRuns.deleteTitle", {
+          count: deleteTarget?.length ?? 0,
+        })}
+        titleIconVariant="warning"
+        isOpen={deleteTarget !== null}
+        message={
+          <>
+            <Content component="p">
+              {t("agentic.workflowRuns.deleteMessage", {
+                count: deleteTarget?.length ?? 0,
+              })}
+            </Content>
+            {activeDeleteCount > 0 && (
+              <Content component="p">
+                {t("agentic.workflowRuns.activeDeleteWarning", {
+                  count: activeDeleteCount,
+                })}
+              </Content>
+            )}
+            <Content component="p">{t("dialog.message.delete")}</Content>
+          </>
+        }
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        inProgress={deleteMutation.isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget?.length) deleteMutation.mutate(deleteTarget);
+        }}
+      />
     </>
   );
 };

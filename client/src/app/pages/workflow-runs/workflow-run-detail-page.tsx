@@ -118,8 +118,8 @@ const WorkflowRunDetailPage: React.FC = () => {
     fetchError: liveRunFetchError,
   } = useFetchAgentRun(liveRunName);
   const liveStageMode = resolveExecutionMode(liveStage, liveAgentRun);
-  // "Run again": the spec is immutable and the hub has no delete, so a
-  // prefilled create is the one re-run shape there is.
+  // "Run again": the spec is immutable, so a prefilled create is the one
+  // re-run shape there is.
   const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
   const [rerunOpen, setRerunOpen] = useState(false);
   // Inventory failures leave `application` undefined — BranchPanel copes.
