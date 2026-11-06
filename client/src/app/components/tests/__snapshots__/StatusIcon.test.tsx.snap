@@ -19,7 +19,9 @@ exports[`StatusIcon Renders without crashing 1`] = `
             </span>
           </span>
         </div>
-        <div>
+        <div
+          class="pf-v6-u-text-truncate"
+        >
           terms.notStarted
         </div>
       </div>
@@ -40,7 +42,9 @@ exports[`StatusIcon Renders without crashing 1`] = `
           </span>
         </span>
       </div>
-      <div>
+      <div
+        class="pf-v6-u-text-truncate"
+      >
         terms.notStarted
       </div>
     </div>

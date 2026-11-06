@@ -1,0 +1,11 @@
+.application-name-popover {
+  --pf-v6-c-popover__header--MarginBottom: 1rem;
+}
+
+.application-name-popover .pf-v6-c-popover__title {
+  flex-grow: 1;
+}
+
+.application-name-popover .pf-v6-c-popover__title-text {
+  flex-grow: 1;
+}

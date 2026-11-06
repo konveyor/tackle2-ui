@@ -157,6 +157,9 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
         </Icon>
       }
       label={label || presetProps?.label}
+      // Status cells are narrow enough that even these short labels overflow
+      // at common window widths -- ellipsize rather than slice a glyph.
+      truncateLabel
       trailingItemTooltipMessage={presetProps?.tooltipMessage}
       trailingItem={presetProps?.topologyIcon}
     />
