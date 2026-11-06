@@ -942,6 +942,9 @@ export interface JsonSchemaObject {
   /** For type string, enum values */
   enum?: string[];
 
+  /** Default value used when the user does not supply one */
+  default?: string | number | boolean;
+
   /** For type number, minimum value */
   minimum?: number;
 
