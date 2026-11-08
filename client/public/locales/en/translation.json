@@ -512,6 +512,7 @@
     "decision": "Decision",
     "defaultValue": "Default value",
     "dependencies": "Dependencies",
+    "default": "Default",
     "dependencyName": "Dependency name",
     "dependentQuestion": "Conditional question",
     "description": "Description",
