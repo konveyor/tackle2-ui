@@ -188,6 +188,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
                     : true;
                 },
               }),
+            description: yup.string().trim(),
           })
         ),
       }),
@@ -217,6 +218,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
               name: p.name,
               type: p.type,
               default: p.default == null ? "" : String(p.default),
+              description: p.description ?? "",
             })),
           },
     [generator]

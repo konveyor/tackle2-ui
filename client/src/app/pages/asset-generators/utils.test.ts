@@ -68,8 +68,13 @@ describe("parametersToSchema", () => {
 describe("schemaToParameters", () => {
   it("reconstructs parameter rows from an object JSON Schema (round-trip)", () => {
     const rows: GeneratorParameter[] = [
-      { name: "replicas", type: "number", default: 2 },
-      { name: "environment", type: "string", default: "dev" },
+      {
+        name: "replicas",
+        type: "number",
+        default: 2,
+        description: "Number of replicas",
+      },
+      { name: "environment", type: "string", default: "dev", description: "" },
     ];
 
     expect(schemaToParameters(parametersToSchema(rows))).toEqual(rows);
