@@ -29,13 +29,13 @@ describe("ParameterFields", () => {
     expect(screen.getByText("No parameters to display")).toBeInTheDocument();
   });
 
-  // Each parameter row renders a Name box, a Type dropdown, and a Value box.
-  it("exposes name, type, and value fields for each parameter row", () => {
+  it("exposes name, type, value, and description fields for each parameter row", () => {
     render(
       <FormWrapper params={[{ name: "env", type: "string", default: "dev" }]} />
     );
     expect(document.getElementById("params-name-0")).toBeInTheDocument();
     expect(document.getElementById("params-type-0")).toBeInTheDocument();
     expect(document.getElementById("params-value-0")).toBeInTheDocument();
+    expect(document.getElementById("params-description-0")).toBeInTheDocument();
   });
 });

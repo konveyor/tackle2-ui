@@ -48,6 +48,7 @@ export interface GeneratorParameter {
   name: string;
   type: ParameterType;
   default: string | number | boolean;
+  description?: string;
 }
 
 const isSet = (value: unknown): boolean =>
@@ -75,6 +76,7 @@ export const parametersToSchema = (
   params.forEach((p) => {
     const property: JsonSchemaObject = { type: p.type };
     if (isSet(p.default)) property.default = coerceDefault(p.default, p.type);
+    if (isSet(p.description)) property.description = String(p.description);
     properties[p.name] = property;
   });
 
@@ -92,6 +94,7 @@ export const schemaToParameters = (
     name,
     type: property.type as ParameterType,
     default: property.default ?? "",
+    description: property.description ?? "",
   }));
 };
 

@@ -917,7 +917,7 @@ export interface Generator {
   name: string;
   description?: string;
   repository?: Repository;
-  params?: JsonDocument;
+  params?: JsonSchemaObject;
   values?: JsonDocument;
   identity?: Ref;
   /** all profiles currently referencing this generator */ profiles?: Ref[];
