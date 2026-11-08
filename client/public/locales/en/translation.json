@@ -511,6 +511,7 @@
     "date": "Date",
     "decision": "Decision",
     "dependencies": "Dependencies",
+    "default": "Default",
     "dependencyName": "Dependency name",
     "dependentQuestion": "Conditional question",
     "description": "Description",
