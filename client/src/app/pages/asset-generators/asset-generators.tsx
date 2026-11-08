@@ -111,10 +111,8 @@ const AssetGenerators: FC = () => {
     columnNames: {
       name: t("terms.name"),
       repository: t("terms.repository"),
-      /* TODO: Restore with #2498
-      parameters: t("terms.parameters"),
-      */
       values: t("terms.values"),
+      parameters: t("terms.parameters"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -260,10 +258,8 @@ const AssetGenerators: FC = () => {
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "repository" })} />
-                    {/* TODO: Restore with #2498
-                    <Th {...getThProps({ columnKey: "parameters" })} />
-                    */}
                     <Th {...getThProps({ columnKey: "values" })} />
+                    <Th {...getThProps({ columnKey: "parameters" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -305,13 +301,14 @@ const AssetGenerators: FC = () => {
                         >
                           {generator?.repository?.url}
                         </Td>
-                        {/* TODO: Restore with #2498
-                        <Td {...getTdProps({ columnKey: "parameters" })}>
-                          {Object.keys(generator?.params || {}).length}
-                        </Td>
-                        */}
                         <Td {...getTdProps({ columnKey: "values" })}>
                           {Object.keys(generator?.values || {}).length}
+                        </Td>
+                        <Td {...getTdProps({ columnKey: "parameters" })}>
+                          {
+                            Object.keys(generator?.params?.properties || {})
+                              .length
+                          }
                         </Td>
                         <Td isActionCell>
                           <OverflowActionMenu
