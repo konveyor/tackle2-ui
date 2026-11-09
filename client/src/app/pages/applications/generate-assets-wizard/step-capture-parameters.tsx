@@ -18,7 +18,11 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 import { useFetchGenerators } from "@app/queries/generators";
-import { combineSchemas, isSchemaEmpty } from "@app/utils/json-schema";
+import {
+  combineSchemas,
+  isSchemaEmpty,
+  schemaDefaults,
+} from "@app/utils/json-schema";
 import { wrapAsEvent } from "@app/utils/utils";
 
 export interface ParameterState {
@@ -76,7 +80,10 @@ const useGeneratorsForTargetProfile = (targetProfile?: TargetProfile) => {
   );
 
   const generators = React.useMemo(
-    () => allGenerators.filter((g) => Object.keys(g?.params ?? {}).length > 0),
+    () =>
+      allGenerators.filter(
+        (g) => Object.keys(g?.params?.properties ?? {}).length > 0
+      ),
     [allGenerators]
   );
 
@@ -94,14 +101,26 @@ export const CaptureParameters: React.FC<{
   const { t } = useTranslation();
   const { generators } = useGeneratorsForTargetProfile(targetProfile);
   const schema = React.useMemo(() => {
-    return !generators
-      ? undefined
-      : combineSchemas(
-          generators
-            .filter((g) => Object.keys(g.params ?? {}).length > 0)
-            .map((g) => g.params as unknown as JsonSchemaObject) // TODO: Fix this with #2498
-        );
+    const schemas = generators
+      .map((g) => g.params)
+      .filter(
+        (params): params is JsonSchemaObject =>
+          Object.keys(params?.properties ?? {}).length > 0
+      );
+    return schemas.length === 0 ? undefined : combineSchemas(schemas);
   }, [generators]);
+
+  // Show one collapsible section per generator, listing the parameters it
+  // contributes to the combined schema.
+  const sections = React.useMemo(
+    () =>
+      generators.map((g) => ({
+        id: String(g.id),
+        title: g.name,
+        propertyKeys: Object.keys(g.params?.properties ?? {}),
+      })),
+    [generators]
+  );
 
   const validationSchema = yup.object().shape({
     schema: yup.object().nullable(),
@@ -123,18 +142,26 @@ export const CaptureParameters: React.FC<{
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
-  const { setValue, control } = form;
+  const { setValue, getValues, control } = form;
 
-  // Update form values when the combined schema changes
+  const defaults = React.useMemo(() => schemaDefaults(schema), [schema]);
+
+  // Update form values when the combined schema changes. Values the user has
+  // already entered win over the schema defaults, so re-entering the step keeps
+  // earlier input.
   React.useEffect(() => {
     if (schema) {
       setValue("schema", schema);
       setValue("parametersRequired", !isSchemaEmpty(schema));
+      setValue("parameters", {
+        ...defaults,
+        ...(getValues("parameters") ?? {}),
+      });
     } else {
       setValue("schema", undefined);
       setValue("parametersRequired", false);
     }
-  }, [schema, setValue]);
+  }, [schema, defaults, setValue, getValues]);
 
   useParametersStateChangeHandler(form, onParametersChanged);
 
@@ -182,9 +209,9 @@ export const CaptureParameters: React.FC<{
                   )}
                   fieldId="parameters"
                   renderInput={({ field: { value, name, onChange } }) => (
-                    // TODO: Verify this works with the combined schema with #2498
                     <SchemaDefinedField
                       id={name}
+                      sections={sections}
                       jsonDocument={value ?? {}}
                       jsonSchema={schema}
                       onDocumentChanged={(newJsonDocument) => {

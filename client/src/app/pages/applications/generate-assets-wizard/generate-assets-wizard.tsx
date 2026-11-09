@@ -18,6 +18,7 @@ import { universalComparator } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 import { AdvancedOptions } from "./step-advanced-options";
+import { CaptureParameters } from "./step-capture-parameters";
 import { Results } from "./step-results";
 import { Review } from "./step-review";
 import { SelectTargetProfile } from "./step-select-target-profile";
@@ -58,7 +59,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   const {
     state,
     setProfile,
-    // setParameters,
+    setParameters,
     setAdvancedOptions,
     setResults,
     reset,
@@ -167,7 +168,6 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           />
         </WizardStep>
 
-        {/* TODO: Restore with #2498
         <WizardStep
           id="capture-parameters"
           name={t("generateAssetsWizard.captureParameters.stepTitle")}
@@ -183,7 +183,6 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
             initialParameters={state.parameters}
           />
         </WizardStep>
-        */}
 
         <WizardStep
           id="advanced-options"
