@@ -48,7 +48,6 @@ import {
   InfoCircleIcon,
   PendingIcon,
   StopCircleIcon,
-  TachometerAltIcon,
 } from "@patternfly/react-icons";
 
 import { isAgenticSteerEnabled } from "@app/Constants";
@@ -66,11 +65,7 @@ import type {
   SteerResult,
   ToolCallDiff,
 } from "@app/api/agentic/acp";
-import type {
-  AgentRunPhase,
-  AgentRunStatus,
-  HarnessTerminationData,
-} from "@app/api/agentic/contract";
+import type { AgentRunPhase, AgentRunStatus } from "@app/api/agentic/contract";
 import {
   ACP_READY_CONDITION,
   isTerminalPhase,
@@ -95,6 +90,8 @@ import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
 import { PhaseLabel } from "./PhaseLabel";
+import { TerminationUsage, UsageBadge, mergeUsage } from "./run-usage";
+import type { RunUsage } from "./run-usage";
 
 import "@patternfly/chatbot/dist/css/main.css";
 import "../agent-runs.css";
@@ -229,28 +226,6 @@ interface ActiveRun {
   runId: string;
 }
 
-/**
- * Live spend counters for the run's session, folded from goose's usage
- * notices. These are the units the coming run limits are measured in
- * (agentic-controller#115: maxTurns via GOOSE_MAX_TURNS, maxCost).
- */
-interface RunUsage {
-  /** Tokens occupying the context window right now. Absent until the
-   * provider reports a real figure -- goose on Bedrock only ever says 0,
-   * which in the header read as a measurement. */
-  used?: number;
-  contextLimit?: number;
-  /** Accumulated over the session. */
-  inputTokens?: number;
-  outputTokens?: number;
-  /** Accumulated cost as goose reports it (usage_update.accumulatedCost). */
-  cost?: number;
-  /** Per-response costs summed (message_usage) — the fallback when goose
-   * reports no accumulated figure. */
-  summedCost?: number;
-  currency?: string;
-}
-
 /** State of the dial itself; only meaningful while the run is dialable. */
 type ConnState =
   /** Dialing the ACP endpoint. */
@@ -361,41 +336,6 @@ function gooseMeta(u: SessionUpdate): Record<string, unknown> {
 /** Id goose stamps on a streamed message; a steer pickup carries the steer's. */
 function updateMessageId(u: SessionUpdate): string | undefined {
   return str(gooseMeta(u).messageId) || str(u.messageId) || undefined;
-}
-
-const num = (v: unknown): number | undefined =>
-  typeof v === "number" && Number.isFinite(v) ? v : undefined;
-
-/**
- * Fold a usage notice into the running counters. goose's custom
- * `usage_update` (customNotifications) carries used / contextLimit /
- * accumulatedInputTokens / accumulatedOutputTokens / accumulatedCost; the
- * standard ACP one it also emits at prompt end carries used / size /
- * cost.{amount,currency}. `message_usage` is one per model response.
- */
-function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
-  const base: RunUsage = prev ?? {};
-  if (u.sessionUpdate === "message_usage") {
-    const usage = isRecord(u.usage) ? u.usage : {};
-    const cost = num(usage.cost);
-    return {
-      ...base,
-      summedCost:
-        cost === undefined ? base.summedCost : (base.summedCost ?? 0) + cost,
-    };
-  }
-  const cost = isRecord(u.cost) ? u.cost : undefined;
-  return {
-    ...base,
-    // A context that has held a prompt is never empty: 0 is a provider that
-    // does not meter occupancy (goose on Bedrock), not a reading.
-    used: num(u.used) || base.used,
-    contextLimit: num(u.contextLimit) ?? num(u.size) ?? base.contextLimit,
-    inputTokens: num(u.accumulatedInputTokens) ?? base.inputTokens,
-    outputTokens: num(u.accumulatedOutputTokens) ?? base.outputTokens,
-    cost: num(u.accumulatedCost) ?? num(cost?.amount) ?? base.cost,
-    currency: str(cost?.currency) || base.currency,
-  };
 }
 
 /** The {type, message} of a status_message update, if well-formed. */
@@ -1452,161 +1392,6 @@ function SteerStatus({ steer }: { steer: SteerState }) {
         </Label>
       );
   }
-}
-
-// ------------------------------------------------------------ usage badge
-
-const compactNumber = new Intl.NumberFormat(undefined, {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
-function formatCost(amount: number, currency?: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currency || "USD",
-      maximumFractionDigits: amount < 1 ? 4 : 2,
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(4)} ${currency ?? ""}`.trim();
-  }
-}
-
-/**
- * Turns, context occupancy and cost — the run's whole spend on one header
- * line, in the three units the run limits are set in.
- *
- * The turn count is the harness's, taken from the task rung's published
- * fields (agentic-controller#268) and never tallied here. This connection
- * only sees the responses that arrived while it was attached, so counting
- * them gives a late viewer a smaller number than the one maxTurns is
- * actually measured against — and the plan rung sitting directly below the
- * header would be saying the other one.
- */
-function UsageBadge({
-  usage,
-  turns,
-}: {
-  usage: RunUsage;
-  turns?: Pick<PlanRungMeta, "turnsUsed" | "maxTurns">;
-}) {
-  const { t } = useTranslation();
-  const cost = usage.cost ?? usage.summedCost;
-  const costText = cost === undefined ? null : formatCost(cost, usage.currency);
-  const { used, contextLimit } = usage;
-  const limitText = contextLimit ? compactNumber.format(contextLimit) : null;
-  const turnsText =
-    turns?.turnsUsed === undefined
-      ? null
-      : turns.maxTurns
-        ? t("agentic.chat.usageChipTurnOf", {
-            turn: turns.turnsUsed,
-            max: turns.maxTurns,
-          })
-        : t("agentic.chat.usageChipTurn", { turn: turns.turnsUsed });
-  const contextText =
-    used === undefined
-      ? limitText && t("agentic.chat.usageChipLimit", { limit: limitText })
-      : limitText
-        ? t("agentic.chat.usageChipContext", {
-            used: compactNumber.format(used),
-            limit: limitText,
-          })
-        : t("agentic.chat.usageChipUsed", { used: compactNumber.format(used) });
-  const parts = [turnsText, contextText, costText].filter(Boolean);
-  if (parts.length === 0) return null;
-  return (
-    <Tooltip
-      content={
-        <div>
-          {turns?.turnsUsed !== undefined && (
-            <div>
-              {turns.maxTurns
-                ? t("agentic.chat.usageTurnsOf", {
-                    turn: turns.turnsUsed,
-                    max: turns.maxTurns,
-                  })
-                : t("agentic.chat.usageTurns", { turn: turns.turnsUsed })}
-            </div>
-          )}
-          <div>
-            {used === undefined
-              ? contextLimit
-                ? t("agentic.chat.usageContextUnreported", {
-                    limit: contextLimit.toLocaleString(),
-                  })
-                : null
-              : contextLimit
-                ? t("agentic.chat.usageContext", {
-                    used: used.toLocaleString(),
-                    limit: contextLimit.toLocaleString(),
-                    percent: Math.round((used / contextLimit) * 100),
-                  })
-                : t("agentic.chat.usageContextUnbounded", {
-                    used: used.toLocaleString(),
-                  })}
-          </div>
-          {usage.inputTokens !== undefined &&
-            usage.outputTokens !== undefined && (
-              <div>
-                {t("agentic.chat.usageTokens", {
-                  input: usage.inputTokens.toLocaleString(),
-                  output: usage.outputTokens.toLocaleString(),
-                })}
-              </div>
-            )}
-          {costText && (
-            <div>{t("agentic.chat.usageCost", { amount: costText })}</div>
-          )}
-        </div>
-      }
-    >
-      <Label
-        isCompact
-        variant="outline"
-        icon={<TachometerAltIcon />}
-        aria-label={t("agentic.chat.usage")}
-      >
-        {parts.join(" · ")}
-      </Label>
-    </Tooltip>
-  );
-}
-
-// ---------------------------------------------------------- finished run
-
-/**
- * Turns and context the harness reports spending before the run ended --
- * the measure of whether the agent did any work before it failed.
- */
-function TerminationUsage({
-  usage,
-}: {
-  usage?: HarnessTerminationData["usage"];
-}) {
-  const { t } = useTranslation();
-  const turns = usage?.turnsUsed;
-  const used = usage?.contextUsed;
-  const size = usage?.contextSize;
-  const parts = [
-    typeof turns === "number"
-      ? t("agentic.chat.failureUsageTurns", { count: turns })
-      : null,
-    typeof used !== "number"
-      ? null
-      : size
-        ? t("agentic.chat.usageContext", {
-            used: used.toLocaleString(),
-            limit: size.toLocaleString(),
-            percent: Math.round((used / size) * 100),
-          })
-        : t("agentic.chat.usageContextUnbounded", {
-            used: used.toLocaleString(),
-          }),
-  ].filter(Boolean);
-  if (parts.length === 0) return null;
-  return <div className="chat-meta">{parts.join(" · ")}</div>;
 }
 
 /**

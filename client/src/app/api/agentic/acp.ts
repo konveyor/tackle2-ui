@@ -15,6 +15,8 @@
  *     custom channel (usage_update spend counters, status_message notices
  *     and progress), same {sessionId, update} shape, enabled by the harness
  *     declaring the customNotifications capability and teed to viewers
+ *   agent -> client (notification): _lightspeed/session/update — cumulative
+ *     token observations, with the same {sessionId, update} envelope
  *   agent -> client (request): session/request_permission, elicitation/create
  *     (the agent asking the human a question — e.g. the harness's ask_user
  *     tool — as a flat form schema; the turn blocks until it is answered)
@@ -47,6 +49,9 @@ export const STEER_METHOD = "_goose/unstable/session/steer";
  * update's `sessionUpdate` discriminator tells them apart.
  */
 export const GOOSE_UPDATE_METHOD = "_goose/unstable/session/update";
+
+/** Cumulative token observations, without inferred context occupancy or cost. */
+export const LIGHTSPEED_UPDATE_METHOD = "_lightspeed/session/update";
 
 // ------------------------------------------------------------------ types
 
@@ -545,7 +550,11 @@ export class AcpSession {
   }
 
   private handleNotification(method: string, params: unknown): void {
-    if (method === "session/update" || method === GOOSE_UPDATE_METHOD) {
+    if (
+      method === "session/update" ||
+      method === GOOSE_UPDATE_METHOD ||
+      method === LIGHTSPEED_UPDATE_METHOD
+    ) {
       const update = isRecord(params) ? params.update : undefined;
       const sessionId =
         isRecord(params) && typeof params.sessionId === "string"

@@ -124,6 +124,9 @@ export interface HarnessTerminationData {
   stopReason?: string;
   usage?: {
     turnsUsed?: number;
+    /** Cumulative runtime token observations; absent when unavailable. */
+    inputTokens?: number;
+    outputTokens?: number;
     contextUsed?: number;
     contextSize?: number;
     cost?: number;

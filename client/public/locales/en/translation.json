@@ -1290,6 +1290,8 @@
       "usageTurns": "Turn {{turn}}, as counted by the harness",
       "usageTurnsOf": "Turn {{turn}} of a {{max}}-turn budget, as counted by the harness",
       "usageTokens": "Tokens: {{input}} in, {{output}} out",
+      "usageInputTokens": "Tokens: {{input}} in",
+      "usageOutputTokens": "Tokens: {{output}} out",
       "usageCost": "Cost so far: {{amount}}",
       "harnessStep": "Harness: {{title}}",
       "waitingForAcpCondition": "The run is {{phase}} but the controller reports no ACPReady condition; the console dials only on that signal (agentic-controller#160).",
