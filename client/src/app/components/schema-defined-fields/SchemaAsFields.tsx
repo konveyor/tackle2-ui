@@ -3,6 +3,7 @@ import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
+  ExpandableSection,
   FormFieldGroup,
   FormFieldGroupHeader,
 } from "@patternfly/react-core";
@@ -16,12 +17,27 @@ import {
 
 import { jsonSchemaToYupResolver } from "./utils";
 
+/** A collapsible group of top-level properties, e.g. one generator's parameters. */
+export interface SchemaFieldSection {
+  /** Stable identifier, used as the React key and for the expansion state. */
+  id: string;
+  /** Text shown in the section toggle. */
+  title: string;
+  /** Names of the properties (from jsonSchema.properties) shown in the section. */
+  propertyKeys: string[];
+}
+
 export interface SchemaAsFieldsProps {
   id: string;
   jsonDocument: object;
   jsonSchema: JsonSchemaObject;
   onDocumentChanged?: (newJsonDocument: object) => void;
   isReadOnly?: boolean;
+  /**
+   * Render the properties inside collapsible sections. Properties not listed in
+   * any section are rendered after them, without a section.
+   */
+  sections?: SchemaFieldSection[];
 }
 
 interface FieldProps {
@@ -222,8 +238,12 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
   jsonSchema,
   onDocumentChanged,
   isReadOnly = false,
+  sections,
 }) => {
   const { t } = useTranslation();
+  const [collapsedSections, setCollapsedSections] = React.useState<
+    Record<string, boolean>
+  >({});
 
   const methods = useForm({
     resolver: jsonSchemaToYupResolver(jsonSchema, t),
@@ -251,20 +271,58 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
     return () => subscription();
   }, [subscribe, onDocumentChanged]);
 
+  const properties = jsonSchema?.properties ?? {};
+  const sectionKeys = new Set(
+    (sections ?? []).flatMap((section) => section.propertyKeys)
+  );
+  const ungroupedProperties = Object.entries(properties).filter(
+    ([key]) => !sectionKeys.has(key)
+  );
+
+  const renderField = (key: string, fieldSchema: JsonSchemaObject) => (
+    <SchemaField
+      isReadOnly={isReadOnly}
+      key={key}
+      fieldKey={key}
+      fieldSchema={fieldSchema}
+      path={key}
+      parentSchema={jsonSchema}
+    />
+  );
+
+  // A property shared by more than one section is rendered once, in the first
+  // section that lists it, to avoid binding two inputs to the same field.
+  const renderedKeys = new Set<string>();
+
   return (
     <FormProvider {...methods}>
       <div id={`${id}-form`} className={styles.form}>
-        {Object.entries(jsonSchema?.properties || {}).map(
-          ([key, fieldSchema]) => (
-            <SchemaField
-              isReadOnly={isReadOnly}
-              key={key}
-              fieldKey={key}
-              fieldSchema={fieldSchema}
-              path={key}
-              parentSchema={jsonSchema}
-            />
-          )
+        {(sections ?? []).map((section) => (
+          <ExpandableSection
+            key={section.id}
+            toggleText={section.title}
+            isExpanded={!collapsedSections[section.id]}
+            onToggle={() =>
+              setCollapsedSections((current) => ({
+                ...current,
+                [section.id]: !current[section.id],
+              }))
+            }
+          >
+            <div className={styles.form}>
+              {section.propertyKeys.map((key) => {
+                const fieldSchema = properties[key];
+                if (!fieldSchema || renderedKeys.has(key)) {
+                  return null;
+                }
+                renderedKeys.add(key);
+                return renderField(key, fieldSchema);
+              })}
+            </div>
+          </ExpandableSection>
+        ))}
+        {ungroupedProperties.map(([key, fieldSchema]) =>
+          renderField(key, fieldSchema)
         )}
       </div>
     </FormProvider>
