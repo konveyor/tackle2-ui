@@ -5,7 +5,7 @@ import { Panel, PanelHeader, PanelMain, Switch } from "@patternfly/react-core";
 import { JsonSchemaObject } from "@app/api/models";
 
 import { SchemaAsCodeEditor } from "./SchemaAsCodeEditor";
-import { SchemaAsFields } from "./SchemaAsFields";
+import { SchemaAsFields, SchemaFieldSection } from "./SchemaAsFields";
 import { isComplexSchema } from "./utils";
 
 export interface ISchemaDefinedFieldProps {
@@ -17,6 +17,8 @@ export interface ISchemaDefinedFieldProps {
   isReadOnly?: boolean;
   /** Language for the editor if the document/schema cannot render as fields. Defaults to Language.json. */
   editorLanguage?: Language.json | Language.yaml;
+  /** Render the fields inside collapsible sections, e.g. one section per generator. */
+  sections?: SchemaFieldSection[];
 }
 
 export const SchemaDefinedField = ({
@@ -27,6 +29,7 @@ export const SchemaDefinedField = ({
   onDocumentChanged,
   isReadOnly = false,
   editorLanguage = Language.json,
+  sections,
 }: ISchemaDefinedFieldProps) => {
   const [isJsonView, setIsJsonView] = useState<boolean>(
     !jsonSchema || isComplexSchema(jsonSchema)
@@ -72,6 +75,7 @@ export const SchemaDefinedField = ({
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
             onDocumentChanged={onChangeHandler}
+            sections={sections}
           />
         )}
       </PanelMain>
