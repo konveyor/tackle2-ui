@@ -19,7 +19,7 @@ export interface WizardState {
 const INITIAL_WIZARD_STATE: WizardState = {
   profile: undefined,
   parameters: {
-    isValid: true, // TODO: Restore to false with #2498
+    isValid: false,
     parametersRequired: false,
   },
   advancedOptions: {

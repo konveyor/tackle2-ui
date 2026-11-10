@@ -72,7 +72,7 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
     const expectedInitialState: WizardState = {
       profile: undefined,
       parameters: {
-        isValid: true, // Note: This is true by default due to TODO #2498 comment
+        isValid: false,
         parametersRequired: false,
       },
       advancedOptions: {
@@ -112,7 +112,7 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
       });
 
       expect(result.current.state.profile).toEqual(mockTargetProfile);
-      expect(result.current.state.isReady).toBe(true); // Should be true because default parameters and advancedOptions are valid
+      expect(result.current.state.isReady).toBe(false); // Still false because parameters are not yet valid by default
     });
 
     it("updates existing profile", () => {
@@ -391,7 +391,7 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
       const expectedInitialState: WizardState = {
         profile: undefined,
         parameters: {
-          isValid: true, // Note: This is true by default due to TODO #2498 comment
+          isValid: false,
           parametersRequired: false,
         },
         advancedOptions: {
@@ -514,7 +514,7 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
       });
 
       expect(result.current.state.profile).toEqual(mockTargetProfile);
-      expect(result.current.state.isReady).toBe(true); // Should be true because default params and advanced options are valid
+      expect(result.current.state.isReady).toBe(false); // False because parameters are not yet valid by default
 
       // Set invalid parameters
       act(() => {
@@ -568,16 +568,16 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
       expect(result.current.state.isReady).toBe(true);
     });
 
-    it("correctly calculates isReady with default parameter values", () => {
+    it("keeps isReady false with default (unvalidated) parameter values", () => {
       const { result } = renderHook(() => useWizardReducer());
 
-      // Since default parameters.isValid is true and advancedOptions.isValid is true,
-      // adding just a profile should make isReady true
+      // Default parameters.isValid is false, so adding just a profile is not
+      // enough to make the wizard ready; the parameters step must validate first.
       act(() => {
         result.current.setProfile(mockTargetProfile);
       });
 
-      expect(result.current.state.isReady).toBe(true);
+      expect(result.current.state.isReady).toBe(false);
     });
 
     it("preserves parameters, advancedOptions, and results when changing profiles", () => {
@@ -703,7 +703,7 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
       const expectedInitialState: WizardState = {
         profile: undefined,
         parameters: {
-          isValid: true,
+          isValid: false,
           parametersRequired: false,
         },
         advancedOptions: {

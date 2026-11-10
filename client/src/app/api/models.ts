@@ -917,7 +917,7 @@ export interface Generator {
   name: string;
   description?: string;
   repository?: Repository;
-  params?: JsonDocument;
+  params?: JsonSchemaObject;
   values?: JsonDocument;
   identity?: Ref;
   /** all profiles currently referencing this generator */ profiles?: Ref[];
@@ -941,6 +941,9 @@ export interface JsonSchemaObject {
 
   /** For type string, enum values */
   enum?: string[];
+
+  /** Default value used when the user does not supply one */
+  default?: string | number | boolean;
 
   /** For type number, minimum value */
   minimum?: number;
