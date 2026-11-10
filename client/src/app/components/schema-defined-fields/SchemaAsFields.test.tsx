@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { JsonSchemaObject } from "@app/api/models";
 
@@ -56,5 +57,38 @@ describe("SchemaAsFields", () => {
     expect(screen.getByText("Number of pods")).toBeInTheDocument();
     // Properties not listed in a section still render.
     expect(screen.getByLabelText("enabled")).toBeInTheDocument();
+  });
+
+  it("keeps a dotted property name as a single flat key when the value is edited", async () => {
+    const dottedSchema: JsonSchemaObject = {
+      type: "object",
+      properties: {
+        "workspace.storageSize": {
+          type: "string",
+          default: "1Gi",
+          description: "Size of the workspace volume",
+        },
+      },
+    };
+    const onDocumentChanged = jest.fn();
+
+    render(
+      <SchemaAsFields
+        id="test"
+        jsonDocument={{ "workspace.storageSize": "1Gi" }}
+        jsonSchema={dottedSchema}
+        onDocumentChanged={onDocumentChanged}
+      />
+    );
+
+    const input = screen.getByLabelText("workspace.storageSize");
+    await userEvent.clear(input);
+    await userEvent.type(input, "4Gi");
+
+    await waitFor(() =>
+      expect(onDocumentChanged).toHaveBeenLastCalledWith({
+        "workspace.storageSize": "4Gi",
+      })
+    );
   });
 });
