@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import {
   Button,
   EmptyState,
@@ -56,11 +56,9 @@ const useSelectedApplicationId = (
   keyPrefix: TablePersistenceKeyPrefix
 ) => {
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const routeMatch = useRouteMatch<{
-    applicationId: string;
-  }>(pathPattern);
+  const routeMatch = useMatch(pathPattern);
 
   const selectedAppId = routeMatch
     ? Number(routeMatch.params.applicationId)
@@ -71,14 +69,17 @@ const useSelectedApplicationId = (
       location &&
       new URLSearchParams(location.search).get(`${keyPrefix}:filters`);
 
-    history.replace({
-      pathname: pathPattern.replace(":applicationId", String(applicationId)),
-      ...(existingFiltersParam && {
-        search: new URLSearchParams({
-          filters: existingFiltersParam,
-        }).toString(),
-      }),
-    });
+    navigate(
+      {
+        pathname: pathPattern.replace(":applicationId", String(applicationId)),
+        ...(existingFiltersParam && {
+          search: new URLSearchParams({
+            filters: existingFiltersParam,
+          }).toString(),
+        }),
+      },
+      { replace: true }
+    );
   };
 
   return { selectedAppId, setSelectedAppId };

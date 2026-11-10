@@ -2,11 +2,11 @@ import { Suspense, lazy, useEffect } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Redirect,
+  Navigate,
   Route,
-  Switch,
-  useHistory,
+  Routes,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import {
   Level,
@@ -25,7 +25,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 const Stakeholders = lazy(() => import("./stakeholders"));
 const StakeholderGroups = lazy(() => import("./stakeholder-groups"));
 const JobFunctions = lazy(() => import("./job-functions"));
-const businessServices = lazy(() => import("./business-services"));
+const BusinessServices = lazy(() => import("./business-services"));
 const Tags = lazy(() => import("./tags"));
 
 const tabs: string[] = [
@@ -38,22 +38,22 @@ const tabs: string[] = [
 
 export const Controls: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [activeTabKey, setActiveTabKey] = React.useState(0);
   const location = useLocation();
 
   useEffect(() => {
     switch (location.pathname) {
-      case "/controls/stakeholders":
+      case Paths.controlsStakeholders:
         return setActiveTabKey(0);
-      case "/controls/stakeholder-groups":
+      case Paths.controlsStakeholderGroups:
         return setActiveTabKey(1);
-      case "/controls/job-functions":
+      case Paths.controlsJobFunctions:
         return setActiveTabKey(2);
-      case "/controls/business-services":
+      case Paths.controlsBusinessServices:
         return setActiveTabKey(3);
-      case "/controls/tags":
+      case Paths.controlsTags:
         return setActiveTabKey(4);
       default:
         return setActiveTabKey(0);
@@ -72,7 +72,7 @@ export const Controls: React.FC = () => {
           onSelect={(_event, tabIndex) => {
             setActiveTabKey(tabIndex as number);
 
-            history.push(Paths[tabs[tabIndex as number] as keyof typeof Paths]);
+            navigate(Paths[tabs[tabIndex as number] as keyof typeof Paths]);
           }}
         >
           <Tab
@@ -99,24 +99,21 @@ export const Controls: React.FC = () => {
       </PageSection>
       <PageSection hasBodyWrapper={false}>
         <Suspense fallback={<AppPlaceholder />}>
-          <Switch>
-            <Route path={Paths.controlsStakeholders} component={Stakeholders} />
+          <Routes>
+            <Route path="stakeholders" element={<Stakeholders />} />
+            <Route path="stakeholder-groups" element={<StakeholderGroups />} />
+            <Route path="job-functions" element={<JobFunctions />} />
+            <Route path="business-services" element={<BusinessServices />} />
+            <Route path="tags" element={<Tags />} />
             <Route
-              path={Paths.controlsStakeholderGroups}
-              component={StakeholderGroups}
+              index
+              element={<Navigate to={Paths.controlsStakeholders} replace />}
             />
-            <Route path={Paths.controlsJobFunctions} component={JobFunctions} />
             <Route
-              path={Paths.controlsBusinessServices}
-              component={businessServices}
+              path="*"
+              element={<Navigate to={Paths.controlsStakeholders} replace />}
             />
-            <Route path={Paths.controlsTags} component={Tags} />
-            <Redirect
-              from={Paths.controls}
-              to={Paths.controlsStakeholders}
-              exact
-            />
-          </Switch>
+          </Routes>
         </Suspense>
       </PageSection>
     </>

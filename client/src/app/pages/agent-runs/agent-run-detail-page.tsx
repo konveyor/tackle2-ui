@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
@@ -17,7 +17,6 @@ import {
 } from "@patternfly/react-core";
 import { RedoIcon } from "@patternfly/react-icons";
 
-import type { AgentRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import { isTerminalPhase, runHubCoordinates } from "@app/api/agentic/contract";
 import { useHasSomeScopes } from "@app/auth";
@@ -49,8 +48,8 @@ import "./agent-runs.css";
 
 const AgentRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const { runName } = useParams<AgentRunDetailsRoute>();
+  const navigate = useNavigate();
+  const runName = useParams<"runName">().runName!;
   const { agentRun, isLoading, fetchError } = useFetchAgentRun(runName);
   // "Run again": the spec is immutable and the hub has no delete, so a
   // prefilled create is the one re-run shape there is.
@@ -355,9 +354,7 @@ const AgentRunDetailPage: React.FC = () => {
           onClose={() => setRerunOpen(false)}
           onCreated={(name) => {
             setRerunOpen(false);
-            history.push(
-              formatPath(DevPaths.agentRunDetails, { runName: name })
-            );
+            navigate(formatPath(DevPaths.agentRunDetails, { runName: name }));
           }}
         />
       )}

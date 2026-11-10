@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Content,
@@ -77,7 +77,7 @@ const RUN_PHASES: AgentWorkflowRunPhase[] = [
 
 const WorkflowRunsPage: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { workflowRuns, isLoading, fetchError, refetch } =
     useFetchWorkflowRuns();
   const { data: applications } = useFetchApplications();
@@ -212,7 +212,7 @@ const WorkflowRunsPage: React.FC = () => {
   } = tableControls;
 
   const openRun = (name: string) => {
-    history.push(formatPath(DevPaths.workflowRunDetails, { runName: name }));
+    navigate(formatPath(DevPaths.workflowRunDetails, { runName: name }));
   };
 
   return (
