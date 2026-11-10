@@ -1262,6 +1262,7 @@
       "cancelRequested": "stop requested — the agent halts at its next step",
       "toolCall": "Tool call",
       "noOutputYet": "(no output yet)",
+      "toolInput": "Arguments",
       "chatError": "Chat error",
       "plan": "Plan",
       "planProgress": "{{done}} of {{total}}",

@@ -60,7 +60,6 @@ import type {
   ElicitationRequest,
   PermissionOutcome,
   PermissionRequest,
-  PlanRungMeta,
   SessionUpdate,
   SteerResult,
   ToolCallDiff,
@@ -148,7 +147,7 @@ interface ToolItem {
   status: string;
   detail: string;
   /** The call's rawInput as announced (e.g. load_skill's `{name}`), if any. */
-  input?: Record<string, unknown>;
+  input?: unknown;
 }
 /** The agent's task ladder; each plan update replaces the previous one. */
 interface PlanItem {
@@ -160,6 +159,7 @@ interface PermissionItem {
   kind: "permission";
   id: number;
   title?: string;
+  input?: unknown;
   /** File modifications to preview before answering (ACP diff blocks). */
   diffs?: ToolCallDiff[];
   options: PermissionRequest["options"];
@@ -411,7 +411,7 @@ function reduceUpdate(
           title: str(u.title),
           status: str(u.status) || "pending",
           detail: toolUpdateText(u.content),
-          input: isRecord(u.rawInput) ? u.rawInput : undefined,
+          input: u.rawInput,
         },
       ];
     }
@@ -491,6 +491,7 @@ function reduceUpdate(
         ...tool,
         status: str(u.status) || tool.status,
         title: str(u.title) || tool.title,
+        input: "rawInput" in u ? u.rawInput : tool.input,
         detail: extra
           ? tool.detail
             ? `${tool.detail}\n${extra}`
@@ -708,6 +709,7 @@ export function ChatPanel({
             kind: "permission",
             id,
             title: r.toolCall?.title,
+            input: r.toolCall?.rawInput,
             diffs: r.toolCall?.diffs,
             options: r.options,
           },
@@ -1638,7 +1640,7 @@ interface SkillLoad {
 function skillLoadOf(
   item: Pick<ToolItem, "title" | "input">
 ): SkillLoad | undefined {
-  const name = item.input?.name;
+  const name = isRecord(item.input) ? item.input.name : undefined;
   if (typeof name !== "string" || !name.trim()) return undefined;
   if (!/^load_skill\b/i.test(item.title) && !/skill/i.test(item.title)) {
     return undefined;
@@ -1736,6 +1738,20 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
             </span>
           </div>
         ))}
+    </div>
+  );
+}
+
+/** Render only the arguments supplied by ACP, as text rather than markup. */
+function ToolInput({ input }: { input: unknown }) {
+  const { t } = useTranslation();
+  if (input === undefined) return null;
+  return (
+    <div className="chat-tool-input">
+      <strong>{t("agentic.chat.toolInput")}</strong>
+      <pre className="chat-tool-detail">
+        {typeof input === "string" ? input : JSON.stringify(input, null, 2)}
+      </pre>
     </div>
   );
 }
@@ -1844,9 +1860,12 @@ function ChatItemView({
               </span>
             ),
             body: (
-              <pre className="chat-tool-detail">
-                {item.detail || t("agentic.chat.noOutputYet")}
-              </pre>
+              <>
+                <ToolInput input={item.input} />
+                <pre className="chat-tool-detail">
+                  {item.detail || t("agentic.chat.noOutputYet")}
+                </pre>
+              </>
             ),
           }}
         />
@@ -1887,6 +1906,7 @@ function ChatItemView({
               ? t("agentic.chat.permissionRequestedFor", { title: item.title })
               : t("agentic.chat.permissionRequested")}
           </div>
+          <ToolInput input={item.input} />
           {item.diffs?.map((d) => (
             <DiffPreview key={d.path} diff={d} />
           ))}

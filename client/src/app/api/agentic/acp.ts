@@ -120,7 +120,12 @@ export type PermissionRequest = {
   /** ACP request id (kperm-<n>) this ask arrived under. */
   id: string;
   sessionId: string;
-  toolCall?: { toolCallId?: string; title?: string; diffs?: ToolCallDiff[] };
+  toolCall?: {
+    toolCallId?: string;
+    title?: string;
+    rawInput?: unknown;
+    diffs?: ToolCallDiff[];
+  };
   options: { optionId: string; name: string; kind: string }[];
 };
 
@@ -600,6 +605,7 @@ export class AcpSession {
               : undefined,
           title:
             typeof p.toolCall.title === "string" ? p.toolCall.title : undefined,
+          rawInput: p.toolCall.rawInput,
           diffs: parseToolCallDiffs(p.toolCall.content),
         }
       : undefined;

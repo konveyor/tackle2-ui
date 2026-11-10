@@ -202,6 +202,15 @@
   white-space: pre-wrap;
 }
 
+.chat-tool-input {
+  min-width: 0;
+}
+.chat-tool-input .chat-tool-detail {
+  max-height: 16rem;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+
 .chat-permission {
   align-self: stretch;
   border: 1px solid #f4c145;
