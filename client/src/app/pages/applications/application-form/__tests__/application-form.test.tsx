@@ -24,7 +24,8 @@ describe("Component: application-form", () => {
       rest.get("/hub/stakeholders", (_, res, ctx) => res(ctx.json([]))),
       rest.get("/hub/applications", (_, res, ctx) => res(ctx.json([]))),
       rest.get("/hub/tagCategories", (_, res, ctx) => res(ctx.json([]))),
-      rest.get("/hub/platforms", (_, res, ctx) => res(ctx.json([])))
+      rest.get("/hub/platforms", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/identities", (_, res, ctx) => res(ctx.json([])))
     );
   });
 
