@@ -4,7 +4,7 @@
 
 ## Overview
 
-tackle2-ui is the web-based user interface for [Konveyor](https://konveyor.io), an open-source application modernization platform. It provides tools for assessing, analyzing, and migrating applications to Kubernetes. The UI is built with React and PatternFly, communicates with the [Konveyor Hub](https://github.com/konveyor/tackle2-hub) REST API, and runs as a containerized Node.js application within the Konveyor operator deployment.
+tackle2-ui is the web-based user interface for [Konveyor](https://konveyor.io), an open-source application modernization platform. It provides tools for assessing, analyzing, and migrating applications to Kubernetes. The UI is built with React and PatternFly, communicates with the [Konveyor Hub](https://github.com/konveyor/tackle2-hub) REST API, and is served by Caddy within the Konveyor operator deployment.
 
 Key capabilities include application inventory management, assessment questionnaires, static code analysis, migration wave planning, dependency tracking, and issue/insight visualization.
 
@@ -27,6 +27,7 @@ Key capabilities include application inventory management, assessment questionna
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/) >= 22 (see the `engines` block of [package.json](./package.json) for specifics)
+- [Podman](https://podman.io/) for the local Caddy proxy; on macOS, start a Podman machine first
 - [minikube](https://minikube.sigs.k8s.io/docs/start) (optional): setup your local minikube instance with your container manager of choice
 
 ## Quick start
@@ -63,9 +64,9 @@ Your development server should start up and serve the locally running UI from:
 http://localhost:9000
 ```
 
-The dev server enables the agentic console by default. Against a Hub without the agentic API its
-pages fail on load; hide it with `AGENTIC_ENABLED=false npm run start:dev` (see
-[Understanding the local development environment](#understanding-the-local-development-environment)).
+The agentic console is opt-in in both development and production. Use
+`AGENTIC_ENABLED=true AGENTIC_STEER_ENABLED=true npm run start:dev` against a Hub
+that serves the agentic API (see [Understanding the local development environment](#understanding-the-local-development-environment)).
 
 ## Konveyor environment setup
 
@@ -94,25 +95,39 @@ the cluster and access Konveyor APIs endpoints by proxy.
 
 The React and Patternfly based UI is composed of web pages served by an http server with proxy capabilities.
 
-- The server component, an express based nodejs server, handles the application code and proxies
-  to the HUB backend via the `/hub` path and to the Hub's OIDC provider via the `/oidc` path.
+- [Caddy](container/caddy/proxy-routes.caddy) serves the application and proxies
+  `/hub` to the Hub API (stripping the prefix), `/oidc` unchanged, `/kai` to
+  `/services/kai`, and `/llm-proxy` to the LLM proxy. WebSocket upgrades are supported.
+  Legacy `/auth` proxying is enabled in development, or when `KEYCLOAK_SERVER_URL` is set.
 
-- In **production** mode, the application code is served as statically built UI assets. A small
-  handler inserts relevant environment information on the root page. This configures how the UI
-  runs in the browser; the set of variables and their defaults is `clientConfig` in
-  [server/src/serverConfig.js](server/src/serverConfig.js), typed as `ClientEnv` in
-  [common/src/env-types.ts](common/src/env-types.ts). The server's listener port is configurable
-  via environment variables and defaults to **:8080**.
+- In **production**, Caddy serves static UI assets on **:8080** and injects the
+  public configuration from `/.env` into `index.html` at request time. Both responses
+  are uncached. [ClientEnv and defaults](client/src/env/types.ts) are mirrored by
+  [the JSON template](container/caddy/env.json.tmpl); keep them synchronized.
+  Only allowlisted public variables are exposed; unset or empty values use defaults.
 
-- In **development** mode, the application code is proxied to the client's webpack-dev-server
-  running on port **:9003**. The server's listener port is configurable via environment variables
-  and defaults to **:9000**.
+- In **development**, [scripts/run-proxy.sh](scripts/run-proxy.sh) starts Caddy
+  in Podman on **:9000**. Non-API traffic, including HMR and `/.env`, goes to the
+  rspack dev server on **:9001**. The HTML plugin and `/.env` use the same configuration.
+  `PORT` overrides Caddy's listener. Linux uses host networking; macOS publishes
+  the port and maps localhost upstreams to `host.containers.internal`.
 
-- The server proxies [server/src/proxies.js](server/src/proxies.js) use the environment
-  variable `TACKLE_HUB_URL` to define the proxy endpoint:
-  - `/hub` &rarr; `TACKLE_HUB_URL` defines the location of the HUB REST endpoint. If it
-    is not defined, the URL `http://localhost:9002` is used by default.
-  - `/oidc` &rarr; Proxied to the Hub's built-in OIDC provider (same target as `/hub`).
+- `TACKLE_HUB_URL` selects the Hub upstream (local default `http://localhost:9002`);
+  `KAI_LLM_PROXY_URL` defaults to `http://localhost:9003`, and `KEYCLOAK_SERVER_URL`
+  defaults to `http://localhost:9004` in development. Upstream URLs must be origins
+  (`http://host:port` or `https://host:port`), without a path or query.
+
+- The production container requires `TACKLE_HUB_URL`. Unless `AUTH_REQUIRED=false`,
+  it also requires `OIDC_ISSUER` and `OIDC_CLIENT_ID`. The Go entrypoint performs
+  startup checks, combines public roots with optional Kubernetes service-account
+  and operator-mounted custom ingress CAs, then execs Caddy. Missing optional CA
+  files are skipped; other I/O errors fail startup. `SSL_CERT_FILE` can add trust;
+  the local proxy instead mounts that host file (or the host's system bundle).
+  `DEBUG=1` enables configuration logging; avoid credential-bearing upstream URLs.
+
+- To serve a production build locally, use `npm start` (**:8080** by default).
+  This builds `common` and `client`, then mounts `client/dist` into Caddy. To build
+  the complete shell-less production image, use `podman build -t tackle2-ui .`.
 
 - The agentic console (agent runs, agents, skills, workflows) is feature-flagged and off by
   default. The server passes two variables to the browser with the rest of the environment:
@@ -122,7 +137,7 @@ The React and Patternfly based UI is composed of web pages served by an http ser
     live run and stop its turn from the chat panel. Off keeps the panel read-only (the agent's
     own questions can still be answered).
 
-  Both default to `false` in production and to `true` under `npm run start:dev`. See
+  Both default to `false` in development and production. See
   [ARCHITECTURE.md](ARCHITECTURE.md#agentic-console) for what each flag gates.
   See [Agentic run parameters and supervision](docs/agentic-run-parameters.md)
   for parameter YAML examples, runtime delivery, and Approval mode safety.

@@ -1,9 +1,8 @@
 /**
  * The set of environment variables injected into the client SPA via `window._env`.
  *
- * Consumers should use the `ENV` export from `client/src/app/env.ts` rather
- * than reading `window._env` directly — that module applies defaults and filters
- * out empty strings left by unset env vars.
+ * Consumers should use the `ENV` export from `client/src/app/env.ts`.
+ * Empty or unset values use the defaults shared by the client and dev server.
  */
 export type ClientEnv = {
   NODE_ENV: "development" | "production" | "test";
@@ -42,30 +41,34 @@ export type ClientEnv = {
   OIDC_CLIENT_ID: string;
 };
 
-/**
- * Build the ClientEnv object for development by reading process.env.
- */
-export const buildClientEnv = (
-  env: ClientEnv = process.env as unknown as ClientEnv
-): ClientEnv => ({
-  NODE_ENV: env.NODE_ENV ?? "development",
-  VERSION: env.VERSION ?? "99.0.0",
-  MOCK: env.MOCK ?? "off",
-  DEVTOOLS: env.DEVTOOLS ?? "off",
-  UI_INGRESS_PROXY_BODY_SIZE: env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
-  RWX_SUPPORTED: env.RWX_SUPPORTED ?? "true",
-  AUTH_REQUIRED: env.AUTH_REQUIRED ?? "false",
-  // Off by default so the agentic console has zero impact on the rest of
-  // the product unless explicitly opted in; matches Caddyfile.prod defaults.
-  AGENTIC_ENABLED: env.AGENTIC_ENABLED ?? "false",
-  AGENTIC_STEER_ENABLED: env.AGENTIC_STEER_ENABLED ?? "false",
-  OIDC_CLIENT_ID: env.OIDC_CLIENT_ID ?? "web-ui",
-});
+/** Keep the production Caddy env.json.tmpl defaults in sync with this object. */
+export const CLIENT_ENV_DEFAULTS: ClientEnv = {
+  NODE_ENV: "production",
+  VERSION: "99.0.0",
+  MOCK: "off",
+  DEVTOOLS: "off",
+  UI_INGRESS_PROXY_BODY_SIZE: "500m",
+  RWX_SUPPORTED: "true",
+  AUTH_REQUIRED: "false",
+  AGENTIC_ENABLED: "false",
+  AGENTIC_STEER_ENABLED: "false",
+  OIDC_CLIENT_ID: "web-ui",
+};
 
-/**
- * The ClientEnv object for the current environment.  In development, it is
- * built with {@link buildClientEnv}.  In production, this will be `undefined`,
- * since the ClientEnv object is handled by Caddy at request time.
- */
-export const CLIENT_ENV =
-  process.env.NODE_ENV === "development" ? buildClientEnv() : undefined;
+/** Only expose the allowlisted client fields, never the rest of process.env. */
+export const buildClientEnv = (
+  env: Partial<Record<keyof ClientEnv, string>> = {}
+): ClientEnv =>
+  Object.fromEntries(
+    Object.entries(CLIENT_ENV_DEFAULTS).map(([key, fallback]) => [
+      key,
+      env[key as keyof ClientEnv] || fallback,
+    ])
+  ) as ClientEnv;
+
+/** JSON that can be embedded directly in an HTML script, without a JS string. */
+export const serializeClientEnv = (env: ClientEnv): string =>
+  JSON.stringify(env).replace(
+    /[<>&\u2028\u2029]/g,
+    (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`
+  );

@@ -29,18 +29,22 @@
 #   TACKLE_HUB_URL        Hub API upstream        (default: http://localhost:9002)
 #   KAI_LLM_PROXY_URL     LLM proxy upstream      (default: http://localhost:9003)
 #   KEYCLOAK_SERVER_URL   Legacy Keycloak upstream (default: http://localhost:9004)
+#   SSL_CERT_FILE         Host CA bundle to trust (defaults to the system bundle)
 #
-#   Any other variables set in your shell are forwarded to the container via
-#   --env-host (Podman only; Docker does not support this flag).
+#   Only the proxy and public client configuration variables are forwarded.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Derive the runtime image from the last unnamed FROM line in the Dockerfile
-# (same technique used by the unit-test CI workflow for the builder image).
-IMAGE=$(grep -i '^FROM ' "$PROJECT_ROOT/Dockerfile" | grep -iv ' as ' | tail -1 | sed -e 's/^FROM //i')
+# Use the same runtime image as the final Dockerfile stage.
+IMAGE=""
+while read -r directive image _; do
+    if [[ "$directive" == "FROM" ]]; then
+        IMAGE="$image"
+    fi
+done < "$PROJECT_ROOT/Dockerfile"
 echo "Using image: $IMAGE"
 
 # ── Defaults ────────────────────────────────────────────────────────────────
@@ -69,11 +73,11 @@ MOUNTS=(
     -v "$PROJECT_ROOT/container/caddy:/etc/caddy:ro,z"
 )
 if [[ "$MODE" == "prod" ]]; then
-    if [[ ! -d "$PROJECT_ROOT/dist" ]]; then
-        echo "error: dist not found — run 'npm run build' first." >&2
+    if [[ ! -f "$PROJECT_ROOT/client/dist/index.html" ]]; then
+        echo "error: client/dist/index.html not found — run 'npm run build -w common -w client' first." >&2
         exit 1
     fi
-    MOUNTS+=( -v "$PROJECT_ROOT/dist:/srv:ro,z" )
+    MOUNTS+=( -v "$PROJECT_ROOT/client/dist:/srv:ro,z" )
 fi
 
 # ── Network / upstream URL resolution ────────────────────────────────────────
@@ -83,20 +87,56 @@ fi
 # are bound to the Mac's loopback interface.  URLs already pointing at a
 # non-localhost host are left unchanged.
 _to_container_host() {
-    echo "${1//localhost/host.containers.internal}"
+    case "$1" in
+        localhost) echo "host.containers.internal" ;;
+        http://localhost|http://localhost:*|http://localhost/*)
+            echo "http://host.containers.internal${1#http://localhost}" ;;
+        https://localhost|https://localhost:*|https://localhost/*)
+            echo "https://host.containers.internal${1#https://localhost}" ;;
+        *) echo "$1" ;;
+    esac
 }
 
 OS="$(uname -s)"
 
 PORT="${PORT:-$DEFAULT_PORT}"
+EXTRA_ENV=( -e "PORT=$PORT" )
+for key in DEV_SERVER_HOST TACKLE_HUB_URL KAI_LLM_PROXY_URL KEYCLOAK_SERVER_URL \
+    NODE_ENV VERSION MOCK DEVTOOLS UI_INGRESS_PROXY_BODY_SIZE RWX_SUPPORTED \
+    AUTH_REQUIRED AGENTIC_ENABLED AGENTIC_STEER_ENABLED OIDC_CLIENT_ID; do
+    if [[ -n "${!key:-}" ]]; then
+        EXTRA_ENV+=( -e "$key=${!key}" )
+    fi
+done
+
+# The hardened image has no public CA bundle. Mount the host's trust store for
+# HTTPS upstreams; SSL_CERT_FILE can select a custom bundle.
+CA_BUNDLE="${SSL_CERT_FILE:-}"
+if [[ -n "$CA_BUNDLE" && ! -r "$CA_BUNDLE" ]]; then
+    echo "error: cannot read SSL_CERT_FILE: $CA_BUNDLE" >&2
+    exit 1
+fi
+if [[ -z "$CA_BUNDLE" ]]; then
+    for candidate in /etc/ssl/certs/ca-certificates.crt \
+        /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/ssl/cert.pem; do
+        if [[ -r "$candidate" ]]; then
+            CA_BUNDLE="$candidate"
+            break
+        fi
+    done
+fi
+if [[ -n "$CA_BUNDLE" ]]; then
+    MOUNTS+=( -v "$CA_BUNDLE:/etc/caddy-host-ca.pem:ro" )
+    EXTRA_ENV+=( -e "SSL_CERT_FILE=/etc/caddy-host-ca.pem" )
+fi
+
 if [[ "$OS" == "Darwin" ]]; then
 
     NETWORK_ARGS=( -p "${PORT}:${PORT}" )
 
     # Resolve upstream URLs: honour any user-set value but replace localhost
     # addresses with host.containers.internal.
-    EXTRA_ENV=(
-        -e "PORT=${PORT}"
+    EXTRA_ENV+=(
         -e "DEV_SERVER_HOST=$( _to_container_host "${DEV_SERVER_HOST:-localhost}" )"
         -e "TACKLE_HUB_URL=$( _to_container_host "${TACKLE_HUB_URL:-http://localhost:9002}" )"
         -e "KAI_LLM_PROXY_URL=$( _to_container_host "${KAI_LLM_PROXY_URL:-http://localhost:9003}" )"
@@ -108,7 +148,6 @@ else
     # Linux (and anything else): --network=host makes the container share the
     # host network stack; no URL translation needed.
     NETWORK_ARGS=( --network=host )
-    EXTRA_ENV=()
 
     echo "OS: Linux — using --network=host"
 fi
@@ -121,8 +160,7 @@ echo ""
 # ── Run ───────────────────────────────────────────────────────────────────────
 exec podman run --rm \
     "${NETWORK_ARGS[@]}" \
-    --env-host \
     "${EXTRA_ENV[@]}" \
     "${MOUNTS[@]}" \
     "$IMAGE" \
-    caddy run --config "$CADDYFILE" $WATCH
+    caddy run --config "$CADDYFILE" ${WATCH:+"$WATCH"}

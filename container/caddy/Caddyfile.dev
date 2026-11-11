@@ -1,10 +1,7 @@
 # Development Caddyfile for tackle2-ui.
 #
 # Run from the project root with:
-#   podman run --rm --network=host --env-host \
-#     -v ./caddy:/etc/caddy:ro,z \
-#     registry.access.redhat.com/hi/caddy:2.11-builder \
-#     caddy run --config /etc/caddy/Caddyfile.dev --watch
+#   scripts/run-proxy.sh --dev
 #
 # This is wired into `npm run start:dev` automatically — see package.json.
 #
@@ -32,8 +29,11 @@
 import /etc/caddy/proxy-routes.caddy
 
 :{$PORT:9000} {
-	import api_routes
+	# Enable the localhost Keycloak fallback only in development.
+	import api_routes true
 
 	# Forward everything else to the rspack dev server (SPA + Hot Module Replacement).
-	reverse_proxy {$DEV_SERVER_HOST:localhost}:9001
+	handle {
+		reverse_proxy {$DEV_SERVER_HOST:localhost}:9001
+	}
 }

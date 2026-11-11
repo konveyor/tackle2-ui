@@ -1,16 +1,11 @@
-// Command entrypoint is the container entry point for tackle2-ui's production
-// image.  It validates required environment variables, assembles any available
-// Kubernetes CA certificate bundles into a single PEM file, then replaces
-// itself with the Caddy web server.
-//
-// CA handling: Caddy uses Go's crypto/tls stack, which respects the
-// SSL_CERT_FILE environment variable.  When one or more certificate sources are
-// found the bundle path is written to SSL_CERT_FILE before exec'ing Caddy so
-// that all upstream TLS connections automatically trust the cluster CAs.
+// Command entrypoint assembles public and cluster CA trust, then replaces itself
+// with Caddy. The generated bundle is private to the current (possibly arbitrary)
+// container UID and is inherited by Caddy through SSL_CERT_FILE.
 package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"syscall"
 )
@@ -20,13 +15,11 @@ const (
 	kubeAPICert   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 	serviceCACert = "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"
 
-	// Red Hat / OpenShift custom CA trust bundle; injected by cert-manager or
-	// the Konveyor operator when a custom ingress CA is configured.
-	ingressCACert = "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
+	// Public trust is copied into the hardened runtime image at build time.
+	systemCACert = "/etc/ssl/certs/ca-certificates.crt"
 
-	// Destination for the assembled PEM bundle.  /tmp is writable in the
-	// distroless hi/caddy runtime image.
-	caBundleDest = "/tmp/ca-bundle.crt"
+	// Optional operator-mounted custom ingress trust.
+	ingressCACert = "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
 
 	caddyBin    = "/usr/bin/caddy"
 	caddyConfig = "/etc/caddy/Caddyfile"
@@ -34,12 +27,21 @@ const (
 
 func main() {
 	validateEnv()
-	assembleCA()
-	logConfig()
+	bundle, err := assembleCA(systemCACert, []string{
+		os.Getenv("SSL_CERT_FILE"), kubeAPICert, serviceCACert, ingressCACert,
+	}, os.TempDir())
+	if err != nil {
+		fatal(fmt.Sprintf("failed to assemble CA trust: %v", err))
+	}
+	if err := os.Setenv("SSL_CERT_FILE", bundle); err != nil {
+		fatal(fmt.Sprintf("failed to set SSL_CERT_FILE: %v", err))
+	}
+	if os.Getenv("DEBUG") == "1" {
+		logConfig()
+	}
 
-	// Replace this process with Caddy.  os.Environ() includes any SSL_CERT_FILE
-	// that assembleCA() set, so Caddy's Go TLS stack inherits it automatically.
-	argv := []string{caddyBin, "run", "--config", caddyConfig}
+	// Exec the actual runtime binary so signals reach Caddy directly.
+	argv := []string{caddyBin, "run", "--config", caddyConfig, "--adapter", "caddyfile"}
 	if err := syscall.Exec(caddyBin, argv, os.Environ()); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to exec caddy: %v\n", err)
 		os.Exit(1)
@@ -67,7 +69,7 @@ func logConfig() {
 	fmt.Println("-- proxy upstreams --")
 	fmt.Printf("  TACKLE_HUB_URL      = %s\n", envOr("TACKLE_HUB_URL", "(unset)"))
 	fmt.Printf("  KAI_LLM_PROXY_URL   = %s\n", envOr("KAI_LLM_PROXY_URL", "http://localhost:9003 (caddy default)"))
-	fmt.Printf("  KEYCLOAK_SERVER_URL = %s\n", envOr("KEYCLOAK_SERVER_URL", "http://localhost:9004 (caddy default)"))
+	fmt.Printf("  KEYCLOAK_SERVER_URL = %s\n", envOr("KEYCLOAK_SERVER_URL", "(unset — legacy proxy disabled)"))
 
 	// Authentication.
 	fmt.Println("-- authentication --")
@@ -116,37 +118,61 @@ func validateEnv() {
 	}
 }
 
-// assembleCA concatenates each available certificate source into caBundleDest
-// and points SSL_CERT_FILE at the result.  Missing sources are silently skipped
-// so that the binary works in both Kubernetes and local container environments.
-func assembleCA() {
-	sources := []string{kubeAPICert, serviceCACert, ingressCACert}
-
-	dest, err := os.Create(caBundleDest)
+// assembleCA always includes public roots before optional mounted CA sources.
+// Only absent optional files are skipped; any other I/O failure aborts startup
+// rather than silently starting with incomplete trust.
+func assembleCA(systemBundle string, sources []string, destDir string) (string, error) {
+	dest, err := os.CreateTemp(destDir, "tackle-ui-ca-*.crt")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "warning: could not create CA bundle at %s: %v\n", caBundleDest, err)
-		return
+		return "", fmt.Errorf("create CA bundle: %w", err)
 	}
-	defer dest.Close()
-
-	assembled := false
-	for _, src := range sources {
-		data, err := os.ReadFile(src)
-		if err != nil {
-			continue // source not present — skip silently
+	complete := false
+	defer func() {
+		if !complete {
+			dest.Close()
+			os.Remove(dest.Name())
 		}
-		if _, err := dest.Write(data); err != nil {
-			fmt.Fprintf(os.Stderr, "warning: could not append %s to CA bundle: %v\n", src, err)
+	}()
+
+	if err := appendCA(dest, systemBundle, false); err != nil {
+		return "", err
+	}
+	for _, source := range sources {
+		if source == "" {
 			continue
 		}
-		assembled = true
-	}
-
-	if assembled {
-		if err := os.Setenv("SSL_CERT_FILE", caBundleDest); err != nil {
-			fmt.Fprintf(os.Stderr, "warning: could not set SSL_CERT_FILE: %v\n", err)
+		if err := appendCA(dest, source, true); err != nil {
+			return "", err
 		}
 	}
+	if err := dest.Close(); err != nil {
+		return "", fmt.Errorf("close CA bundle: %w", err)
+	}
+	complete = true
+	return dest.Name(), nil
+}
+
+func appendCA(dest io.Writer, source string, optional bool) error {
+	src, err := os.Open(source)
+	if err != nil {
+		if optional && os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("open CA source %s: %w", source, err)
+	}
+	_, copyErr := io.Copy(dest, src)
+	closeErr := src.Close()
+	if copyErr != nil {
+		return fmt.Errorf("copy CA source %s: %w", source, copyErr)
+	}
+	if closeErr != nil {
+		return fmt.Errorf("close CA source %s: %w", source, closeErr)
+	}
+	// PEM files need not end in a newline; keep adjacent blocks separate.
+	if _, err := io.WriteString(dest, "\n"); err != nil {
+		return fmt.Errorf("separate CA source %s: %w", source, err)
+	}
+	return nil
 }
 
 func fatal(msg string) {

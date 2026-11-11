@@ -187,6 +187,14 @@ export default defineConfig([
   },
 
   {
+    name: "project/container tests/node overrides",
+    files: ["container/**/*.mjs"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+
+  {
     name: "project/workspace/cypress overrides",
     files: ["cypress/**/*.{ts,js}"],
     plugins: {

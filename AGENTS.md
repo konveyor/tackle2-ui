@@ -6,7 +6,7 @@ This document provides structural context and conventions for AI agents working 
 
 ```text
 tackle2-ui/
-  client/                     # React frontend (webpack, PatternFly)
+  client/                     # React frontend (rspack, PatternFly)
     src/app/
       api/                    # API models (models.ts), REST clients (rest.ts + rest/*.ts), schemas
       components/             # ~60 shared components (FilterToolbar, HookFormPFFields, select wrappers, etc.)
@@ -21,15 +21,13 @@ tackle2-ui/
       auth/                   # AuthProvider, OIDC integration, masquerade, role-to-scope mapping
       i18n.ts                 # i18next configuration (English default, HTTP backend)
     public/locales/en/        # Translation JSON files
-  server/                     # Express.js proxy server
-    src/
-      index.js                # Server entry point
-      serverConfig.js         # Server-side and client-side config from process.env
-      proxies.js              # Proxy routes: /hub -> Hub API, /oidc -> Hub OIDC, /kai -> Kai, /llm-proxy -> LLM proxy
+    src/env/                  # ClientEnv types, defaults, serialization
+  container/
+    caddy/                    # Dev/prod Caddy configuration, proxy routes, runtime JSON template
+    entrypoint/               # Static Go startup validation and CA assembly
   common/                     # Shared package (@konveyor-ui/common)
     src/
       branding.ts             # Branding configuration and string types
-      env-types.ts            # ClientEnv and ServerConfig type definitions
   cypress/                    # E2E test suite (Cypress)
     e2e/
       models/                 # Page object models (one class per feature area)
@@ -43,7 +41,7 @@ tackle2-ui/
 
 ## Key Patterns
 
-For data flow (API layer, query hooks, table controls), see [ARCHITECTURE.md](ARCHITECTURE.md#data-flow). For component conventions (selects, filters, access control), see [docs/development.md](docs/development.md#component-conventions). For testing patterns and priorities, see [docs/tests.md](docs/tests.md). Environment variable types are defined in `common/src/env-types.ts`; for dev setup, see [README.md](README.md).
+For data flow (API layer, query hooks, table controls), see [ARCHITECTURE.md](ARCHITECTURE.md#data-flow). For component conventions (selects, filters, access control), see [docs/development.md](docs/development.md#component-conventions). For testing patterns and priorities, see [docs/tests.md](docs/tests.md). Environment variable types and defaults are defined in `client/src/env/types.ts`; keep production defaults in `container/caddy/env.json.tmpl` synchronized. For dev setup, see [README.md](README.md).
 
 ## Review Guidelines
 
@@ -72,5 +70,5 @@ When reviewing or generating code changes, verify:
 | `react-router-dom`                      | Client-side routing                            |
 | `oidc-client-ts` / `react-oidc-context` | OIDC authentication                            |
 | `monaco-editor`                         | Code snippet viewer (analysis issues/insights) |
-| `express`                               | Dev/prod server with proxy capabilities        |
+| Caddy                                   | Dev/prod static serving and API proxying       |
 | `cypress`                               | End-to-end testing framework                   |

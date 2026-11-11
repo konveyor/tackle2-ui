@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import type { ClientEnv } from "../../client/src/env/types";
+
 // custom commands
 export {};
 declare global {
@@ -36,7 +38,7 @@ declare global {
        * Fetch the UI's client environment configuration from the /.env endpoint
        * and return it as a Chainable.
        */
-      uiEnvironmentConfig(): Cypress.Chainable<object>;
+      uiEnvironmentConfig(): Cypress.Chainable<ClientEnv>;
     }
   }
   /* eslint-enable @typescript-eslint/no-namespace */
@@ -57,10 +59,9 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("uiEnvironmentConfig", () =>
-  // The /.env endpoint is served by Caddy (production) or the rspack dev server
-  // proxy.  In both cases it returns the ClientEnv fields as a JSON object —
-  // the same data that Caddy inlines into index.html via {{httpInclude "/.env"}}.
-  cy.request("/.env").then<object>((resp) => {
+  // Caddy (production) or rspack (development) serves the same string-valued
+  // configuration that is embedded in index.html.
+  cy.request<ClientEnv>("/.env").then((resp) => {
     expect(resp.status).to.eq(200);
     cy.log("/.env: ", JSON.stringify(resp.body));
     return cy.wrap(resp.body);

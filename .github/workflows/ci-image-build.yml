@@ -35,6 +35,10 @@ jobs:
         with:
           files: |
             Dockerfile
+            container/**
+            client/config/**
+            client/public/**
+            scripts/run-proxy.sh
             **/package.json
             package-lock.json
             .github/workflows/ci-image-build.yml
@@ -124,3 +128,8 @@ jobs:
           labels: ""
           containerfiles: "./Dockerfile"
           context: "."
+
+      - name: Test Caddy proxy and runtime configuration
+        env:
+          CONTAINER_ENGINE: docker
+        run: npm run test:container

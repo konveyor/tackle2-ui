@@ -21,6 +21,7 @@
     "start:dev": "concurrently -n port-forward,common,proxy,client -c 'white.bold.inverse,green.bold.inverse,magenta.bold.inverse,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:proxy' 'npm:start:dev:client'",
     "start": "npm run build -w common -w client && scripts/run-proxy.sh --prod",
     "test": "npm run test -ws --if-present --",
+    "test:container": "node --test container/caddy/proxy.test.mjs",
     "test:e2e": "npm run test:e2e -ws --if-present --",
     "format": "scripts/prettier-w.sh --ignore-unknown --write . && npm run format -ws --if-present",
     "format:check": "scripts/prettier-w.sh --ignore-unknown --check . && npm run format:check -ws --if-present",

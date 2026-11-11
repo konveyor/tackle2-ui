@@ -29,6 +29,7 @@ const config: JestConfigWithTsJest = {
     // match the paths in tsconfig.json
     "^@app/(.*)": "<rootDir>/src/app/$1",
     "^@mocks/(.*)$": "<rootDir>/src/mocks/$1",
+    "^@env/(.*)$": "<rootDir>/src/env/$1",
   },
 
   // A list of paths to directories that Jest should use to search for files

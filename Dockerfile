@@ -25,24 +25,30 @@ RUN \
 
 # ── Stage 2: Compile the Go entrypoint binary ─────────────────────────────────
 # Uses the Red Hat Hardened Images Go builder which includes the Go toolchain.
-FROM registry.access.redhat.com/hi/go:latest-builder AS entrypoint-builder
+FROM registry.access.redhat.com/hi/go:1.27.4-builder AS entrypoint-builder
 
 COPY container/entrypoint/ /src/
 WORKDIR /src
 # CGO_ENABLED=0 produces a fully-static binary that runs in the distroless
 # hi/caddy runtime image without any shared-library dependencies.
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /entrypoint .
+RUN CGO_ENABLED=0 go test ./... && \
+    CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /entrypoint .
 
 # ── Stage 3: Distroless Caddy runtime ────────────────────────────────────────
-# hi/caddy:2.11 is a Red Hat Hardened Image — minimal, no shell, no package
-# manager, near-zero CVE state.  See https://images.redhat.com for details.
-FROM registry.access.redhat.com/hi/caddy:2.11
+# The hardened Caddy runtime has no shell or package manager.
+# See https://images.redhat.com for image details.
+FROM registry.access.redhat.com/hi/caddy:2.11.7
 
 COPY --from=client-builder     /opt/app-root/src/dist /srv
 COPY --from=entrypoint-builder /entrypoint            /usr/local/bin/entrypoint
+# The hardened runtime does not include public CA roots. Keep these separate
+# from the optional custom ingress bundle mounted by the operator.
+COPY --from=client-builder /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/ssl/certs/ca-certificates.crt
 COPY container/caddy/Caddyfile.prod                   /etc/caddy/Caddyfile
 COPY container/caddy/proxy-routes.caddy               /etc/caddy/proxy-routes.caddy
 COPY container/caddy/env.json.tmpl                    /etc/caddy/env.json.tmpl
+
+RUN ["/usr/bin/caddy", "validate", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
 LABEL name="konveyor/tackle2-ui" \
       description="Konveyor - User Interface" \

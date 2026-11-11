@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
 import path from "path";
 
@@ -7,11 +8,19 @@ import { ReactRefreshRspackPlugin } from "@rspack/plugin-react-refresh";
 import { mergeWithRules } from "rspack-merge";
 import { TsCheckerRspackPlugin } from "ts-checker-rspack-plugin";
 
-import ClientEnvInjectPlugin from "./ClientEnvInjectPlugin";
+// Build configuration cannot use the client's tsconfig path aliases.
+import { buildClientEnv, serializeClientEnv } from "../src/env/types";
+
+import ClientEnvInjectPlugin from "./client-env-inject-plugin";
 import commonRspackConfiguration from "./rspack.common.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
+const clientEnv = buildClientEnv({
+  ...process.env,
+  NODE_ENV: process.env.NODE_ENV || "development",
+});
+const clientEnvJson = serializeClientEnv(clientEnv);
 
 interface Configuration extends RspackOptions {
   devServer?: DevServerConfiguration;
@@ -42,6 +51,25 @@ const config: Configuration = mergeWithRules({
       disableDotRule: true,
     },
     hot: true,
+    setupMiddlewares: (middlewares) => {
+      middlewares.unshift({
+        name: "client-env",
+        middleware: (
+          request: IncomingMessage,
+          response: ServerResponse,
+          next: () => void
+        ) => {
+          if (request.url !== "/.env" && !request.url?.startsWith("/.env?")) {
+            next();
+            return;
+          }
+          response.setHeader("Content-Type", "application/json");
+          response.setHeader("Cache-Control", "no-store");
+          response.end(request.method === "HEAD" ? undefined : clientEnvJson);
+        },
+      });
+      return middlewares;
+    },
   },
   lazyCompilation: false,
 
@@ -72,7 +100,7 @@ const config: Configuration = mergeWithRules({
   },
 
   plugins: [
-    new ClientEnvInjectPlugin(),
+    new ClientEnvInjectPlugin(clientEnv),
     new ReactRefreshRspackPlugin(),
     new TsCheckerRspackPlugin({
       typescript: {
