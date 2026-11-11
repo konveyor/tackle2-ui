@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 import {
   Controller,
   FieldValues,
-  FormStateSubscribe,
+  FormState,
   SubmitHandler,
   useForm,
   useWatch,
@@ -399,7 +399,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           placeholder="*.example.com, *.example2.com"
         />
       )}
-      <FormStateSubscribe
+      <FormState
         control={control}
         render={({ isSubmitting, isValidating, isValid, isDirty }) => (
           <ActionGroup>

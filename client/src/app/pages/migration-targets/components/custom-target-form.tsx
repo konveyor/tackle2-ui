@@ -3,12 +3,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
 import { unique } from "radash";
-import {
-  FormStateSubscribe,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { FormState, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -639,7 +634,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         </>
       )}
 
-      <FormStateSubscribe
+      <FormState
         control={control}
         render={({ isSubmitting, isValidating, isValid, isDirty }) => (
           <ActionGroup>

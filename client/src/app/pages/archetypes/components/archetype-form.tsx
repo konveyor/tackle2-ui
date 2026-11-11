@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { FormStateSubscribe, useForm } from "react-hook-form";
+import { FormState, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -290,7 +290,7 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
         resizeOrientation="vertical"
       />
 
-      <FormStateSubscribe
+      <FormState
         control={control}
         render={({ isSubmitting, isValidating, isValid, isDirty }) => (
           <ActionGroup>

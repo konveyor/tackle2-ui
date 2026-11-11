@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { FormStateSubscribe, useForm, useWatch } from "react-hook-form";
+import { FormState, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -282,7 +282,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         )}
       />
 
-      <FormStateSubscribe
+      <FormState
         control={control}
         render={({ isSubmitting, isValidating, isValid, isDirty }) => (
           <ActionGroup>

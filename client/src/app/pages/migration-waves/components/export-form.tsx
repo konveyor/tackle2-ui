@@ -1,7 +1,7 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { FormStateSubscribe, useForm, useWatch } from "react-hook-form";
+import { FormState, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -205,12 +205,14 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="project select dropdown toggle"
             ariaLabel={name}
             value={value}
-            options={projectsByTracker.map(
-              (p): FilterSelectOptionProps => ({
-                value: p.name,
-                label: p.name,
-              })
-            )}
+            options={
+              projectsByTracker?.map(
+                (p): FilterSelectOptionProps => ({
+                  value: p.name,
+                  label: p.name,
+                })
+              ) ?? []
+            }
             onSelect={(selection) => {
               setValue("kind", "");
               onChange(selection ?? "");
@@ -234,17 +236,19 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="issue-type select dropdown toggle"
             ariaLabel={name}
             value={value}
-            options={typesByProject.map(
-              (issueType): FilterSelectOptionProps => ({
-                value: issueType.name,
-                label: issueType.name,
-              })
-            )}
+            options={
+              typesByProject?.map(
+                (issueType): FilterSelectOptionProps => ({
+                  value: issueType.name,
+                  label: issueType.name,
+                })
+              ) ?? []
+            }
             onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
       />
-      <FormStateSubscribe
+      <FormState
         control={control}
         render={({ isSubmitting, isValidating, isValid, isDirty }) => (
           <ActionGroup>

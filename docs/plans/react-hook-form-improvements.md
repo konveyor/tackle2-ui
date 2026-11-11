@@ -1,6 +1,6 @@
 # React Hook Form Improvements
 
-**Library version:** Upgraded from `^7.58.1` to latest stable v7.71.x
+**Library version:** Upgraded to latest stable v7.92.0
 
 ## Background
 
@@ -80,12 +80,12 @@ variables.
 
 ---
 
-## 4. Isolate formState with `<FormStateSubscribe>` -- DONE
+## 4. Isolate formState with `<FormState>` -- DONE
 
-**Feature:** v7.68.0
+**Feature:** v7.68.0 (originally introduced as `FormStateSubscribe`, standardized as `FormState`)
 
 Moved formState subscriptions (`isSubmitting`, `isValidating`, `isValid`,
-`isDirty`) out of the `useForm` destructure and into `<FormStateSubscribe>`
+`isDirty`) out of the `useForm` destructure and into `<FormState>`
 wrapping the ActionGroup. This prevents the entire form from re-rendering when
 formState flags toggle -- only the action buttons re-render.
 
@@ -112,7 +112,7 @@ these forms grow in complexity.
 Moving formState out of the `useForm` destructure (step 4) removed an implicit
 re-render trigger that several forms relied on. Previously, formState changes
 (e.g. `isDirty` toggling) caused re-renders that kept `getValues()` snapshots
-current. With formState isolated in `<FormStateSubscribe>`, the parent component
+current. With formState isolated in `<FormState>`, the parent component
 no longer re-renders on formState changes, so `getValues()` returned stale data
 and conditional rendering based on form field values stopped working.
 
@@ -123,7 +123,11 @@ an accidental side-effect for reactivity.
 **Changes applied:**
 
 - **`identity-form.tsx`** -- `useWatch({ control, name: "kind" })` replaces
-  `getValues().kind` for conditional rendering of kind-specific form sections
+  `getValues().kind` for conditional rendering of kind-specific form sections;
+  also updated subforms (`kind-maven-settings-file-form.tsx`, `kind-bearer-token-form.tsx`,
+  `kind-simple-username-password-form.tsx`) to use reactive `useWatch` subscriptions
+  so dynamic states like encryption status, replacing default warnings, and filenames
+  update immediately
 - **`proxy-form.tsx`** -- `useWatch` for `isHttpProxyEnabled`,
   `isHttpsProxyEnabled`, `isHttpIdentityRequired`, `isHttpsIdentityRequired`;
   also changed `reset(values)` to `reset(getValues())` so the callback reads
@@ -143,5 +147,5 @@ an accidental side-effect for reactivity.
 | 1    | Scope `useWatch` calls (1a–1d)                 | 4 files        | Done        |
 | 2    | `compute` in `useFormChangeHandler`            | 1 file         | Not adopted |
 | 3    | `<Watch>` component evaluation                 | 2 candidates   | Not adopted |
-| 4    | `<FormStateSubscribe>` isolation               | 6 files        | Done        |
-| 5    | Replace `getValues()` with reactive `useWatch` | 4 files        | Done        |
+| 4    | `<FormState>` isolation                        | 6 files        | Done        |
+| 5    | Replace `getValues()` with reactive `useWatch` | 7 files        | Done        |

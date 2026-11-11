@@ -1,12 +1,7 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import {
-  FormProvider,
-  FormStateSubscribe,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { FormProvider, FormState, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -421,7 +416,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
         {kind === "bearer" && <KindBearerTokenForm identity={identity} />}
 
-        <FormStateSubscribe
+        <FormState
           control={control}
           render={({ isSubmitting, isValidating, isValid, isDirty }) => (
             <ActionGroup>
