@@ -30,9 +30,17 @@ import type {
 import {
   APPLICATION_LABEL,
   defaultTargetBranch,
+  runHubCoordinates,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
 import { getAgent } from "@app/api/rest";
+import {
+  EnvVarFields,
+  envRowsFromRun,
+  envRowsInvalid,
+  envRowsToSpec,
+} from "@app/pages/agent-runs/components/EnvVarFields";
+import type { EnvRow } from "@app/pages/agent-runs/components/EnvVarFields";
 import {
   GatewayPicker,
   defaultGatewayFor,
@@ -44,6 +52,7 @@ import {
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
+import { ReusePreviousBranch } from "@app/pages/agent-runs/components/ReusePreviousBranch";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
 import { useFetchApplications } from "@app/queries/applications";
 import { useCreateWorkflowRunMutation } from "@app/queries/workflow-runs";
@@ -193,6 +202,14 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     () => initialPrefill?.metadata.labels?.[APPLICATION_LABEL] ?? ""
   );
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
+  /** Branch the seeding run pushed to; offered, never the default. */
+  const previousTargetBranch = runHubCoordinates(
+    initialPrefill?.spec.env
+  ).targetBranch;
+  /** User-supplied env, seeded from the run this form was reopened from. */
+  const [envRows, setEnvRows] = useState<EnvRow[]>(() =>
+    envRowsFromRun(initialPrefill?.spec.env)
+  );
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -348,6 +365,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     !gatewayMissing &&
     !paramsInvalid &&
     !branchInvalid &&
+    !envRowsInvalid(envRows) &&
     !repoMissing &&
     !submitting;
 
@@ -381,6 +399,7 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
         : undefined,
       targetBranch: application ? targetBranch.trim() : undefined,
       gateway,
+      env: envRowsToSpec(envRows),
     });
   };
 
@@ -627,6 +646,11 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
                         ? t("agentic.workflowRuns.targetBranchInvalid")
                         : t("agentic.workflowRuns.targetBranchHelper")}
                     </HelperTextItem>
+                    <ReusePreviousBranch
+                      previousBranch={previousTargetBranch}
+                      currentBranch={targetBranch}
+                      onReuse={setTargetBranch}
+                    />
                   </HelperText>
                 </FormHelperText>
               </FormGroup>
@@ -729,6 +753,13 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
                 })}
               </FormSection>
             )}
+
+            <FormGroup
+              label={t("agentic.runEnv.heading")}
+              fieldId="create-pb-env"
+            >
+              <EnvVarFields rows={envRows} onChange={setEnvRows} />
+            </FormGroup>
           </Form>
         )}
       </ModalBody>

@@ -1354,6 +1354,8 @@
       "askUserWarningBody": "The agent will not guess an answer on your behalf. If nobody answers a question before it times out, the run fails. Turn this on only for a run you will be watching.",
       "createdRunMissingName": "Shim returned a created run without metadata.name",
       "instructionsPlaceholder": "Task-specific instructions, composed with the agent's standing prompt",
+      "newBranchForRerun": "A re-run gets a new branch, so the earlier run's results are kept.",
+      "reusePreviousBranch": "Reuse {{branch}}",
       "mustBeNumber": "must be a number",
       "paramType": "type: {{type}}",
       "paramDefault": "default: {{value}}",
@@ -1653,6 +1655,20 @@
       "unverifiableAlertTitle_one": "{{names}} cannot pass the controller's verification",
       "unverifiableAlertTitle_other": "{{count}} gateways cannot pass the controller's verification: {{names}}",
       "unverifiableAlertBody": "The controller verifies a gateway by probing GET /v1/models on its endpoint, which the native aws-bedrock and gcp-vertex-ai APIs do not serve, so these gateways never become Ready and every Agent that references them stays Not Ready — runs are blocked behind that hold even with valid credentials. Tracked as <issue>agentic-controller#167</issue>."
+    },
+    "runEnv": {
+      "heading": "Environment variables",
+      "add": "Add variable",
+      "remove": "Remove {{name}}",
+      "nameLabel": "Variable name",
+      "valueLabel": "Variable value",
+      "namePlaceholder": "NAME",
+      "valuePlaceholder": "value",
+      "helper": "Passed to the agent's sandbox as environment variables. Values are stored in the run in plain text, so do not put credentials here.",
+      "nameRequired": "A name is required",
+      "nameFormat": "Use letters, digits and underscores, not starting with a digit",
+      "nameReserved": "Set by the run itself: {{names}}",
+      "nameDuplicate": "Already used by another variable"
     },
     "fetchError": {
       "title": "Unable to load agentic resources",
