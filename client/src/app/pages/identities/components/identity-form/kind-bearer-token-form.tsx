@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { Identity } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
@@ -9,8 +9,8 @@ import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
 export const KindBearerTokenForm: React.FC<{ identity?: Identity }> = ({
   identity,
 }) => {
-  const { control, getValues, resetField } = useFormContext();
-  const values = getValues();
+  const { control, resetField } = useFormContext();
+  const key = useWatch({ control, name: "key" });
 
   const [isKeyHidden, setIsKeyHidden] = useState(true);
   const toggleHideKey = (e: React.FormEvent<HTMLElement>) => {
@@ -19,7 +19,7 @@ export const KindBearerTokenForm: React.FC<{ identity?: Identity }> = ({
     setIsKeyHidden(!isKeyHidden);
   };
 
-  const isKeyEncrypted = identity?.key === values.key;
+  const isKeyEncrypted = identity?.key === key;
 
   return (
     <HookFormPFTextInput

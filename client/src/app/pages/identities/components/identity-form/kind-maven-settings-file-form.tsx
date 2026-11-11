@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Alert, FileUpload, Switch } from "@patternfly/react-core";
 
@@ -12,18 +12,19 @@ export const KindMavenSettingsFileForm: React.FC<{
   defaultIdentities?: Record<IdentityKind, Identity | undefined>;
 }> = ({ identity, defaultIdentities }) => {
   const { t } = useTranslation();
-  const { control, getValues, setValue } = useFormContext();
-  const values = getValues();
+  const { control, setValue } = useFormContext();
+  const [isDefault, settings, kind, settingsFilename] = useWatch({
+    control,
+    name: ["default", "settings", "kind", "settingsFilename"],
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
 
-  const isSettingsEncrypted = identity?.settings === values.settings;
-  const kindDefault = defaultIdentities?.[values.kind as IdentityKind];
+  const isSettingsEncrypted = identity?.settings === settings;
+  const kindDefault = defaultIdentities?.[kind as IdentityKind];
   const isReplacingDefault =
-    values.default &&
-    kindDefault &&
-    (!identity || kindDefault.id !== identity.id);
+    isDefault && kindDefault && (!identity || kindDefault.id !== identity.id);
 
   return (
     <>
@@ -65,7 +66,7 @@ export const KindMavenSettingsFileForm: React.FC<{
         name="settings"
         fieldId="settings"
         label="Upload your Settings file or paste its contents below."
-        isRequired={values.kind === "maven"}
+        isRequired={kind === "maven"}
         errorsSuppressed={isLoading}
         renderInput={({ field: { onChange, value, name } }) => (
           <FileUpload
@@ -74,7 +75,7 @@ export const KindMavenSettingsFileForm: React.FC<{
             name={name}
             type="text"
             value={isSettingsEncrypted ? "[Encrypted]" : (value ?? "")}
-            filename={values.settingsFilename}
+            filename={settingsFilename}
             filenamePlaceholder="Drag and drop a file or upload one"
             dropzoneProps={{
               accept: { "text/xml": [".xml"] },

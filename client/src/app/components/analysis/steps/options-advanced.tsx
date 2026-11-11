@@ -138,12 +138,20 @@ const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
   );
   const { control } = form;
 
-  const {
+  const [
     excludedLabels,
     autoTaggingEnabled,
     advancedAnalysisEnabled,
     saveAsProfile,
-  } = useWatch({ control });
+  ] = useWatch({
+    control,
+    name: [
+      "excludedLabels",
+      "autoTaggingEnabled",
+      "advancedAnalysisEnabled",
+      "saveAsProfile",
+    ],
+  });
 
   useFormChangeHandler({ form, onStateChanged });
 
