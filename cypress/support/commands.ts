@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import type { ClientEnv } from "../../client/src/env/types";
+
 // custom commands
 export {};
 declare global {
@@ -33,10 +35,10 @@ declare global {
       ): void;
 
       /**
-       * Look for the UI's `window._env` data on the application's page, decode it, and
-       * provide the data as a Chainable response.
+       * Fetch the UI's client environment configuration from the /.env endpoint
+       * and return it as a Chainable.
        */
-      uiEnvironmentConfig(): Cypress.Chainable<object>;
+      uiEnvironmentConfig(): Cypress.Chainable<ClientEnv>;
     }
   }
   /* eslint-enable @typescript-eslint/no-namespace */
@@ -57,16 +59,11 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("uiEnvironmentConfig", () =>
-  cy.request("/").then<object>((resp) => {
+  // Caddy (production) or rspack (development) serves the same string-valued
+  // configuration that is embedded in index.html.
+  cy.request<ClientEnv>("/.env").then((resp) => {
     expect(resp.status).to.eq(200);
-
-    cy.log("Looking for _env in UI's index.html");
-    const htmlBody = resp.body;
-    const windowEnv = htmlBody.match(/window\._env\s*=\s*"(.*?)"/);
-    expect(windowEnv, "Find _env in index.html").to.not.be.null;
-
-    const env = JSON.parse(atob(windowEnv[1]));
-    cy.log("window._env: ", JSON.stringify(env));
-    return cy.wrap(env);
+    cy.log("/.env: ", JSON.stringify(resp.body));
+    return cy.wrap(resp.body);
   })
 );

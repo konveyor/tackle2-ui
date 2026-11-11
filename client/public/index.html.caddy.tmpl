@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <title><%= branding.application.title %></title>
-    <meta name="description" content="<%= branding.application.description ?? branding.application.title %>" />
-    <meta id="appName" name="application-name" content="<%= branding.application.name ?? branding.application.title %>" />
+    <!-- Branding values below are injected at build time by HtmlRspackPlugin. -->
+    <title><%= brandingTitle %></title>
+    <meta name="description" content="<%= brandingDescription %>" />
+    <meta id="appName" name="application-name" content="<%= brandingName %>" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
@@ -11,7 +12,9 @@
     <link rel="manifest" href="manifest.json" />
     <base href="/" />
     <script>
-      window._env = "<%= _env %>";
+      // Caddy embeds the HTML-safe JSON served by /.env at request time.
+      // The development plugin substitutes the same config at build time.
+      window._env = {{httpInclude "/.env"}};
     </script>
   </head>
   <body>

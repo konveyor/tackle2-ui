@@ -5,13 +5,17 @@ import path from "path";
 import { rspack } from "@rspack/core";
 import type { Configuration } from "@rspack/core";
 
+import { brandingStrings as bs } from "@konveyor-ui/common";
+
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 const _require = createRequire(import.meta.url);
-export const brandingPath = path.resolve(
+
+const brandingPath = path.resolve(
   path.dirname(_require.resolve("@konveyor-ui/common/package.json")),
   "dist/branding"
 );
+const faviconPath = path.resolve(brandingPath, "favicon.ico");
 const manifestPath = path.resolve(brandingPath, "manifest.json");
 
 const config: Configuration = {
@@ -93,6 +97,18 @@ const config: Configuration = {
           to: "./branding/",
         },
       ],
+    }),
+
+    new rspack.HtmlRspackPlugin({
+      filename: "index.html",
+      template: pathTo("../public/index.html.caddy.tmpl"),
+      templateParameters: {
+        brandingTitle: bs.application.title,
+        brandingDescription: bs.application.description ?? bs.application.title,
+        brandingName: bs.application.name ?? bs.application.title,
+      },
+      favicon: faviconPath,
+      minify: false, // keep template tags for Caddy
     }),
   ],
 

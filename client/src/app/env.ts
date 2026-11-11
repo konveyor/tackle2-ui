@@ -1,20 +1,7 @@
-import type { ClientEnv } from "@konveyor-ui/common";
+import { buildClientEnv } from "@env/types";
 
-const CLIENT_ENV_DEFAULTS: ClientEnv = {
-  NODE_ENV: "production",
-  VERSION: "99.0.0",
-  MOCK: "off",
-  DEVTOOLS: "off",
-  UI_INGRESS_PROXY_BODY_SIZE: "500m",
-  RWX_SUPPORTED: "true",
-  AUTH_REQUIRED: "false",
-  AGENTIC_ENABLED: "false",
-  AGENTIC_STEER_ENABLED: "false",
-  OIDC_CLIENT_ID: "web-ui",
-};
+// Production Caddy and the development HTML plugin inject the same plain-object
+// contract served by /.env. Apply the shared defaults for missing/empty values.
+export const ENV = buildClientEnv(window._env);
 
-const decoded: Partial<ClientEnv> = window._env
-  ? (JSON.parse(atob(window._env)) as Partial<ClientEnv>)
-  : {};
-
-export const ENV: ClientEnv = { ...CLIENT_ENV_DEFAULTS, ...decoded };
+window.ENV = ENV;

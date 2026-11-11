@@ -56,6 +56,18 @@ assertions to work around a format migration.
 npm run test -w client -- --watch
 ```
 
+## Container runtime regression checks
+
+On Linux with Podman, `npm run test:container` runs the actual Caddy production
+routes and templates against a temporary HTTP backend. No Hub, npm dependencies,
+or client build is needed. Set `CONTAINER_ENGINE=docker` to use Docker instead.
+Coverage includes encoded paths, authentication redirects, ingress forwarding,
+and safe, uncached runtime environment injection. Image-build CI runs these checks.
+
+The standard-library-only Go module has CA assembly regression tests.
+Run `go test ./...` from `container/entrypoint`, or build the
+`entrypoint-builder` Dockerfile target to run them in the pinned Go image.
+
 ## E2E Testing
 
 For end-to-end testing with Cypress, see [cypress/README.md](/cypress/README.md).

@@ -27,7 +27,7 @@ npm run e2e:run:local
 
 ### Against a Local Dev Server
 
-The simplest way to run e2e tests during development is against your local webpack dev server.
+The simplest way to run e2e tests during development is against the local Caddy proxy and rspack dev server.
 
 **Step 1: Start the dev server** (from the repository root, in a separate terminal):
 

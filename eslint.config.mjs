@@ -187,12 +187,10 @@ export default defineConfig([
   },
 
   {
-    name: "project/workspace/server overrides",
-    files: ["server/**/*.{js,cjs,mjs}"],
+    name: "project/container tests/node overrides",
+    files: ["container/**/*.mjs"],
     languageOptions: {
-      globals: {
-        ...globals.node,
-      },
+      globals: globals.node,
     },
   },
 

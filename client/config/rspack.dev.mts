@@ -1,40 +1,26 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
 import path from "path";
 
 import { type RspackOptions, rspack } from "@rspack/core";
 import type { Configuration as DevServerConfiguration } from "@rspack/dev-server";
 import { ReactRefreshRspackPlugin } from "@rspack/plugin-react-refresh";
-import HtmlWebpackPlugin from "html-webpack-plugin";
 import { mergeWithRules } from "rspack-merge";
 import { TsCheckerRspackPlugin } from "ts-checker-rspack-plugin";
 
-import { type ClientEnv, brandingStrings } from "@konveyor-ui/common";
+// Build configuration cannot use the client's tsconfig path aliases.
+import { buildClientEnv, serializeClientEnv } from "../src/env/types";
 
-import commonRspackConfiguration, { brandingPath } from "./rspack.common.mjs";
+import ClientEnvInjectPlugin from "./client-env-inject-plugin";
+import commonRspackConfiguration from "./rspack.common.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingPath, "favicon.ico");
-
-/** Build the client env blob from the current process.env for dev-mode HTML injection. */
-const devClientEnv = (env: ClientEnv = process.env as unknown as ClientEnv) =>
-  btoa(
-    JSON.stringify({
-      NODE_ENV: env.NODE_ENV ?? "development",
-      VERSION: env.VERSION ?? "99.0.0",
-      MOCK: env.MOCK ?? "off",
-      DEVTOOLS: env.DEVTOOLS ?? "off",
-      UI_INGRESS_PROXY_BODY_SIZE: env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
-      RWX_SUPPORTED: env.RWX_SUPPORTED ?? "true",
-      AUTH_REQUIRED: env.AUTH_REQUIRED ?? "false",
-      // Off by default so the agentic console has zero impact on the rest of
-      // the product unless explicitly opted in; matches serverConfig.js. Local
-      // console work sets AGENTIC_ENABLED=true (and AGENTIC_STEER_ENABLED=true).
-      AGENTIC_ENABLED: env.AGENTIC_ENABLED ?? "false",
-      AGENTIC_STEER_ENABLED: env.AGENTIC_STEER_ENABLED ?? "false",
-      OIDC_CLIENT_ID: env.OIDC_CLIENT_ID ?? "web-ui",
-    } as ClientEnv)
-  );
+const clientEnv = buildClientEnv({
+  ...process.env,
+  NODE_ENV: process.env.NODE_ENV || "development",
+});
+const clientEnvJson = serializeClientEnv(clientEnv);
 
 interface Configuration extends RspackOptions {
   devServer?: DevServerConfiguration;
@@ -65,6 +51,25 @@ const config: Configuration = mergeWithRules({
       disableDotRule: true,
     },
     hot: true,
+    setupMiddlewares: (middlewares) => {
+      middlewares.unshift({
+        name: "client-env",
+        middleware: (
+          request: IncomingMessage,
+          response: ServerResponse,
+          next: () => void
+        ) => {
+          if (request.url !== "/.env" && !request.url?.startsWith("/.env?")) {
+            next();
+            return;
+          }
+          response.setHeader("Content-Type", "application/json");
+          response.setHeader("Cache-Control", "no-store");
+          response.end(request.method === "HEAD" ? undefined : clientEnvJson);
+        },
+      });
+      return middlewares;
+    },
   },
   lazyCompilation: false,
 
@@ -95,6 +100,7 @@ const config: Configuration = mergeWithRules({
   },
 
   plugins: [
+    new ClientEnvInjectPlugin(clientEnv),
     new ReactRefreshRspackPlugin(),
     new TsCheckerRspackPlugin({
       typescript: {
@@ -107,24 +113,6 @@ const config: Configuration = mergeWithRules({
           from: pathTo("../public/mockServiceWorker.js"),
         },
       ],
-    }),
-
-    // index.html generated at compile time to inject `_env`
-    new HtmlWebpackPlugin({
-      filename: "index.html",
-      template: pathTo("../public/index.html.ejs"),
-      templateParameters: {
-        _env: devClientEnv(),
-        branding: brandingStrings,
-      },
-      favicon: faviconPath,
-      minify: {
-        collapseWhitespace: false,
-        keepClosingSlash: true,
-        minifyJS: true,
-        removeEmptyAttributes: true,
-        removeRedundantAttributes: true,
-      },
     }),
   ],
 

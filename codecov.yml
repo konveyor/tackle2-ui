@@ -14,19 +14,10 @@ coverage:
         flags:
           - client
 
-      server:
-        informational: true
-        target: auto
-        flags:
-          - server
-
 flags:
   client:
     paths:
       - client/
-  server:
-    paths:
-      - server/
 
 ignore:
   - "**/mockServiceWorker.js"
