@@ -1654,6 +1654,22 @@
       "unverifiableAlertTitle_other": "{{count}} gateways cannot pass the controller's verification: {{names}}",
       "unverifiableAlertBody": "The controller verifies a gateway by probing GET /v1/models on its endpoint, which the native aws-bedrock and gcp-vertex-ai APIs do not serve, so these gateways never become Ready and every Agent that references them stays Not Ready — runs are blocked behind that hold even with valid credentials. Tracked as <issue>agentic-controller#167</issue>."
     },
+    "verified": {
+      "passed": "Verified",
+      "failed": "Verification failed",
+      "notRun": "Not verified",
+      "incomplete": "Verification incomplete",
+      "notReported": "Verification not reported",
+      "evidenceHeading": "Verification",
+      "atCommit": "Checked on commit",
+      "tableLabel": "Verification commands and their exit codes",
+      "colLabel": "Check",
+      "colCommand": "Command",
+      "colExitCode": "Exit code",
+      "colSeconds": "Duration",
+      "seconds_one": "{{count}}s",
+      "seconds_other": "{{count}}s"
+    },
     "fetchError": {
       "title": "Unable to load agentic resources",
       "rbacTitle": "The Hub cannot read agentic resources",

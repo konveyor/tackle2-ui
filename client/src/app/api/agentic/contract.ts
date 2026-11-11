@@ -104,6 +104,58 @@ export interface AgentRunSpec {
 export const ACP_READY_CONDITION = "ACPReady";
 
 /**
+ * The condition carrying the harness's own measurement of the tree a run
+ * pushed: the commands from the plan's `## Verification` section, re-run
+ * after the agent's turn and before the push, with their real exit codes
+ * (agentic-controller#300, surfaced by #302).
+ *
+ * It is orthogonal to `Succeeded`, which only says the run completed —
+ * the harness exits 0 whenever the agent ends its turn normally, whatever
+ * state the tree is in. A run can honestly be Succeeded=True and
+ * Verified=False.
+ *
+ * Set on AgentRun only. An AgentWorkflowRun has no verdict of its own;
+ * its stages carry theirs.
+ */
+export const VERIFIED_CONDITION = "Verified";
+
+/**
+ * Reasons on {@link VERIFIED_CONDITION}. The controller documents the set
+ * as closed and maps anything it does not recognise to `NotReported`, so
+ * a consumer may switch over these four exhaustively.
+ *
+ * `True` pairs with `VerificationPassed` and nothing else: silence, an
+ * absent measurement and an unreadable one must never render as green.
+ */
+export const VERIFIED_REASON = {
+  /** Every command the plan named ran and exited 0. The only green. */
+  passed: "VerificationPassed",
+  /** One exited non-zero, timed out, or could not be started. */
+  failed: "VerificationFailed",
+  /**
+   * The harness measured nothing — no plan, no Verification section, no
+   * runnable command, verification off, or a turn that never succeeded.
+   * Not a pass: an absent measurement is not a passing one.
+   */
+  notRun: "VerificationNotRun",
+  /**
+   * The harness had commands to run and could not finish running them:
+   * the run was cancelled part way, a step cap left commands unrun, or
+   * the tree it could reach was not the commit being pushed. A definite
+   * non-pass, which is why it is its own reason rather than sharing
+   * notRun's "nothing to measure".
+   */
+  incomplete: "VerificationIncomplete",
+  /**
+   * No verdict the controller could read: a harness predating #300, a
+   * termination message lost or trimmed, or an unrecognised status. The
+   * controller cannot say either way, which differs from the harness
+   * saying it measured nothing.
+   */
+  notReported: "VerificationNotReported",
+} as const;
+
+/**
  * What the Konveyor migration harness writes to /dev/termination-log
  * (agentic-controller harness/cmd/migration-harness/outcome.go). The
  * controller copies the agent container's termination message verbatim to
@@ -128,6 +180,48 @@ export interface HarnessTerminationData {
     contextSize?: number;
     cost?: number;
   };
+  /**
+   * The harness's own verification pass. The verdict is also on the
+   * {@link VERIFIED_CONDITION} condition, which is what a reader should
+   * branch on; this is the per-command evidence behind it, which the
+   * controller deliberately does not interpret.
+   */
+  verification?: HarnessVerification;
+}
+
+/** One command from the plan's `## Verification` section, as run. */
+export interface HarnessVerificationStep {
+  /** The plan's own label for the line: Build, Test, Blackbox. */
+  label?: string;
+  command?: string;
+  /** "passed" | "failed" | "skipped" */
+  status?: string;
+  /** Explicit 0 on a pass; absent when the command never started. */
+  exitCode?: number;
+  seconds?: number;
+  /** Why a line was skipped, or why a command could not start. */
+  reason?: string;
+  /** Short tail of combined output, carried only when it did not pass. */
+  output?: string;
+}
+
+export interface HarnessVerification {
+  /**
+   * "passed" | "failed" | "notRun" | "incomplete". `incomplete` means the
+   * measurement started and could not finish — a step cap, or a working
+   * tree that was not the commit being pushed. The harness treats it as a
+   * non-pass, as does this console.
+   */
+  status?: string;
+  reason?: string;
+  /**
+   * The commit the result describes: the tip of the branch being pushed,
+   * which the working tree was confirmed to match before any command ran.
+   * Empty when nothing was measured. Without it the record says a tree
+   * passed without saying which tree.
+   */
+  commit?: string;
+  commands?: HarnessVerificationStep[];
 }
 
 export interface AgentRunStatus {
