@@ -1354,6 +1354,8 @@
       "askUserWarningBody": "The agent will not guess an answer on your behalf. If nobody answers a question before it times out, the run fails. Turn this on only for a run you will be watching.",
       "createdRunMissingName": "Shim returned a created run without metadata.name",
       "instructionsPlaceholder": "Task-specific instructions, composed with the agent's standing prompt",
+      "newBranchForRerun": "A re-run gets a new branch, so the earlier run's results are kept.",
+      "reusePreviousBranch": "Reuse {{branch}}",
       "mustBeNumber": "must be a number",
       "paramType": "type: {{type}}",
       "paramDefault": "default: {{value}}",
