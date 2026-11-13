@@ -32,11 +32,15 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   TFilterCategoryKey
 >): JSX.Element | null => {
   // Keep internal copy of value until submitted by user
+  const [prevFilterFirst, setPrevFilterFirst] = React.useState(
+    filterValue?.[0]
+  );
   const [inputValue, setInputValue] = React.useState(filterValue?.[0] || "");
-  // Update it if it changes externally
-  React.useEffect(() => {
+
+  if (filterValue?.[0] !== prevFilterFirst) {
+    setPrevFilterFirst(filterValue?.[0]);
     setInputValue(filterValue?.[0] || "");
-  }, [filterValue]);
+  }
 
   const onFilterSubmit = () => {
     const trimmedValue = inputValue.trim();

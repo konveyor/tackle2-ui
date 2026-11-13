@@ -1,7 +1,7 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { group } from "radash";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -82,7 +82,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     ),
     mode: "all",
   });
-  const { handleSubmit, watch } = methods;
+  const { handleSubmit, control } = methods;
 
   const handleCancel = () => {
     setSubmissionResults(null);
@@ -118,7 +118,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     }
   };
 
-  const readyApplications = watch("ready");
+  const readyApplications = useWatch({ control, name: "ready" });
   if (readyApplications.length === 0) {
     return (
       <Modal variant="medium" isOpen={isOpen} onClose={handleCancel}>

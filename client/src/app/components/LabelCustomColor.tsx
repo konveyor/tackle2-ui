@@ -8,11 +8,6 @@ export interface ILabelCustomColorProps
   color: string;
 }
 
-const globalColorCache: Record<
-  string,
-  { borderColor: string; backgroundColor: string; textColor: string }
-> = {};
-
 /**
  * LabelCustomColor
  * A wrapper for PatternFly's Label component that supports arbitrary custom CSS colors
@@ -32,8 +27,6 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
   ...props
 }) => {
   const { borderColor, backgroundColor, textColor } = React.useMemo(() => {
-    if (globalColorCache[color]) return globalColorCache[color];
-    // Lighten the background 30%, and lighten it further if necessary until it can support readable text
     const bgColorObj = tinycolor(color).lighten(30);
     const blackTextReadability = () =>
       tinycolor.readability(bgColorObj, "#000000");
@@ -42,7 +35,6 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
     while (blackTextReadability() < 9 && whiteTextReadability() < 9) {
       bgColorObj.lighten(5);
     }
-    // Darken or lighten the text color until it is sufficiently readable
     const textColorObj = tinycolor(color);
     while (tinycolor.readability(bgColorObj, textColorObj) < 7) {
       if (blackTextReadability() > whiteTextReadability()) {
@@ -51,12 +43,11 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
         textColorObj.lighten(5);
       }
     }
-    globalColorCache[color] = {
+    return {
       borderColor: color,
       backgroundColor: bgColorObj.toString(),
       textColor: textColorObj.toString(),
     };
-    return globalColorCache[color];
   }, [color]);
   return (
     <Label
