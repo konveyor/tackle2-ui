@@ -1,5 +1,12 @@
 /* eslint-disable import-x/export */
-import { FC, ReactElement, ReactNode, createContext, useContext } from "react";
+import {
+  FC,
+  ReactElement,
+  ReactNode,
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RenderHookOptions,
@@ -29,22 +36,24 @@ const AllTheProviders: FC<{
   queryClient?: QueryClient;
   notifications?: ReturnType<typeof createMockNotifications>;
 }> = ({ children, queryClient, notifications }) => {
-  const internalQueryClient =
-    queryClient ||
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-          cacheTime: 1000,
+  const [internalQueryClient] = useState(
+    () =>
+      queryClient ||
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            cacheTime: 1000,
+          },
         },
-      },
-    });
+      })
+  );
 
   const notificationValue = notifications || createMockNotifications();
 
   return (
     <AuthProvider>
-      <QueryClientProvider client={internalQueryClient}>
+      <QueryClientProvider client={queryClient || internalQueryClient}>
         <NotificationsContext.Provider value={notificationValue}>
           {children}
         </NotificationsContext.Provider>
