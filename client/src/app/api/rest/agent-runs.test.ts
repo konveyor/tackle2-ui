@@ -1,6 +1,13 @@
 import axios from "axios";
 
-import { createAgentRun, createWorkflowRun } from "./agent-runs";
+import {
+  createAgentRun,
+  createWorkflowRun,
+  getAgent,
+  getAgents,
+  getWorkflow,
+  getWorkflows,
+} from "./agent-runs";
 
 jest.mock("axios");
 
@@ -73,5 +80,44 @@ describe("agentic run request serialization", () => {
         ],
       },
     });
+  });
+});
+
+describe("agentic catalog list requests", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockedAxios.get.mockResolvedValue({ data: [] });
+  });
+
+  // The hub lists every CR in the namespace unless filtered; the catalog
+  // keeps to hub-managed ones (konveyor/tackle2-hub#1186).
+  it("lists only hub-managed agents", async () => {
+    await getAgents();
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/hub/agentic/agents?filter=managed:true"
+    );
+  });
+
+  it("lists only hub-managed workflows", async () => {
+    await getWorkflows();
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/hub/agentic/workflows?filter=managed:true"
+    );
+  });
+
+  it("gets a single agent or workflow by name without a filter", async () => {
+    await getAgent("my-agent");
+    await getWorkflow("my-workflow");
+
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      1,
+      "/hub/agentic/agents/my-agent"
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      2,
+      "/hub/agentic/workflows/my-workflow"
+    );
   });
 });
