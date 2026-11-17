@@ -11,6 +11,15 @@ on:
         type: boolean
         default: false
 
+      agentic:
+        type: boolean
+        default: false
+        description: |
+          Enable the agentic console and set up what a run needs: the Agent
+          Sandbox CRD, an LLM emulator, a Gateway pointing at it, and an
+          application to run against. Off by default, so every other job
+          installs exactly what it did before.
+
       bundle_image:
         type: string
         default: quay.io/konveyor/tackle2-operator-bundle:latest
@@ -53,6 +62,11 @@ on:
 
   workflow_dispatch: # start from GitHub UI or API
     inputs:
+      agentic:
+        description: Enable the agentic console and the fixtures a run needs
+        type: boolean
+        default: false
+
       test_tags:
         description: Comma separated list of test tags to run
         type: string
@@ -109,6 +123,14 @@ jobs:
         uses: ./konveyor-operator/.github/actions/install-konveyor
         with:
           bundle_image: ${{ inputs.bundle_image }}
+          install_agent_sandbox: ${{ inputs.agentic }}
+          # Folded, because the JSON's colons are not valid unquoted YAML.
+          seed_application: >-
+            ${{ inputs.agentic
+            && '{"name": "agentic-e2e", "repository": {"kind": "git",
+            "url": "https://github.com/konveyor/tackle-testapp-public.git",
+            "branch": "main"}}'
+            || '' }}
           tackle_cr: |
             kind: Tackle
             apiVersion: tackle.konveyor.io/v1alpha1
@@ -117,6 +139,7 @@ jobs:
             spec:
               image_pull_policy: IfNotPresent
               feature_auth_required: ${{ inputs.feature_auth_required }}
+              agentic_enabled: ${{ inputs.agentic }}
               ui_image_fqin: ${{ inputs.ui_image }}
 
       - name: Increase ingress header buffer size for OIDC
@@ -149,6 +172,10 @@ jobs:
         run: |
           tackle2-ui/hack/setup-metrics-endpoint.sh
 
+      - name: Set up the agentic fixtures
+        if: ${{ inputs.agentic }}
+        uses: ./konveyor-operator/.github/actions/setup-agentic
+
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
@@ -169,3 +196,13 @@ jobs:
           jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
           jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
           jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
+
+      - name: Emulator request log
+        if: ${{ failure() && inputs.agentic }}
+        # The setup action dumps this if setup fails; this covers the run
+        # failing afterwards, which is when it matters most. The sandbox pod is
+        # gone by the time anyone reads the failure, so the emulator's record
+        # of what was asked and which tools were offered is all that survives.
+        run: |
+          kubectl -n konveyor-tackle logs deployment/llemulator --tail=400 || true
+          kubectl -n konveyor-tackle get agentruns.konveyor.io -o wide || true

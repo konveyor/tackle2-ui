@@ -146,10 +146,10 @@ jobs:
           BUNDLE="quay.io/konveyor/tackle2-operator-bundle:${IMAGE_TAG}"
 
           echo "target_branch=$TARGET" >> "$GITHUB_OUTPUT"
-          echo "bundle_image=$BUNDLE" >> "$GITHUB_OUTPUT"
-          echo "install_konveyor_version=$OPERATOR_VERSION" >> "$GITHUB_OUTPUT"
           echo "build_checkout_ref=$CHECKOUT" >> "$GITHUB_OUTPUT"
           echo "test_from_checkout_ref=$TEST_FROM_CHECKOUT_REF" >> "$GITHUB_OUTPUT"
+          echo "install_konveyor_version=$OPERATOR_VERSION" >> "$GITHUB_OUTPUT"
+          echo "bundle_image=$BUNDLE" >> "$GITHUB_OUTPUT"
 
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Branch Parameters
@@ -199,6 +199,10 @@ jobs:
       fail-fast: false
       matrix:
         test_tags:
+          # Held back: agentic tests fail until the operator seeds a source
+          # credential for tackle-testapp-public. See #3671 for the fixture
+          # work this waits on. Uncomment to restore the leg.
+          # - "@agentic"
           - "@tier0"
           - "@ci,@tier2_A"
           - "@tier2_B"
@@ -211,6 +215,7 @@ jobs:
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}
+      agentic: ${{ matrix.test_tags == '@agentic' }}
       feature_auth_required: false
       install_konveyor_version: ${{ needs.determine-branch-params.outputs.install_konveyor_version }}
       bundle_image: ${{ needs.determine-branch-params.outputs.bundle_image }}
