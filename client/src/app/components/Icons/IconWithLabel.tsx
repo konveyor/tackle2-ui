@@ -1,6 +1,5 @@
 import { FC, ReactElement, ReactNode } from "react";
-import { Flex, FlexItem } from "@patternfly/react-core";
-import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import { Flex, FlexItem, Truncate } from "@patternfly/react-core";
 
 import { OptionalTooltip } from "./OptionalTooltip";
 
@@ -9,11 +8,14 @@ export const IconWithLabel: FC<{
   icon: ReactElement;
   label: ReactNode;
   /**
-   * Ellipsize the label when it does not fit. A `Td modifier="truncate"` sets
-   * `text-overflow: ellipsis` on the cell, which never reaches text nested in
-   * this flex container, so an overlong label is hard clipped instead. Only
-   * turn this on for labels of unbounded length, such as a resource name --
-   * it lets the label shrink, which a short fixed label does not want.
+   * Truncate the label in its middle when it does not fit, keeping both ends
+   * visible so names sharing a prefix (`app1`, `app2`) stay distinguishable.
+   *
+   * A `Td modifier="truncate"` sets `text-overflow: ellipsis` on the cell,
+   * which never reaches text nested in this flex container, so an overlong
+   * label is hard clipped instead. `Truncate` also holds the label at a 6ch
+   * floor, so it stays readable next to a `trailingItem`. Applies only to a
+   * string label; anything else renders unchanged.
    */
   truncateLabel?: boolean;
   trailingItem?: ReactElement;
@@ -35,8 +37,21 @@ export const IconWithLabel: FC<{
         {icon}
       </OptionalTooltip>
     </FlexItem>
-    <FlexItem className={truncateLabel ? textStyles.textTruncate : undefined}>
-      {label}
+    <FlexItem>
+      {truncateLabel && typeof label === "string" ? (
+        <Truncate
+          content={label}
+          position="middle"
+          /*
+            This component takes its tooltips explicitly, and an implicit one
+            here would collide with an ancestor that already opens on hover --
+            the applications table wraps this in a task popover.
+          */
+          tooltipProps={{ trigger: "manual", isVisible: false }}
+        />
+      ) : (
+        label
+      )}
     </FlexItem>
     {!!trailingItem && (
       <FlexItem>

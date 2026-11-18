@@ -1074,7 +1074,7 @@ export const ApplicationsTable: FC = () => {
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
                 {getColumnVisibility("name") && (
-                  <Th {...getThProps({ columnKey: "name" })} width={10} />
+                  <Th {...getThProps({ columnKey: "name" })} width={25} />
                 )}
                 {getColumnVisibility("businessService") && (
                   <Th
@@ -1089,7 +1089,7 @@ export const ApplicationsTable: FC = () => {
                   <Th {...getThProps({ columnKey: "review" })} width={15} />
                 )}
                 {getColumnVisibility("analysis") && (
-                  <Th {...getThProps({ columnKey: "analysis" })} width={15} />
+                  <Th {...getThProps({ columnKey: "analysis" })} width={25} />
                 )}
                 {getColumnVisibility("tags") && (
                   <Th {...getThProps({ columnKey: "tags" })} width={10} />
@@ -1134,7 +1134,7 @@ export const ApplicationsTable: FC = () => {
                   >
                     {getColumnVisibility("name") && (
                       <Td
-                        width={10}
+                        width={25}
                         {...getTdProps({ columnKey: "name" })}
                         modifier="truncate"
                       >
@@ -1180,7 +1180,7 @@ export const ApplicationsTable: FC = () => {
                     )}
                     {getColumnVisibility("analysis") && (
                       <Td
-                        width={15}
+                        width={25}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "analysis" })}
                       >
