@@ -11,14 +11,13 @@
 set -eo pipefail
 # set -euxo pipefail
 
-# use kubectl if available, else fall back to `minikube kubectl --`, else error
-KUBECTL=kubectl
-if ! command -v $KUBECTL >/dev/null 2>&1; then
+if command -v kubectl >/dev/null 2>&1; then
+  KUBECTL=kubectl
+elif command -v minikube >/dev/null 2>&1; then
   KUBECTL="minikube kubectl --"
-  # kubectl_bin="${__bin_dir}/kubectl"
-  # mkdir -p "${__bin_dir}"
-  # curl -Lo "${kubectl_bin}" "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/${__os}/${__arch}/kubectl"
-  # chmod +x "${kubectl_bin}"
+else
+  echo "Neither kubectl nor minikube was found on PATH." >&2
+  exit 1
 fi
 echo "kubectl command: ${KUBECTL}"
 
