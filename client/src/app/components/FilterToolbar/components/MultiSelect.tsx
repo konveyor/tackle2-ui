@@ -84,6 +84,15 @@ export const MultiSelect: FC<MultiSelectProps> = ({
     showSelectedInToggle ? selectedDisplayValue : ""
   );
 
+  // `inputValue` is seeded once, so a consumer whose options arrive after mount
+  // would keep showing an empty toggle even though a value is selected. While the
+  // menu is closed the text is only a rendering of the selection, so derive it;
+  // with the menu open it is the user's filter and has to come from state.
+  const displayedValue =
+    showSelectedInToggle && !isFilterDropdownOpen
+      ? selectedDisplayValue
+      : inputValue;
+
   // extend "empty" search state: show all options if a value is selected
   const showAllOptions =
     showSelectedInToggle &&
@@ -226,7 +235,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({
     >
       <TextInputGroup isPlain>
         <TextInputGroupMain
-          value={inputValue}
+          value={displayedValue}
           onClick={() => {
             setIsFilterDropdownOpen(true);
           }}

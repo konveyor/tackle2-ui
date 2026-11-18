@@ -2,7 +2,7 @@ import { useCallback, useContext, useMemo } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
-import { Application } from "@app/api/models";
+import { Application, ManagedIdentityRole, RefWithRole } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useRepositoryKind } from "@app/hooks/useRepositoryKind";
@@ -12,10 +12,15 @@ import {
   useUpdateApplicationMutation,
 } from "@app/queries/applications";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
+import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchPlatformsWithCoordinatesSchemas } from "@app/queries/platforms";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
-import { matchItemsToRef, matchItemsToRefs } from "@app/utils/model-utils";
+import {
+  matchItemsToRef,
+  matchItemsToRefs,
+  toRef,
+} from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const entityToOption = <T extends { name: string }>(
@@ -42,6 +47,10 @@ export const useApplicationFormData = ({
   const { data: existingApplications, isSuccess: is4 } = useFetchApplications();
   const { platforms, isSuccess: is5 } =
     useFetchPlatformsWithCoordinatesSchemas();
+  // Note: source credentials are optional on the form, so identities are
+  // deliberately left out of `isDataReady` -- a user without access to read
+  // identities should still be able to fill in the rest of the form.
+  const { identities, identitiesByKind } = useFetchIdentities();
   const { kindOptions } = useRepositoryKind();
 
   const isDataReady = useMemo(() => {
@@ -77,6 +86,26 @@ export const useApplicationFormData = ({
     (names: string[] | undefined | null) =>
       matchItemsToRefs(stakeholders, (i) => i.name, names),
     [stakeholders]
+  );
+
+  const sourceCredentialsOptions: FilterSelectOptionProps[] = useMemo(
+    () =>
+      (identitiesByKind.source ?? []).map((identity) => ({
+        value: identity.id.toString(),
+        label: identity.default
+          ? t("credentials.default.optionLabel", { name: identity.name })
+          : identity.name,
+      })),
+    [identitiesByKind.source, t]
+  );
+
+  const sourceCredentialsToRef = useCallback(
+    (id: number | null): RefWithRole<ManagedIdentityRole> | undefined => {
+      const identity =
+        id === null ? undefined : identities.find((i) => i.id === id);
+      return identity ? { ...toRef(identity), role: "source" } : undefined;
+    },
+    [identities]
   );
 
   // Mutation notification handlers
@@ -150,5 +179,7 @@ export const useApplicationFormData = ({
     platformOptions: platforms.map(entityToOption),
     platformFromName,
     repositoryKindOptions: kindOptions,
+    sourceCredentialsOptions,
+    sourceCredentialsToRef,
   };
 };
