@@ -40,11 +40,14 @@ jest.mock("@app/auth", () => ({ useHasSomeScopes: () => true }));
 jest.mock("@app/api/rest", () => ({
   mintAcpNonce: jest.fn().mockResolvedValue("fixture-nonce"),
   getAgenticAcpUrl: () => "ws://fixture/acp",
+  getAgentRun: jest.fn().mockResolvedValue({ status: { phase: "Running" } }),
 }));
 
 class FakeWebSocket extends EventTarget {
   static OPEN = 1;
   static current: FakeWebSocket;
+  static beforeInitialize?: (socket: FakeWebSocket) => void;
+  static onLoadSession?: (socket: FakeWebSocket) => void;
   readyState = FakeWebSocket.OPEN;
   sent: unknown[] = [];
 
@@ -56,15 +59,29 @@ class FakeWebSocket extends EventTarget {
   send(text: string): void {
     const request = JSON.parse(text);
     this.sent.push(request);
-    if (request.method === "initialize" || request.method === "session/new") {
+    if (
+      request.method === "initialize" ||
+      request.method === "session/new" ||
+      request.method === "session/load"
+    ) {
       queueMicrotask(() => {
+        if (request.method === "initialize") {
+          FakeWebSocket.beforeInitialize?.(this);
+        } else if (request.method === "session/load") {
+          FakeWebSocket.onLoadSession?.(this);
+        }
         this.receive({
           jsonrpc: "2.0",
           id: request.id,
           result:
             request.method === "initialize"
-              ? { protocolVersion: 1, agentCapabilities: {} }
-              : { sessionId: "viewer-session" },
+              ? {
+                  protocolVersion: 1,
+                  agentCapabilities: { loadSession: true },
+                }
+              : request.method === "session/new"
+                ? { sessionId: "viewer-session" }
+                : {},
         });
       });
     }
@@ -79,6 +96,11 @@ class FakeWebSocket extends EventTarget {
   close(): void {
     this.readyState = 3;
   }
+
+  disconnect(): void {
+    this.readyState = 3;
+    this.dispatchEvent(new CloseEvent("close", { code: 1006 }));
+  }
 }
 
 const originalWebSocket = globalThis.WebSocket;
@@ -88,6 +110,8 @@ const originalThrowIfAborted = Object.getOwnPropertyDescriptor(
 );
 
 beforeEach(() => {
+  FakeWebSocket.beforeInitialize = undefined;
+  FakeWebSocket.onLoadSession = undefined;
   Object.defineProperty(AbortSignal.prototype, "throwIfAborted", {
     configurable: true,
     value: function (this: AbortSignal) {
@@ -101,6 +125,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   if (originalThrowIfAborted) {
     Object.defineProperty(
       AbortSignal.prototype,
@@ -133,6 +158,118 @@ async function connectPanel() {
 }
 
 describe("permission action details", () => {
+  it("keeps replayed asks actionable when they arrive before reconnect initialization", async () => {
+    jest.useFakeTimers({ doNotFake: ["queueMicrotask"] });
+    const originalSocket = await connectPanel();
+    FakeWebSocket.beforeInitialize = (socket) => {
+      socket.receive({
+        jsonrpc: "2.0",
+        id: "kperm-reconnect",
+        method: "session/request_permission",
+        params: {
+          sessionId: "run-session",
+          toolCall: {
+            toolCallId: "read-reconnect",
+            title: "read_file",
+            rawInput: { file_path: "/workspace/repo/README.md" },
+          },
+          options: [
+            { optionId: "allow", name: "Allow once", kind: "allow_once" },
+          ],
+        },
+      });
+      socket.receive({
+        jsonrpc: "2.0",
+        id: "kask-reconnect",
+        method: "elicitation/create",
+        params: {
+          sessionId: "run-session",
+          message: "Which database service should the plan use?",
+          requestedSchema: {
+            type: "object",
+            properties: { database: { type: "string", title: "Database" } },
+            required: ["database"],
+          },
+        },
+      });
+    };
+    FakeWebSocket.onLoadSession = (socket) => {
+      socket.receive({
+        jsonrpc: "2.0",
+        method: "session/update",
+        params: {
+          sessionId: "run-session",
+          update: {
+            sessionUpdate: "tool_call",
+            toolCallId: "read-reconnect",
+            title: "read_file",
+            rawInput: { file_path: "/workspace/repo/README.md" },
+            status: "pending",
+          },
+        },
+      });
+    };
+
+    await act(async () => originalSocket.disconnect());
+    await act(async () => jest.advanceTimersByTimeAsync(4_000));
+    await screen.findByText("terms.connected");
+    const reconnectedSocket = FakeWebSocket.current;
+    expect(reconnectedSocket).not.toBe(originalSocket);
+    expect(reconnectedSocket.sent).toContainEqual(
+      expect.objectContaining({
+        method: "session/load",
+        params: expect.objectContaining({ sessionId: "viewer-session" }),
+      })
+    );
+    expect(screen.getByText("agentic.chat.noOutputYet")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Allow once" })).toBeVisible();
+    expect(
+      screen.getByText("Which database service should the plan use?")
+    ).toBeVisible();
+    expect(screen.getByRole("textbox", { name: "Database" })).toBeVisible();
+    const askReplies = (socket: FakeWebSocket) =>
+      socket.sent.filter(
+        (frame) =>
+          typeof frame === "object" &&
+          frame !== null &&
+          "id" in frame &&
+          (frame.id === "kperm-reconnect" || frame.id === "kask-reconnect")
+      );
+    expect(askReplies(reconnectedSocket)).toEqual([]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Allow once" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Database" }), {
+      target: { value: "Reuse existing PostgreSQL" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "agentic.chat.askAnswer" })
+    );
+    await waitFor(() =>
+      expect(askReplies(reconnectedSocket)).toEqual([
+        {
+          jsonrpc: "2.0",
+          id: "kperm-reconnect",
+          result: { outcome: { outcome: "selected", optionId: "allow" } },
+        },
+        {
+          jsonrpc: "2.0",
+          id: "kask-reconnect",
+          result: {
+            action: "accept",
+            content: { database: "Reuse existing PostgreSQL" },
+          },
+        },
+      ])
+    );
+    expect(askReplies(originalSocket)).toEqual([]);
+    expect(
+      screen.queryByRole("button", { name: "Allow once" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "agentic.chat.askAnswer" })
+    ).not.toBeInTheDocument();
+  });
+
   it("shows the requested arguments before approval and preserves the reply", async () => {
     const socket = await connectPanel();
     const rawInput = {

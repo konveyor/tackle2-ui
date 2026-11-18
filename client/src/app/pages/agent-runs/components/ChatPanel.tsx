@@ -870,6 +870,9 @@ export function ChatPanel({
     };
 
     const connect = async () => {
+      // The tee can replay pending asks before initialize returns. Reset
+      // before dialing so those cards survive the subsequent history replay.
+      setItems([]);
       localSession = await dialAcp({
         getUrl: async () =>
           getAgenticAcpUrl(runName, (await mintAcpNonce(runName)) ?? undefined),
@@ -891,7 +894,6 @@ export function ChatPanel({
       let sessionId: string;
       const prior = lastSessionIdRef.current;
       if (prior && localSession.loadSessionSupported) {
-        setItems([]); // the replay repopulates the transcript
         try {
           await localSession.loadSession(prior);
           sessionId = prior;
