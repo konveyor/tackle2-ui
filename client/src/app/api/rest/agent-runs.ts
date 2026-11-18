@@ -28,6 +28,13 @@ const GATEWAYS = hubAgent`/gateways`;
 const WORKFLOWS = hubAgent`/workflows`;
 const WORKFLOW_RUNS = hubAgent`/workflowruns`;
 
+// The catalog lists only hub-managed (konveyor.io/managed=true) agents and
+// workflows. The hub's list default is everything in the namespace, including
+// CRs applied with kubectl; older hubs ignore the filter and apply the label
+// selector themselves, so both return the same set.
+const MANAGED_AGENTS = hubAgent`/agents?filter=managed:true`;
+const MANAGED_WORKFLOWS = hubAgent`/workflows?filter=managed:true`;
+
 export const getAgentRuns = (): Promise<AgentRun[]> =>
   axios.get<AgentRun[]>(AGENT_RUNS).then(({ data }) => data);
 
@@ -90,7 +97,7 @@ export const createAgentRun = (input: CreateRunInput): Promise<AgentRun> =>
     .then(({ data }) => data);
 
 export const getAgents = (): Promise<AgentResource[]> =>
-  axios.get<AgentResource[]>(AGENTS).then(({ data }) => data);
+  axios.get<AgentResource[]>(MANAGED_AGENTS).then(({ data }) => data);
 
 // The hub's ACP WebSocket requires a nonce in BOTH auth modes (single-use,
 // ~30s TTL) — mint one per dial attempt, never reuse across retries. A 404
@@ -227,7 +234,7 @@ export const getGateway = (name: string): Promise<Gateway> =>
 // --------------------------------------------------------- Workflows (CRUD)
 
 export const getWorkflows = (): Promise<AgentWorkflow[]> =>
-  axios.get<AgentWorkflow[]>(WORKFLOWS).then(({ data }) => data);
+  axios.get<AgentWorkflow[]>(MANAGED_WORKFLOWS).then(({ data }) => data);
 
 export const getWorkflow = (name: string): Promise<AgentWorkflow> =>
   axios
