@@ -17,9 +17,10 @@ import { Generator } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import { RepositoryDetails } from "@app/components/detail-drawer/repository-details";
 
-import { parametersToArray } from "../utils";
+import { parametersToArray, schemaToParameters } from "../utils";
 
 import GeneratorCollectionTable from "./generator-collection-table";
+import GeneratorParametersTable from "./generator-parameters-table";
 
 interface IGeneratorDetailDrawerProps {
   onCloseClick: () => void;
@@ -76,14 +77,12 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
           >
             <ValuesTab generator={generator} />
           </Tab>
-          {/* TODO: Restore with #2498
           <Tab
             eventKey={TabKey.Parameters}
             title={<TabTitleText>{t("terms.parameters")}</TabTitleText>}
           >
             <ParametersTab generator={generator} />
           </Tab>
-          */}
         </Tabs>
       </div>
     </PageDrawerContent>
@@ -138,13 +137,12 @@ const ValuesTab: React.FC<{ generator: Generator | null }> = ({
   );
 };
 
-// TODO: Restore with #2498
-// const ParametersTab: React.FC<{ generator: Generator | null }> = ({
-//   generator,
-// }) => {
-//   return (
-//     <GeneratorCollectionTable
-//       collection={parametersToArray(generator?.params || {}) || []}
-//     />
-//   );
-// };
+const ParametersTab: React.FC<{ generator: Generator | null }> = ({
+  generator,
+}) => {
+  return (
+    <GeneratorParametersTable
+      parameters={schemaToParameters(generator?.params)}
+    />
+  );
+};

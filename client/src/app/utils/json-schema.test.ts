@@ -3,6 +3,7 @@ import { JsonSchemaObject } from "@app/api/models";
 import {
   combineSchemas,
   isEquivalentSchema,
+  schemaDefaults,
   stripAnnotations,
   validatorGenerator,
 } from "./json-schema";
@@ -1312,5 +1313,57 @@ describe("validatorGenerator", () => {
 
     expect(validator(validSchema)).toBe(true);
     expect(validator(invalidSchema)).toBe(false);
+  });
+});
+
+describe("schemaDefaults", () => {
+  it("returns an empty document when there is no schema", () => {
+    expect(schemaDefaults(undefined)).toEqual({});
+  });
+
+  it("returns an empty document when the schema is not an object", () => {
+    expect(schemaDefaults({ type: "string" })).toEqual({});
+  });
+
+  it("collects the default of each property", () => {
+    expect(
+      schemaDefaults({
+        type: "object",
+        properties: {
+          replicas: { type: "integer", default: 2 },
+          enabled: { type: "boolean", default: true },
+          storageSize: { type: "string", default: "1Gi" },
+        },
+      })
+    ).toEqual({ replicas: 2, enabled: true, storageSize: "1Gi" });
+  });
+
+  it("omits properties without a default", () => {
+    expect(
+      schemaDefaults({
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          replicas: { type: "integer", default: 2 },
+        },
+      })
+    ).toEqual({ replicas: 2 });
+  });
+
+  it("expands nested object defaults", () => {
+    expect(
+      schemaDefaults({
+        type: "object",
+        properties: {
+          workspace: {
+            type: "object",
+            properties: {
+              storageSize: { type: "string", default: "1Gi" },
+              empty: { type: "object", properties: {} },
+            },
+          },
+        },
+      })
+    ).toEqual({ workspace: { storageSize: "1Gi" } });
   });
 });

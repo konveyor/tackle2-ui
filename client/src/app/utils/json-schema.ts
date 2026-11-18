@@ -55,6 +55,31 @@ export const combineSchemas = (
 };
 
 /**
+ * Collects the default values declared by a schema into a document. Every
+ * property that declares a `default` contributes it, and nested object
+ * properties are expanded into nested objects. Properties without a default are
+ * omitted, so the result only holds values the user can see.
+ */
+export const schemaDefaults = (
+  schema?: JsonSchemaObject
+): Record<string, unknown> => {
+  if (schema?.type !== "object" || !schema.properties) return {};
+
+  const defaults: Record<string, unknown> = {};
+  Object.entries(schema.properties).forEach(([key, property]) => {
+    if (property.default !== undefined) {
+      defaults[key] = property.default;
+    } else if (property.type === "object") {
+      const nested = schemaDefaults(property);
+      if (Object.keys(nested).length > 0) {
+        defaults[key] = nested;
+      }
+    }
+  });
+  return defaults;
+};
+
+/**
  * A Set of all JSON Schema annotation keywords.
  * These keywords describe the schema but do not enforce validation rules.
  * We will strip these before comparing for functional equivalence.
