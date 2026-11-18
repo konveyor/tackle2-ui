@@ -182,6 +182,7 @@ export const ColumnApplicationName: React.FC<{
         icon={<StatusIcon />}
         label={application.name}
         truncateLabel
+        suppressLabelTooltip
       />
     </Popover>
   );

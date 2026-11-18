@@ -3,6 +3,15 @@ import { Flex, FlexItem, Truncate } from "@patternfly/react-core";
 
 import { OptionalTooltip } from "./OptionalTooltip";
 
+/**
+ * `Truncate` splits the label only while
+ * `content.length - trailingNumChars > 12`, so a shorter trailing slice also
+ * lowers the length at which middle truncation starts to apply. At the default
+ * 7 a 19 character name still falls back to an end ellipsis -- precisely where
+ * names sharing a prefix need their suffix kept.
+ */
+const TRAILING_CHARS = 4;
+
 export const IconWithLabel: FC<{
   iconTooltipMessage?: string;
   icon: ReactElement;
@@ -18,6 +27,14 @@ export const IconWithLabel: FC<{
    * string label; anything else renders unchanged.
    */
   truncateLabel?: boolean;
+  /**
+   * Drop the tooltip `Truncate` opens while the label is cut. Only for a label
+   * whose full text is already reachable another way -- the applications table
+   * wraps the name in a task popover, and two overlays would open on the same
+   * hover. Everywhere else leave it on: it is the only way to read what was
+   * cut off.
+   */
+  suppressLabelTooltip?: boolean;
   trailingItem?: ReactElement;
   trailingItemTooltipMessage?: string;
 }> = ({
@@ -25,6 +42,7 @@ export const IconWithLabel: FC<{
   icon,
   label,
   truncateLabel = false,
+  suppressLabelTooltip = false,
   trailingItem,
   trailingItemTooltipMessage,
 }) => (
@@ -42,12 +60,10 @@ export const IconWithLabel: FC<{
         <Truncate
           content={label}
           position="middle"
-          /*
-            This component takes its tooltips explicitly, and an implicit one
-            here would collide with an ancestor that already opens on hover --
-            the applications table wraps this in a task popover.
-          */
-          tooltipProps={{ trigger: "manual", isVisible: false }}
+          trailingNumChars={TRAILING_CHARS}
+          {...(suppressLabelTooltip && {
+            tooltipProps: { trigger: "manual", isVisible: false },
+          })}
         />
       ) : (
         label
