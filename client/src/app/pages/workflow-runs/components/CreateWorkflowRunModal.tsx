@@ -30,6 +30,7 @@ import type {
 import {
   APPLICATION_LABEL,
   defaultTargetBranch,
+  runHubCoordinates,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
 import { getAgent } from "@app/api/rest";
@@ -44,6 +45,7 @@ import {
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
+import { ReusePreviousBranch } from "@app/pages/agent-runs/components/ReusePreviousBranch";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
 import { useFetchApplications } from "@app/queries/applications";
 import { useCreateWorkflowRunMutation } from "@app/queries/workflow-runs";
@@ -193,6 +195,10 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
     () => initialPrefill?.metadata.labels?.[APPLICATION_LABEL] ?? ""
   );
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
+  /** Branch the seeding run pushed to; offered, never the default. */
+  const previousTargetBranch = runHubCoordinates(
+    initialPrefill?.spec.env
+  ).targetBranch;
   const [gateway, setGateway] = useState<string | undefined>(undefined);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -627,6 +633,11 @@ export const CreateWorkflowRunModal: React.FC<CreateWorkflowRunModalProps> = ({
                         ? t("agentic.workflowRuns.targetBranchInvalid")
                         : t("agentic.workflowRuns.targetBranchHelper")}
                     </HelperTextItem>
+                    <ReusePreviousBranch
+                      previousBranch={previousTargetBranch}
+                      currentBranch={targetBranch}
+                      onReuse={setTargetBranch}
+                    />
                   </HelperText>
                 </FormHelperText>
               </FormGroup>
