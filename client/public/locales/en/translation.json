@@ -87,6 +87,8 @@
     "addAll": "Add all",
     "removeSelected": "Remove selected",
     "removeAll": "Remove all",
+    "removeParameter": "Remove parameter",
+    "toggleParametersSection": "Toggle parameters section",
     "runAgain": "Run again"
   },
   "analysisProfiles": {
@@ -120,6 +122,7 @@
   },
   "composed": {
     "add": "Add {{what}}",
+    "addNew": "Add new {{what}}",
     "new": "New {{what}}",
     "applicationAssessment": "Application assessment",
     "applicationInventory": "Application inventory",
@@ -226,6 +229,7 @@
     "bearer": "Bearer Token (Jira)"
   },
   "message": {
+    "noParametersToDisplay": "No parameters to display",
     "affectedAppEffortTooltip": "This column shows the calculated effort for all incidents related to this file.",
     "applicationEffortTooltip": "This column shows the total application effort.",
     "appNotAssesedTitle": "Assessment has not been completed",
@@ -506,6 +510,7 @@
     "reportDownloadSetting": "Allow reports to be downloaded after running an analysis.",
     "date": "Date",
     "decision": "Decision",
+    "defaultValue": "Default value",
     "dependencies": "Dependencies",
     "dependencyName": "Dependency name",
     "dependentQuestion": "Conditional question",
@@ -596,6 +601,7 @@
     "platform": "Platform",
     "platformKind": "Type",
     "pod": "Pod",
+    "parameter": "Parameter",
     "parameters": "Parameters",
     "password": "Password",
     "path": "Path",
@@ -690,6 +696,7 @@
     "uploadYamlFile": "Upload your YAML file",
     "url": "URL",
     "user": "User",
+    "value": "Value",
     "values": "Values",
     "version": "Version",
     "workPriority": "Work priority",
@@ -1151,12 +1158,21 @@
       "removeDefaultMessage": "This credential will no longer be used as the default credential for {{typeString}} types."
     }
   },
+  "parameterType": {
+    "string": "String",
+    "number": "Number",
+    "boolean": "Boolean"
+  },
   "platformKind": {
     "cloudfoundry": {
       "label": "Cloud Foundry",
       "urlTooltip": "API URL to Cloud Foundry",
       "credentialTooltip": "Use credential of type source control"
     }
+  },
+  "generatorParameters": {
+    "true": "true",
+    "false": "false"
   },
   "agentic": {
     "agentRuns": {
