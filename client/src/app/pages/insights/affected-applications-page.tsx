@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +13,7 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar } from "@app/components/FilterToolbar";
@@ -35,17 +36,30 @@ import {
 } from "./helpers";
 import { InsightDetailDrawer } from "./insight-detail-drawer";
 
-interface IAffectedApplicationsRouteParams {
+export const AffectedApplicationsPage: React.FC = () => {
+  const { ruleset, rule } = useParams<"ruleset" | "rule">();
+  const { pathname } = useLocation();
+  if (ruleset === undefined || rule === undefined) {
+    return <Navigate to={Paths.insightsAllTab} replace />;
+  }
+  try {
+    // Validate raw encoding without decoding React Router's params a second time.
+    decodeURIComponent(pathname);
+  } catch {
+    return <Navigate to={Paths.insightsAllTab} replace />;
+  }
+  if (!ruleset.trim() || !rule.trim()) {
+    return <Navigate to={Paths.insightsAllTab} replace />;
+  }
+
+  return <AffectedApplicationsContent ruleset={ruleset} rule={rule} />;
+};
+
+const AffectedApplicationsContent: React.FC<{
   ruleset: string;
   rule: string;
-}
-
-export const AffectedApplicationsPage: React.FC = () => {
+}> = ({ ruleset, rule }) => {
   const { t } = useTranslation();
-
-  const routeParams = useParams<IAffectedApplicationsRouteParams>();
-  const ruleset = decodeURIComponent(routeParams.ruleset);
-  const rule = decodeURIComponent(routeParams.rule);
   const insightTitle =
     new URLSearchParams(useLocation().search).get("insightTitle") ||
     "Active rule";
@@ -82,12 +96,12 @@ export const AffectedApplicationsPage: React.FC = () => {
         {
           field: "insight.ruleset",
           operator: "=",
-          value: ruleset || "",
+          value: ruleset,
         },
         {
           field: "insight.rule",
           operator: "=",
-          value: rule || "",
+          value: rule,
         },
       ],
       hubSortFieldKeys: {

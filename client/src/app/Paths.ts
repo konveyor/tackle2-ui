@@ -148,11 +148,3 @@ export interface TaskDetailsAttachmentRoute {
 export interface ArchetypeTargetProfilesRoute {
   archetypeId: string;
 }
-
-export interface AgentRunDetailsRoute {
-  runName: string;
-}
-
-export interface WorkflowRunDetailsRoute {
-  runName: string;
-}

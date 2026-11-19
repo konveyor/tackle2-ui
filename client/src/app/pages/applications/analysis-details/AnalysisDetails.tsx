@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
-import { AnalysisDetailsAttachmentRoute, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { TaskDetailsBase } from "@app/pages/tasks/TaskDetailsBase";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { formatPath } from "@app/utils/utils";
@@ -9,12 +9,42 @@ import { formatPath } from "@app/utils/utils";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 
 export const AnalysisDetails = () => {
+  const { applicationId, taskId, attachmentId } = useParams<
+    "applicationId" | "taskId" | "attachmentId"
+  >();
+  const parsedApplicationId = Number(applicationId);
+  const parsedTaskId = Number(taskId);
+  if (
+    !Number.isInteger(parsedApplicationId) ||
+    parsedApplicationId <= 0 ||
+    !Number.isInteger(parsedTaskId) ||
+    parsedTaskId <= 0
+  ) {
+    return <Navigate to={Paths.applications} replace />;
+  }
+
+  return (
+    <AnalysisDetailsContent
+      applicationId={parsedApplicationId}
+      taskId={parsedTaskId}
+      attachmentId={attachmentId}
+    />
+  );
+};
+
+const AnalysisDetailsContent = ({
+  applicationId,
+  taskId,
+  attachmentId,
+}: {
+  applicationId: number;
+  taskId: number;
+  attachmentId?: string;
+}) => {
   const { t } = useTranslation();
-  const { applicationId, taskId, attachmentId } =
-    useParams<AnalysisDetailsAttachmentRoute>();
   const detailsPath = formatPath(Paths.applicationsAnalysisDetails, {
-    applicationId: applicationId,
-    taskId: taskId,
+    applicationId,
+    taskId,
   });
 
   const { application } = useFetchApplicationById(applicationId);
@@ -33,10 +63,7 @@ export const AnalysisDetails = () => {
         },
         {
           title: t("actions.analysisDetails"),
-          path: formatPath(Paths.applicationsAnalysisDetails, {
-            applicationId,
-            taskId,
-          }),
+          path: detailsPath,
         },
       ]}
       detailsPath={detailsPath}
@@ -48,7 +75,7 @@ export const AnalysisDetails = () => {
           attachmentId,
         })
       }
-      taskId={Number(taskId)}
+      taskId={taskId}
       attachmentId={attachmentId}
     />
   );

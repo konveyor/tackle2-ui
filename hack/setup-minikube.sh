@@ -22,6 +22,14 @@ set_if_not_set disk-size 35g
 
 minikube start --addons=dashboard --addons=ingress
 
+# The OLM installer runs kubectl in a child Bash process.
+if ! command -v kubectl >/dev/null 2>&1; then
+  kubectl() {
+    minikube kubectl -- "$@"
+  }
+  export -f kubectl
+fi
+
 # Install OLM
 OLM_VERSION="v0.32.0"
 curl \

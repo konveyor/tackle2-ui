@@ -1,5 +1,5 @@
-import { Location, LocationDescriptor } from "history";
 import { useTranslation } from "react-i18next";
+import type { Location, To } from "react-router-dom";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { Paths } from "@app/Paths";
@@ -190,7 +190,7 @@ export const getBackToAllInsightsUrl = ({
 export const getInsightsSingleAppSelectedLocation = (
   applicationId: number,
   fromLocation?: Location
-): LocationDescriptor => {
+): To => {
   const existingFiltersParam =
     fromLocation &&
     new URLSearchParams(fromLocation.search).get(

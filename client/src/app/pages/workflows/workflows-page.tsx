@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -42,7 +42,11 @@ import {
   agenticWorkflowRunsCreateScopes,
   agenticWorkflowsWriteScopes,
 } from "@app/scopes";
-import { formatAge } from "@app/utils/agentic";
+import {
+  formatAge,
+  isOperatorManaged,
+  operatorManagedActionProps,
+} from "@app/utils/agentic";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { WorkflowComposerModal } from "./components/WorkflowComposerModal";
@@ -56,7 +60,7 @@ function stagesSummary(workflow: AgentWorkflow): string | null {
 
 const WorkflowsPage: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = useNotifications();
   const { workflows, isLoading, fetchError, refetch } = useFetchWorkflows();
   // Authoring is admin/architect; running one is also a migrator's
@@ -158,6 +162,12 @@ const WorkflowsPage: React.FC = () => {
               <Tbody>
                 {sortedWorkflows.map((pb: AgentWorkflow) => {
                   const name = pb.metadata.name ?? "";
+                  // Operator-owned defaults: view instead of edit, no delete.
+                  const managed = isOperatorManaged(pb);
+                  const deleteProps = operatorManagedActionProps(
+                    pb,
+                    t("agentic.operatorManagedTooltip")
+                  );
                   return (
                     <Tr key={name}>
                       <Td dataLabel={t("terms.name")}>{name}</Td>
@@ -192,12 +202,15 @@ const WorkflowsPage: React.FC = () => {
                               ...(canWrite
                                 ? [
                                     {
-                                      title: t("actions.edit"),
+                                      title: managed
+                                        ? t("actions.view")
+                                        : t("actions.edit"),
                                       onClick: () => setComposerTarget(pb),
                                     },
                                     {
                                       title: t("actions.delete"),
                                       onClick: () => setDeleteTarget(name),
+                                      ...deleteProps,
                                     },
                                   ]
                                 : []),
@@ -228,7 +241,7 @@ const WorkflowsPage: React.FC = () => {
           onClose={() => setRunTarget(null)}
           onCreated={(runName) => {
             setRunTarget(null);
-            history.push(formatPath(DevPaths.workflowRunDetails, { runName }));
+            navigate(formatPath(DevPaths.workflowRunDetails, { runName }));
           }}
         />
       )}

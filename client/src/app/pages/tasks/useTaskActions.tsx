@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Paths } from "@app/Paths";
 import { Task, TaskState } from "@app/api/models";
@@ -36,7 +36,7 @@ const useAsyncTaskActions = () => {
 export const useTaskActions = (task: Task<unknown>) => {
   const { cancelTask } = useAsyncTaskActions();
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return [
     {
@@ -54,14 +54,14 @@ export const useTaskActions = (task: Task<unknown>) => {
       onClick: () => {
         const currentPath = window.location.pathname;
         if (currentPath.includes("application")) {
-          history.push(
+          navigate(
             formatPath(Paths.applicationsTaskDetails, {
               applicationId: task.application?.id,
               taskId: task?.id,
             })
           );
         } else {
-          history.push(
+          navigate(
             formatPath(Paths.taskDetails, {
               taskId: task?.id,
             })

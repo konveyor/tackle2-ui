@@ -1,7 +1,7 @@
 import { FC, useCallback, useState } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -46,7 +46,8 @@ import GeneratorForm from "./components/generator-form";
 
 const AssetGenerators: FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { pushNotification } = useNotifications();
 
   const [openCreateGenerator, setOpenCreateGenerator] =
@@ -198,12 +199,12 @@ const AssetGenerators: FC = () => {
   };
 
   const clearFilters = useCallback(() => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}?${newSearch.toString()}`);
+    navigate(`${currentPath}?${newSearch.toString()}`);
     filterToolbarProps.setFilterValues({});
-  }, [history, filterToolbarProps]);
+  }, [navigate, location, filterToolbarProps]);
 
   return (
     <>

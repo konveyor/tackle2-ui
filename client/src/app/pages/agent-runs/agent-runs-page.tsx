@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -86,7 +86,7 @@ const RUN_PHASES: AgentRunPhase[] = [
 
 const AgentRunsPage: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = useNotifications();
   const { agentRuns, isLoading, fetchError, refetch } = useFetchAgentRuns();
   const { data: applications } = useFetchApplications();
@@ -258,7 +258,7 @@ const AgentRunsPage: React.FC = () => {
   );
 
   const openRun = (name: string) => {
-    history.push(formatPath(DevPaths.agentRunDetails, { runName: name }));
+    navigate(formatPath(DevPaths.agentRunDetails, { runName: name }));
   };
 
   return (

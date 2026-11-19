@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Bullseye,
@@ -18,7 +18,6 @@ import {
 } from "@patternfly/react-core";
 import { RedoIcon } from "@patternfly/react-icons";
 
-import type { WorkflowRunDetailsRoute } from "@app/Paths";
 import { DevPaths } from "@app/Paths";
 import type {
   AgentRun,
@@ -101,8 +100,8 @@ function resolveExecutionMode(
 
 const WorkflowRunDetailPage: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const { runName } = useParams<WorkflowRunDetailsRoute>();
+  const navigate = useNavigate();
+  const runName = useParams<"runName">().runName!;
   const { workflowRun, isLoading, fetchError } = useFetchWorkflowRun(runName);
   const workflowFinished = isTerminalPhase(workflowRun?.status?.phase);
   const liveStage = workflowFinished
@@ -118,8 +117,8 @@ const WorkflowRunDetailPage: React.FC = () => {
     fetchError: liveRunFetchError,
   } = useFetchAgentRun(liveRunName);
   const liveStageMode = resolveExecutionMode(liveStage, liveAgentRun);
-  // "Run again": the spec is immutable and the hub has no delete, so a
-  // prefilled create is the one re-run shape there is.
+  // "Run again": the spec is immutable, so a prefilled create is the one
+  // re-run shape there is.
   const canCreate = useHasSomeScopes(agenticWorkflowRunsCreateScopes);
   const [rerunOpen, setRerunOpen] = useState(false);
   // Inventory failures leave `application` undefined — BranchPanel copes.
@@ -371,7 +370,7 @@ const WorkflowRunDetailPage: React.FC = () => {
           onClose={() => setRerunOpen(false)}
           onCreated={(name) => {
             setRerunOpen(false);
-            history.push(
+            navigate(
               formatPath(DevPaths.workflowRunDetails, { runName: name })
             );
           }}

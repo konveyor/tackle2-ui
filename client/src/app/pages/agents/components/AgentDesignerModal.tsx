@@ -49,6 +49,7 @@ import {
   useFetchSkillCards,
   useFetchSkillCollections,
 } from "@app/queries/skills";
+import { isOperatorManaged } from "@app/utils/agentic";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const PARAM_TYPES: AgentParamType[] = ["string", "number", "boolean"];
@@ -97,6 +98,11 @@ export const AgentDesignerModal: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const isEdit = !!existing;
+  // The operator re-applies its curated defaults with a forced server-side
+  // apply on every reconcile, so a save here would be silently reverted.
+  // Open those read-only instead: the form is still the only place to see an
+  // Agent's prompt, skills and params.
+  const isReadOnly = !!existing && isOperatorManaged(existing);
 
   // ---- catalog data. Each list shows a spinner until its first fetch
   // settles: the designer usually opens before the catalog is cached, and
@@ -240,13 +246,25 @@ export const AgentDesignerModal: React.FC<Props> = ({
     <Modal variant="large" isOpen onClose={onClose}>
       <ModalHeader
         title={
-          isEdit
-            ? t("agentic.agents.editAgentTitle", { name })
-            : t("agentic.agents.createAgent")
+          isReadOnly
+            ? t("agentic.agents.viewAgentTitle", { name })
+            : isEdit
+              ? t("agentic.agents.editAgentTitle", { name })
+              : t("agentic.agents.createAgent")
         }
       />
       <ModalBody>
         <Form>
+          {isReadOnly && (
+            <Alert
+              variant="info"
+              isInline
+              title={t("agentic.agents.operatorManagedTitle")}
+            >
+              {t("agentic.operatorManagedTooltip")}
+            </Alert>
+          )}
+
           {/* ---------- Name ---------- */}
           <FormGroup label={t("terms.name")} isRequired fieldId="agent-name">
             <TextInput
@@ -275,6 +293,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
             <TextInput
               id="agent-image"
               isRequired
+              isDisabled={isReadOnly}
               list="agent-image-suggestions"
               value={imageRef}
               onChange={(_e, v) => setImageRef(v)}
@@ -294,6 +313,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
           <FormGroup label={t("agentic.agents.prompt")} fieldId="agent-prompt">
             <TextArea
               id="agent-prompt"
+              isDisabled={isReadOnly}
               value={prompt}
               onChange={(_e, v) => setPrompt(v)}
               rows={4}
@@ -339,6 +359,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                         </>
                       }
                       isChecked={selectedGateways.includes(ref)}
+                      isDisabled={isReadOnly}
                       onChange={() => toggleGateway(ref)}
                     />
                   </div>
@@ -385,6 +406,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                         ) : undefined
                       }
                       isChecked={selectedSkillCards.includes(ref)}
+                      isDisabled={isReadOnly}
                       onChange={() => toggleSkillCard(ref)}
                     />
                   </div>
@@ -452,6 +474,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                         </span>
                       }
                       isChecked={selectedSkillCollections.includes(ref)}
+                      isDisabled={isReadOnly}
                       onChange={() => toggleSkillCollection(ref)}
                     />
                   </div>
@@ -520,6 +543,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                               }
                             )}
                             placeholder={t("terms.name").toLowerCase()}
+                            isDisabled={isReadOnly}
                             value={p.name}
                             onChange={(_e, v) => updateParam(idx, { name: v })}
                           />
@@ -535,6 +559,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                               }
                             )}
                             value={p.type}
+                            isDisabled={isReadOnly}
                             onChange={(_e, v) =>
                               updateParam(idx, { type: v as AgentParamType })
                             }
@@ -559,6 +584,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                               }
                             )}
                             placeholder={t("terms.description").toLowerCase()}
+                            isDisabled={isReadOnly}
                             value={p.description}
                             onChange={(_e, v) =>
                               updateParam(idx, { description: v })
@@ -579,6 +605,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                               "agentic.agents.default"
                             ).toLowerCase()}
                             value={p.defaultValue}
+                            isDisabled={isReadOnly}
                             onChange={(_e, v) =>
                               updateParam(idx, { defaultValue: v })
                             }
@@ -596,7 +623,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                               { row, field: t("agentic.agents.required") }
                             )}
                             isChecked={p.required}
-                            isDisabled={p.defaultValue !== ""}
+                            isDisabled={isReadOnly || p.defaultValue !== ""}
                             onChange={(_e, checked) =>
                               updateParam(idx, { required: checked })
                             }
@@ -612,6 +639,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
                                 name: rowLabel,
                               }
                             )}
+                            isDisabled={isReadOnly}
                             onClick={() => removeParam(idx)}
                           />
                         </Td>
@@ -624,6 +652,7 @@ export const AgentDesignerModal: React.FC<Props> = ({
             <Button
               variant="link"
               size="sm"
+              isDisabled={isReadOnly}
               onClick={() => setParams((prev) => [...prev, emptyParamRow()])}
               style={{ paddingLeft: 0 }}
             >
@@ -644,16 +673,18 @@ export const AgentDesignerModal: React.FC<Props> = ({
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button
-          variant="primary"
-          isLoading={isSaving}
-          isDisabled={!canSubmit}
-          onClick={handleSubmit}
-        >
-          {isEdit ? t("actions.save") : t("actions.create")}
-        </Button>
+        {!isReadOnly && (
+          <Button
+            variant="primary"
+            isLoading={isSaving}
+            isDisabled={!canSubmit}
+            onClick={handleSubmit}
+          >
+            {isEdit ? t("actions.save") : t("actions.create")}
+          </Button>
+        )}
         <Button variant="link" onClick={onClose}>
-          {t("actions.cancel")}
+          {isReadOnly ? t("actions.close") : t("actions.cancel")}
         </Button>
       </ModalFooter>
     </Modal>

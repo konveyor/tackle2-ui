@@ -1,7 +1,7 @@
 import * as React from "react";
 import { saveAs } from "file-saver";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -16,7 +16,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { ImportSummaryRoute, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -40,23 +40,27 @@ import {
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const ManageImportsDetails: React.FC = () => {
-  // i18
+  const { importId } = useParams<"importId">();
+  const parsedImportId = Number(importId);
+  if (!Number.isInteger(parsedImportId) || parsedImportId <= 0) {
+    return <Navigate to={Paths.applicationsImports} replace />;
+  }
+
+  return <ManageImportsDetailsContent importId={parsedImportId} />;
+};
+
+const ManageImportsDetailsContent: React.FC<{ importId: number }> = ({
+  importId,
+}) => {
   const { t } = useTranslation();
-
-  // Router
-  const { importId } = useParams<ImportSummaryRoute>();
-
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { imports, isFetching, fetchError } = useFetchImports(
-    parseInt(importId),
-    false
-  );
+  const { imports, isFetching, fetchError } = useFetchImports(importId, false);
 
   const { importSummary } = useFetchImportSummaryById(importId);
 
   const exportCSV = () => {
-    getApplicationSummaryCSV(importId)
+    getApplicationSummaryCSV(String(importId))
       .then((response) => {
         const fileName = importSummary?.filename || "file.csv";
         saveAs(new Blob([response.data]), fileName);

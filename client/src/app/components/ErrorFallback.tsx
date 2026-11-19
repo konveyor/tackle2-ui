@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Bullseye,
   Button,
@@ -22,7 +22,7 @@ export const ErrorFallback = ({
 }) => {
   const { t } = useTranslation();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = useContext(NotificationsContext);
 
   const errorMessage =
@@ -51,7 +51,7 @@ export const ErrorFallback = ({
             variant="primary"
             className={spacing.mtSm}
             onClick={() => {
-              history.push("/");
+              navigate("/");
               resetErrorBoundary(false);
             }}
           >

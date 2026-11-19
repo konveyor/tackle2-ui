@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -32,7 +32,8 @@ export const TabTasksContent: React.FC<{
   application: DecoratedApplication;
 }> = ({ application }) => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters");
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
@@ -131,10 +132,10 @@ export const TabTasksContent: React.FC<{
   } = tableControls;
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
   };
   return (
     <>

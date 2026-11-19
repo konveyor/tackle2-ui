@@ -7,7 +7,7 @@ import {
   PageSection,
 } from "@patternfly/react-core";
 
-import { AssessmentActionsRoute, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import useIsArchetype from "@app/hooks/useIsArchetype";
@@ -17,7 +17,9 @@ import { useFetchArchetypeById } from "@app/queries/archetypes";
 import AssessmentActionsTable from "./components/assessment-actions-table";
 
 const AssessmentActions: React.FC = () => {
-  const { applicationId, archetypeId } = useParams<AssessmentActionsRoute>();
+  const { applicationId, archetypeId } = useParams<
+    "applicationId" | "archetypeId"
+  >();
   const isArchetype = useIsArchetype();
 
   const { archetype } = useFetchArchetypeById(archetypeId);
