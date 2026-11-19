@@ -12,12 +12,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type {
-  Generator,
-  JsonSchemaObject,
-  New,
-  Repository,
-} from "@app/api/models";
+import type { Generator, New, Repository } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
@@ -218,9 +213,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             repository: generator.repository || EMPTY_REPOSITORY,
             credentials: generator?.identity?.name,
             values: parametersToArray(generator.values),
-            params: schemaToParameters(
-              generator.params as unknown as JsonSchemaObject
-            ).map((p) => ({
+            params: schemaToParameters(generator.params).map((p) => ({
               name: p.name,
               type: p.type,
               default: p.default == null ? "" : String(p.default),
@@ -256,9 +249,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         : undefined,
       identity: identityToRef(values.credentials),
       values: arrayToParameters(values.values),
-      params: parametersToSchema(
-        values.params ?? []
-      ) as unknown as Generator["params"],
+      params: parametersToSchema(values.params ?? []),
     };
 
     if (generator) {
