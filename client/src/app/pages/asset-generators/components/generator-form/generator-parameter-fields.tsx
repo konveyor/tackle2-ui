@@ -1,5 +1,5 @@
 import { Fragment, forwardRef, useImperativeHandle } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
@@ -18,7 +18,7 @@ import {
   HookFormPFTextInput as InputField,
 } from "@app/components/HookFormPFFields";
 
-import { PARAMETER_TYPES } from "../../utils";
+import { type GeneratorParameter, PARAMETER_TYPES } from "../../utils";
 
 interface ParameterFieldsProps {
   noParametersMessage: string;
@@ -31,8 +31,11 @@ export const ParameterFields = forwardRef<
   ParameterFieldsProps
 >(({ noParametersMessage, removeLabel, name }, ref) => {
   const { t } = useTranslation();
-  const { control } = useFormContext();
+  const { clearErrors, control, getValues, setValue } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name });
+  // useWatch reads the stored values and re-renders when they change, so the
+  // default field can become the true/false select.
+  const rows = useWatch({ control, name }) as GeneratorParameter[] | undefined;
 
   const handleAddField = () =>
     append({ name: "", type: "string", default: "" });
@@ -71,7 +74,36 @@ export const ParameterFields = forwardRef<
                   <FormSelect
                     id={`${name}-type-${index}`}
                     value={value}
-                    onChange={(_e, selection) => onChange(selection)}
+                    onChange={(_e, selection) => {
+                      onChange(selection);
+                      // Re-validate the default against the new type — the form
+                      // only re-validates the field that changed, so a stale
+                      // default would otherwise go unnoticed until submit. A
+                      // boolean row can only hold true/false, so clear anything
+                      // else.
+                      const defaultPath = `${name}.${index}.default`;
+                      const current = getValues(defaultPath);
+                      const isBooleanValue =
+                        current === "true" || current === "false";
+                      const nextDefault =
+                        selection === "boolean" && !isBooleanValue
+                          ? ""
+                          : current;
+
+                      if (nextDefault === "") {
+                        // Don't validate a blank default: the field is simply
+                        // not filled in yet, and the placeholder says so.
+                        if (current !== "") {
+                          setValue(defaultPath, "");
+                          clearErrors(defaultPath);
+                        }
+                        return;
+                      }
+                      void setValue(defaultPath, nextDefault, {
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                    }}
                   >
                     {PARAMETER_TYPES.map((pt) => (
                       <FormSelectOption key={pt} value={pt} label={pt} />
@@ -81,13 +113,49 @@ export const ParameterFields = forwardRef<
               />
             </GridItem>
             <GridItem span={4}>
-              <InputField
-                control={control}
-                name={`${name}.${index}.default`}
-                label={t("terms.value")}
-                fieldId={`${name}-value-${index}`}
-                isRequired
-              />
+              {rows?.[index]?.type === "boolean" ? (
+                <HookFormPFGroupController
+                  control={control}
+                  name={`${name}.${index}.default`}
+                  label={t("terms.value")}
+                  fieldId={`${name}-value-${index}`}
+                  isRequired
+                  renderInput={({ field: { value, onChange } }) => (
+                    <FormSelect
+                      id={`${name}-value-${index}`}
+                      value={value}
+                      aria-label={t("terms.value")}
+                      onChange={(_e, selection) => onChange(selection)}
+                    >
+                      <FormSelectOption
+                        value=""
+                        label={t("composed.selectOne", {
+                          what: t("terms.value").toLowerCase(),
+                        })}
+                        isDisabled
+                        hidden
+                        isPlaceholder
+                      />
+                      <FormSelectOption
+                        value="true"
+                        label={t("generatorParameters.true")}
+                      />
+                      <FormSelectOption
+                        value="false"
+                        label={t("generatorParameters.false")}
+                      />
+                    </FormSelect>
+                  )}
+                />
+              ) : (
+                <InputField
+                  control={control}
+                  name={`${name}.${index}.default`}
+                  label={t("terms.value")}
+                  fieldId={`${name}-value-${index}`}
+                  isRequired
+                />
+              )}
             </GridItem>
             <GridItem span={1}>
               <Bullseye>

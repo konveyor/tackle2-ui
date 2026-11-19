@@ -1166,6 +1166,10 @@
       "credentialTooltip": "Use credential of type source control"
     }
   },
+  "generatorParameters": {
+    "true": "true",
+    "false": "false"
+  },
   "agentic": {
     "agentRuns": {
       "createRun": "Create run",
