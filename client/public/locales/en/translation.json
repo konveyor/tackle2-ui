@@ -834,8 +834,6 @@
     "invalidFormat": "Invalid format",
     "invalidQuestionnaireYAML": "Invalid questionnaire YAML",
     "invalidValue": "Invalid value",
-    "mustBeBoolean": "Must be true or false",
-    "mustBeInteger": "Must be a whole number",
     "mustBeNumber": "Must be a number",
     "notOneOf": "Value is not a valid option.",
     "repositoryTypeRequired": "Repository type is required.",
@@ -1158,6 +1156,11 @@
       "removeDefaultTitle": "Remove {{name}} as default?",
       "removeDefaultMessage": "This credential will no longer be used as the default credential for {{typeString}} types."
     }
+  },
+  "parameterType": {
+    "string": "String",
+    "number": "Number",
+    "boolean": "Boolean"
   },
   "platformKind": {
     "cloudfoundry": {

@@ -9,14 +9,14 @@ import {
 describe("parametersToSchema", () => {
   it("builds an object JSON Schema from parameter rows", () => {
     const rows: GeneratorParameter[] = [
-      { name: "replicas", type: "integer", default: 2 },
+      { name: "replicas", type: "number", default: 2 },
       { name: "environment", type: "string", default: "dev" },
     ];
 
     expect(parametersToSchema(rows)).toEqual({
       type: "object",
       properties: {
-        replicas: { type: "integer", default: 2 },
+        replicas: { type: "number", default: 2 },
         environment: { type: "string", default: "dev" },
       },
     });
@@ -45,12 +45,12 @@ describe("parametersToSchema", () => {
 
   it("coerces a numeric default entered as a string", () => {
     const rows = [
-      { name: "replicas", type: "integer", default: "2" },
+      { name: "replicas", type: "number", default: "2" },
     ] as unknown as GeneratorParameter[];
 
     expect(parametersToSchema(rows)).toEqual({
       type: "object",
-      properties: { replicas: { type: "integer", default: 2 } },
+      properties: { replicas: { type: "number", default: 2 } },
     });
   });
 
@@ -69,7 +69,7 @@ describe("parametersToSchema", () => {
 describe("schemaToParameters", () => {
   it("reconstructs parameter rows from an object JSON Schema (round-trip)", () => {
     const rows: GeneratorParameter[] = [
-      { name: "replicas", type: "integer", default: 2 },
+      { name: "replicas", type: "number", default: 2 },
       { name: "environment", type: "string", default: "dev" },
     ];
 
@@ -82,29 +82,10 @@ describe("schemaToParameters", () => {
 });
 
 describe("defaultValueError", () => {
-  it("accepts a valid integer and rejects a non-integer", () => {
-    expect(defaultValueError("2", "integer")).toBeNull();
-    expect(defaultValueError("-3", "integer")).toBeNull();
-    expect(defaultValueError("2.5", "integer")).toBe(
-      "validation.mustBeInteger"
-    );
-    expect(defaultValueError("dev", "integer")).toBe(
-      "validation.mustBeInteger"
-    );
-  });
-
   it("accepts a valid number and rejects a non-number", () => {
     expect(defaultValueError("2", "number")).toBeNull();
     expect(defaultValueError("2.5", "number")).toBeNull();
     expect(defaultValueError("dev", "number")).toBe("validation.mustBeNumber");
-  });
-
-  it("accepts only true or false for boolean", () => {
-    expect(defaultValueError("true", "boolean")).toBeNull();
-    expect(defaultValueError("false", "boolean")).toBeNull();
-    expect(defaultValueError("dev", "boolean")).toBe(
-      "validation.mustBeBoolean"
-    );
   });
 
   it("accepts any value for a string parameter", () => {
@@ -112,7 +93,7 @@ describe("defaultValueError", () => {
   });
 
   it("rejects a blank value as required", () => {
-    expect(defaultValueError("", "integer")).toBe("validation.required");
+    expect(defaultValueError("", "number")).toBe("validation.required");
     expect(defaultValueError("   ", "boolean")).toBe("validation.required");
   });
 });

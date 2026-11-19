@@ -78,9 +78,9 @@ export const ParameterFields = forwardRef<
                       onChange(selection);
                       // Re-validate the default against the new type — the form
                       // only re-validates the field that changed, so a stale
-                      // default would otherwise go unnoticed until submit. A
-                      // boolean row can only hold true/false, so clear anything
-                      // else.
+                      // default would otherwise go unnoticed until submit.
+                      // Switching to boolean also clears a value the select
+                      // cannot hold.
                       const defaultPath = `${name}.${index}.default`;
                       const current = getValues(defaultPath);
                       const isBooleanValue =
@@ -91,8 +91,8 @@ export const ParameterFields = forwardRef<
                           : current;
 
                       if (nextDefault === "") {
-                        // Don't validate a blank default: the field is simply
-                        // not filled in yet, and the placeholder says so.
+                        // Don't validate a blank default: the default has not
+                        // been filled in yet.
                         if (current !== "") {
                           setValue(defaultPath, "");
                           clearErrors(defaultPath);
@@ -106,7 +106,11 @@ export const ParameterFields = forwardRef<
                     }}
                   >
                     {PARAMETER_TYPES.map((pt) => (
-                      <FormSelectOption key={pt} value={pt} label={pt} />
+                      <FormSelectOption
+                        key={pt}
+                        value={pt}
+                        label={t(`parameterType.${pt}`)}
+                      />
                     ))}
                   </FormSelect>
                 )}

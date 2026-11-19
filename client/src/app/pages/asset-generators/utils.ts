@@ -1,7 +1,8 @@
 import { JsonSchemaObject } from "@app/api/models";
 
 /**
- * Helper functions for parameter conversion between Record and Array formats
+ * Helpers for generator parameters: the supported types, conversion between
+ * authoring-form rows and JSON Schema, and default-value validation.
  */
 
 /**
@@ -29,15 +30,12 @@ export const arrayToParameters = (
 };
 
 /**
- * The supported parameter types. Single source of truth: `ParameterType` is
- * derived from this list, so adding a type here updates both.
+ * The supported parameter types. `ParameterType` is derived from this list, so
+ * adding a type updates the union and the type options; it also needs a
+ * `parameterType.<type>` translation, plus any coercion or validation it
+ * requires in `coerceDefault` and `defaultValueError`.
  */
-export const PARAMETER_TYPES = [
-  "string",
-  "integer",
-  "number",
-  "boolean",
-] as const;
+export const PARAMETER_TYPES = ["string", "number", "boolean"] as const;
 
 export type ParameterType = (typeof PARAMETER_TYPES)[number];
 
@@ -58,7 +56,7 @@ const coerceDefault = (
   value: GeneratorParameter["default"],
   type: ParameterType
 ): string | number | boolean => {
-  if (type === "integer" || type === "number") return Number(value);
+  if (type === "number") return Number(value);
   if (type === "boolean") return value === true || value === "true";
   return String(value);
 };
@@ -98,7 +96,7 @@ export const schemaToParameters = (
 /**
  * Validates a default value for a parameter. Returns an i18n key describing the
  * problem, or null when the value is valid. A blank value is invalid (the value
- * is required); a non-blank value must match the parameter type.
+ * is required).
  */
 export const defaultValueError = (
   value: string,
@@ -106,18 +104,10 @@ export const defaultValueError = (
 ): string | null => {
   const trimmed = value.trim();
   if (trimmed === "") return "validation.required";
-  switch (type) {
-    case "integer":
-      return /^-?\d+$/.test(trimmed) ? null : "validation.mustBeInteger";
-    case "number":
-      return /^-?\d+(\.\d+)?$/.test(trimmed) ? null : "validation.mustBeNumber";
-    case "boolean":
-      return trimmed === "true" || trimmed === "false"
-        ? null
-        : "validation.mustBeBoolean";
-    default:
-      return null;
+  if (type === "number") {
+    return /^-?\d+(\.\d+)?$/.test(trimmed) ? null : "validation.mustBeNumber";
   }
+  return null;
 };
 
 /**

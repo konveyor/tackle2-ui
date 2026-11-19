@@ -35,11 +35,8 @@ const defaultMatchesType = yup.object({
         .string()
         .test("default-matches-type", "Invalid default", function (value) {
           const type = (this.parent as { type?: string }).type;
-          if (type === "integer") {
-            return /^-?\d+$/.test((value ?? "").trim());
-          }
-          if (type === "boolean") {
-            return value === "true" || value === "false";
+          if (type === "number") {
+            return /^-?\d+(\.\d+)?$/.test((value ?? "").trim());
           }
           return true;
         }),
@@ -116,7 +113,7 @@ describe("ParameterFields", () => {
     const typeSelect = document.getElementById(
       "params-type-0"
     ) as HTMLSelectElement;
-    fireEvent.change(typeSelect, { target: { value: "integer" } });
+    fireEvent.change(typeSelect, { target: { value: "number" } });
     expect(await screen.findByText("Invalid default")).toBeInTheDocument();
   });
 
@@ -130,8 +127,8 @@ describe("ParameterFields", () => {
     const typeSelect = document.getElementById(
       "params-type-0"
     ) as HTMLSelectElement;
-    fireEvent.change(typeSelect, { target: { value: "integer" } });
-    await waitFor(() => expect(typeSelect.value).toBe("integer"));
+    fireEvent.change(typeSelect, { target: { value: "number" } });
+    await waitFor(() => expect(typeSelect.value).toBe("number"));
     expect(screen.queryByText("Invalid default")).not.toBeInTheDocument();
   });
 
