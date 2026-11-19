@@ -9,6 +9,7 @@ import {
   Popover,
   PopoverProps,
   Tooltip,
+  Truncate,
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
@@ -23,7 +24,11 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
 import { TaskDashboard } from "@app/api/models";
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import {
+  IconWithLabel,
+  MIDDLE_TRUNCATE_TRAILING_CHARS,
+  TaskStateIcon,
+} from "@app/components/Icons";
 import { formatPath, universalComparator } from "@app/utils/utils";
 
 import {
@@ -187,7 +192,19 @@ export const ColumnPlatformName: React.FC<{
         </Link>
       }
     >
-      <IconWithLabel icon={<StatusIcon />} label={platform.name} />
+      <IconWithLabel
+        icon={<StatusIcon />}
+        label={
+          /* The popover already shows the full name on this same hover, so
+             `Truncate`'s own tooltip is suppressed to avoid a second overlay. */
+          <Truncate
+            content={platform.name}
+            position="middle"
+            trailingNumChars={MIDDLE_TRUNCATE_TRAILING_CHARS}
+            tooltipProps={{ trigger: "manual", isVisible: false }}
+          />
+        }
+      />
     </Popover>
   );
 };

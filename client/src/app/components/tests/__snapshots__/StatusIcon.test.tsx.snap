@@ -20,7 +20,16 @@ exports[`StatusIcon Renders without crashing 1`] = `
           </span>
         </div>
         <div>
-          terms.notStarted
+          <span
+            class="pf-v6-c-truncate"
+            tabindex="0"
+          >
+            <span
+              class="pf-v6-c-truncate__start"
+            >
+              terms.notStarted
+            </span>
+          </span>
         </div>
       </div>
     </div>
@@ -41,7 +50,16 @@ exports[`StatusIcon Renders without crashing 1`] = `
         </span>
       </div>
       <div>
-        terms.notStarted
+        <span
+          class="pf-v6-c-truncate"
+          tabindex="0"
+        >
+          <span
+            class="pf-v6-c-truncate__start"
+          >
+            terms.notStarted
+          </span>
+        </span>
       </div>
     </div>
   </div>,
