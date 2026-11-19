@@ -70,8 +70,8 @@ describe("ParameterFields", () => {
     expect(screen.getByText("No parameters to display")).toBeInTheDocument();
   });
 
-  // Each parameter row renders a Name box, a Type dropdown, and a Value box.
-  it("exposes name, type, and value fields for each parameter row", () => {
+  // Each parameter row renders a Name box, a Type dropdown, and a Default value box.
+  it("exposes name, type, and default value fields for each parameter row", () => {
     render(
       <FormWrapper params={[{ name: "env", type: "string", default: "dev" }]} />
     );

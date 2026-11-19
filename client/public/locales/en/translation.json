@@ -510,6 +510,7 @@
     "reportDownloadSetting": "Allow reports to be downloaded after running an analysis.",
     "date": "Date",
     "decision": "Decision",
+    "defaultValue": "Default value",
     "dependencies": "Dependencies",
     "dependencyName": "Dependency name",
     "dependentQuestion": "Conditional question",

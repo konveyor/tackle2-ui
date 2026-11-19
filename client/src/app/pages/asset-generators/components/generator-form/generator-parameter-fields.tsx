@@ -121,20 +121,20 @@ export const ParameterFields = forwardRef<
                 <HookFormPFGroupController
                   control={control}
                   name={`${name}.${index}.default`}
-                  label={t("terms.value")}
+                  label={t("terms.defaultValue")}
                   fieldId={`${name}-value-${index}`}
                   isRequired
                   renderInput={({ field: { value, onChange } }) => (
                     <FormSelect
                       id={`${name}-value-${index}`}
                       value={value}
-                      aria-label={t("terms.value")}
+                      aria-label={t("terms.defaultValue")}
                       onChange={(_e, selection) => onChange(selection)}
                     >
                       <FormSelectOption
                         value=""
                         label={t("composed.selectOne", {
-                          what: t("terms.value").toLowerCase(),
+                          what: t("terms.defaultValue").toLowerCase(),
                         })}
                         isDisabled
                         hidden
@@ -155,7 +155,7 @@ export const ParameterFields = forwardRef<
                 <InputField
                   control={control}
                   name={`${name}.${index}.default`}
-                  label={t("terms.value")}
+                  label={t("terms.defaultValue")}
                   fieldId={`${name}-value-${index}`}
                   isRequired
                 />
