@@ -15,6 +15,8 @@
  *     custom channel (usage_update spend counters, status_message notices
  *     and progress), same {sessionId, update} shape, enabled by the harness
  *     declaring the customNotifications capability and teed to viewers
+ *   agent -> client (notification): _lightspeed/session/update — cumulative
+ *     token observations, with the same {sessionId, update} envelope
  *   agent -> client (request): session/request_permission, elicitation/create
  *     (the agent asking the human a question — e.g. the harness's ask_user
  *     tool — as a flat form schema; the turn blocks until it is answered)
@@ -47,6 +49,9 @@ export const STEER_METHOD = "_goose/unstable/session/steer";
  * update's `sessionUpdate` discriminator tells them apart.
  */
 export const GOOSE_UPDATE_METHOD = "_goose/unstable/session/update";
+
+/** Cumulative token observations, without inferred context occupancy or cost. */
+export const LIGHTSPEED_UPDATE_METHOD = "_lightspeed/session/update";
 
 // ------------------------------------------------------------------ types
 
@@ -115,7 +120,12 @@ export type PermissionRequest = {
   /** ACP request id (kperm-<n>) this ask arrived under. */
   id: string;
   sessionId: string;
-  toolCall?: { toolCallId?: string; title?: string; diffs?: ToolCallDiff[] };
+  toolCall?: {
+    toolCallId?: string;
+    title?: string;
+    rawInput?: unknown;
+    diffs?: ToolCallDiff[];
+  };
   options: { optionId: string; name: string; kind: string }[];
 };
 
@@ -208,6 +218,8 @@ export interface AcpConnectOptions {
   url: string;
   callbacks?: AcpSessionCallbacks;
   logger?: AcpLogger;
+  /** Cancels opening/initialization; the caller owns the returned session. */
+  signal?: AbortSignal;
 }
 
 // ---------------------------------------------------------------- JSON-RPC
@@ -329,24 +341,37 @@ export class AcpSession {
    * read from the agent's advertised capabilities.
    */
   static async connect(opts: AcpConnectOptions): Promise<AcpSession> {
+    if (opts.signal?.aborted) throw opts.signal.reason;
     const logger = opts.logger ?? NOOP_LOGGER;
     const socket = new WebSocket(opts.url);
     const session = new AcpSession(socket, opts.callbacks ?? {}, logger);
-    if (socket.readyState !== WebSocket.OPEN) {
-      await session.openPromise;
+    const onAbort = () => void session.close();
+    opts.signal?.addEventListener("abort", onAbort, { once: true });
+    try {
+      if (socket.readyState !== WebSocket.OPEN) {
+        await session.openPromise;
+      }
+      logger.info(`AcpSession: connected ${opts.url}, initializing`);
+      const initialized = await session.request<InitializeResult>(
+        "initialize",
+        {
+          protocolVersion: PROTOCOL_VERSION,
+          clientCapabilities: {},
+        }
+      );
+      session._loadSessionSupported =
+        initialized?.agentCapabilities?.loadSession === true;
+      logger.info(
+        `AcpSession: initialized protocol v${initialized?.protocolVersion ?? "?"}, ` +
+          `loadSession=${session._loadSessionSupported}`
+      );
+      return session;
+    } catch (err) {
+      await session.close();
+      throw err;
+    } finally {
+      opts.signal?.removeEventListener("abort", onAbort);
     }
-    logger.info(`AcpSession: connected ${opts.url}, initializing`);
-    const initialized = await session.request<InitializeResult>("initialize", {
-      protocolVersion: PROTOCOL_VERSION,
-      clientCapabilities: {},
-    });
-    session._loadSessionSupported =
-      initialized?.agentCapabilities?.loadSession === true;
-    logger.info(
-      `AcpSession: initialized protocol v${initialized?.protocolVersion ?? "?"}, ` +
-        `loadSession=${session._loadSessionSupported}`
-    );
-    return session;
   }
 
   get sessionId(): string | null {
@@ -502,6 +527,7 @@ export class AcpSession {
   private async handleMessageEvent(event: MessageEvent): Promise<void> {
     if (this.closed) return;
     const text = await toText(event.data);
+    if (this.closed) return;
     if (text === undefined) {
       this.logger.warn("AcpSession: ignoring non-text WebSocket frame");
       return;
@@ -545,7 +571,11 @@ export class AcpSession {
   }
 
   private handleNotification(method: string, params: unknown): void {
-    if (method === "session/update" || method === GOOSE_UPDATE_METHOD) {
+    if (
+      method === "session/update" ||
+      method === GOOSE_UPDATE_METHOD ||
+      method === LIGHTSPEED_UPDATE_METHOD
+    ) {
       const update = isRecord(params) ? params.update : undefined;
       const sessionId =
         isRecord(params) && typeof params.sessionId === "string"
@@ -591,6 +621,7 @@ export class AcpSession {
               : undefined,
           title:
             typeof p.toolCall.title === "string" ? p.toolCall.title : undefined,
+          rawInput: p.toolCall.rawInput,
           diffs: parseToolCallDiffs(p.toolCall.content),
         }
       : undefined;

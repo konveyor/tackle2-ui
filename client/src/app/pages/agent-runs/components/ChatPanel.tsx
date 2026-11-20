@@ -48,7 +48,6 @@ import {
   InfoCircleIcon,
   PendingIcon,
   StopCircleIcon,
-  TachometerAltIcon,
 } from "@patternfly/react-icons";
 
 import { isAgenticSteerEnabled } from "@app/Constants";
@@ -61,16 +60,11 @@ import type {
   ElicitationRequest,
   PermissionOutcome,
   PermissionRequest,
-  PlanRungMeta,
   SessionUpdate,
   SteerResult,
   ToolCallDiff,
 } from "@app/api/agentic/acp";
-import type {
-  AgentRunPhase,
-  AgentRunStatus,
-  HarnessTerminationData,
-} from "@app/api/agentic/contract";
+import type { AgentRunPhase, AgentRunStatus } from "@app/api/agentic/contract";
 import {
   ACP_READY_CONDITION,
   isTerminalPhase,
@@ -101,6 +95,8 @@ import { agenticAcpScopes, agenticSteerScopes } from "@app/scopes";
 import { useChatAutoScroll } from "../useChatAutoScroll";
 
 import { PhaseLabel } from "./PhaseLabel";
+import { TerminationUsage, UsageBadge, mergeUsage } from "./run-usage";
+import type { RunUsage } from "./run-usage";
 
 import "@patternfly/chatbot/dist/css/main.css";
 import "../agent-runs.css";
@@ -157,7 +153,7 @@ interface ToolItem {
   status: string;
   detail: string;
   /** The call's rawInput as announced (e.g. load_skill's `{name}`), if any. */
-  input?: Record<string, unknown>;
+  input?: unknown;
 }
 /** The agent's task ladder; each plan update replaces the previous one. */
 interface PlanItem {
@@ -169,6 +165,7 @@ interface PermissionItem {
   kind: "permission";
   id: number;
   title?: string;
+  input?: unknown;
   /** File modifications to preview before answering (ACP diff blocks). */
   diffs?: ToolCallDiff[];
   options: PermissionRequest["options"];
@@ -230,31 +227,17 @@ type ChatItem =
   | StatusItem
   | ErrorItem;
 
+/** A pending human action must stay reachable below replayed history. */
+function isOpenAsk(item: ChatItem): boolean {
+  return (
+    (item.kind === "permission" && item.chosen === undefined) ||
+    (item.kind === "ask" && item.outcome === undefined)
+  );
+}
+
 /** The agent's active turn, as goose announces it on the run's session. */
 interface ActiveRun {
   runId: string;
-}
-
-/**
- * Live spend counters for the run's session, folded from goose's usage
- * notices. These are the units the coming run limits are measured in
- * (agentic-controller#115: maxTurns via GOOSE_MAX_TURNS, maxCost).
- */
-interface RunUsage {
-  /** Tokens occupying the context window right now. Absent until the
-   * provider reports a real figure -- goose on Bedrock only ever says 0,
-   * which in the header read as a measurement. */
-  used?: number;
-  contextLimit?: number;
-  /** Accumulated over the session. */
-  inputTokens?: number;
-  outputTokens?: number;
-  /** Accumulated cost as goose reports it (usage_update.accumulatedCost). */
-  cost?: number;
-  /** Per-response costs summed (message_usage) — the fallback when goose
-   * reports no accumulated figure. */
-  summedCost?: number;
-  currency?: string;
 }
 
 /** State of the dial itself; only meaningful while the run is dialable. */
@@ -331,6 +314,7 @@ async function dialAcp(opts: {
   const session = await AcpSession.connect({
     url: await opts.getUrl(),
     callbacks: opts.callbacks,
+    signal: opts.signal,
   });
   if (opts.signal.aborted) {
     void session.close();
@@ -420,41 +404,6 @@ function updateMessageId(u: SessionUpdate): string | undefined {
   return str(gooseMeta(u).messageId) || str(u.messageId) || undefined;
 }
 
-const num = (v: unknown): number | undefined =>
-  typeof v === "number" && Number.isFinite(v) ? v : undefined;
-
-/**
- * Fold a usage notice into the running counters. goose's custom
- * `usage_update` (customNotifications) carries used / contextLimit /
- * accumulatedInputTokens / accumulatedOutputTokens / accumulatedCost; the
- * standard ACP one it also emits at prompt end carries used / size /
- * cost.{amount,currency}. `message_usage` is one per model response.
- */
-function mergeUsage(prev: RunUsage | null, u: SessionUpdate): RunUsage {
-  const base: RunUsage = prev ?? {};
-  if (u.sessionUpdate === "message_usage") {
-    const usage = isRecord(u.usage) ? u.usage : {};
-    const cost = num(usage.cost);
-    return {
-      ...base,
-      summedCost:
-        cost === undefined ? base.summedCost : (base.summedCost ?? 0) + cost,
-    };
-  }
-  const cost = isRecord(u.cost) ? u.cost : undefined;
-  return {
-    ...base,
-    // A context that has held a prompt is never empty: 0 is a provider that
-    // does not meter occupancy (goose on Bedrock), not a reading.
-    used: num(u.used) || base.used,
-    contextLimit: num(u.contextLimit) ?? num(u.size) ?? base.contextLimit,
-    inputTokens: num(u.accumulatedInputTokens) ?? base.inputTokens,
-    outputTokens: num(u.accumulatedOutputTokens) ?? base.outputTokens,
-    cost: num(u.accumulatedCost) ?? num(cost?.amount) ?? base.cost,
-    currency: str(cost?.currency) || base.currency,
-  };
-}
-
 /** The {type, message} of a status_message update, if well-formed. */
 function statusMessageOf(
   u: SessionUpdate
@@ -531,7 +480,7 @@ function reduceUpdate(
           title: str(u.title),
           status: str(u.status) || "pending",
           detail: toolUpdateText(u.content),
-          input: isRecord(u.rawInput) ? u.rawInput : undefined,
+          input: u.rawInput,
         },
       ];
     }
@@ -611,6 +560,7 @@ function reduceUpdate(
         ...tool,
         status: str(u.status) || tool.status,
         title: str(u.title) || tool.title,
+        input: "rawInput" in u ? u.rawInput : tool.input,
         detail: extra
           ? tool.detail
             ? `${tool.detail}\n${extra}`
@@ -828,6 +778,7 @@ export function ChatPanel({
             kind: "permission",
             id,
             title: r.toolCall?.title,
+            input: r.toolCall?.rawInput,
             diffs: r.toolCall?.diffs,
             options: r.options,
           },
@@ -939,6 +890,24 @@ export function ChatPanel({
     const abort = new AbortController();
     const live = () => !abort.signal.aborted;
     let localSession: AcpSession | null = null;
+    const mark = idRef.current;
+    let replay: { update: SessionUpdate; sessionId: string }[] | null = null;
+
+    // These promises belong to the closing socket. Settling them releases
+    // the transport handlers; a closed AcpSession never sends their replies.
+    // Do this before a replacement connection can register its own asks.
+    const retireAsks = () => {
+      for (const resolve of permissionResolvers.current.values()) {
+        resolve({ outcome: { outcome: "cancelled" } });
+      }
+      permissionResolvers.current.clear();
+      for (const resolve of askResolvers.current.values()) {
+        resolve({ action: "cancel" });
+      }
+      askResolvers.current.clear();
+      askAcpIds.current.clear();
+      setItems((prev) => prev.filter((item) => !isOpenAsk(item)));
+    };
 
     // Drop on a live run: auto-reconnect (bounded), else surface it.
     const handleDrop = () => {
@@ -964,6 +933,7 @@ export function ChatPanel({
     const handleClosed = async () => {
       setSession(null);
       if (!live()) return;
+      retireAsks();
       setConn({ kind: "ending" });
       try {
         for (let i = 0; i < END_CHECK_TRIES; i++) {
@@ -993,10 +963,22 @@ export function ChatPanel({
           getAgenticAcpUrl(runName, (await mintAcpNonce(runName)) ?? undefined),
         signal: abort.signal,
         callbacks: {
-          onUpdate: handleUpdate,
-          onPermissionRequest: handlePermission,
-          onElicitation: handleElicitation,
-          onAskResolved: handleAskResolved,
+          onUpdate: (update, sessionId) => {
+            if (!live()) return;
+            if (replay) replay.push({ update, sessionId });
+            else handleUpdate(update, sessionId);
+          },
+          onPermissionRequest: (request) =>
+            live()
+              ? handlePermission(request)
+              : Promise.resolve({ outcome: { outcome: "cancelled" } }),
+          onElicitation: (request) =>
+            live()
+              ? handleElicitation(request)
+              : Promise.resolve({ action: "cancel" }),
+          onAskResolved: (id, result) => {
+            if (live()) handleAskResolved(id, result);
+          },
         },
         onAttempt: () => {
           if (live()) setConn({ kind: "connecting" });
@@ -1009,25 +991,41 @@ export function ChatPanel({
       let sessionId: string;
       const prior = lastSessionIdRef.current;
       if (prior && localSession.loadSessionSupported) {
-        setItems([]); // the replay repopulates the transcript
+        // Stage updates until load succeeds: failed loads must retain the
+        // old transcript, and replay must not merge into its old items.
+        // Asks bypass this buffer so they remain actionable during load.
+        const updates: NonNullable<typeof replay> = [];
+        replay = updates;
         try {
           await localSession.loadSession(prior);
           sessionId = prior;
+          // The tee can send new asks/status before initialize returns.
+          // Keep those items when replacing only the previous transcript.
+          if (live()) setItems((prev) => prev.filter((item) => item.id > mark));
         } catch {
           sessionId = await localSession.newSession();
+        } finally {
+          replay = null;
+          if (live()) {
+            for (const { update, sessionId } of updates) {
+              handleUpdate(update, sessionId);
+            }
+          }
         }
       } else {
         sessionId = await localSession.newSession();
       }
+      if (!live()) return;
       lastSessionIdRef.current = sessionId;
-      if (live()) {
-        setSession(localSession);
-        setConn({ kind: "connected", sessionId });
-      }
+      setSession(localSession);
+      setConn({ kind: "connected", sessionId });
     };
 
     connect().catch((err) => {
-      if (live()) setConn({ kind: "failed", message: errorMessage(err) });
+      if (!live()) return;
+      if (localSession) void localSession.close();
+      retireAsks();
+      setConn({ kind: "failed", message: errorMessage(err) });
     });
 
     return () => {
@@ -1035,6 +1033,7 @@ export function ChatPanel({
       const s = sessionRef.current ?? localSession;
       sessionRef.current = null;
       if (s) void s.close();
+      retireAsks();
       setSession(null);
     };
   }, [
@@ -1055,11 +1054,7 @@ export function ChatPanel({
   // and the run stuck waiting. Block the composer until every card above is
   // answered. A card resolved elsewhere (timeout, or another viewer) carries
   // an outcome/chosen too, so it stops gating the moment it closes.
-  const hasOpenAsk = items.some(
-    (it) =>
-      (it.kind === "permission" && !it.chosen) ||
-      (it.kind === "ask" && !it.outcome)
-  );
+  const hasOpenAsk = items.some(isOpenAsk);
 
   // Redirect the agent: goose steer on the RUN's session, relayed by the
   // harness tee onto the run connection (rejected there with -32601 when
@@ -1178,7 +1173,12 @@ export function ChatPanel({
   // harness rewrites it in place all run long, and as the first item of an
   // auto-scrolling list it was off screen for nearly all of that.
   const plan = items.findLast((it): it is PlanItem => it.kind === "plan");
-  const transcript = plan ? items.filter((it) => it.kind !== "plan") : items;
+  // Pending actions stay at the tail even when history arrives after them.
+  // Answered cards retain their original position in the transcript.
+  const transcript = [
+    ...items.filter((item) => item.kind !== "plan" && !isOpenAsk(item)),
+    ...items.filter(isOpenAsk),
+  ];
   const turns = plan && planTurns(plan.entries);
 
   const parked = explanatoryCondition(status?.conditions);
@@ -1531,161 +1531,6 @@ function SteerStatus({ steer }: { steer: SteerState }) {
   }
 }
 
-// ------------------------------------------------------------ usage badge
-
-const compactNumber = new Intl.NumberFormat(undefined, {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
-function formatCost(amount: number, currency?: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currency || "USD",
-      maximumFractionDigits: amount < 1 ? 4 : 2,
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(4)} ${currency ?? ""}`.trim();
-  }
-}
-
-/**
- * Turns, context occupancy and cost — the run's whole spend on one header
- * line, in the three units the run limits are set in.
- *
- * The turn count is the harness's, taken from the task rung's published
- * fields (agentic-controller#268) and never tallied here. This connection
- * only sees the responses that arrived while it was attached, so counting
- * them gives a late viewer a smaller number than the one maxTurns is
- * actually measured against — and the plan rung sitting directly below the
- * header would be saying the other one.
- */
-function UsageBadge({
-  usage,
-  turns,
-}: {
-  usage: RunUsage;
-  turns?: Pick<PlanRungMeta, "turnsUsed" | "maxTurns">;
-}) {
-  const { t } = useTranslation();
-  const cost = usage.cost ?? usage.summedCost;
-  const costText = cost === undefined ? null : formatCost(cost, usage.currency);
-  const { used, contextLimit } = usage;
-  const limitText = contextLimit ? compactNumber.format(contextLimit) : null;
-  const turnsText =
-    turns?.turnsUsed === undefined
-      ? null
-      : turns.maxTurns
-        ? t("agentic.chat.usageChipTurnOf", {
-            turn: turns.turnsUsed,
-            max: turns.maxTurns,
-          })
-        : t("agentic.chat.usageChipTurn", { turn: turns.turnsUsed });
-  const contextText =
-    used === undefined
-      ? limitText && t("agentic.chat.usageChipLimit", { limit: limitText })
-      : limitText
-        ? t("agentic.chat.usageChipContext", {
-            used: compactNumber.format(used),
-            limit: limitText,
-          })
-        : t("agentic.chat.usageChipUsed", { used: compactNumber.format(used) });
-  const parts = [turnsText, contextText, costText].filter(Boolean);
-  if (parts.length === 0) return null;
-  return (
-    <Tooltip
-      content={
-        <div>
-          {turns?.turnsUsed !== undefined && (
-            <div>
-              {turns.maxTurns
-                ? t("agentic.chat.usageTurnsOf", {
-                    turn: turns.turnsUsed,
-                    max: turns.maxTurns,
-                  })
-                : t("agentic.chat.usageTurns", { turn: turns.turnsUsed })}
-            </div>
-          )}
-          <div>
-            {used === undefined
-              ? contextLimit
-                ? t("agentic.chat.usageContextUnreported", {
-                    limit: contextLimit.toLocaleString(),
-                  })
-                : null
-              : contextLimit
-                ? t("agentic.chat.usageContext", {
-                    used: used.toLocaleString(),
-                    limit: contextLimit.toLocaleString(),
-                    percent: Math.round((used / contextLimit) * 100),
-                  })
-                : t("agentic.chat.usageContextUnbounded", {
-                    used: used.toLocaleString(),
-                  })}
-          </div>
-          {usage.inputTokens !== undefined &&
-            usage.outputTokens !== undefined && (
-              <div>
-                {t("agentic.chat.usageTokens", {
-                  input: usage.inputTokens.toLocaleString(),
-                  output: usage.outputTokens.toLocaleString(),
-                })}
-              </div>
-            )}
-          {costText && (
-            <div>{t("agentic.chat.usageCost", { amount: costText })}</div>
-          )}
-        </div>
-      }
-    >
-      <Label
-        isCompact
-        variant="outline"
-        icon={<TachometerAltIcon />}
-        aria-label={t("agentic.chat.usage")}
-      >
-        {parts.join(" · ")}
-      </Label>
-    </Tooltip>
-  );
-}
-
-// ---------------------------------------------------------- finished run
-
-/**
- * Turns and context the harness reports spending before the run ended --
- * the measure of whether the agent did any work before it failed.
- */
-function TerminationUsage({
-  usage,
-}: {
-  usage?: HarnessTerminationData["usage"];
-}) {
-  const { t } = useTranslation();
-  const turns = usage?.turnsUsed;
-  const used = usage?.contextUsed;
-  const size = usage?.contextSize;
-  const parts = [
-    typeof turns === "number"
-      ? t("agentic.chat.failureUsageTurns", { count: turns })
-      : null,
-    typeof used !== "number"
-      ? null
-      : size
-        ? t("agentic.chat.usageContext", {
-            used: used.toLocaleString(),
-            limit: size.toLocaleString(),
-            percent: Math.round((used / size) * 100),
-          })
-        : t("agentic.chat.usageContextUnbounded", {
-            used: used.toLocaleString(),
-          }),
-  ].filter(Boolean);
-  if (parts.length === 0) return null;
-  return <div className="chat-meta">{parts.join(" · ")}</div>;
-}
-
 /**
  * What the panel says once the run is over. The phase sets the tone: a
  * failed run's reason is the whole point of the panel at that moment and
@@ -1930,7 +1775,7 @@ interface SkillLoad {
 function skillLoadOf(
   item: Pick<ToolItem, "title" | "input">
 ): SkillLoad | undefined {
-  const name = item.input?.name;
+  const name = isRecord(item.input) ? item.input.name : undefined;
   if (typeof name !== "string" || !name.trim()) return undefined;
   if (!/^load_skill\b/i.test(item.title) && !/skill/i.test(item.title)) {
     return undefined;
@@ -2065,6 +1910,20 @@ function PinnedPlan({
   );
 }
 
+/** Render only the arguments supplied by ACP, as text rather than markup. */
+function ToolInput({ input }: { input: unknown }) {
+  const { t } = useTranslation();
+  if (input == null) return null;
+  return (
+    <div className="chat-tool-input">
+      <strong>{t("agentic.chat.toolInput")}</strong>
+      <pre className="chat-tool-detail">
+        {typeof input === "string" ? input : JSON.stringify(input, null, 2)}
+      </pre>
+    </div>
+  );
+}
+
 function ChatItemView({
   item,
   botName,
@@ -2169,9 +2028,12 @@ function ChatItemView({
               </span>
             ),
             body: (
-              <pre className="chat-tool-detail">
-                {item.detail || t("agentic.chat.noOutputYet")}
-              </pre>
+              <>
+                <ToolInput input={item.input} />
+                <pre className="chat-tool-detail">
+                  {item.detail || t("agentic.chat.noOutputYet")}
+                </pre>
+              </>
             ),
           }}
         />
@@ -2212,6 +2074,7 @@ function ChatItemView({
               ? t("agentic.chat.permissionRequestedFor", { title: item.title })
               : t("agentic.chat.permissionRequested")}
           </div>
+          <ToolInput input={item.input} />
           {item.diffs?.map((d) => (
             <DiffPreview key={d.path} diff={d} />
           ))}
