@@ -218,6 +218,8 @@ export interface AcpConnectOptions {
   url: string;
   callbacks?: AcpSessionCallbacks;
   logger?: AcpLogger;
+  /** Cancels opening/initialization; the caller owns the returned session. */
+  signal?: AbortSignal;
 }
 
 // ---------------------------------------------------------------- JSON-RPC
@@ -339,24 +341,37 @@ export class AcpSession {
    * read from the agent's advertised capabilities.
    */
   static async connect(opts: AcpConnectOptions): Promise<AcpSession> {
+    if (opts.signal?.aborted) throw opts.signal.reason;
     const logger = opts.logger ?? NOOP_LOGGER;
     const socket = new WebSocket(opts.url);
     const session = new AcpSession(socket, opts.callbacks ?? {}, logger);
-    if (socket.readyState !== WebSocket.OPEN) {
-      await session.openPromise;
+    const onAbort = () => void session.close();
+    opts.signal?.addEventListener("abort", onAbort, { once: true });
+    try {
+      if (socket.readyState !== WebSocket.OPEN) {
+        await session.openPromise;
+      }
+      logger.info(`AcpSession: connected ${opts.url}, initializing`);
+      const initialized = await session.request<InitializeResult>(
+        "initialize",
+        {
+          protocolVersion: PROTOCOL_VERSION,
+          clientCapabilities: {},
+        }
+      );
+      session._loadSessionSupported =
+        initialized?.agentCapabilities?.loadSession === true;
+      logger.info(
+        `AcpSession: initialized protocol v${initialized?.protocolVersion ?? "?"}, ` +
+          `loadSession=${session._loadSessionSupported}`
+      );
+      return session;
+    } catch (err) {
+      await session.close();
+      throw err;
+    } finally {
+      opts.signal?.removeEventListener("abort", onAbort);
     }
-    logger.info(`AcpSession: connected ${opts.url}, initializing`);
-    const initialized = await session.request<InitializeResult>("initialize", {
-      protocolVersion: PROTOCOL_VERSION,
-      clientCapabilities: {},
-    });
-    session._loadSessionSupported =
-      initialized?.agentCapabilities?.loadSession === true;
-    logger.info(
-      `AcpSession: initialized protocol v${initialized?.protocolVersion ?? "?"}, ` +
-        `loadSession=${session._loadSessionSupported}`
-    );
-    return session;
   }
 
   get sessionId(): string | null {
@@ -512,6 +527,7 @@ export class AcpSession {
   private async handleMessageEvent(event: MessageEvent): Promise<void> {
     if (this.closed) return;
     const text = await toText(event.data);
+    if (this.closed) return;
     if (text === undefined) {
       this.logger.warn("AcpSession: ignoring non-text WebSocket frame");
       return;

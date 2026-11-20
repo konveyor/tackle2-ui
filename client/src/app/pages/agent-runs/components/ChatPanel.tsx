@@ -221,6 +221,14 @@ type ChatItem =
   | StatusItem
   | ErrorItem;
 
+/** A pending human action must stay reachable below replayed history. */
+function isOpenAsk(item: ChatItem): boolean {
+  return (
+    (item.kind === "permission" && item.chosen === undefined) ||
+    (item.kind === "ask" && item.outcome === undefined)
+  );
+}
+
 /** The agent's active turn, as goose announces it on the run's session. */
 interface ActiveRun {
   runId: string;
@@ -300,6 +308,7 @@ async function dialAcp(opts: {
   const session = await AcpSession.connect({
     url: await opts.getUrl(),
     callbacks: opts.callbacks,
+    signal: opts.signal,
   });
   if (opts.signal.aborted) {
     void session.close();
@@ -821,6 +830,24 @@ export function ChatPanel({
     const abort = new AbortController();
     const live = () => !abort.signal.aborted;
     let localSession: AcpSession | null = null;
+    const mark = idRef.current;
+    let replay: { update: SessionUpdate; sessionId: string }[] | null = null;
+
+    // These promises belong to the closing socket. Settling them releases
+    // the transport handlers; a closed AcpSession never sends their replies.
+    // Do this before a replacement connection can register its own asks.
+    const retireAsks = () => {
+      for (const resolve of permissionResolvers.current.values()) {
+        resolve({ outcome: { outcome: "cancelled" } });
+      }
+      permissionResolvers.current.clear();
+      for (const resolve of askResolvers.current.values()) {
+        resolve({ action: "cancel" });
+      }
+      askResolvers.current.clear();
+      askAcpIds.current.clear();
+      setItems((prev) => prev.filter((item) => !isOpenAsk(item)));
+    };
 
     // Drop on a live run: auto-reconnect (bounded), else surface it.
     const handleDrop = () => {
@@ -846,6 +873,7 @@ export function ChatPanel({
     const handleClosed = async () => {
       setSession(null);
       if (!live()) return;
+      retireAsks();
       setConn({ kind: "ending" });
       try {
         for (let i = 0; i < END_CHECK_TRIES; i++) {
@@ -870,18 +898,27 @@ export function ChatPanel({
     };
 
     const connect = async () => {
-      // The tee can replay pending asks before initialize returns. Reset
-      // before dialing so those cards survive the subsequent history replay.
-      setItems([]);
       localSession = await dialAcp({
         getUrl: async () =>
           getAgenticAcpUrl(runName, (await mintAcpNonce(runName)) ?? undefined),
         signal: abort.signal,
         callbacks: {
-          onUpdate: handleUpdate,
-          onPermissionRequest: handlePermission,
-          onElicitation: handleElicitation,
-          onAskResolved: handleAskResolved,
+          onUpdate: (update, sessionId) => {
+            if (!live()) return;
+            if (replay) replay.push({ update, sessionId });
+            else handleUpdate(update, sessionId);
+          },
+          onPermissionRequest: (request) =>
+            live()
+              ? handlePermission(request)
+              : Promise.resolve({ outcome: { outcome: "cancelled" } }),
+          onElicitation: (request) =>
+            live()
+              ? handleElicitation(request)
+              : Promise.resolve({ action: "cancel" }),
+          onAskResolved: (id, result) => {
+            if (live()) handleAskResolved(id, result);
+          },
         },
         onAttempt: () => {
           if (live()) setConn({ kind: "connecting" });
@@ -894,24 +931,41 @@ export function ChatPanel({
       let sessionId: string;
       const prior = lastSessionIdRef.current;
       if (prior && localSession.loadSessionSupported) {
+        // Stage updates until load succeeds: failed loads must retain the
+        // old transcript, and replay must not merge into its old items.
+        // Asks bypass this buffer so they remain actionable during load.
+        const updates: NonNullable<typeof replay> = [];
+        replay = updates;
         try {
           await localSession.loadSession(prior);
           sessionId = prior;
+          // The tee can send new asks/status before initialize returns.
+          // Keep those items when replacing only the previous transcript.
+          if (live()) setItems((prev) => prev.filter((item) => item.id > mark));
         } catch {
           sessionId = await localSession.newSession();
+        } finally {
+          replay = null;
+          if (live()) {
+            for (const { update, sessionId } of updates) {
+              handleUpdate(update, sessionId);
+            }
+          }
         }
       } else {
         sessionId = await localSession.newSession();
       }
+      if (!live()) return;
       lastSessionIdRef.current = sessionId;
-      if (live()) {
-        setSession(localSession);
-        setConn({ kind: "connected", sessionId });
-      }
+      setSession(localSession);
+      setConn({ kind: "connected", sessionId });
     };
 
     connect().catch((err) => {
-      if (live()) setConn({ kind: "failed", message: errorMessage(err) });
+      if (!live()) return;
+      if (localSession) void localSession.close();
+      retireAsks();
+      setConn({ kind: "failed", message: errorMessage(err) });
     });
 
     return () => {
@@ -919,6 +973,7 @@ export function ChatPanel({
       const s = sessionRef.current ?? localSession;
       sessionRef.current = null;
       if (s) void s.close();
+      retireAsks();
       setSession(null);
     };
   }, [
@@ -939,11 +994,7 @@ export function ChatPanel({
   // and the run stuck waiting. Block the composer until every card above is
   // answered. A card resolved elsewhere (timeout, or another viewer) carries
   // an outcome/chosen too, so it stops gating the moment it closes.
-  const hasOpenAsk = items.some(
-    (it) =>
-      (it.kind === "permission" && !it.chosen) ||
-      (it.kind === "ask" && !it.outcome)
-  );
+  const hasOpenAsk = items.some(isOpenAsk);
 
   // Redirect the agent: goose steer on the RUN's session, relayed by the
   // harness tee onto the run connection (rejected there with -32601 when
@@ -1062,7 +1113,12 @@ export function ChatPanel({
   // harness rewrites it in place all run long, and as the first item of an
   // auto-scrolling list it was off screen for nearly all of that.
   const plan = items.findLast((it): it is PlanItem => it.kind === "plan");
-  const transcript = plan ? items.filter((it) => it.kind !== "plan") : items;
+  // Pending actions stay at the tail even when history arrives after them.
+  // Answered cards retain their original position in the transcript.
+  const transcript = [
+    ...items.filter((item) => item.kind !== "plan" && !isOpenAsk(item)),
+    ...items.filter(isOpenAsk),
+  ];
   const turns = plan && planTurns(plan.entries);
 
   const parked = explanatoryCondition(status?.conditions);
@@ -1747,7 +1803,7 @@ function PinnedPlan({ entries }: { entries: PlanEntry[] }) {
 /** Render only the arguments supplied by ACP, as text rather than markup. */
 function ToolInput({ input }: { input: unknown }) {
   const { t } = useTranslation();
-  if (input === undefined) return null;
+  if (input == null) return null;
   return (
     <div className="chat-tool-input">
       <strong>{t("agentic.chat.toolInput")}</strong>
