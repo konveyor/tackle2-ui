@@ -76,7 +76,9 @@ describe("ParameterFields", () => {
       <FormWrapper params={[{ name: "env", type: "string", default: "dev" }]} />
     );
     expect(document.getElementById("params-name-0")).toBeInTheDocument();
-    expect(document.getElementById("params-type-0")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "terms.type" })
+    ).toBeInTheDocument();
     expect(document.getElementById("params-value-0")).toBeInTheDocument();
   });
 
@@ -87,19 +89,16 @@ describe("ParameterFields", () => {
         params={[{ name: "flag", type: "boolean", default: "true" }]}
       />
     );
-    const select = document.getElementById(
-      "params-value-0"
-    ) as HTMLSelectElement;
-    expect(select.tagName).toBe("SELECT");
-    const visibleOptions = Array.from(select.options)
-      .filter((option) => !option.hidden)
-      .map((option) => option.value);
-    expect(visibleOptions).toEqual(["true", "false"]);
-    // The placeholder is shown when nothing is chosen but is not selectable.
-    expect(select.options[0].value).toBe("");
-    expect(select.options[0].hidden).toBe(true);
-    expect(select.options[0].disabled).toBe(true);
-    expect(select.value).toBe("true");
+    const toggle = screen.getByRole("button", { name: "terms.defaultValue" });
+    expect(toggle).toHaveTextContent("generatorParameters.true");
+    fireEvent.click(toggle);
+    expect(
+      screen.getByRole("option", { name: "generatorParameters.true" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "generatorParameters.false" })
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("option")).toHaveLength(2);
   });
 
   // Changing the type must re-validate the default and surface the error
@@ -110,10 +109,10 @@ describe("ParameterFields", () => {
         params={[{ name: "env", type: "string", default: "dev" }]}
       />
     );
-    const typeSelect = document.getElementById(
-      "params-type-0"
-    ) as HTMLSelectElement;
-    fireEvent.change(typeSelect, { target: { value: "number" } });
+    fireEvent.click(screen.getByRole("button", { name: "terms.type" }));
+    fireEvent.click(
+      screen.getByRole("option", { name: "parameterType.number" })
+    );
     expect(await screen.findByText("Invalid default")).toBeInTheDocument();
   });
 
@@ -124,11 +123,15 @@ describe("ParameterFields", () => {
         params={[{ name: "env", type: "string", default: "" }]}
       />
     );
-    const typeSelect = document.getElementById(
-      "params-type-0"
-    ) as HTMLSelectElement;
-    fireEvent.change(typeSelect, { target: { value: "number" } });
-    await waitFor(() => expect(typeSelect.value).toBe("number"));
+    fireEvent.click(screen.getByRole("button", { name: "terms.type" }));
+    fireEvent.click(
+      screen.getByRole("option", { name: "parameterType.number" })
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "terms.type" })
+      ).toHaveTextContent("parameterType.number")
+    );
     expect(screen.queryByText("Invalid default")).not.toBeInTheDocument();
   });
 
@@ -140,17 +143,14 @@ describe("ParameterFields", () => {
         params={[{ name: "flag", type: "string", default: "dev" }]}
       />
     );
-    const typeSelect = document.getElementById(
-      "params-type-0"
-    ) as HTMLSelectElement;
-    fireEvent.change(typeSelect, { target: { value: "boolean" } });
-    await waitFor(() => {
-      const select = document.getElementById(
-        "params-value-0"
-      ) as HTMLSelectElement;
-      expect(select.tagName).toBe("SELECT");
-      expect(select.value).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "terms.type" }));
+    fireEvent.click(
+      screen.getByRole("option", { name: "parameterType.boolean" })
+    );
+    const defaultToggle = await screen.findByRole("button", {
+      name: "terms.defaultValue",
     });
+    expect(defaultToggle).toHaveTextContent("composed.selectOne");
     expect(screen.queryByText("Invalid default")).not.toBeInTheDocument();
   });
 });

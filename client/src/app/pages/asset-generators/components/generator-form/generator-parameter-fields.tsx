@@ -4,8 +4,6 @@ import { useTranslation } from "react-i18next";
 import {
   Bullseye,
   Button,
-  FormSelect,
-  FormSelectOption,
   Grid,
   GridItem,
   Tooltip,
@@ -13,6 +11,8 @@ import {
 import { MinusCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput as InputField,
@@ -71,10 +71,17 @@ export const ParameterFields = forwardRef<
                 fieldId={`${name}-type-${index}`}
                 isRequired
                 renderInput={({ field: { value, onChange } }) => (
-                  <FormSelect
-                    id={`${name}-type-${index}`}
+                  <SimpleSelect
+                    toggleId={`${name}-type-${index}`}
+                    toggleAriaLabel={t("terms.type")}
                     value={value}
-                    onChange={(_e, selection) => {
+                    options={PARAMETER_TYPES.map(
+                      (pt): FilterSelectOptionProps => ({
+                        value: pt,
+                        label: t(`parameterType.${pt}`),
+                      })
+                    )}
+                    onSelect={(selection) => {
                       onChange(selection);
                       // Re-validate the default against the new type — the form
                       // only re-validates the field that changed, so a stale
@@ -104,15 +111,7 @@ export const ParameterFields = forwardRef<
                         shouldValidate: true,
                       });
                     }}
-                  >
-                    {PARAMETER_TYPES.map((pt) => (
-                      <FormSelectOption
-                        key={pt}
-                        value={pt}
-                        label={t(`parameterType.${pt}`)}
-                      />
-                    ))}
-                  </FormSelect>
+                  />
                 )}
               />
             </GridItem>
@@ -125,30 +124,22 @@ export const ParameterFields = forwardRef<
                   fieldId={`${name}-value-${index}`}
                   isRequired
                   renderInput={({ field: { value, onChange } }) => (
-                    <FormSelect
-                      id={`${name}-value-${index}`}
+                    <SimpleSelect
+                      toggleId={`${name}-value-${index}`}
+                      toggleAriaLabel={t("terms.defaultValue")}
                       value={value}
-                      aria-label={t("terms.defaultValue")}
-                      onChange={(_e, selection) => onChange(selection)}
-                    >
-                      <FormSelectOption
-                        value=""
-                        label={t("composed.selectOne", {
-                          what: t("terms.defaultValue").toLowerCase(),
-                        })}
-                        isDisabled
-                        hidden
-                        isPlaceholder
-                      />
-                      <FormSelectOption
-                        value="true"
-                        label={t("generatorParameters.true")}
-                      />
-                      <FormSelectOption
-                        value="false"
-                        label={t("generatorParameters.false")}
-                      />
-                    </FormSelect>
+                      options={[
+                        { value: "true", label: t("generatorParameters.true") },
+                        {
+                          value: "false",
+                          label: t("generatorParameters.false"),
+                        },
+                      ]}
+                      placeholderText={t("composed.selectOne", {
+                        what: t("terms.defaultValue").toLowerCase(),
+                      })}
+                      onSelect={(selection) => onChange(selection)}
+                    />
                   )}
                 />
               ) : (
