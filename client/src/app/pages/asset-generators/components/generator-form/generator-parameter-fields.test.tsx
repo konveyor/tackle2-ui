@@ -1,6 +1,6 @@
 import React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -34,9 +34,11 @@ const defaultMatchesType = yup.object({
       default: yup
         .string()
         .test("default-matches-type", "Invalid default", function (value) {
+          const trimmed = (value ?? "").trim();
+          if (trimmed === "") return true;
           const type = (this.parent as { type?: string }).type;
           if (type === "number") {
-            return /^-?\d+(\.\d+)?$/.test((value ?? "").trim());
+            return /^-?\d+(\.\d+)?$/.test(trimmed);
           }
           return true;
         }),
@@ -114,25 +116,6 @@ describe("ParameterFields", () => {
       screen.getByRole("option", { name: "parameterType.number" })
     );
     expect(await screen.findByText("Invalid default")).toBeInTheDocument();
-  });
-
-  // Choosing a type before typing a default must not raise the required error.
-  it("does not show a default error when only the type is chosen", async () => {
-    render(
-      <ValidatedFormWrapper
-        params={[{ name: "env", type: "string", default: "" }]}
-      />
-    );
-    fireEvent.click(screen.getByRole("button", { name: "terms.type" }));
-    fireEvent.click(
-      screen.getByRole("option", { name: "parameterType.number" })
-    );
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "terms.type" })
-      ).toHaveTextContent("parameterType.number")
-    );
-    expect(screen.queryByText("Invalid default")).not.toBeInTheDocument();
   });
 
   // A boolean row only offers true/false, so a non-boolean default is cleared

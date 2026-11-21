@@ -30,9 +30,8 @@ describe("parametersToSchema", () => {
   });
 
   it("omits the default when a row has not been filled in yet (blank value)", () => {
-    // A freshly added row has an empty default until the user types one.
-    // The form blocks saving such a row, but the converter must still cope
-    // with the blank state and simply leave `default` out of the schema.
+    // A freshly added row has an empty default until the user types one; a
+    // blank default means "no default", so the schema leaves it out.
     const rows = [
       { name: "env", type: "string", default: "" },
     ] as GeneratorParameter[];
@@ -92,9 +91,10 @@ describe("defaultValueError", () => {
     expect(defaultValueError("anything", "string")).toBeNull();
   });
 
-  it("rejects a blank value as required", () => {
-    expect(defaultValueError("", "number")).toBe("validation.required");
-    expect(defaultValueError("   ", "boolean")).toBe("validation.required");
+  it("treats a blank value as no default", () => {
+    expect(defaultValueError("", "number")).toBeNull();
+    expect(defaultValueError("   ", "boolean")).toBeNull();
+    expect(defaultValueError("", "string")).toBeNull();
   });
 });
 

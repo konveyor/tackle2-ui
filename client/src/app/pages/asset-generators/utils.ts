@@ -95,15 +95,15 @@ export const schemaToParameters = (
 
 /**
  * Validates a default value for a parameter. Returns an i18n key describing the
- * problem, or null when the value is valid. A blank value is invalid (the value
- * is required).
+ * problem, or null when the value is valid. A blank value means no default and
+ * is valid; a number must be a valid number.
  */
 export const defaultValueError = (
   value: string,
   type: ParameterType
 ): string | null => {
   const trimmed = value.trim();
-  if (trimmed === "") return "validation.required";
+  if (trimmed === "") return null;
   if (type === "number") {
     return /^-?\d+(\.\d+)?$/.test(trimmed) ? null : "validation.mustBeNumber";
   }

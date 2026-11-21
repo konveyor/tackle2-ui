@@ -31,7 +31,7 @@ export const ParameterFields = forwardRef<
   ParameterFieldsProps
 >(({ noParametersMessage, removeLabel, name }, ref) => {
   const { t } = useTranslation();
-  const { clearErrors, control, getValues, setValue } = useFormContext();
+  const { control, getValues, setValue } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name });
   // useWatch reads the stored values and re-renders when they change, so the
   // default field can become the true/false select.
@@ -87,7 +87,7 @@ export const ParameterFields = forwardRef<
                       // only re-validates the field that changed, so a stale
                       // default would otherwise go unnoticed until submit.
                       // Switching to boolean also clears a value the select
-                      // cannot hold.
+                      // cannot hold; a blank default is valid.
                       const defaultPath = `${name}.${index}.default`;
                       const current = getValues(defaultPath);
                       const isBooleanValue =
@@ -96,16 +96,6 @@ export const ParameterFields = forwardRef<
                         selection === "boolean" && !isBooleanValue
                           ? ""
                           : current;
-
-                      if (nextDefault === "") {
-                        // Don't validate a blank default: the default has not
-                        // been filled in yet.
-                        if (current !== "") {
-                          setValue(defaultPath, "");
-                          clearErrors(defaultPath);
-                        }
-                        return;
-                      }
                       void setValue(defaultPath, nextDefault, {
                         shouldTouch: true,
                         shouldValidate: true,
@@ -122,7 +112,6 @@ export const ParameterFields = forwardRef<
                   name={`${name}.${index}.default`}
                   label={t("terms.defaultValue")}
                   fieldId={`${name}-value-${index}`}
-                  isRequired
                   renderInput={({ field: { value, onChange } }) => (
                     <SimpleSelect
                       toggleId={`${name}-value-${index}`}
@@ -148,7 +137,6 @@ export const ParameterFields = forwardRef<
                   name={`${name}.${index}.default`}
                   label={t("terms.defaultValue")}
                   fieldId={`${name}-value-${index}`}
-                  isRequired
                 />
               )}
             </GridItem>
