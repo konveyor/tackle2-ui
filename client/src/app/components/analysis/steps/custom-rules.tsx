@@ -221,7 +221,8 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
         )}
       />
 
-      {activeTabKey === 0 && (
+      {/* Keep the table mounted so its filter state survives tab switches */}
+      <div hidden={activeTabKey !== 0}>
         <CustomRulesTable
           customRulesFiles={customRulesFiles}
           onAddRulesFiles={() => onShowUploadFiles(true)}
@@ -234,7 +235,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
             setValue("customLabels", currentFileLabels);
           }}
         />
-      )}
+      </div>
 
       {activeTabKey === 1 && (
         <>
