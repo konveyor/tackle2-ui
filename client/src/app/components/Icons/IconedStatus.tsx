@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Icon } from "@patternfly/react-core";
+import { Icon, Truncate } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -12,6 +12,7 @@ import {
 } from "@patternfly/react-icons";
 
 import { IconWithLabel } from "./IconWithLabel";
+import { MIDDLE_TRUNCATE_TRAILING_CHARS } from "./truncation";
 
 export type IconedStatusPreset =
   | "InheritedReviews"
@@ -147,6 +148,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     },
   };
   const presetProps = preset && presets[preset];
+  const resolvedLabel = label || presetProps?.label;
 
   return (
     <IconWithLabel
@@ -156,7 +158,21 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
           {icon || presetProps?.icon || <UnknownIcon />}
         </Icon>
       }
-      label={label || presetProps?.label}
+      label={
+        /* Status cells are narrow enough that even these short labels overflow
+           at common window widths -- ellipsize rather than slice a glyph. The
+           tooltip `Truncate` opens while cut is the only way to read the rest,
+           so it is left on here. */
+        typeof resolvedLabel === "string" ? (
+          <Truncate
+            content={resolvedLabel}
+            position="middle"
+            trailingNumChars={MIDDLE_TRUNCATE_TRAILING_CHARS}
+          />
+        ) : (
+          resolvedLabel
+        )
+      }
       trailingItemTooltipMessage={presetProps?.tooltipMessage}
       trailingItem={presetProps?.topologyIcon}
     />

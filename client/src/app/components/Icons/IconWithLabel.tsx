@@ -3,6 +3,13 @@ import { Flex, FlexItem } from "@patternfly/react-core";
 
 import { OptionalTooltip } from "./OptionalTooltip";
 
+/**
+ * Lays an icon out beside a label, with optional tooltips and a trailing item.
+ *
+ * The row is `nowrap`, so an overlong `label` overflows its cell. How to handle
+ * that is the caller's choice -- wrap the label in a `Truncate`, or let it wrap
+ * with `pf-v6-u-text-wrap` -- since the right strategy differs per column.
+ */
 export const IconWithLabel: FC<{
   iconTooltipMessage?: string;
   icon: ReactElement;
