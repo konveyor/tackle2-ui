@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { Identity } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
@@ -17,8 +17,8 @@ export const KindSimpleUsernamePasswordForm: React.FC<{
   passwordLabel = "Password",
   passwordRequired = true,
 }) => {
-  const { control, getValues, resetField } = useFormContext();
-  const values = getValues();
+  const { control, resetField } = useFormContext();
+  const password = useWatch({ control, name: "password" });
 
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
   const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
@@ -27,7 +27,7 @@ export const KindSimpleUsernamePasswordForm: React.FC<{
     setIsPasswordHidden(!isPasswordHidden);
   };
 
-  const isPasswordEncrypted = identity?.password === values.password;
+  const isPasswordEncrypted = identity?.password === password;
 
   return (
     <>
