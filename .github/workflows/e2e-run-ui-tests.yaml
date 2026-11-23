@@ -239,7 +239,7 @@ jobs:
             2>/dev/null | grep -E '^(ui-|agent-|sandbox-)' || true); do
             echo "--- $p"
             kubectl -n konveyor-tackle logs "$p" --all-containers \
-              --tail=200 --prefix 2>&1 | tail -200 || true
+              --tail=200 --prefix 2>&1 || true
           done
           echo "::endgroup::"
 
