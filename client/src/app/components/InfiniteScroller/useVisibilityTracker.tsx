@@ -1,58 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
-  const nodeRef = useRef<HTMLDivElement>(null);
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+  const nodeRef = useCallback((el: HTMLDivElement | null) => setNode(el), []);
   const [visible, setVisible] = useState<boolean | undefined>(false);
-  const node = nodeRef.current;
-
-  // state is set from IntersectionObserver callbacks which may not align with React lifecycle
-  // we can add extra safety by using the same approach as Console's useSafetyFirst() hook
-  // https://github.com/openshift/console/blob/9d4a9b0a01b2de64b308f8423a325f1fae5f8726/frontend/packages/console-dynamic-plugin-sdk/src/app/components/safety-first.tsx#L10
-  const mounted = useRef(true);
-  useEffect(
-    () => () => {
-      mounted.current = false;
-    },
-    []
-  );
-  const setVisibleSafe = useCallback((newValue?: boolean) => {
-    if (mounted.current) {
-      setVisible(newValue);
-    }
-  }, []);
 
   useEffect(() => {
-    if (enable && !node) {
-      // use falsy value different than initial value - state change will trigger render()
-      // otherwise we need to wait for the next render() to read node ref
-      setVisibleSafe(undefined);
-      return undefined;
-    }
-
     if (!enable || !node) {
       return undefined;
     }
 
-    // Observer with default options - the whole view port used.
-    // Note that if root element is used then it needs to be the ancestor of the target.
-    // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#root
     const observer = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]) =>
         entries.forEach(({ isIntersecting }) => {
-          if (isIntersecting) {
-            setVisibleSafe(true);
-          } else {
-            setVisibleSafe(false);
-          }
+          setVisible(isIntersecting);
         })
     );
     observer.observe(node);
 
     return () => {
       observer.disconnect();
-      setVisibleSafe(false);
+      setVisible(false);
     };
-  }, [enable, node, setVisibleSafe]);
+  }, [enable, node]);
 
   return {
     /**
@@ -60,8 +30,8 @@ export function useVisibilityTracker({ enable }: { enable: boolean }) {
      */
     visible,
     /**
-     * A ref to a node whose visibility will be tracked.  This should be set as a ref to a
-     * relevant dom element by the component using this hook.
+     * A callback ref to a node whose visibility will be tracked. This should
+     * be set as a ref to a relevant DOM element by the component using this hook.
      */
     nodeRef,
   };

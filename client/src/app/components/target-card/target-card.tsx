@@ -80,17 +80,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     }
   };
 
-  const TargetLogo = () => (
-    <img
-      src={imageDataUrl || DefaultImage}
-      alt="Card logo"
-      style={{ height: 80, pointerEvents: "none" }}
-      onError={(e) => {
-        e.currentTarget.src = DefaultImage;
-      }}
-    />
-  );
-
   const { labelChoices, labelOptions } = React.useMemo(() => {
     const labelChoices: TargetLabel[] =
       target.choice || forceSelect.includes(target.name)
@@ -159,7 +148,14 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         <Stack hasGutter>
           <StackItem>
             <Bullseye>
-              <TargetLogo />
+              <img
+                src={imageDataUrl || DefaultImage}
+                alt="Card logo"
+                style={{ height: 80, pointerEvents: "none" }}
+                onError={(e) => {
+                  e.currentTarget.src = DefaultImage;
+                }}
+              />
             </Bullseye>
           </StackItem>
           <StackItem>

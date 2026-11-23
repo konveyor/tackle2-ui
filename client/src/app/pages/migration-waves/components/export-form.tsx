@@ -1,7 +1,7 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -81,7 +81,6 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    watch,
     setValue,
     control,
   } = useForm<FormValues>({
@@ -95,17 +94,17 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     mode: "all",
   });
 
-  const values = watch();
+  const values = useWatch({ control });
 
-  const projectsByTracker = useTrackerProjectsByTracker(values.tracker);
+  const projectsByTracker = useTrackerProjectsByTracker(values.tracker ?? "");
 
   const matchingProject = projectsByTracker.find(
     (project) => values.project === project.name
   );
 
   const typesByProject = useTrackerTypesByProjectName(
-    values.tracker,
-    values.project
+    values.tracker ?? "",
+    values.project ?? ""
   );
   const matchingKind = typesByProject.find((type) => values.kind === type.name);
 

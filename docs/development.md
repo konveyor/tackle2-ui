@@ -6,6 +6,14 @@ This document describes the process for running and developing tackle2-ui on you
 
 Tackle2-ui can be developed using macOS(x86_64 only) or Linux environments.
 
+## Linting
+
+ESLint configuration lives in `eslint.config.mjs`; shared lint packages and plugins are managed in the root `package.json` and `package-lock.json`.
+
+After updating lint dependencies, run `npm run lint -w client`. Inspect warnings even when the command succeeds: the client lint script permits up to 20 warnings.
+
+The shared test provider keeps its fallback `QueryClient` in lazy `useState` so rerenders retain the query cache, as required by `@tanstack/query/stable-query-client`.
+
 ## File Naming Conventions
 
 - Use kebab-case for file names.
