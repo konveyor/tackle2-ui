@@ -132,9 +132,9 @@ jobs:
             IMAGE_TAG="latest"
             OPERATOR_VERSION="main"
           elif [[ "$TARGET" == "release-0.10" ]]; then
-            # MTA 8.2 corresponds to operator v0.10.0-beta.1
-            IMAGE_TAG="v0.10.0-beta.1"
-            OPERATOR_VERSION="v0.10.0-beta.1"
+            # MTA 8.2 corresponds to operator branch release-0.10
+            IMAGE_TAG="release-0.10"
+            OPERATOR_VERSION="release-0.10"
           elif [[ "$TARGET" == "release-0.11" ]]; then
             # MTA 8.3 corresponds to operator v0.11.0-beta.1
             IMAGE_TAG="v0.11.0-beta.1"
