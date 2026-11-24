@@ -37,6 +37,7 @@ import {
   SOURCE_APPLICATION_REPOSITORY_URL,
   defaultTargetBranch,
   parseSourcesAnnotation,
+  runHubCoordinates,
 } from "@app/api/agentic/contract";
 import type { Application } from "@app/api/models";
 import { useEffectiveSourceCredential } from "@app/hooks/useEffectiveSourceCredential";
@@ -51,6 +52,7 @@ import {
   paramValueInvalidReason,
 } from "@app/pages/agent-runs/components/ParamFields";
 import { readyCondition } from "@app/pages/agent-runs/components/ReadyLabel";
+import { ReusePreviousBranch } from "@app/pages/agent-runs/components/ReusePreviousBranch";
 import { RunSkillsSummary } from "@app/pages/agent-runs/components/RunSkillsSummary";
 import { useCreateAgentRunMutation } from "@app/queries/agent-runs";
 import { useFetchGateways } from "@app/queries/agentic-catalog";
@@ -169,6 +171,14 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
     () => prefill?.spec.instructions ?? ""
   );
   const [targetBranch, setTargetBranch] = useState(() => defaultTargetBranch());
+  /**
+   * Branch the seeding run pushed to. Not reused as the default — see
+   * ReusePreviousBranch — but offered, so a re-run after a run that never
+   * pushed does not mean retyping it.
+   */
+  const previousTargetBranch = runHubCoordinates(
+    prefill?.spec.env
+  ).targetBranch;
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -673,6 +683,11 @@ export const CreateRunModal: React.FC<CreateRunModalProps> = ({
                         ? t("agentic.workflowRuns.targetBranchInvalid")
                         : t("agentic.bulkRun.targetBranchHelper")}
                     </HelperTextItem>
+                    <ReusePreviousBranch
+                      previousBranch={previousTargetBranch}
+                      currentBranch={targetBranch}
+                      onReuse={setTargetBranch}
+                    />
                   </HelperText>
                 </FormHelperText>
               </FormGroup>
