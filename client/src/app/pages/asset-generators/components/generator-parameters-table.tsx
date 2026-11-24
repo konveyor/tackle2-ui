@@ -114,10 +114,10 @@ const GeneratorParametersTable: React.FC<GeneratorParametersTableProps> = ({
                   item={item}
                   rowIndex={rowIndex}
                 >
-                  <Td width={70} {...getTdProps({ columnKey: "name" })}>
+                  <Td width={50} {...getTdProps({ columnKey: "name" })}>
                     {item.name}
                   </Td>
-                  <Td width={70} {...getTdProps({ columnKey: "default" })}>
+                  <Td width={50} {...getTdProps({ columnKey: "default" })}>
                     {item.default}
                   </Td>
                 </TableRowContentWithControls>
