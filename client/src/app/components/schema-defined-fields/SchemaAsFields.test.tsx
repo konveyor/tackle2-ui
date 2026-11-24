@@ -9,7 +9,7 @@ const schema: JsonSchemaObject = {
   type: "object",
   properties: {
     replicas: {
-      type: "integer",
+      type: "number",
       default: 2,
       description: "Number of pods",
     },

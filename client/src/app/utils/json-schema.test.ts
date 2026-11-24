@@ -1330,7 +1330,7 @@ describe("schemaDefaults", () => {
       schemaDefaults({
         type: "object",
         properties: {
-          replicas: { type: "integer", default: 2 },
+          replicas: { type: "number", default: 2 },
           enabled: { type: "boolean", default: true },
           storageSize: { type: "string", default: "1Gi" },
         },
@@ -1344,7 +1344,7 @@ describe("schemaDefaults", () => {
         type: "object",
         properties: {
           name: { type: "string" },
-          replicas: { type: "integer", default: 2 },
+          replicas: { type: "number", default: 2 },
         },
       })
     ).toEqual({ replicas: 2 });
