@@ -38,7 +38,7 @@ export const ParameterFields = forwardRef<
   const rows = useWatch({ control, name }) as GeneratorParameter[] | undefined;
 
   const handleAddField = () =>
-    append({ name: "", type: "string", default: "" });
+    append({ name: "", type: "string", default: "", description: "" });
 
   useImperativeHandle(ref, () => ({
     addField: handleAddField,
@@ -152,6 +152,15 @@ export const ParameterFields = forwardRef<
                 </Tooltip>
               </Bullseye>
             </GridItem>
+            <GridItem span={11}>
+              <InputField
+                control={control}
+                name={`${name}.${index}.description`}
+                label={t("terms.description")}
+                fieldId={`${name}-description-${index}`}
+              />
+            </GridItem>
+            <GridItem span={1} />
           </Fragment>
         ))}
       </Grid>

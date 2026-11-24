@@ -72,8 +72,7 @@ describe("ParameterFields", () => {
     expect(screen.getByText("No parameters to display")).toBeInTheDocument();
   });
 
-  // Each parameter row renders a Name box, a Type dropdown, and a Default value box.
-  it("exposes name, type, and default value fields for each parameter row", () => {
+  it("exposes name, type, default value, and description fields for each parameter row", () => {
     render(
       <FormWrapper params={[{ name: "env", type: "string", default: "dev" }]} />
     );
@@ -82,6 +81,7 @@ describe("ParameterFields", () => {
       screen.getByRole("button", { name: "terms.type" })
     ).toBeInTheDocument();
     expect(document.getElementById("params-value-0")).toBeInTheDocument();
+    expect(document.getElementById("params-description-0")).toBeInTheDocument();
   });
 
   // A boolean default is a true/false select rather than a free-text box.
