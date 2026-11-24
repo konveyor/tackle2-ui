@@ -43,6 +43,8 @@ import { CreateRunModal } from "./components/CreateRunModal";
 import { PhaseLabel } from "./components/PhaseLabel";
 import { RunConditionSummary } from "./components/RunConditionSummary";
 import { RunSkillsSummary } from "./components/RunSkillsSummary";
+import { VerificationPanel } from "./components/VerificationPanel";
+import { VerifiedLabel } from "./components/VerifiedLabel";
 
 import "./agent-runs.css";
 
@@ -147,6 +149,10 @@ const AgentRunDetailPage: React.FC = () => {
           description={
             <span className="run-phase-line">
               <PhaseLabel phase={agentRun.status?.phase} />
+              <VerifiedLabel
+                conditions={agentRun.status?.conditions}
+                showNotReported
+              />
               <RunConditionSummary
                 conditions={agentRun.status?.conditions}
                 phase={agentRun.status?.phase}
@@ -322,6 +328,10 @@ const AgentRunDetailPage: React.FC = () => {
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
+
+          <VerificationPanel
+            verification={agentRun.status?.terminationData?.verification}
+          />
 
           {coordinates.targetBranch && (
             <BranchPanel
