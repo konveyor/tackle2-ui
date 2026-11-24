@@ -36,7 +36,7 @@ const GeneratorParametersTable: React.FC<GeneratorParametersTableProps> = ({
     items: rows,
     columnNames: {
       name: t("terms.name"),
-      default: t("terms.default"),
+      default: t("terms.defaultValue"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -95,16 +95,8 @@ const GeneratorParametersTable: React.FC<GeneratorParametersTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th
-                {...getThProps({ columnKey: "name" })}
-                modifier="truncate"
-                width={60}
-              />
-              <Th
-                {...getThProps({ columnKey: "default" })}
-                modifier="truncate"
-                width={40}
-              />
+              <Th {...getThProps({ columnKey: "name" })} />
+              <Th {...getThProps({ columnKey: "default" })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -122,16 +114,10 @@ const GeneratorParametersTable: React.FC<GeneratorParametersTableProps> = ({
                   item={item}
                   rowIndex={rowIndex}
                 >
-                  <Td
-                    {...getTdProps({ columnKey: "name" })}
-                    modifier="truncate"
-                  >
+                  <Td width={70} {...getTdProps({ columnKey: "name" })}>
                     {item.name}
                   </Td>
-                  <Td
-                    {...getTdProps({ columnKey: "default" })}
-                    modifier="truncate"
-                  >
+                  <Td width={70} {...getTdProps({ columnKey: "default" })}>
                     {item.default}
                   </Td>
                 </TableRowContentWithControls>
